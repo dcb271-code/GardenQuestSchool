@@ -1,0 +1,14 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    @apply bg-cream text-bark font-body antialiased;
+    touch-action: manipulation;
+  }
+  button { touch-action: manipulation; }
+  /* iPad safari: disable callout on long-press */
+  * { -webkit-touch-callout: none; }
+}

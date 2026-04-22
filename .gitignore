@@ -30,3 +30,9 @@ tsconfig.tsbuildinfo
 # Local Supabase
 supabase/.temp/
 supabase/.branches/
+
+# Playwright
+test-results/
+playwright-report/
+
+.vercel
