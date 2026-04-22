@@ -22,8 +22,10 @@ export function createClient() {
 }
 
 export function createServiceClient() {
+  // At runtime on Vercel these are always set. Fallback to empty strings during
+  // build-time static analysis so `next build` doesn't crash before envs are wired.
   return createSupabaseClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.SUPABASE_SERVICE_ROLE_KEY!
+    process.env.NEXT_PUBLIC_SUPABASE_URL ?? '',
+    process.env.SUPABASE_SERVICE_ROLE_KEY ?? ''
   );
 }

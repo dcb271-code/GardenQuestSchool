@@ -1,6 +1,8 @@
 import { createServiceClient } from '@/lib/supabase/server';
 import ProfileTile from '@/components/child/ProfileTile';
 
+export const dynamic = 'force-dynamic';
+
 const avatarMap: Record<string, string> = {
   fox: '🦊', bunny: '🐰', cat: '🐈', butterfly: '🦋',
 };

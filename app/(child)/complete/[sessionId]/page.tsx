@@ -2,6 +2,8 @@ import { createServiceClient } from '@/lib/supabase/server';
 import DocumentationLine from '@/components/child/DocumentationLine';
 import Link from 'next/link';
 
+export const dynamic = 'force-dynamic';
+
 export default async function CompletePage({ params }: { params: { sessionId: string } }) {
   const db = createServiceClient();
 
