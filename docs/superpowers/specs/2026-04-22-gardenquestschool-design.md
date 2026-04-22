@@ -9,7 +9,7 @@
 
 ## 1. Executive Summary
 
-GardenQuestSchool is a personal learning web app for first graders, optimized for iPad. It teaches Reading, Spelling, and Math through a persistent "naturalist garden" world: the learner is a young scientist who builds habitats, attracts real species, and documents her discoveries in a field journal. Learning activities (expeditions) unlock habitat pieces, attract creatures, and earn virtue gems (Persistence, Curiosity, etc.) — but there is **no currency, no score, no streak, no leaderboard**.
+GardenQuestSchool is a personal learning web app for first graders, optimized for iPad. It teaches Reading, Spelling, Math, and Science/Nature through a persistent "naturalist garden" world: the learner is a young scientist who builds habitats, attracts real species, and documents her discoveries in a field journal. Learning activities (expeditions) unlock habitat pieces, attract creatures, and earn virtue gems (Persistence, Curiosity, etc.) — but there is **no currency, no score, no streak, no leaderboard**.
 
 The architecture is a **modular platform with pluggable subject packs**. V1 ships the platform plus a Math pack. Reading and Spelling packs follow with minimal platform changes.
 
@@ -40,7 +40,7 @@ The architecture is a **modular platform with pluggable subject packs**. V1 ship
 ## 3. Learner Profiles
 
 ### Cecily (V1 primary)
-- First grader, ~6-7 years old
+- First grader, 7 years old
 - **Reading:** transitioning from simple sentences to short books (approx. Fountas & Pinnell E/F)
 - **Spelling:** CVC + digraphs solid, starting two-syllable words
 - **Math:** fluent add/subtract within 20, ready for multiplication concepts via arrays and skip-counting
@@ -52,6 +52,7 @@ The architecture is a **modular platform with pluggable subject packs**. V1 ship
 
 ### Esme (fast-follow)
 - Will receive her own learner profile via the family tab
+- 3-4 years old, preschool, can count recognize letters and numbers, group.
 - Level will be set at onboarding (may differ from Cecily)
 - No code changes required to support her — the schema is multi-learner from day one
 
