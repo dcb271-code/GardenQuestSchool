@@ -20,7 +20,7 @@ export function createEventBus(): EventBus {
     emit(evt: EngineEvent) {
       const set = listeners.get(evt.type);
       if (!set) return;
-      for (const fn of set) (fn as (e: EngineEvent) => void)(evt);
+      set.forEach(fn => (fn as (e: EngineEvent) => void)(evt));
     },
   };
 }
