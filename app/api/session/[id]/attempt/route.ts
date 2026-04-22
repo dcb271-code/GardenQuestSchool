@@ -8,7 +8,7 @@ import {
 import type { MasteryState } from '@/lib/engine/types';
 
 const Body = z.object({
-  itemId: z.string().uuid(),
+  itemId: z.string().min(1),
   response: z.record(z.string(), z.any()),
   timeMs: z.number().int().nonnegative(),
   retries: z.number().int().nonnegative().default(0),

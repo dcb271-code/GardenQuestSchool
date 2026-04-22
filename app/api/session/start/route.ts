@@ -3,8 +3,8 @@ import { createServiceClient } from '@/lib/supabase/server';
 import { z } from 'zod';
 
 const Body = z.object({
-  learnerId: z.string().uuid(),
-  skillCode: z.string(),
+  learnerId: z.string().min(1),
+  skillCode: z.string().min(1),
 });
 
 export async function POST(req: Request) {
