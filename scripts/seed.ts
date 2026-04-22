@@ -105,17 +105,62 @@ async function main() {
     if (error) throw error;
   });
 
+  // Seed Cecily's baseline mastery to reflect her actual level (Math c).
+  // This opens up more expeditions on day 1; otherwise the planner only
+  // offers skills with zero prereqs (just counting-to-20).
+  await step('Cecily baseline mastery (math c)', async () => {
+    const mastered = ['math.counting.to_20', 'math.counting.to_50', 'math.add.within_10'];
+    const reviewing = ['math.subtract.within_10'];
+    const rows = [
+      ...mastered.map(code => ({
+        learner_id: CECILY_ID,
+        skill_id: skillIdByCode.get(code),
+        mastery_state: 'mastered',
+        leitner_box: 5,
+        student_elo: 1100,
+        total_attempts: 10,
+        total_correct: 10,
+        last_attempted_at: new Date().toISOString(),
+        next_review_at: new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString(),
+      })),
+      ...reviewing.map(code => ({
+        learner_id: CECILY_ID,
+        skill_id: skillIdByCode.get(code),
+        mastery_state: 'review',
+        leitner_box: 3,
+        student_elo: 1050,
+        total_attempts: 5,
+        total_correct: 4,
+        last_attempted_at: new Date().toISOString(),
+        next_review_at: new Date(Date.now() - 1 * 24 * 3600 * 1000).toISOString(),
+      })),
+    ].filter(r => r.skill_id);
+    const { error } = await sb.from('skill_progress')
+      .upsert(rows, { onConflict: 'learner_id,skill_id' });
+    if (error) throw error;
+  });
+
   // Wipe seed items from math pack skills and re-insert
   const mathSkillIds = MATH_SKILLS
     .map(s => skillIdByCode.get(s.code))
     .filter((x): x is string => !!x);
 
-  await step(`wipe previous seed items`, async () => {
-    const { error } = await sb.from('item')
-      .delete()
+  await step(`wipe previous seed items (and their attempts)`, async () => {
+    // Fetch seed item IDs first so we can null out FK references safely
+    const { data: seedItems } = await sb.from('item')
+      .select('id')
       .eq('generated_by', 'seed')
       .in('skill_id', mathSkillIds);
-    if (error) throw error;
+    const seedItemIds = (seedItems ?? []).map(r => r.id);
+
+    if (seedItemIds.length > 0) {
+      // Delete attempts referencing these items first (FK constraint)
+      const { error: aErr } = await sb.from('attempt').delete().in('item_id', seedItemIds);
+      if (aErr) throw aErr;
+
+      const { error: iErr } = await sb.from('item').delete().in('id', seedItemIds);
+      if (iErr) throw iErr;
+    }
   });
 
   const now = new Date().toISOString();
@@ -184,6 +229,125 @@ async function main() {
           approved_at: now,
           generated_by: 'seed',
           difficulty_elo: 950 + (a + b) * 5,
+        });
+      }
+    }
+  }
+
+  // CountingTiles for counting.to_50 (21..45 in steps of 2 → 13 items)
+  {
+    const id = skillIdByCode.get('math.counting.to_50');
+    if (id) {
+      const emojiSet = ['🐝', '🌼', '🐛', '🐞', '🦋', '🐜', '🌱', '🍄'];
+      for (let n = 21; n <= 45; n += 2) {
+        const emoji = emojiSet[(n - 21) % emojiSet.length];
+        items.push({
+          skill_id: id,
+          type: 'CountingTiles',
+          content: { type: 'CountingTiles', emoji, count: n, promptText: 'How many are there?' },
+          answer: { count: n },
+          approved_at: now,
+          generated_by: 'seed',
+          difficulty_elo: 1050 + n * 5,
+        });
+      }
+    }
+  }
+
+  // Skip-count by 2s — EquationTap with a sequence, answer is the missing number
+  {
+    const id = skillIdByCode.get('math.counting.skip_2s');
+    if (id) {
+      // sequences where one number is replaced with "?"
+      const seqs: Array<[number[], number, number]> = [
+        // [sequence-with-?-placeholder-as-null, answer, positionOfAnswer]
+        [[2, 4, 0, 8], 6, 2],
+        [[4, 6, 8, 0], 10, 3],
+        [[2, 0, 6, 8], 4, 1],
+        [[6, 8, 10, 0], 12, 3],
+        [[0, 4, 6, 8], 2, 0],
+        [[10, 12, 0, 16], 14, 2],
+        [[8, 10, 12, 0], 14, 3],
+        [[14, 16, 18, 0], 20, 3],
+        [[2, 4, 6, 0], 8, 3],
+        [[0, 8, 10, 12], 6, 0],
+      ];
+      for (const [seq, answer] of seqs) {
+        const display = seq.map(n => (n === 0 ? '?' : n.toString())).join(', ');
+        const distractors = [answer - 2, answer + 2, answer + 1].filter(n => n > 0 && n !== answer);
+        const choices = [answer, ...distractors].sort(() => Math.random() - 0.5);
+        items.push({
+          skill_id: id,
+          type: 'EquationTap',
+          content: {
+            type: 'EquationTap',
+            equation: display,
+            choices,
+            promptText: 'What number is missing?',
+          },
+          answer: { correct: answer },
+          approved_at: now,
+          generated_by: 'seed',
+          difficulty_elo: 1000 + answer * 2,
+        });
+      }
+    }
+  }
+
+  // Subtract within 10 — EquationTap
+  {
+    const id = skillIdByCode.get('math.subtract.within_10');
+    if (id) {
+      const pairs: Array<[number, number]> = [];
+      for (let a = 2; a <= 10; a++) for (let b = 1; b < a; b++) pairs.push([a, b]);
+      for (const [a, b] of pairs.slice(0, 15)) {
+        const diff = a - b;
+        const distractors = [diff - 1, diff + 1, a + b].filter(n => n > 0 && n !== diff);
+        const choices = [diff, ...distractors.slice(0, 3)].sort(() => Math.random() - 0.5);
+        items.push({
+          skill_id: id,
+          type: 'EquationTap',
+          content: {
+            type: 'EquationTap',
+            equation: `${a} − ${b} = ?`,
+            choices,
+            promptText: `${a} minus ${b} is?`,
+          },
+          answer: { correct: diff },
+          approved_at: now,
+          generated_by: 'seed',
+          difficulty_elo: 1000 + (a - b) * 5,
+        });
+      }
+    }
+  }
+
+  // Add within 20 (no crossing) — EquationTap, e.g., 12+3, 14+5 where units sum < 10
+  {
+    const id = skillIdByCode.get('math.add.within_20.no_crossing');
+    if (id) {
+      const pairs: Array<[number, number]> = [];
+      for (let a = 11; a <= 15; a++) for (let b = 1; b <= 4; b++) {
+        const ones = a % 10;
+        if (ones + b < 10) pairs.push([a, b]);
+      }
+      for (const [a, b] of pairs) {
+        const sum = a + b;
+        const distractors = [sum - 1, sum + 1, sum + 10].filter(n => n > 0 && n !== sum);
+        const choices = [sum, ...distractors.slice(0, 3)].sort(() => Math.random() - 0.5);
+        items.push({
+          skill_id: id,
+          type: 'EquationTap',
+          content: {
+            type: 'EquationTap',
+            equation: `${a} + ${b} = ?`,
+            choices,
+            promptText: `${a} plus ${b} is?`,
+          },
+          answer: { correct: sum },
+          approved_at: now,
+          generated_by: 'seed',
+          difficulty_elo: 1050 + (a + b) * 3,
         });
       }
     }

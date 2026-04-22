@@ -74,11 +74,11 @@ export default function LessonPage({ params }: { params: { sessionId: string } }
       {status === 'ready' && item && (
         <>
           {item.type === 'NumberBonds' &&
-            <NumberBonds content={item.content} onSubmit={submit} retries={retries} />}
+            <NumberBonds key={item.itemId} content={item.content} onSubmit={submit} retries={retries} />}
           {item.type === 'CountingTiles' &&
-            <CountingTiles content={item.content} onSubmit={submit} retries={retries} />}
+            <CountingTiles key={item.itemId} content={item.content} onSubmit={submit} retries={retries} />}
           {item.type === 'EquationTap' &&
-            <EquationTap content={item.content} onSubmit={submit} retries={retries} />}
+            <EquationTap key={item.itemId} content={item.content} onSubmit={submit} retries={retries} />}
           {retries > 0 && (
             <div className="text-center text-terracotta mt-4">
               Let&apos;s look at it again — this is the hard part before it gets easy.
