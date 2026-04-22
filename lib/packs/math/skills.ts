@@ -1,0 +1,32 @@
+import type { SkillDefinition } from '@/lib/engine/types';
+
+export const MATH_SKILLS: SkillDefinition[] = [
+  { code: 'math.counting.to_20', name: 'Count to 20', strandCode: 'counting', level: 0.1,
+    prereqSkillCodes: [], curriculumRefs: { ccss: 'K.CC.A.1' },
+    themeTags: ['counting', 'insects'], sortOrder: 1 },
+  { code: 'math.counting.to_50', name: 'Count to 50', strandCode: 'counting', level: 0.2,
+    prereqSkillCodes: ['math.counting.to_20'], curriculumRefs: { ccss: '1.NBT.A.1' },
+    themeTags: ['counting', 'plants'], sortOrder: 2 },
+  { code: 'math.counting.skip_2s', name: 'Skip count by 2s', strandCode: 'counting', level: 0.3,
+    prereqSkillCodes: ['math.counting.to_20'], curriculumRefs: { ccss: '2.NBT.A.2' },
+    themeTags: ['counting', 'patterns', 'insects'], sortOrder: 3 },
+
+  { code: 'math.add.within_10', name: 'Add within 10', strandCode: 'operations', level: 0.2,
+    prereqSkillCodes: ['math.counting.to_20'], curriculumRefs: { ccss: '1.OA.C.6' },
+    themeTags: ['add', 'insects'], sortOrder: 10 },
+  { code: 'math.subtract.within_10', name: 'Subtract within 10', strandCode: 'operations', level: 0.25,
+    prereqSkillCodes: ['math.add.within_10'], curriculumRefs: { ccss: '1.OA.C.6' },
+    themeTags: ['subtract', 'flowers'], sortOrder: 11 },
+  { code: 'math.add.within_20.no_crossing', name: 'Add within 20 (no regrouping)',
+    strandCode: 'operations', level: 0.35,
+    prereqSkillCodes: ['math.add.within_10'], curriculumRefs: { ccss: '1.OA.C.6' },
+    themeTags: ['add', 'bees'], sortOrder: 12 },
+  { code: 'math.add.within_20.crossing_ten', name: 'Add within 20 (crossing ten)',
+    strandCode: 'operations', level: 0.5,
+    prereqSkillCodes: ['math.add.within_20.no_crossing'], curriculumRefs: { ccss: '1.OA.C.6' },
+    themeTags: ['add', 'make_ten', 'butterflies'], sortOrder: 13 },
+  { code: 'math.number_bond.within_10', name: 'Number bonds to 10',
+    strandCode: 'operations', level: 0.3,
+    prereqSkillCodes: ['math.add.within_10'], curriculumRefs: { ccss: '1.OA.C.6' },
+    themeTags: ['bond', 'part_whole'], sortOrder: 14 },
+];
