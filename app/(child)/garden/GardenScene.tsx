@@ -3,73 +3,67 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import GardenGrid, { GARDEN_WIDTH, GARDEN_HEIGHT, type PlacedHabitatView } from '@/components/child/garden/GardenGrid';
-import LunaWanderer from '@/components/child/garden/LunaWanderer';
-import AmbientCreatures from '@/components/child/garden/AmbientCreatures';
-import HabitatTray, { type TrayItem } from '@/components/child/garden/HabitatTray';
-import ArrivalCard from '@/components/child/garden/ArrivalCard';
+import { motion } from 'framer-motion';
+import { GARDEN_STRUCTURES, MAP_WIDTH, MAP_HEIGHT } from '@/lib/world/gardenMap';
+import type { MapStructure } from '@/lib/world/gardenMap';
 import type { SpeciesData } from '@/lib/world/speciesCatalog';
-import type { GridPos } from '@/lib/world/gardenLayout';
+import ArrivalCard from '@/components/child/garden/ArrivalCard';
+import LunaWanderer from '@/components/child/garden/LunaWanderer';
+
+interface StructureState {
+  unlocked: boolean;
+  prereqDisplay: string;
+}
 
 export default function GardenScene({
   learnerId,
-  initialPlaced,
-  trayItems,
+  structureStates,
   pendingArrival,
 }: {
   learnerId: string;
-  initialPlaced: PlacedHabitatView[];
-  trayItems: TrayItem[];
+  structureStates: Record<string, StructureState>;
   pendingArrival: SpeciesData | null;
 }) {
   const router = useRouter();
-  const [placed, setPlaced] = useState<PlacedHabitatView[]>(initialPlaced);
-  const [tray, setTray] = useState<TrayItem[]>(trayItems);
-  const [activeCode, setActiveCode] = useState<string | null>(null);
   const [arrival, setArrival] = useState<SpeciesData | null>(pendingArrival);
-  const [error, setError] = useState<string | null>(null);
+  const [selected, setSelected] = useState<MapStructure | null>(null);
+  const [starting, setStarting] = useState(false);
 
-  const placeMode = activeCode !== null;
-
-  // Time-of-day tint
-  const hour = new Date().getHours();
-  const tintColor =
-    hour < 6 ? 'rgba(60, 60, 120, 0.25)' :
-    hour < 10 ? 'rgba(255, 210, 140, 0.15)' :
+  const hour = typeof window !== 'undefined' ? new Date().getHours() : 12;
+  const tint =
+    hour < 6 ? 'rgba(40, 50, 100, 0.35)' :
+    hour < 9 ? 'rgba(255, 200, 140, 0.15)' :
     hour < 17 ? 'transparent' :
-    hour < 20 ? 'rgba(255, 160, 100, 0.2)' :
-    'rgba(30, 30, 80, 0.3)';
+    hour < 20 ? 'rgba(255, 150, 90, 0.18)' :
+    'rgba(20, 25, 60, 0.35)';
 
-  const handleCellTap = async (pos: GridPos) => {
-    if (!activeCode) return;
-    setError(null);
-    const res = await fetch('/api/garden/place', {
+  const startSkill = async (skillCode: string) => {
+    setStarting(true);
+    const res = await fetch('/api/session/start', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ learnerId, habitatCode: activeCode, position: pos }),
+      body: JSON.stringify({ learnerId, skillCode }),
     });
-    if (!res.ok) {
-      const d = await res.json();
-      setError(d.error ?? 'could not place');
+    const { sessionId } = await res.json();
+    router.push(`/lesson/${sessionId}`);
+  };
+
+  const onStructureTap = (s: MapStructure) => {
+    const state = structureStates[s.code];
+    if (!state?.unlocked) {
+      setSelected(s);
       return;
     }
-    const d = await res.json();
-    const trayItem = tray.find(t => t.code === activeCode);
-    setPlaced(prev => [...prev, {
-      id: d.placed.id,
-      code: d.placed.code,
-      emoji: trayItem?.emoji ?? '🏠',
-      position: d.placed.position,
-    }]);
-    setTray(prev => prev.map(t => t.code === activeCode ? { ...t, placed: true } : t));
-    setActiveCode(null);
-    // Refresh server state so server-side arrival detection fires on next page view
-    router.refresh();
+    if (s.kind === 'skill' && s.skillCode) {
+      startSkill(s.skillCode);
+      return;
+    }
+    setSelected(s);
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <div className="flex items-center justify-between p-3 bg-cream">
+    <div className="min-h-screen bg-[#F5EBDC] flex flex-col">
+      <div className="flex items-center justify-between p-3 bg-cream/90 backdrop-blur border-b border-ochre/30">
         <Link
           href="/picker"
           className="text-2xl p-2 rounded-full bg-white border border-ochre"
@@ -78,46 +72,177 @@ export default function GardenScene({
         >←</Link>
         <h1 className="text-kid-md text-bark">🌿 My Garden</h1>
         <Link
-          href="/journal"
+          href={`/journal?learner=${learnerId}`}
           className="text-xl p-2 rounded-full bg-white border border-ochre"
           aria-label="journal"
           style={{ minWidth: 44, minHeight: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
         >📖</Link>
       </div>
 
-      <div className="flex-1 flex items-center justify-center p-2 overflow-hidden bg-gradient-to-b from-sky-200 via-cream to-sage/30">
+      <div className="flex-1 relative overflow-hidden">
         <svg
-          viewBox={`0 0 ${GARDEN_WIDTH} ${GARDEN_HEIGHT}`}
-          className="w-full h-auto max-h-[60vh]"
-          style={{ touchAction: 'manipulation' }}
+          viewBox={`0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`}
+          preserveAspectRatio="xMidYMid meet"
+          className="w-full h-full"
+          style={{ touchAction: 'manipulation', maxHeight: '78vh' }}
         >
           <defs>
-            <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#B8D4F0" />
-              <stop offset="60%" stopColor="#E8D5B7" />
+            <radialGradient id="readingZone" cx="20%" cy="30%" r="50%">
+              <stop offset="0%" stopColor="#E8D5B7" />
+              <stop offset="100%" stopColor="#B8D4A8" stopOpacity="0" />
+            </radialGradient>
+            <radialGradient id="mathZone" cx="85%" cy="30%" r="45%">
+              <stop offset="0%" stopColor="#F4CFA3" />
+              <stop offset="100%" stopColor="#B8D4A8" stopOpacity="0" />
+            </radialGradient>
+            <radialGradient id="bunnyZone" cx="18%" cy="80%" r="35%">
+              <stop offset="0%" stopColor="#C8B1A6" />
+              <stop offset="100%" stopColor="#B8D4A8" stopOpacity="0" />
+            </radialGradient>
+            <radialGradient id="waterZone" cx="85%" cy="82%" r="40%">
+              <stop offset="0%" stopColor="#A6D0D8" />
+              <stop offset="100%" stopColor="#B8D4A8" stopOpacity="0" />
+            </radialGradient>
+            <linearGradient id="meadowBase" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#C8E4B0" />
               <stop offset="100%" stopColor="#95B88F" />
             </linearGradient>
+            <pattern id="grassTexture" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+              <rect width="40" height="40" fill="transparent" />
+              <path d="M 4 36 Q 4 30 6 28" stroke="#7BA46F" strokeWidth="1.2" fill="none" opacity="0.55" />
+              <path d="M 20 38 Q 22 32 24 30" stroke="#7BA46F" strokeWidth="1.2" fill="none" opacity="0.5" />
+              <path d="M 32 36 Q 30 32 32 28" stroke="#7BA46F" strokeWidth="1.2" fill="none" opacity="0.55" />
+            </pattern>
           </defs>
-          <rect width={GARDEN_WIDTH} height={GARDEN_HEIGHT} fill="url(#skyGrad)" />
-          {/* soft ground texture: a few scattered flower tufts */}
-          {[[50, 380], [150, 390], [310, 385], [450, 380], [570, 388]].map(([x, y], i) => (
-            <text key={i} x={x} y={y} fontSize={18} style={{ pointerEvents: 'none', opacity: 0.8 }}>🌼</text>
+
+          <rect width={MAP_WIDTH} height={MAP_HEIGHT} fill="url(#meadowBase)" />
+          <rect width={MAP_WIDTH} height={MAP_HEIGHT} fill="url(#grassTexture)" />
+
+          <rect width={MAP_WIDTH} height={MAP_HEIGHT} fill="url(#readingZone)" />
+          <rect width={MAP_WIDTH} height={MAP_HEIGHT} fill="url(#mathZone)" />
+          <rect width={MAP_WIDTH} height={MAP_HEIGHT} fill="url(#bunnyZone)" />
+          <rect width={MAP_WIDTH} height={MAP_HEIGHT} fill="url(#waterZone)" />
+
+          {/* winding main path */}
+          <path
+            d="M 450 120 Q 500 250 420 360 Q 380 450 540 520 Q 680 560 720 470 Q 780 380 720 280 Q 680 200 780 160"
+            stroke="#E8D5B7" strokeWidth="44" fill="none" strokeLinecap="round" opacity="0.85"
+          />
+          <path
+            d="M 450 120 Q 500 250 420 360 Q 380 450 540 520 Q 680 560 720 470 Q 780 380 720 280 Q 680 200 780 160"
+            stroke="#D9C29B" strokeWidth="44" fill="none" strokeLinecap="round" strokeDasharray="2 20" opacity="0.5"
+          />
+          <path d="M 720 470 Q 820 540 940 620" stroke="#E8D5B7" strokeWidth="36" fill="none" strokeLinecap="round" opacity="0.8" />
+          <path d="M 540 520 Q 420 580 300 640" stroke="#E8D5B7" strokeWidth="36" fill="none" strokeLinecap="round" opacity="0.8" />
+
+          {/* pond */}
+          <g>
+            <ellipse cx="900" cy="640" rx="140" ry="80" fill="#8DB7C2" opacity="0.9" />
+            <ellipse cx="900" cy="640" rx="120" ry="64" fill="#A8CFD8" />
+            <ellipse cx="870" cy="625" rx="20" ry="6" fill="#FFFFFF" opacity="0.4" />
+            <ellipse cx="930" cy="655" rx="14" ry="5" fill="#FFFFFF" opacity="0.3" />
+          </g>
+
+          {/* trees NW (reading grove) */}
+          <g>
+            {[{cx:80,cy:100,r:50},{cx:130,cy:70,r:42},{cx:60,cy:160,r:38}].map((t,i) => (
+              <g key={i}>
+                <circle cx={t.cx} cy={t.cy} r={t.r} fill="#6B8E5A" />
+                <circle cx={t.cx - t.r * 0.3} cy={t.cy - t.r * 0.2} r={t.r * 0.3} fill="#8FB67A" opacity="0.7" />
+              </g>
+            ))}
+          </g>
+          <g>
+            {[{cx:1150,cy:80,r:48},{cx:1100,cy:120,r:40}].map((t,i) => (
+              <g key={i}>
+                <circle cx={t.cx} cy={t.cy} r={t.r} fill="#6B8E5A" />
+                <circle cx={t.cx - t.r * 0.3} cy={t.cy - t.r * 0.2} r={t.r * 0.3} fill="#8FB67A" opacity="0.7" />
+              </g>
+            ))}
+          </g>
+          {[[150,420],[200,500],[280,450],[520,280],[640,220],[620,400],[750,430],[480,620],[420,700],[620,680],[1000,440]].map(([x,y],i) => (
+            <g key={i}>
+              <circle cx={x} cy={y} r={6} fill="#E6B0D0" />
+              <circle cx={x} cy={y} r={2} fill="#FFD166" />
+            </g>
           ))}
 
-          <AmbientCreatures />
-          <GardenGrid placed={placed} placeMode={placeMode} onCellTap={handleCellTap} />
-          <LunaWanderer />
+          {/* zone labels */}
+          <text x="180" y="100" fontSize="14" fill="#6B4423" opacity="0.45" fontWeight="600" letterSpacing="2">READING GROVE</text>
+          <text x="920" y="70" fontSize="14" fill="#6B4423" opacity="0.45" fontWeight="600" letterSpacing="2">MATH MOUND</text>
+          <text x="150" y="770" fontSize="14" fill="#6B4423" opacity="0.45" fontWeight="600" letterSpacing="2">BUNNY GLADE</text>
+          <text x="830" y="770" fontSize="14" fill="#6B4423" opacity="0.45" fontWeight="600" letterSpacing="2">WATER&apos;S EDGE</text>
 
-          {/* time-of-day tint overlay */}
-          <rect width={GARDEN_WIDTH} height={GARDEN_HEIGHT} fill={tintColor} pointerEvents="none" />
+          {GARDEN_STRUCTURES.map(s => {
+            const state = structureStates[s.code] ?? { unlocked: false, prereqDisplay: '' };
+            return (
+              <Structure key={s.code} struct={s} unlocked={state.unlocked} onTap={() => onStructureTap(s)} />
+            );
+          })}
+
+          <LunaWanderer mapWidth={MAP_WIDTH} mapHeight={MAP_HEIGHT} />
+
+          <rect width={MAP_WIDTH} height={MAP_HEIGHT} fill={tint} pointerEvents="none" />
         </svg>
+
+        {selected && (
+          <div
+            className="absolute inset-0 bg-black/30 flex items-center justify-center p-6 z-20"
+            onClick={() => setSelected(null)}
+          >
+            <div
+              className="bg-cream border-4 border-terracotta rounded-3xl max-w-sm w-full p-5 space-y-3 text-center"
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="text-6xl">{selected.themeEmoji}</div>
+              <h3 className="text-kid-md font-bold text-bark">{selected.label}</h3>
+              {selected.subLabel && <div className="text-xs opacity-70">{selected.subLabel}</div>}
+
+              {!structureStates[selected.code]?.unlocked && (
+                <>
+                  <div className="bg-white/60 rounded-xl p-3 text-sm text-bark/80">
+                    Not yet — keep practicing:
+                    <div className="mt-1 font-semibold text-bark">{structureStates[selected.code]?.prereqDisplay}</div>
+                  </div>
+                  <button
+                    onClick={() => setSelected(null)}
+                    className="w-full bg-ochre/40 border-2 border-ochre rounded-full py-3 text-kid-sm"
+                    style={{ touchAction: 'manipulation', minHeight: 48 }}
+                  >
+                    OK
+                  </button>
+                </>
+              )}
+
+              {structureStates[selected.code]?.unlocked && selected.kind === 'skill' && selected.skillCode && (
+                <button
+                  onClick={() => startSkill(selected.skillCode!)}
+                  disabled={starting}
+                  className="w-full bg-forest text-white rounded-full py-4 text-kid-md disabled:opacity-50"
+                  style={{ touchAction: 'manipulation', minHeight: 60 }}
+                >
+                  {starting ? 'Starting…' : '🔍 Start exploration'}
+                </button>
+              )}
+
+              {structureStates[selected.code]?.unlocked && selected.kind === 'habitat' && (
+                <>
+                  <div className="bg-white/60 rounded-xl p-3 text-sm text-bark/80">
+                    You&apos;ve built this habitat. Creatures that like it may arrive when you visit next.
+                  </div>
+                  <button
+                    onClick={() => setSelected(null)}
+                    className="w-full bg-sage text-white rounded-full py-3 text-kid-sm"
+                    style={{ touchAction: 'manipulation', minHeight: 48 }}
+                  >
+                    Close
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        )}
       </div>
-
-      {error && (
-        <div className="bg-red-100 text-red-800 px-4 py-2 text-center text-sm">{error}</div>
-      )}
-
-      <HabitatTray items={tray} activeCode={activeCode} onActivate={setActiveCode} />
 
       {arrival && (
         <ArrivalCard
@@ -130,5 +255,82 @@ export default function GardenScene({
         />
       )}
     </div>
+  );
+}
+
+function Structure({
+  struct, unlocked, onTap,
+}: {
+  struct: MapStructure;
+  unlocked: boolean;
+  onTap: () => void;
+}) {
+  return (
+    <motion.g
+      whileHover={unlocked ? { scale: 1.08 } : { scale: 1.03 }}
+      whileTap={{ scale: 0.95 }}
+      onClick={onTap}
+      style={{ cursor: 'pointer', transformOrigin: `${struct.x}px ${struct.y}px` }}
+      role="button"
+      aria-label={`${struct.label}${unlocked ? '' : ' (locked)'}`}
+      tabIndex={0}
+    >
+      {unlocked && (
+        <motion.circle
+          cx={struct.x}
+          cy={struct.y}
+          r={struct.size * 0.8}
+          fill="#FFE89A"
+          opacity={0.35}
+          animate={{ opacity: [0.2, 0.45, 0.2] }}
+          transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+        />
+      )}
+      <ellipse
+        cx={struct.x}
+        cy={struct.y + struct.size * 0.35}
+        rx={struct.size * 0.45}
+        ry={struct.size * 0.12}
+        fill="#000"
+        opacity={unlocked ? 0.18 : 0.1}
+      />
+      <text
+        x={struct.x}
+        y={struct.y + struct.size * 0.35}
+        fontSize={struct.size}
+        textAnchor="middle"
+        style={{
+          userSelect: 'none',
+          filter: unlocked ? undefined : 'grayscale(1) brightness(0.7)',
+          opacity: unlocked ? 1 : 0.55,
+        }}
+      >
+        {struct.themeEmoji}
+      </text>
+      <g>
+        <rect
+          x={struct.x - 52}
+          y={struct.y + struct.size * 0.48}
+          width={104}
+          height={22}
+          rx={11}
+          fill={unlocked ? '#FFFFFF' : '#E5E5E5'}
+          stroke={unlocked ? '#E8A87C' : '#AAAAAA'}
+          strokeWidth={2}
+          opacity={0.95}
+        />
+        <text
+          x={struct.x}
+          y={struct.y + struct.size * 0.48 + 15}
+          fontSize={12}
+          textAnchor="middle"
+          fill={unlocked ? '#6B4423' : '#666666'}
+          fontWeight="700"
+          style={{ pointerEvents: 'none', userSelect: 'none' }}
+        >
+          {struct.label}
+        </text>
+      </g>
+    </motion.g>
   );
 }
