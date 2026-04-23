@@ -10,6 +10,7 @@ import { createClient } from '@supabase/supabase-js';
 import { config } from 'dotenv';
 import { MATH_STRANDS } from '../lib/packs/math/strands';
 import { MATH_SKILLS } from '../lib/packs/math/skills';
+import { seedReading } from './seed-reading';
 
 config({ path: '.env.local' });
 
@@ -25,6 +26,7 @@ const sb = createClient(SUPABASE_URL, SERVICE_ROLE);
 const PARENT_ID = '00000000-0000-0000-0000-000000000001';
 const CECILY_ID = '11111111-1111-1111-1111-111111111111';
 const SUBJECT_ID = '22222222-2222-2222-2222-222222222221';
+const READING_SUBJECT_ID = '22222222-2222-2222-2222-222222222222';
 
 const PARENT_EMAIL = 'dylan.c.brock@gmail.com';
 
@@ -58,6 +60,13 @@ async function main() {
   await step('subject (math)', async () => {
     const { error } = await sb.from('subject').upsert({
       id: SUBJECT_ID, code: 'math', name: 'Math', pack_version: '1.0.0',
+    }, { onConflict: 'code' });
+    if (error) throw error;
+  });
+
+  await step('subject (reading)', async () => {
+    const { error } = await sb.from('subject').upsert({
+      id: READING_SUBJECT_ID, code: 'reading', name: 'Reading', pack_version: '1.0.0',
     }, { onConflict: 'code' });
     if (error) throw error;
   });
@@ -105,12 +114,22 @@ async function main() {
     if (error) throw error;
   });
 
-  // Seed Cecily's baseline mastery to reflect her actual level (Math c).
+  await step('reading pack', async () => {
+    await seedReading(sb, READING_SUBJECT_ID, skillIdByCode);
+  });
+
+  // Seed Cecily's baseline mastery to reflect her actual level (Math c, Reading b→c).
   // This opens up more expeditions on day 1; otherwise the planner only
-  // offers skills with zero prereqs (just counting-to-20).
-  await step('Cecily baseline mastery (math c)', async () => {
-    const mastered = ['math.counting.to_20', 'math.counting.to_50', 'math.add.within_10'];
-    const reviewing = ['math.subtract.within_10'];
+  // offers skills with zero prereqs.
+  await step('Cecily baseline mastery (math c, reading b\u2192c)', async () => {
+    const mastered = [
+      'math.counting.to_20', 'math.counting.to_50', 'math.add.within_10',
+      'reading.phonics.cvc_blend',
+    ];
+    const reviewing = [
+      'math.subtract.within_10',
+      'reading.sight_words.dolch_primer',
+    ];
     const rows = [
       ...mastered.map(code => ({
         learner_id: CECILY_ID,

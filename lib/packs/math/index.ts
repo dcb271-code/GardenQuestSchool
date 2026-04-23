@@ -1,7 +1,11 @@
 import { MATH_SKILLS } from './skills';
 import { MATH_STRANDS } from './strands';
 import { MATH_THEMES, getThemeHeader } from './themes';
-import { scoreMathResponse } from './scoring';
+import { scoreNumberBonds, scoreCountingTiles, scoreEquationTap, scoreMathResponse } from './scoring';
+import NumberBonds from './rendering/NumberBonds';
+import CountingTiles from './rendering/CountingTiles';
+import EquationTap from './rendering/EquationTap';
+import type { ItemTypeMap } from '@/lib/packs/registry';
 
 export const MathPack = {
   id: 'math' as const,
@@ -19,7 +23,24 @@ export const MathPack = {
     return MATH_SKILLS.find(s => s.code === code)?.themeTags ?? [];
   },
 
-  // Plan 2 fills these in
-  generateItems: async () => { throw new Error('Plan 2: AI generation'); },
+  generateItems: async () => { throw new Error('Plan 3: AI generation'); },
   getPromptText: (item: any) => item.content?.promptText ?? '',
+};
+
+export const mathItemTypes: ItemTypeMap = {
+  NumberBonds: {
+    renderer: NumberBonds,
+    score: scoreNumberBonds,
+    getPromptText: (item) => item.content?.promptText ?? '',
+  },
+  CountingTiles: {
+    renderer: CountingTiles,
+    score: scoreCountingTiles,
+    getPromptText: (item) => item.content?.promptText ?? '',
+  },
+  EquationTap: {
+    renderer: EquationTap,
+    score: scoreEquationTap,
+    getPromptText: (item) => item.content?.promptText ?? item.content?.equation ?? '',
+  },
 };

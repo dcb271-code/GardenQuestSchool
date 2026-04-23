@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
 import { z } from 'zod';
-import { scoreMathResponse } from '@/lib/packs/math/scoring';
+import { scoreAnyItem } from '@/lib/packs';
 import {
   updateElo, computeMasteryTransition, promoteBox, demoteBox, nextReviewDate,
 } from '@/lib/engine';
@@ -29,7 +29,7 @@ export async function POST(
     .from('item').select('*').eq('id', body.itemId).single();
   if (!item) return NextResponse.json({ error: 'item not found' }, { status: 404 });
 
-  const { outcome } = scoreMathResponse(
+  const { outcome } = scoreAnyItem(
     {
       id: item.id, skillId: item.skill_id, type: item.type,
       content: item.content, answer: item.answer,

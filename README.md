@@ -38,9 +38,21 @@ A migration runner (`npm run db:migrate`) is wired for future migrations once `D
 
 ## Status
 
-- **Plan 1 — Foundations + First Playable Loop** — ✅ complete (except deploy)
-- **Plan 2 — Content Generation + Parent Zone** — pending
-- **Plan 3 — World Delight + Accessibility** — pending
+- **Plan 1 — Foundations + First Playable Loop** — ✅ complete + deployed
+- **Plan 2 — Reading Pack (V1.5)** — ✅ complete + deployed
+- **Plan 3 — Content Generation + Parent Zone** — pending
+- **Plan 4 — World Delight + Accessibility** — pending
+
+## Subject Packs
+
+Each pack implements a common contract (`SubjectPack`). V1.5 ships:
+
+- **Math** — 8 skills, 3 item types (NumberBonds, CountingTiles, EquationTap), ~110 items
+- **Reading** — 6 skills, 4 item types (SightWordTap, PhonemeBlend, DigraphSort, ReadAloudSimple), ~75 items
+
+Adding a new pack = new folder under `lib/packs/`, register its item types in `lib/packs/index.ts`. No engine changes.
+
+Audio narration via Web Speech API (browser-native). Runs on iPad Safari.
 
 ## Architecture
 
