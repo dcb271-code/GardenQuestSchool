@@ -37,4 +37,21 @@ describe('packs registry', () => {
     const item = mkItem('MysteryType', {}, {});
     expect(() => scoreAnyItem(item, {})).toThrow(/No handler registered/);
   });
+
+  it('returns Reading handlers for Reading item types', () => {
+    expect(getItemHandler('SightWordTap')).toBeDefined();
+    expect(getItemHandler('PhonemeBlend')).toBeDefined();
+    expect(getItemHandler('DigraphSort')).toBeDefined();
+    expect(getItemHandler('ReadAloudSimple')).toBeDefined();
+  });
+
+  it('scoreAnyItem dispatches to Reading pack', () => {
+    const item = mkItem(
+      'SightWordTap',
+      { type: 'SightWordTap', word: 'the', distractors: ['she'], promptText: '' },
+      { word: 'the' }
+    );
+    expect(scoreAnyItem(item, { chosen: 'the' })).toEqual({ outcome: 'correct' });
+    expect(scoreAnyItem(item, { chosen: 'she' })).toEqual({ outcome: 'incorrect' });
+  });
 });

@@ -1,13 +1,14 @@
 import type { Item, ScoreOutcome } from '@/lib/types';
 import type { ItemTypeHandler, ItemTypeMap } from './registry';
 import { mathItemTypes } from './math';
+import { readingItemTypes } from './reading';
 
 // Compose item types from all packs. Each pack's entries are merged.
 // If two packs claim the same type name, the later-imported wins — so
 // subject packs MUST use unique type names.
 const ALL_ITEM_TYPES: ItemTypeMap = {
   ...mathItemTypes,
-  // readingItemTypes are merged in once the Reading pack is registered (Task 17)
+  ...readingItemTypes,
 };
 
 export function getItemHandler(type: string): ItemTypeHandler | undefined {
