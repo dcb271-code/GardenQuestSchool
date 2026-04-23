@@ -1,7 +1,14 @@
 import { NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
 import { generateExpeditionCandidates } from '@/lib/engine';
-import { getThemeHeader } from '@/lib/packs/math/themes';
+import { getThemeHeader as getMathThemeHeader } from '@/lib/packs/math/themes';
+import { getReadingThemeHeader } from '@/lib/packs/reading/themes';
+
+function getThemeHeader(skillCode: string) {
+  if (skillCode.startsWith('math.')) return getMathThemeHeader(skillCode);
+  if (skillCode.startsWith('reading.')) return getReadingThemeHeader(skillCode);
+  return { title: skillCode, themeEmoji: '🌿', skillHint: '' };
+}
 import type { SkillDefinition, SkillProgressRow } from '@/lib/engine/types';
 
 export async function GET(req: Request) {
