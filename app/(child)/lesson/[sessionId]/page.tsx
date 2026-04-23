@@ -3,11 +3,12 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import LessonHeader from '@/components/child/LessonHeader';
-import { getItemHandler } from '@/lib/packs';
+import { getItemHandler, getPromptText } from '@/lib/packs';
+import { useNarrator } from '@/lib/audio/useNarrator';
 
 interface ItemPayload {
   itemId: string;
-  type: 'NumberBonds' | 'CountingTiles' | 'EquationTap';
+  type: string;
   content: any;
   audioUrl?: string;
 }
@@ -18,6 +19,19 @@ export default function LessonPage({ params }: { params: { sessionId: string } }
   const [status, setStatus] = useState<'loading' | 'ready' | 'feedback'>('loading');
   const [retries, setRetries] = useState(0);
   const startTime = useRef<number>(Date.now());
+
+  const promptText = item
+    ? getPromptText({
+        id: item.itemId,
+        skillId: '',
+        type: item.type,
+        content: item.content,
+        answer: {},
+        difficultyElo: 1000,
+        generatedBy: 'seed',
+      })
+    : '';
+  const { replay } = useNarrator(promptText);
 
   const endSession = useCallback(async () => {
     await fetch(`/api/session/${params.sessionId}/end`, { method: 'POST' });
@@ -65,7 +79,7 @@ export default function LessonPage({ params }: { params: { sessionId: string } }
     <main className="max-w-xl mx-auto p-4">
       <LessonHeader
         breadcrumb="🔍 Exploration"
-        onReplayAudio={() => {/* Plan 2 TTS wiring */}}
+        onReplayAudio={() => replay()}
         onWonder={() => {/* Plan 3 virtue detector */}}
       />
       {status === 'loading' && <div className="text-kid-md text-center py-12">…</div>}
