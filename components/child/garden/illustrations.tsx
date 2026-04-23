@@ -838,6 +838,12 @@ export function StructureIllustration({
     case 'math_butterfly_arrays':    return <ButterflyClusters x={x} y={y} size={size * 1.1} />;
     case 'math_number_bonds':        return <PartWholeFlower x={x} y={y} size={size * 1.05} />;
     case 'math_petal_falls':         return <PetalFalls x={x} y={y} size={size * 1.1} />;
+    // Grade 2 stretches — reuse existing illustrations thematically
+    case 'math_tens_tower':          return <WordStump x={x} y={y} size={size * 1.1} />;  // a "tower" of rings
+    case 'math_hundreds_hollow':     return <StoryLog x={x} y={y} size={size * 1.1} />;   // hollow log for 2-digit add
+    case 'math_array_orchard':       return <ButterflyClusters x={x} y={y} size={size * 1.1} />;
+    case 'math_compare_trees':       return <PartWholeFlower x={x} y={y} size={size * 1.05} />;
+    case 'math_word_stories':        return <StoryLog x={x} y={y} size={size * 1.1} />;
     default:                         return null;
   }
 }

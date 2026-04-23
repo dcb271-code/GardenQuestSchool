@@ -1,10 +1,15 @@
 import { MATH_SKILLS } from './skills';
 import { MATH_STRANDS } from './strands';
 import { MATH_THEMES, getThemeHeader } from './themes';
-import { scoreNumberBonds, scoreCountingTiles, scoreEquationTap, scoreMathResponse } from './scoring';
+import {
+  scoreNumberBonds, scoreCountingTiles, scoreEquationTap,
+  scoreNumberCompare, scorePlaceValueSplit, scoreMathResponse,
+} from './scoring';
 import NumberBonds from './rendering/NumberBonds';
 import CountingTiles from './rendering/CountingTiles';
 import EquationTap from './rendering/EquationTap';
+import NumberCompare from './rendering/NumberCompare';
+import PlaceValueSplit from './rendering/PlaceValueSplit';
 import type { ItemTypeMap } from '@/lib/packs/registry';
 
 export const MathPack = {
@@ -42,5 +47,15 @@ export const mathItemTypes: ItemTypeMap = {
     renderer: EquationTap,
     score: scoreEquationTap,
     getPromptText: (item) => item.content?.promptText ?? item.content?.equation ?? '',
+  },
+  NumberCompare: {
+    renderer: NumberCompare,
+    score: scoreNumberCompare,
+    getPromptText: (item) => item.content?.promptText ?? `Which is ${item.content?.left} compared to ${item.content?.right}?`,
+  },
+  PlaceValueSplit: {
+    renderer: PlaceValueSplit,
+    score: scorePlaceValueSplit,
+    getPromptText: (item) => item.content?.promptText ?? `Split ${item.content?.number} into place values.`,
   },
 };
