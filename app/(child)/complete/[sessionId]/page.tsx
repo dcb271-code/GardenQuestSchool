@@ -37,7 +37,9 @@ export default async function CompletePage({ params }: { params: { sessionId: st
 
   return (
     <main className="max-w-xl mx-auto p-6 space-y-5">
-      <h1 className="text-kid-lg text-center pt-4">✨ What you noticed today</h1>
+      <h1 className="font-display text-[34px] text-center pt-4 text-bark leading-tight" style={{ fontWeight: 600, letterSpacing: '-0.02em' }}>
+        <span className="italic font-[500]">what</span> you noticed today
+      </h1>
 
       <div className="space-y-3">
         {lines.map((l, i) => <DocumentationLine key={i} text={l} />)}
@@ -45,9 +47,14 @@ export default async function CompletePage({ params }: { params: { sessionId: st
 
       {(gems ?? []).length > 0 && (
         <div className="space-y-3 pt-2">
-          <div className="text-kid-sm opacity-70 text-center uppercase tracking-wider">Gems</div>
+          <div className="font-display italic text-[14px] text-bark/60 text-center tracking-[0.2em] uppercase">what the garden noticed</div>
           {(gems ?? []).map((g, i) => (
-            <VirtueGemMoment key={i} virtue={g.virtue} narrativeText={(g.evidence as any)?.narrativeText ?? ''} />
+            <VirtueGemMoment
+              key={i}
+              virtue={g.virtue}
+              narrativeText={(g.evidence as any)?.narrativeText ?? ''}
+              index={i}
+            />
           ))}
         </div>
       )}

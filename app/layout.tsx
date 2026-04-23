@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Nunito } from 'next/font/google';
+import { Nunito, Fraunces } from 'next/font/google';
 import AccessibilityApplier from '@/components/shared/AccessibilityApplier';
 import './globals.css';
 
@@ -7,6 +7,13 @@ const nunito = Nunito({
   subsets: ['latin'],
   weight: ['400', '600', '700', '800'],
   variable: '--font-nunito',
+});
+
+const fraunces = Fraunces({
+  subsets: ['latin'],
+  weight: ['500', '600', '700', '800'],
+  style: ['normal', 'italic'],
+  variable: '--font-fraunces',
 });
 
 export const metadata: Metadata = {
@@ -24,7 +31,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={nunito.variable}>
+    <html lang="en" className={`${nunito.variable} ${fraunces.variable}`}>
       <body>
         <AccessibilityApplier />
         {children}

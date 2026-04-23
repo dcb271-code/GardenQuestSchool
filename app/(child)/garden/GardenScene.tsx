@@ -3,13 +3,15 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { GARDEN_STRUCTURES, MAP_WIDTH, MAP_HEIGHT } from '@/lib/world/gardenMap';
 import type { MapStructure } from '@/lib/world/gardenMap';
 import type { SpeciesData } from '@/lib/world/speciesCatalog';
 import ArrivalCard from '@/components/child/garden/ArrivalCard';
 import LunaWanderer from '@/components/child/garden/LunaWanderer';
+import AmbientLayer from '@/components/child/garden/AmbientLayer';
 import { StructureIllustration, Tree, PineTree, Flower, GrassTuft } from '@/components/child/garden/illustrations';
+import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
 
 interface StructureState {
   unlocked: boolean;
@@ -26,9 +28,12 @@ export default function GardenScene({
   pendingArrival: SpeciesData | null;
 }) {
   const router = useRouter();
+  const { settings } = useAccessibilitySettings();
+  const reducedMotion = settings.reducedMotion;
   const [arrival, setArrival] = useState<SpeciesData | null>(pendingArrival);
   const [selected, setSelected] = useState<MapStructure | null>(null);
   const [starting, setStarting] = useState(false);
+  const [tappedCode, setTappedCode] = useState<string | null>(null);
 
   const hour = typeof window !== 'undefined' ? new Date().getHours() : 12;
   const tint =
@@ -55,6 +60,9 @@ export default function GardenScene({
       setSelected(s);
       return;
     }
+    // Trigger a petal burst on unlocked tap
+    setTappedCode(s.code);
+    window.setTimeout(() => setTappedCode(null), 700);
     if (s.kind === 'skill' && s.skillCode) {
       startSkill(s.skillCode);
       return;
@@ -71,7 +79,9 @@ export default function GardenScene({
           aria-label="back"
           style={{ minWidth: 44, minHeight: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
         >←</Link>
-        <h1 className="text-kid-md text-bark">🌿 My Garden</h1>
+        <h1 className="font-display text-[26px] text-bark" style={{ fontWeight: 600, letterSpacing: '-0.01em' }}>
+          <span className="italic">my</span> garden
+        </h1>
         <Link
           href={`/journal?learner=${learnerId}`}
           className="text-xl p-2 rounded-full bg-white border border-ochre"
@@ -140,25 +150,44 @@ export default function GardenScene({
           <g>
             <ellipse cx="900" cy="640" rx="140" ry="80" fill="#8DB7C2" opacity="0.9" />
             <ellipse cx="900" cy="640" rx="120" ry="64" fill="#A8CFD8" />
-            <ellipse cx="870" cy="625" rx="20" ry="6" fill="#FFFFFF" opacity="0.4" />
-            <ellipse cx="930" cy="655" rx="14" ry="5" fill="#FFFFFF" opacity="0.3" />
+            {/* slow shimmer highlights */}
+            <motion.ellipse
+              cx="870" cy="625" rx="20" ry="6" fill="#FFFFFF"
+              animate={reducedMotion ? undefined : { opacity: [0.2, 0.55, 0.2], scaleX: [1, 1.12, 1] }}
+              transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut' }}
+              style={{ transformOrigin: '870px 625px', opacity: 0.4 }}
+            />
+            <motion.ellipse
+              cx="930" cy="655" rx="14" ry="5" fill="#FFFFFF"
+              animate={reducedMotion ? undefined : { opacity: [0.15, 0.45, 0.15], scaleX: [1, 1.18, 1] }}
+              transition={{ duration: 6.5, delay: 1.2, repeat: Infinity, ease: 'easeInOut' }}
+              style={{ transformOrigin: '930px 655px', opacity: 0.3 }}
+            />
+            {/* concentric ripple, occasional */}
+            {!reducedMotion && (
+              <motion.ellipse
+                cx="895" cy="645" rx="18" ry="6" fill="none" stroke="#FFFFFF" strokeWidth="1"
+                animate={{ rx: [10, 40], ry: [3, 12], opacity: [0.7, 0] }}
+                transition={{ duration: 4.5, repeat: Infinity, ease: 'easeOut', repeatDelay: 3 }}
+              />
+            )}
           </g>
 
           {/* trees NW (reading grove) */}
-          <Tree x={80} y={100} size={100} variant={1} />
-          <PineTree x={170} y={80} size={90} />
-          <Tree x={50} y={200} size={80} variant={2} />
-          <Tree x={200} y={50} size={70} variant={3} />
+          <Sway x={80}   y={100} delay={0.0}><Tree x={80}  y={100} size={100} variant={1} /></Sway>
+          <Sway x={170}  y={80}  delay={0.6}><PineTree x={170} y={80} size={90} /></Sway>
+          <Sway x={50}   y={200} delay={1.2}><Tree x={50}  y={200} size={80} variant={2} /></Sway>
+          <Sway x={200}  y={50}  delay={1.8}><Tree x={200} y={50} size={70} variant={3} /></Sway>
           {/* trees NE (math mound backdrop) */}
-          <PineTree x={1140} y={70} size={100} />
-          <Tree x={1080} y={130} size={90} variant={1} />
-          <Tree x={1170} y={170} size={70} variant={2} />
+          <Sway x={1140} y={70}  delay={0.3}><PineTree x={1140} y={70} size={100} /></Sway>
+          <Sway x={1080} y={130} delay={0.9}><Tree x={1080} y={130} size={90} variant={1} /></Sway>
+          <Sway x={1170} y={170} delay={1.5}><Tree x={1170} y={170} size={70} variant={2} /></Sway>
           {/* SW corner tree (bunny glade) */}
-          <Tree x={70} y={680} size={90} variant={2} />
-          <Tree x={120} y={620} size={70} variant={3} />
+          <Sway x={70}   y={680} delay={2.1}><Tree x={70}  y={680} size={90} variant={2} /></Sway>
+          <Sway x={120}  y={620} delay={0.4}><Tree x={120} y={620} size={70} variant={3} /></Sway>
           {/* SE corner tree (water's edge) */}
-          <PineTree x={1150} y={550} size={85} />
-          <Tree x={1130} y={650} size={75} variant={1} />
+          <Sway x={1150} y={550} delay={1.0}><PineTree x={1150} y={550} size={85} /></Sway>
+          <Sway x={1130} y={650} delay={1.6}><Tree x={1130} y={650} size={75} variant={1} /></Sway>
           {/* meadow flower scatter */}
           <Flower x={150} y={420} size={11} color="#E6B0D0" />
           <Flower x={200} y={500} size={10} color="#FFD166" />
@@ -185,14 +214,31 @@ export default function GardenScene({
           <text x="150" y="770" fontSize="14" fill="#6B4423" opacity="0.45" fontWeight="600" letterSpacing="2">BUNNY GLADE</text>
           <text x="830" y="770" fontSize="14" fill="#6B4423" opacity="0.45" fontWeight="600" letterSpacing="2">WATER&apos;S EDGE</text>
 
+          <AmbientLayer reducedMotion={reducedMotion} />
+
           {GARDEN_STRUCTURES.map(s => {
             const state = structureStates[s.code] ?? { unlocked: false, prereqDisplay: '' };
             return (
-              <Structure key={s.code} struct={s} unlocked={state.unlocked} onTap={() => onStructureTap(s)} />
+              <Structure
+                key={s.code}
+                struct={s}
+                unlocked={state.unlocked}
+                onTap={() => onStructureTap(s)}
+                reducedMotion={reducedMotion}
+              />
             );
           })}
 
-          <LunaWanderer mapWidth={MAP_WIDTH} mapHeight={MAP_HEIGHT} />
+          {/* Petal burst on tap (unlocked) */}
+          <AnimatePresence>
+            {tappedCode && !reducedMotion && (() => {
+              const s = GARDEN_STRUCTURES.find(g => g.code === tappedCode);
+              if (!s) return null;
+              return <PetalBurst key={tappedCode} x={s.x} y={s.y} />;
+            })()}
+          </AnimatePresence>
+
+          <LunaWanderer mapWidth={MAP_WIDTH} mapHeight={MAP_HEIGHT} reducedMotion={reducedMotion} />
 
           <rect width={MAP_WIDTH} height={MAP_HEIGHT} fill={tint} pointerEvents="none" />
         </svg>
@@ -271,11 +317,12 @@ export default function GardenScene({
 }
 
 function Structure({
-  struct, unlocked, onTap,
+  struct, unlocked, onTap, reducedMotion = false,
 }: {
   struct: MapStructure;
   unlocked: boolean;
   onTap: () => void;
+  reducedMotion?: boolean;
 }) {
   return (
     <motion.g
@@ -287,16 +334,19 @@ function Structure({
       aria-label={`${struct.label}${unlocked ? '' : ' (locked)'}`}
       tabIndex={0}
     >
-      {unlocked && (
+      {unlocked && !reducedMotion && (
         <motion.circle
           cx={struct.x}
           cy={struct.y}
           r={struct.size * 0.85}
           fill="#FFE89A"
           opacity={0.3}
-          animate={{ opacity: [0.18, 0.4, 0.18] }}
-          transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+          animate={{ opacity: [0.18, 0.4, 0.18], r: [struct.size * 0.82, struct.size * 0.95, struct.size * 0.82] }}
+          transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
         />
+      )}
+      {unlocked && reducedMotion && (
+        <circle cx={struct.x} cy={struct.y} r={struct.size * 0.85} fill="#FFE89A" opacity={0.25} />
       )}
       <g
         style={{
@@ -331,5 +381,64 @@ function Structure({
         </text>
       </g>
     </motion.g>
+  );
+}
+
+function Sway({
+  x, y, delay = 0, children,
+}: {
+  x: number;
+  y: number;
+  delay?: number;
+  children: React.ReactNode;
+}) {
+  return (
+    <motion.g
+      style={{ transformOrigin: `${x}px ${y}px`, transformBox: 'fill-box' as any }}
+      animate={{ rotate: [-1.2, 1.2, -1.2] }}
+      transition={{ duration: 6 + (delay % 1.2), delay, repeat: Infinity, ease: 'easeInOut' }}
+    >
+      {children}
+    </motion.g>
+  );
+}
+
+// 8 petals bursting outward, fading as they drift — a pedagogically neutral
+// moment of delight ("the garden notices you"), not a reward.
+function PetalBurst({ x, y }: { x: number; y: number }) {
+  const petals = Array.from({ length: 8 }).map((_, i) => {
+    const angle = (i * Math.PI * 2) / 8;
+    const dx = Math.cos(angle) * 60;
+    const dy = Math.sin(angle) * 60;
+    const color = ['#FFB7C5', '#FFD166', '#E6B0D0', '#A675B0'][i % 4];
+    return { dx, dy, color, i };
+  });
+  return (
+    <g style={{ pointerEvents: 'none' }}>
+      {petals.map(p => (
+        <motion.ellipse
+          key={p.i}
+          cx={x}
+          cy={y}
+          rx={7}
+          ry={4}
+          fill={p.color}
+          initial={{ opacity: 0.9, x: 0, y: 0, scale: 0.5 }}
+          animate={{ opacity: 0, x: p.dx, y: p.dy, scale: 1.2 }}
+          transition={{ duration: 0.8, ease: 'easeOut' }}
+        />
+      ))}
+      <motion.circle
+        cx={x}
+        cy={y}
+        r={20}
+        fill="none"
+        stroke="#FFD166"
+        strokeWidth={2}
+        initial={{ r: 10, opacity: 0.8 }}
+        animate={{ r: 70, opacity: 0 }}
+        transition={{ duration: 0.7, ease: 'easeOut' }}
+      />
+    </g>
   );
 }
