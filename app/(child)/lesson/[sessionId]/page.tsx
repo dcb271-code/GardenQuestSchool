@@ -3,9 +3,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import LessonHeader from '@/components/child/LessonHeader';
-import NumberBonds from '@/lib/packs/math/rendering/NumberBonds';
-import CountingTiles from '@/lib/packs/math/rendering/CountingTiles';
-import EquationTap from '@/lib/packs/math/rendering/EquationTap';
+import { getItemHandler } from '@/lib/packs';
 
 interface ItemPayload {
   itemId: string;
@@ -71,21 +69,21 @@ export default function LessonPage({ params }: { params: { sessionId: string } }
         onWonder={() => {/* Plan 3 virtue detector */}}
       />
       {status === 'loading' && <div className="text-kid-md text-center py-12">…</div>}
-      {status === 'ready' && item && (
-        <>
-          {item.type === 'NumberBonds' &&
-            <NumberBonds key={item.itemId} content={item.content} onSubmit={submit} retries={retries} />}
-          {item.type === 'CountingTiles' &&
-            <CountingTiles key={item.itemId} content={item.content} onSubmit={submit} retries={retries} />}
-          {item.type === 'EquationTap' &&
-            <EquationTap key={item.itemId} content={item.content} onSubmit={submit} retries={retries} />}
-          {retries > 0 && (
-            <div className="text-center text-terracotta mt-4">
-              Let&apos;s look at it again — this is the hard part before it gets easy.
-            </div>
-          )}
-        </>
-      )}
+      {status === 'ready' && item && (() => {
+        const handler = getItemHandler(item.type);
+        if (!handler) return <div className="text-red-600">Unknown item type: {item.type}</div>;
+        const Renderer = handler.renderer;
+        return (
+          <>
+            <Renderer key={item.itemId} content={item.content} onSubmit={submit} retries={retries} />
+            {retries > 0 && (
+              <div className="text-center text-terracotta mt-4">
+                Let&apos;s look at it again — this is the hard part before it gets easy.
+              </div>
+            )}
+          </>
+        );
+      })()}
       {status === 'feedback' && (
         <div className="text-center text-forest text-kid-md py-12">✓</div>
       )}
