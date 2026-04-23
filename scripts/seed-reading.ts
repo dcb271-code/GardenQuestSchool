@@ -1,4 +1,13 @@
 #!/usr/bin/env tsx
+/**
+ * Reading pack seed — comprehensive Grade 2 buildout.
+ *
+ * Item types used: SightWordTap, PhonemeBlend, DigraphSort, ReadAloudSimple
+ *
+ * Covers: Dolch primer→3rd, CVC, digraphs, initial blends, silent-e,
+ * vowel teams (ee/ea, ai/ay, oa/ow), r-controlled, diphthongs,
+ * inflectional -ed/-ing, plurals, compound words, prefixes, oral reading.
+ */
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { READING_STRANDS } from '../lib/packs/reading/strands';
 import { READING_SKILLS } from '../lib/packs/reading/skills';
@@ -16,15 +25,34 @@ const DOLCH_FIRST_GRADE = [
   'every', 'fly', 'from', 'give', 'going', 'had', 'has', 'her',
   'him', 'his', 'how', 'just', 'know', 'let', 'live', 'may',
   'of', 'old', 'once', 'open', 'over', 'put', 'round', 'some',
-  'stop', 'take', 'thank', 'them', 'then', 'think', 'walk', 'were',
-  'when',
+  'stop', 'take', 'thank', 'them', 'then', 'think', 'walk', 'were', 'when',
+];
+
+const DOLCH_SECOND_GRADE = [
+  'always', 'around', 'because', 'been', 'before', 'best', 'both', 'buy',
+  'call', 'cold', 'does', "don't", 'fast', 'first', 'five', 'found',
+  'gave', 'goes', 'green', 'its', 'made', 'many', 'off', 'or',
+  'pull', 'read', 'right', 'sing', 'sit', 'sleep', 'tell', 'their',
+  'these', 'those', 'upon', 'us', 'use', 'very', 'wash', 'which',
+  'why', 'wish', 'work', 'would', 'write', 'your',
+];
+
+const DOLCH_THIRD_GRADE = [
+  'about', 'better', 'bring', 'carry', 'clean', 'cut', 'done', 'draw',
+  'drink', 'eight', 'fall', 'far', 'full', 'got', 'grow', 'hold',
+  'hot', 'hurt', 'if', 'keep', 'kind', 'laugh', 'light', 'long',
+  'much', 'myself', 'never', 'only', 'own', 'pick', 'seven', 'shall',
+  'show', 'six', 'small', 'start', 'ten', 'today', 'together', 'try', 'warm',
 ];
 
 const CVC_WORDS: string[][] = [
-  ['c', 'a', 't'], ['d', 'o', 'g'], ['b', 'a', 't'], ['m', 'a', 'p'],
-  ['p', 'i', 'g'], ['s', 'u', 'n'], ['f', 'i', 'sh'], ['c', 'u', 'p'],
-  ['h', 'a', 't'], ['r', 'e', 'd'], ['b', 'u', 'g'], ['l', 'i', 'p'],
-  ['n', 'e', 't'], ['j', 'e', 't'], ['p', 'a', 'n'], ['f', 'o', 'x'],
+  ['c','a','t'], ['d','o','g'], ['b','a','t'], ['m','a','p'],
+  ['p','i','g'], ['s','u','n'], ['f','i','sh'], ['c','u','p'],
+  ['h','a','t'], ['r','e','d'], ['b','u','g'], ['l','i','p'],
+  ['n','e','t'], ['j','e','t'], ['p','a','n'], ['f','o','x'],
+  ['m','o','p'], ['r','a','n'], ['w','i','g'], ['h','u','g'],
+  ['b','e','d'], ['p','e','n'], ['t','o','p'], ['w','e','b'],
+  ['d','i','g'], ['c','o','b'], ['s','i','t'], ['h','o','t'],
 ];
 
 const DIGRAPH_WORDS: Array<{ word: string; digraph: string; emoji: string }> = [
@@ -51,29 +79,202 @@ const DIGRAPH_WORDS: Array<{ word: string; digraph: string; emoji: string }> = [
   { word: 'thirty', digraph: 'th', emoji: '3️⃣' },
 ];
 
-// PhonemeBlend-style items for initial consonant blends (2-letter blend + vowel + consonant)
 const BLEND_WORDS: Array<{ phonemes: string[]; word: string }> = [
-  { phonemes: ['bl', 'o', 'b'], word: 'blob' },
-  { phonemes: ['cl', 'i', 'p'], word: 'clip' },
-  { phonemes: ['fl', 'a', 'g'], word: 'flag' },
-  { phonemes: ['gl', 'o', 'b'], word: 'glob' },
-  { phonemes: ['pl', 'u', 'm'], word: 'plum' },
-  { phonemes: ['sl', 'i', 'p'], word: 'slip' },
-  { phonemes: ['br', 'i', 'ck'], word: 'brick' },
-  { phonemes: ['cr', 'a', 'b'], word: 'crab' },
-  { phonemes: ['dr', 'u', 'm'], word: 'drum' },
-  { phonemes: ['fr', 'o', 'g'], word: 'frog' },
-  { phonemes: ['gr', 'a', 'b'], word: 'grab' },
-  { phonemes: ['pr', 'o', 'p'], word: 'prop' },
-  { phonemes: ['tr', 'i', 'p'], word: 'trip' },
-  { phonemes: ['sp', 'o', 't'], word: 'spot' },
-  { phonemes: ['st', 'o', 'p'], word: 'stop' },
-  { phonemes: ['sw', 'i', 'm'], word: 'swim' },
+  { phonemes: ['bl','o','b'], word: 'blob' },
+  { phonemes: ['cl','i','p'], word: 'clip' },
+  { phonemes: ['fl','a','g'], word: 'flag' },
+  { phonemes: ['gl','o','b'], word: 'glob' },
+  { phonemes: ['pl','u','m'], word: 'plum' },
+  { phonemes: ['sl','i','p'], word: 'slip' },
+  { phonemes: ['br','i','ck'], word: 'brick' },
+  { phonemes: ['cr','a','b'], word: 'crab' },
+  { phonemes: ['dr','u','m'], word: 'drum' },
+  { phonemes: ['fr','o','g'], word: 'frog' },
+  { phonemes: ['gr','a','b'], word: 'grab' },
+  { phonemes: ['pr','o','p'], word: 'prop' },
+  { phonemes: ['tr','i','p'], word: 'trip' },
+  { phonemes: ['sp','o','t'], word: 'spot' },
+  { phonemes: ['st','o','p'], word: 'stop' },
+  { phonemes: ['sw','i','m'], word: 'swim' },
+  { phonemes: ['bl','a','ck'], word: 'black' },
+  { phonemes: ['sn','a','p'], word: 'snap' },
+  { phonemes: ['sm','e','ll'], word: 'smell' },
+  { phonemes: ['sc','a','n'], word: 'scan' },
 ];
 
-const READ_ALOUD_WORDS = [
+const SILENT_E_PAIRS = [
+  { short: 'cap', long: 'cape' },
+  { short: 'mad', long: 'made' },
+  { short: 'pin', long: 'pine' },
+  { short: 'kit', long: 'kite' },
+  { short: 'hop', long: 'hope' },
+  { short: 'tub', long: 'tube' },
+  { short: 'cub', long: 'cube' },
+  { short: 'cut', long: 'cute' },
+  { short: 'tap', long: 'tape' },
+  { short: 'rat', long: 'rate' },
+  { short: 'dim', long: 'dime' },
+  { short: 'rob', long: 'robe' },
+  { short: 'not', long: 'note' },
+  { short: 'hid', long: 'hide' },
+];
+
+const VOWEL_EE_EA = [
+  { word: 'tree', pattern: 'ee', emoji: '🌳' },
+  { word: 'bee', pattern: 'ee', emoji: '🐝' },
+  { word: 'feet', pattern: 'ee', emoji: '🦶' },
+  { word: 'seed', pattern: 'ee', emoji: '🌱' },
+  { word: 'queen', pattern: 'ee', emoji: '👑' },
+  { word: 'green', pattern: 'ee', emoji: '🟢' },
+  { word: 'eat', pattern: 'ea', emoji: '🍽️' },
+  { word: 'leaf', pattern: 'ea', emoji: '🍃' },
+  { word: 'beach', pattern: 'ea', emoji: '🏖️' },
+  { word: 'team', pattern: 'ea', emoji: '👥' },
+  { word: 'read', pattern: 'ea', emoji: '📖' },
+  { word: 'sea', pattern: 'ea', emoji: '🌊' },
+];
+
+const VOWEL_AI_AY = [
+  { word: 'rain', pattern: 'ai', emoji: '🌧️' },
+  { word: 'train', pattern: 'ai', emoji: '🚂' },
+  { word: 'snail', pattern: 'ai', emoji: '🐌' },
+  { word: 'mail', pattern: 'ai', emoji: '📬' },
+  { word: 'paint', pattern: 'ai', emoji: '🎨' },
+  { word: 'sail', pattern: 'ai', emoji: '⛵' },
+  { word: 'day', pattern: 'ay', emoji: '☀️' },
+  { word: 'play', pattern: 'ay', emoji: '🎮' },
+  { word: 'hay', pattern: 'ay', emoji: '🌾' },
+  { word: 'tray', pattern: 'ay', emoji: '🍽️' },
+  { word: 'spray', pattern: 'ay', emoji: '💦' },
+  { word: 'way', pattern: 'ay', emoji: '➡️' },
+];
+
+const VOWEL_OA_OW = [
+  { word: 'boat', pattern: 'oa', emoji: '⛵' },
+  { word: 'coat', pattern: 'oa', emoji: '🧥' },
+  { word: 'road', pattern: 'oa', emoji: '🛣️' },
+  { word: 'goat', pattern: 'oa', emoji: '🐐' },
+  { word: 'toast', pattern: 'oa', emoji: '🍞' },
+  { word: 'soap', pattern: 'oa', emoji: '🧼' },
+  { word: 'snow', pattern: 'ow', emoji: '❄️' },
+  { word: 'grow', pattern: 'ow', emoji: '🌱' },
+  { word: 'bow', pattern: 'ow', emoji: '🎀' },
+  { word: 'slow', pattern: 'ow', emoji: '🐢' },
+  { word: 'yellow', pattern: 'ow', emoji: '💛' },
+  { word: 'window', pattern: 'ow', emoji: '🪟' },
+];
+
+const R_CONTROLLED = [
+  { word: 'car', pattern: 'ar', emoji: '🚗' },
+  { word: 'star', pattern: 'ar', emoji: '⭐' },
+  { word: 'park', pattern: 'ar', emoji: '🏞️' },
+  { word: 'yard', pattern: 'ar', emoji: '🌳' },
+  { word: 'bird', pattern: 'ir', emoji: '🐦' },
+  { word: 'girl', pattern: 'ir', emoji: '👧' },
+  { word: 'shirt', pattern: 'ir', emoji: '👕' },
+  { word: 'first', pattern: 'ir', emoji: '🥇' },
+  { word: 'corn', pattern: 'or', emoji: '🌽' },
+  { word: 'horn', pattern: 'or', emoji: '📯' },
+  { word: 'horse', pattern: 'or', emoji: '🐴' },
+  { word: 'fork', pattern: 'or', emoji: '🍴' },
+  { word: 'her', pattern: 'er', emoji: '👩' },
+  { word: 'river', pattern: 'er', emoji: '🏞️' },
+  { word: 'butter', pattern: 'er', emoji: '🧈' },
+  { word: 'flower', pattern: 'er', emoji: '🌸' },
+  { word: 'turn', pattern: 'ur', emoji: '↪️' },
+  { word: 'burn', pattern: 'ur', emoji: '🔥' },
+  { word: 'purple', pattern: 'ur', emoji: '🟣' },
+  { word: 'curl', pattern: 'ur', emoji: '➰' },
+];
+
+const DIPHTHONGS = [
+  { word: 'coin', pattern: 'oi', emoji: '🪙' },
+  { word: 'oil', pattern: 'oi', emoji: '🫒' },
+  { word: 'join', pattern: 'oi', emoji: '🤝' },
+  { word: 'boil', pattern: 'oi', emoji: '♨️' },
+  { word: 'toy', pattern: 'oy', emoji: '🧸' },
+  { word: 'boy', pattern: 'oy', emoji: '👦' },
+  { word: 'joy', pattern: 'oy', emoji: '😊' },
+  { word: 'soy', pattern: 'oy', emoji: '🫘' },
+  { word: 'cloud', pattern: 'ou', emoji: '☁️' },
+  { word: 'loud', pattern: 'ou', emoji: '🔊' },
+  { word: 'mouse', pattern: 'ou', emoji: '🐭' },
+  { word: 'house', pattern: 'ou', emoji: '🏠' },
+  { word: 'cow', pattern: 'ow', emoji: '🐄' },
+  { word: 'owl', pattern: 'ow', emoji: '🦉' },
+  { word: 'brown', pattern: 'ow', emoji: '🟤' },
+  { word: 'crown', pattern: 'ow', emoji: '👑' },
+];
+
+const ED_ING_WORDS = [
+  { base: 'play', ed: 'played', ing: 'playing' },
+  { base: 'jump', ed: 'jumped', ing: 'jumping' },
+  { base: 'walk', ed: 'walked', ing: 'walking' },
+  { base: 'look', ed: 'looked', ing: 'looking' },
+  { base: 'paint', ed: 'painted', ing: 'painting' },
+  { base: 'rain', ed: 'rained', ing: 'raining' },
+  { base: 'talk', ed: 'talked', ing: 'talking' },
+  { base: 'help', ed: 'helped', ing: 'helping' },
+  { base: 'wait', ed: 'waited', ing: 'waiting' },
+  { base: 'cook', ed: 'cooked', ing: 'cooking' },
+];
+
+const PLURAL_WORDS = [
+  { singular: 'cat', plural: 'cats', rule: 's' },
+  { singular: 'dog', plural: 'dogs', rule: 's' },
+  { singular: 'frog', plural: 'frogs', rule: 's' },
+  { singular: 'book', plural: 'books', rule: 's' },
+  { singular: 'tree', plural: 'trees', rule: 's' },
+  { singular: 'bee', plural: 'bees', rule: 's' },
+  { singular: 'bus', plural: 'buses', rule: 'es' },
+  { singular: 'box', plural: 'boxes', rule: 'es' },
+  { singular: 'dish', plural: 'dishes', rule: 'es' },
+  { singular: 'fox', plural: 'foxes', rule: 'es' },
+  { singular: 'match', plural: 'matches', rule: 'es' },
+  { singular: 'glass', plural: 'glasses', rule: 'es' },
+];
+
+const COMPOUND_WORDS: Array<[string, string, string]> = [
+  ['sun', 'flower', 'sunflower'],
+  ['butter', 'fly', 'butterfly'],
+  ['rain', 'bow', 'rainbow'],
+  ['bed', 'room', 'bedroom'],
+  ['foot', 'ball', 'football'],
+  ['back', 'pack', 'backpack'],
+  ['sand', 'box', 'sandbox'],
+  ['gold', 'fish', 'goldfish'],
+  ['snow', 'man', 'snowman'],
+  ['fire', 'fly', 'firefly'],
+  ['star', 'fish', 'starfish'],
+  ['lady', 'bug', 'ladybug'],
+];
+
+const PREFIX_WORDS = [
+  { base: 'happy', prefixed: 'unhappy', prefix: 'un' },
+  { base: 'kind', prefixed: 'unkind', prefix: 'un' },
+  { base: 'safe', prefixed: 'unsafe', prefix: 'un' },
+  { base: 'lock', prefixed: 'unlock', prefix: 'un' },
+  { base: 'fair', prefixed: 'unfair', prefix: 'un' },
+  { base: 'wrap', prefixed: 'unwrap', prefix: 'un' },
+  { base: 'do', prefixed: 'redo', prefix: 're' },
+  { base: 'play', prefixed: 'replay', prefix: 're' },
+  { base: 'read', prefixed: 'reread', prefix: 're' },
+  { base: 'use', prefixed: 'reuse', prefix: 're' },
+  { base: 'fill', prefixed: 'refill', prefix: 're' },
+  { base: 'write', prefixed: 'rewrite', prefix: 're' },
+];
+
+const READ_ALOUD_SHORT = [
   'cat', 'dog', 'sun', 'map', 'bug', 'hat', 'red', 'fish',
   'ship', 'chip', 'milk', 'book', 'pond', 'frog', 'cake',
+  'hop', 'jump', 'sip', 'cup', 'log', 'bird', 'rock',
+];
+
+const READ_ALOUD_LONGER = [
+  'butter', 'flower', 'rabbit', 'garden', 'butterfly', 'sunshine',
+  'careful', 'mitten', 'kitten', 'picnic', 'paper', 'puddle',
+  'window', 'yellow', 'pillow', 'apple', 'little', 'lovely',
+  'morning', 'number', 'summer', 'winter', 'fifteen', 'twenty',
 ];
 
 export async function seedReading(
@@ -83,10 +284,7 @@ export async function seedReading(
 ): Promise<void> {
   for (const s of READING_STRANDS) {
     const { error } = await sb.from('strand').upsert({
-      subject_id: subjectId,
-      code: s.code,
-      name: s.name,
-      sort_order: s.sortOrder,
+      subject_id: subjectId, code: s.code, name: s.name, sort_order: s.sortOrder,
     }, { onConflict: 'subject_id,code' });
     if (error) throw error;
   }
@@ -99,14 +297,10 @@ export async function seedReading(
     const strandId = strandIdByCode.get(sk.strandCode);
     if (!strandId) continue;
     const { error } = await sb.from('skill').upsert({
-      strand_id: strandId,
-      code: sk.code,
-      name: sk.name,
-      level: sk.level,
+      strand_id: strandId, code: sk.code, name: sk.name, level: sk.level,
       prereq_skill_codes: sk.prereqSkillCodes,
       curriculum_refs: sk.curriculumRefs ?? {},
-      theme_tags: sk.themeTags,
-      sort_order: sk.sortOrder,
+      theme_tags: sk.themeTags, sort_order: sk.sortOrder,
     }, { onConflict: 'code' });
     if (error) throw error;
   }
@@ -130,193 +324,336 @@ export async function seedReading(
   const now = new Date().toISOString();
   const items: any[] = [];
 
+  const push = (skillCode: string, type: string, content: any, answer: any, elo: number) => {
+    const id = skillIdByCode.get(skillCode);
+    if (!id) return;
+    items.push({
+      skill_id: id, type, content, answer,
+      approved_at: now, generated_by: 'seed', difficulty_elo: elo,
+    });
+  };
+
   const SIGHT_PROMPTS = [
     (w: string) => `Which word says "${w}"?`,
     (w: string) => `Tap "${w}".`,
     (w: string) => `Find the word "${w}".`,
     (w: string) => `Where is "${w}"?`,
+    (w: string) => `Show me "${w}".`,
   ];
 
-  // SightWordTap: Dolch Primer — add 3 distractors (not 2) for more variety
-  {
-    const id = skillIdByCode.get('reading.sight_words.dolch_primer');
-    if (id) {
-      for (let i = 0; i < Math.min(30, DOLCH_PRIMER.length); i++) {
-        const word = DOLCH_PRIMER[i];
-        const pool = DOLCH_PRIMER.filter(w => w !== word);
-        const distractors = [
-          pool[(i * 3) % pool.length],
-          pool[(i * 7 + 1) % pool.length],
-          pool[(i * 11 + 2) % pool.length],
-        ];
-        const prompt = SIGHT_PROMPTS[i % SIGHT_PROMPTS.length](word);
-        items.push({
-          skill_id: id,
-          type: 'SightWordTap',
-          content: {
-            type: 'SightWordTap',
-            word,
-            distractors,
-            promptText: prompt,
-          },
-          answer: { word },
-          approved_at: now,
-          generated_by: 'seed',
-          difficulty_elo: 950 + i * 5,
-        });
-      }
-    }
-  }
-
-  // SightWordTap: Dolch First Grade — add 3 distractors + varied prompts
-  {
-    const id = skillIdByCode.get('reading.sight_words.dolch_first_grade');
-    if (id) {
-      for (let i = 0; i < Math.min(30, DOLCH_FIRST_GRADE.length); i++) {
-        const word = DOLCH_FIRST_GRADE[i];
-        const pool = DOLCH_FIRST_GRADE.filter(w => w !== word);
-        const distractors = [
-          pool[(i * 3) % pool.length],
-          pool[(i * 5 + 2) % pool.length],
-          pool[(i * 9 + 4) % pool.length],
-        ];
-        const prompt = SIGHT_PROMPTS[i % SIGHT_PROMPTS.length](word);
-        items.push({
-          skill_id: id,
-          type: 'SightWordTap',
-          content: {
-            type: 'SightWordTap',
-            word,
-            distractors,
-            promptText: prompt,
-          },
-          answer: { word },
-          approved_at: now,
-          generated_by: 'seed',
-          difficulty_elo: 1050 + i * 5,
-        });
-      }
-    }
-  }
-
-  // PhonemeBlend: CVC words
-  {
-    const id = skillIdByCode.get('reading.phonics.cvc_blend');
-    if (id) {
-      const blendedWords = CVC_WORDS.map(p => p.join(''));
-      for (let i = 0; i < CVC_WORDS.length; i++) {
-        const phonemes = CVC_WORDS[i];
-        const word = phonemes.join('');
-        const pool = blendedWords.filter(w => w !== word);
-        const distractors = [pool[(i * 3) % pool.length], pool[(i * 7 + 1) % pool.length]];
-        items.push({
-          skill_id: id,
-          type: 'PhonemeBlend',
-          content: {
-            type: 'PhonemeBlend',
-            phonemes,
-            word,
-            distractors,
-            promptText: 'Blend the sounds and pick the word.',
-          },
-          answer: { word },
-          approved_at: now,
-          generated_by: 'seed',
-          difficulty_elo: 950 + i * 5,
-        });
-      }
-    }
-  }
-
-  // DigraphSort — generate many rounds with varied word combinations
-  {
-    const id = skillIdByCode.get('reading.phonics.digraphs');
-    if (id) {
-      const grouped: Record<string, typeof DIGRAPH_WORDS> = { ch: [], sh: [], th: [] };
-      for (const w of DIGRAPH_WORDS) grouped[w.digraph].push(w);
-      const rounds = Math.min(grouped.ch.length, grouped.sh.length, grouped.th.length);
-      const prompts = [
-        'Put each word in the right bucket.',
-        'Which digraph is in each word?',
-        'Sort by the special letter pair.',
-        'Drop each word where it belongs.',
+  function sightWordItems(skillCode: string, words: string[], startElo: number) {
+    for (let i = 0; i < words.length; i++) {
+      const word = words[i];
+      const pool = words.filter(w => w !== word);
+      const distractors = [
+        pool[(i * 3) % pool.length],
+        pool[(i * 7 + 1) % pool.length],
+        pool[(i * 11 + 2) % pool.length],
       ];
-      for (let r = 0; r < rounds; r++) {
-        const roundWords = [grouped.ch[r], grouped.sh[r], grouped.th[r]];
-        items.push({
-          skill_id: id,
-          type: 'DigraphSort',
-          content: {
-            type: 'DigraphSort',
-            digraphs: ['ch', 'sh', 'th'],
-            words: roundWords.map(w => ({ word: w.word, emoji: w.emoji, digraph: w.digraph })),
-            promptText: prompts[r % prompts.length],
-          },
-          answer: {
-            placements: Object.fromEntries(roundWords.map(w => [w.word, w.digraph])),
-          },
-          approved_at: now,
-          generated_by: 'seed',
-          difficulty_elo: 1050 + r * 10,
-        });
-      }
+      push(skillCode, 'SightWordTap', {
+        type: 'SightWordTap', word, distractors,
+        promptText: SIGHT_PROMPTS[i % SIGHT_PROMPTS.length](word),
+      }, { word }, startElo + i * 3);
     }
   }
 
-  // Initial consonant blends — PhonemeBlend items
+  sightWordItems('reading.sight_words.dolch_primer', DOLCH_PRIMER, 950);
+  sightWordItems('reading.sight_words.dolch_first_grade', DOLCH_FIRST_GRADE, 1050);
+  sightWordItems('reading.sight_words.dolch_second_grade', DOLCH_SECOND_GRADE, 1200);
+  sightWordItems('reading.sight_words.dolch_third_grade', DOLCH_THIRD_GRADE, 1350);
+
+  // CVC blending
   {
-    const id = skillIdByCode.get('reading.phonics.initial_blends');
-    if (id) {
-      const allWords = BLEND_WORDS.map(b => b.word);
-      for (let i = 0; i < BLEND_WORDS.length; i++) {
-        const { phonemes, word } = BLEND_WORDS[i];
-        const pool = allWords.filter(w => w !== word);
-        const distractors = [pool[(i * 3) % pool.length], pool[(i * 5 + 2) % pool.length]];
-        items.push({
-          skill_id: id,
-          type: 'PhonemeBlend',
-          content: {
-            type: 'PhonemeBlend',
-            phonemes,
-            word,
-            distractors,
-            promptText: 'Blend the sounds and pick the word.',
-          },
-          answer: { word },
-          approved_at: now,
-          generated_by: 'seed',
-          difficulty_elo: 1100 + i * 5,
-        });
-      }
+    const blendedWords = CVC_WORDS.map(p => p.join(''));
+    for (let i = 0; i < CVC_WORDS.length; i++) {
+      const phonemes = CVC_WORDS[i];
+      const word = phonemes.join('');
+      const pool = blendedWords.filter(w => w !== word);
+      const distractors = [pool[(i * 3) % pool.length], pool[(i * 7 + 1) % pool.length]];
+      push('reading.phonics.cvc_blend', 'PhonemeBlend', {
+        type: 'PhonemeBlend', phonemes, word, distractors,
+        promptText: 'Blend the sounds and pick the word.',
+      }, { word }, 950 + i * 3);
     }
   }
 
-  // ReadAloudSimple
+  // Digraph sort
   {
-    const id = skillIdByCode.get('reading.read_aloud.simple');
-    if (id) {
-      for (let i = 0; i < READ_ALOUD_WORDS.length; i++) {
-        const word = READ_ALOUD_WORDS[i];
-        items.push({
-          skill_id: id,
-          type: 'ReadAloudSimple',
-          content: {
-            type: 'ReadAloudSimple',
-            word,
-            promptText: 'Say it out loud.',
-          },
-          answer: {},
-          approved_at: now,
-          generated_by: 'seed',
-          difficulty_elo: 950 + word.length * 10,
-        });
-      }
+    const grouped: Record<string, typeof DIGRAPH_WORDS> = { ch: [], sh: [], th: [] };
+    for (const w of DIGRAPH_WORDS) grouped[w.digraph].push(w);
+    const rounds = Math.min(grouped.ch.length, grouped.sh.length, grouped.th.length);
+    const prompts = [
+      'Put each word in the right bucket.',
+      'Which digraph is in each word?',
+      'Sort by the special letter pair.',
+      'Drop each word where it belongs.',
+    ];
+    for (let r = 0; r < rounds; r++) {
+      const roundWords = [grouped.ch[r], grouped.sh[r], grouped.th[r]];
+      push('reading.phonics.digraphs', 'DigraphSort', {
+        type: 'DigraphSort',
+        digraphs: ['ch', 'sh', 'th'],
+        words: roundWords.map(w => ({ word: w.word, emoji: w.emoji, digraph: w.digraph })),
+        promptText: prompts[r % prompts.length],
+      }, {
+        placements: Object.fromEntries(roundWords.map(w => [w.word, w.digraph])),
+      }, 1050 + r * 10);
     }
+  }
+
+  // Initial blends
+  {
+    const allWords = BLEND_WORDS.map(b => b.word);
+    for (let i = 0; i < BLEND_WORDS.length; i++) {
+      const { phonemes, word } = BLEND_WORDS[i];
+      const pool = allWords.filter(w => w !== word);
+      const distractors = [pool[(i * 3) % pool.length], pool[(i * 5 + 2) % pool.length]];
+      push('reading.phonics.initial_blends', 'PhonemeBlend', {
+        type: 'PhonemeBlend', phonemes, word, distractors,
+        promptText: 'Blend the sounds and pick the word.',
+      }, { word }, 1100 + i * 5);
+    }
+  }
+
+  // Silent-e
+  {
+    const allLongs = SILENT_E_PAIRS.map(p => p.long);
+    for (let i = 0; i < SILENT_E_PAIRS.length; i++) {
+      const { short, long } = SILENT_E_PAIRS[i];
+      const distractors = [short, allLongs[(i + 1) % allLongs.length]];
+      push('reading.phonics.silent_e', 'PhonemeBlend', {
+        type: 'PhonemeBlend',
+        phonemes: long.split(''),
+        word: long, distractors,
+        promptText: `The silent e makes the vowel say its name — which word is "${long}"?`,
+      }, { word: long }, 1200 + i * 5);
+    }
+    for (let i = 0; i < Math.min(10, SILENT_E_PAIRS.length); i++) {
+      const { short, long } = SILENT_E_PAIRS[i];
+      push('reading.phonics.silent_e', 'SightWordTap', {
+        type: 'SightWordTap',
+        word: long,
+        distractors: [short, SILENT_E_PAIRS[(i + 3) % SILENT_E_PAIRS.length].short],
+        promptText: 'Which word has silent e?',
+      }, { word: long }, 1250 + i * 3);
+    }
+  }
+
+  // Vowel teams ee/ea
+  {
+    const grouped: Record<string, typeof VOWEL_EE_EA> = { ee: [], ea: [] };
+    for (const w of VOWEL_EE_EA) grouped[w.pattern].push(w);
+    const rounds = Math.min(grouped.ee.length, grouped.ea.length);
+    for (let r = 0; r < rounds; r++) {
+      const roundWords = [grouped.ee[r], grouped.ea[r]];
+      push('reading.phonics.vowel_teams_ee_ea', 'DigraphSort', {
+        type: 'DigraphSort',
+        digraphs: ['ee', 'ea'],
+        words: roundWords.map(w => ({ word: w.word, emoji: w.emoji, digraph: w.pattern })),
+        promptText: 'Sort each word by its long-e team.',
+      }, {
+        placements: Object.fromEntries(roundWords.map(w => [w.word, w.pattern])),
+      }, 1300 + r * 5);
+    }
+    for (let i = 0; i < VOWEL_EE_EA.length; i++) {
+      const w = VOWEL_EE_EA[i];
+      const distractors = [
+        VOWEL_EE_EA[(i + 1) % VOWEL_EE_EA.length].word,
+        VOWEL_EE_EA[(i + 3) % VOWEL_EE_EA.length].word,
+      ];
+      push('reading.phonics.vowel_teams_ee_ea', 'SightWordTap', {
+        type: 'SightWordTap', word: w.word, distractors,
+        promptText: `Find "${w.word}".`,
+      }, { word: w.word }, 1350 + i * 3);
+    }
+  }
+
+  // Vowel teams ai/ay
+  {
+    const grouped: Record<string, typeof VOWEL_AI_AY> = { ai: [], ay: [] };
+    for (const w of VOWEL_AI_AY) grouped[w.pattern].push(w);
+    const rounds = Math.min(grouped.ai.length, grouped.ay.length);
+    for (let r = 0; r < rounds; r++) {
+      const roundWords = [grouped.ai[r], grouped.ay[r]];
+      push('reading.phonics.vowel_teams_ai_ay', 'DigraphSort', {
+        type: 'DigraphSort',
+        digraphs: ['ai', 'ay'],
+        words: roundWords.map(w => ({ word: w.word, emoji: w.emoji, digraph: w.pattern })),
+        promptText: 'Sort by long-a team (ai inside, ay at end).',
+      }, {
+        placements: Object.fromEntries(roundWords.map(w => [w.word, w.pattern])),
+      }, 1300 + r * 5);
+    }
+  }
+
+  // Vowel teams oa/ow
+  {
+    const grouped: Record<string, typeof VOWEL_OA_OW> = { oa: [], ow: [] };
+    for (const w of VOWEL_OA_OW) grouped[w.pattern].push(w);
+    const rounds = Math.min(grouped.oa.length, grouped.ow.length);
+    for (let r = 0; r < rounds; r++) {
+      const roundWords = [grouped.oa[r], grouped.ow[r]];
+      push('reading.phonics.vowel_teams_oa_ow', 'DigraphSort', {
+        type: 'DigraphSort',
+        digraphs: ['oa', 'ow'],
+        words: roundWords.map(w => ({ word: w.word, emoji: w.emoji, digraph: w.pattern })),
+        promptText: 'Sort each long-o word.',
+      }, {
+        placements: Object.fromEntries(roundWords.map(w => [w.word, w.pattern])),
+      }, 1350 + r * 5);
+    }
+  }
+
+  // R-controlled
+  {
+    const groups: Record<string, typeof R_CONTROLLED> = { ar: [], er: [], ir: [], or: [], ur: [] };
+    for (const w of R_CONTROLLED) groups[w.pattern].push(w);
+    const rounds = Math.min(groups.ar.length, groups.or.length, groups.er.length);
+    for (let r = 0; r < rounds; r++) {
+      const roundWords = [groups.ar[r], groups.or[r], groups.er[r]];
+      push('reading.phonics.r_controlled', 'DigraphSort', {
+        type: 'DigraphSort',
+        digraphs: ['ar', 'or', 'er'],
+        words: roundWords.map(w => ({ word: w.word, emoji: w.emoji, digraph: w.pattern })),
+        promptText: 'Bossy-R! Sort by which R-sound each word has.',
+      }, {
+        placements: Object.fromEntries(roundWords.map(w => [w.word, w.pattern])),
+      }, 1400 + r * 5);
+    }
+    for (let i = 0; i < groups.ir.length + groups.ur.length; i++) {
+      const word = i < groups.ir.length ? groups.ir[i].word : groups.ur[i - groups.ir.length].word;
+      const distractors = [
+        R_CONTROLLED[(i + 3) % R_CONTROLLED.length].word,
+        R_CONTROLLED[(i + 7) % R_CONTROLLED.length].word,
+      ];
+      push('reading.phonics.r_controlled', 'SightWordTap', {
+        type: 'SightWordTap', word, distractors,
+        promptText: `Find "${word}".`,
+      }, { word }, 1450 + i * 3);
+    }
+  }
+
+  // Diphthongs
+  {
+    const groups: Record<string, typeof DIPHTHONGS> = { oi: [], oy: [], ou: [], ow: [] };
+    for (const w of DIPHTHONGS) groups[w.pattern].push(w);
+    const oioyRounds = Math.min(groups.oi.length, groups.oy.length);
+    for (let r = 0; r < oioyRounds; r++) {
+      const roundWords = [groups.oi[r], groups.oy[r]];
+      push('reading.phonics.diphthongs', 'DigraphSort', {
+        type: 'DigraphSort',
+        digraphs: ['oi', 'oy'],
+        words: roundWords.map(w => ({ word: w.word, emoji: w.emoji, digraph: w.pattern })),
+        promptText: 'Same sound, different spot — sort by oi or oy.',
+      }, {
+        placements: Object.fromEntries(roundWords.map(w => [w.word, w.pattern])),
+      }, 1500 + r * 5);
+    }
+    const ouowRounds = Math.min(groups.ou.length, groups.ow.length);
+    for (let r = 0; r < ouowRounds; r++) {
+      const roundWords = [groups.ou[r], groups.ow[r]];
+      push('reading.phonics.diphthongs', 'DigraphSort', {
+        type: 'DigraphSort',
+        digraphs: ['ou', 'ow'],
+        words: roundWords.map(w => ({ word: w.word, emoji: w.emoji, digraph: w.pattern })),
+        promptText: 'The "ow" sound — sort by spelling.',
+      }, {
+        placements: Object.fromEntries(roundWords.map(w => [w.word, w.pattern])),
+      }, 1520 + r * 5);
+    }
+  }
+
+  // Inflectional -ed/-ing
+  {
+    for (let i = 0; i < ED_ING_WORDS.length; i++) {
+      const { base, ed, ing } = ED_ING_WORDS[i];
+      push('reading.morphology.inflectional_ed_ing', 'SightWordTap', {
+        type: 'SightWordTap', word: ing,
+        distractors: [ed, base, ED_ING_WORDS[(i + 1) % ED_ING_WORDS.length].ing],
+        promptText: `Which word shows "${base}" happening right now?`,
+      }, { word: ing }, 1250 + i * 4);
+      push('reading.morphology.inflectional_ed_ing', 'SightWordTap', {
+        type: 'SightWordTap', word: ed,
+        distractors: [ing, base, ED_ING_WORDS[(i + 2) % ED_ING_WORDS.length].ed],
+        promptText: `Which word shows "${base}" already happened?`,
+      }, { word: ed }, 1270 + i * 4);
+    }
+  }
+
+  // Plurals s/es
+  {
+    const groups: Record<string, typeof PLURAL_WORDS> = { s: [], es: [] };
+    for (const w of PLURAL_WORDS) groups[w.rule].push(w);
+    const rounds = Math.min(groups.s.length, groups.es.length);
+    for (let r = 0; r < rounds; r++) {
+      const roundWords = [groups.s[r], groups.es[r]];
+      push('reading.morphology.plural_s_es', 'DigraphSort', {
+        type: 'DigraphSort',
+        digraphs: ['s', 'es'],
+        words: roundWords.map(w => ({ word: w.plural, digraph: w.rule })),
+        promptText: 'Sort plurals by their ending.',
+      }, {
+        placements: Object.fromEntries(roundWords.map(w => [w.plural, w.rule])),
+      }, 1200 + r * 5);
+    }
+    for (let i = 0; i < PLURAL_WORDS.length; i++) {
+      const w = PLURAL_WORDS[i];
+      push('reading.morphology.plural_s_es', 'SightWordTap', {
+        type: 'SightWordTap', word: w.plural,
+        distractors: [w.singular, PLURAL_WORDS[(i + 1) % PLURAL_WORDS.length].plural],
+        promptText: `Which word means more than one ${w.singular}?`,
+      }, { word: w.plural }, 1220 + i * 3);
+    }
+  }
+
+  // Compound words
+  {
+    for (let i = 0; i < COMPOUND_WORDS.length; i++) {
+      const [a, b, joined] = COMPOUND_WORDS[i];
+      const other = COMPOUND_WORDS[(i + 2) % COMPOUND_WORDS.length][2];
+      push('reading.morphology.compound_words', 'SightWordTap', {
+        type: 'SightWordTap', word: joined,
+        distractors: [a, b, other],
+        promptText: `Two words join to make one. ${a} + ${b} = ?`,
+      }, { word: joined }, 1300 + i * 5);
+    }
+  }
+
+  // Prefixes un-/re-
+  {
+    for (let i = 0; i < PREFIX_WORDS.length; i++) {
+      const { base, prefixed, prefix } = PREFIX_WORDS[i];
+      const other = PREFIX_WORDS[(i + 3) % PREFIX_WORDS.length].prefixed;
+      push('reading.morphology.prefix_un_re', 'SightWordTap', {
+        type: 'SightWordTap', word: prefixed,
+        distractors: [base, other, prefix + 'do'],
+        promptText: prefix === 'un'
+          ? `Which word means "not ${base}" or the opposite?`
+          : `Which word means "${base} again"?`,
+      }, { word: prefixed }, 1350 + i * 5);
+    }
+  }
+
+  // Read aloud (simple + longer)
+  for (let i = 0; i < READ_ALOUD_SHORT.length; i++) {
+    const word = READ_ALOUD_SHORT[i];
+    push('reading.read_aloud.simple', 'ReadAloudSimple', {
+      type: 'ReadAloudSimple', word, promptText: 'Say it out loud.',
+    }, {}, 950 + word.length * 10);
+  }
+  for (let i = 0; i < READ_ALOUD_LONGER.length; i++) {
+    const word = READ_ALOUD_LONGER[i];
+    push('reading.read_aloud.longer_words', 'ReadAloudSimple', {
+      type: 'ReadAloudSimple', word, promptText: 'Say this longer word aloud.',
+    }, {}, 1200 + word.length * 8);
   }
 
   if (items.length > 0) {
-    const { error } = await sb.from('item').insert(items);
-    if (error) throw error;
+    const batchSize = 500;
+    for (let i = 0; i < items.length; i += batchSize) {
+      const { error } = await sb.from('item').insert(items.slice(i, i + batchSize));
+      if (error) throw error;
+    }
   }
 
   console.log(`  → reading: inserted ${items.length} items across ${readingSkillIds.length} skills`);
