@@ -92,10 +92,17 @@ export async function POST(
   const newBox = correct ? promoteBox(prog?.leitner_box ?? 1) : demoteBox(prog?.leitner_box ?? 1);
   const newNextReview = nextReviewDate(newBox);
 
+  const priorState = currentState;
+  const newState = transition.newState;
+  const priorTransitions = ((prog as any)?.state_transitions ?? []) as Array<{ at: string; from: string; to: string }>;
+  const newTransitions = newState !== priorState
+    ? [...priorTransitions, { at: new Date().toISOString(), from: priorState, to: newState }]
+    : priorTransitions;
+
   await db.from('skill_progress').upsert({
     learner_id: session.learner_id,
     skill_id: item.skill_id,
-    mastery_state: transition.newState,
+    mastery_state: newState,
     leitner_box: newBox,
     student_elo: Math.round(elo.newStudentRating),
     streak_correct: correct ? (prog?.streak_correct ?? 0) + 1 : 0,
@@ -103,6 +110,7 @@ export async function POST(
     total_correct: (prog?.total_correct ?? 0) + (correct ? 1 : 0),
     last_attempted_at: new Date().toISOString(),
     next_review_at: newNextReview.toISOString(),
+    state_transitions: newTransitions,
   }, { onConflict: 'learner_id,skill_id' });
 
   await db.from('item').update({

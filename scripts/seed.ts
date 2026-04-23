@@ -11,6 +11,7 @@ import { config } from 'dotenv';
 import { MATH_STRANDS } from '../lib/packs/math/strands';
 import { MATH_SKILLS } from '../lib/packs/math/skills';
 import { seedReading } from './seed-reading';
+import { seedWorld } from './seed-world';
 
 config({ path: '.env.local' });
 
@@ -116,6 +117,10 @@ async function main() {
 
   await step('reading pack', async () => {
     await seedReading(sb, READING_SUBJECT_ID, skillIdByCode);
+  });
+
+  await step('world (habitats + species)', async () => {
+    await seedWorld(sb);
   });
 
   // Seed Cecily's baseline mastery to reflect her actual level (Math c, Reading b→c).

@@ -1,10 +1,11 @@
 import { createServiceClient } from '@/lib/supabase/server';
 import ProfileTile from '@/components/child/ProfileTile';
+import Link from 'next/link';
 
 export const dynamic = 'force-dynamic';
 
 const avatarMap: Record<string, string> = {
-  fox: '🦊', bunny: '🐰', cat: '🐈', butterfly: '🦋',
+  fox: '🦊', bunny: '🐰', cat: '🐈', butterfly: '🦋', frog: '🐸', bee: '🐝',
 };
 
 export default async function PickerPage() {
@@ -29,9 +30,20 @@ export default async function PickerPage() {
               href={`/explore?learner=${l.id}`}
             />
           ))}
+          <Link
+            href="/parent/family"
+            className="flex flex-col items-center justify-center w-40 h-40 bg-white rounded-3xl border-4 border-dashed border-ochre hover:scale-105 active:scale-95 transition-transform shadow-md opacity-70"
+            style={{ touchAction: 'manipulation' }}
+          >
+            <div className="text-7xl">+</div>
+            <div className="mt-2 text-kid-md">Add</div>
+          </Link>
         </div>
-        <div className="text-sm opacity-60 pt-8">
-          <a href="/auth">⚙️ Parent</a>
+        <div className="flex gap-4 justify-center text-sm opacity-60 pt-8">
+          <Link href="/journal">📖 Journal</Link>
+          <Link href="/habitats">🏠 Habitats</Link>
+          <Link href="/settings">⚙️ Settings</Link>
+          <Link href="/auth">👤 Parent</Link>
         </div>
       </div>
     </main>

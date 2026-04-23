@@ -12,3 +12,18 @@
   /* iPad safari: disable callout on long-press */
   * { -webkit-touch-callout: none; }
 }
+
+@layer utilities {
+  .dyslexic-font,
+  .dyslexic-font * {
+    font-family: 'OpenDyslexic', 'Nunito', system-ui, sans-serif !important;
+    letter-spacing: 0.03em;
+  }
+  .reduced-motion,
+  .reduced-motion * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
