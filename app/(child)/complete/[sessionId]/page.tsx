@@ -52,22 +52,27 @@ export default async function CompletePage({ params }: { params: { sessionId: st
         </div>
       )}
 
-      <div className="flex gap-3 pt-4">
-        <Link
-          href="/picker"
-          className="flex-1 bg-sage text-white rounded-xl py-4 text-kid-md text-center"
-          style={{ minHeight: 60 }}
-        >🌿 Done for now</Link>
+      <div className="flex gap-3 pt-4 flex-wrap">
         <Link
           href={`/explore?learner=${session?.learner_id}`}
-          className="flex-1 bg-white border-4 border-ochre rounded-xl py-4 text-kid-md text-center"
+          className="flex-1 bg-white border-4 border-ochre rounded-xl py-4 text-kid-md text-center min-w-[120px]"
           style={{ minHeight: 60 }}
         >🔍 Another?</Link>
         <Link
+          href={`/garden?learner=${session?.learner_id}`}
+          className="flex-1 bg-sage text-white rounded-xl py-4 text-kid-md text-center min-w-[120px]"
+          style={{ minHeight: 60 }}
+        >🌿 Garden</Link>
+        <Link
           href="/journal"
-          className="flex-1 bg-white border-4 border-rose rounded-xl py-4 text-kid-md text-center"
+          className="flex-1 bg-white border-4 border-rose rounded-xl py-4 text-kid-md text-center min-w-[120px]"
           style={{ minHeight: 60 }}
         >📖 Journal</Link>
+        <Link
+          href="/picker"
+          className="flex-1 bg-white border-4 border-ochre rounded-xl py-4 text-kid-md text-center min-w-[120px]"
+          style={{ minHeight: 60 }}
+        >🏡 Home</Link>
       </div>
     </main>
   );
