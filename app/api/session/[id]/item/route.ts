@@ -1,6 +1,16 @@
 import { NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
 import { chooseDifficultyBand } from '@/lib/engine';
+import { getThemeHeader as getMathThemeHeader } from '@/lib/packs/math/themes';
+import { getReadingThemeHeader } from '@/lib/packs/reading/themes';
+
+const SESSION_ITEM_CAP = 5;
+
+function getThemeHeader(skillCode: string) {
+  if (skillCode.startsWith('math.')) return getMathThemeHeader(skillCode);
+  if (skillCode.startsWith('reading.')) return getReadingThemeHeader(skillCode);
+  return { title: skillCode, themeEmoji: '🌿', skillHint: '' };
+}
 
 export async function GET(
   _req: Request,
@@ -12,9 +22,11 @@ export async function GET(
     .from('session').select('*').eq('id', params.id).single();
   if (sErr || !session) return NextResponse.json({ error: 'session not found' }, { status: 404 });
   if (session.ended_at) return NextResponse.json({ error: 'session ended' }, { status: 400 });
-  if ((session.items_attempted ?? 0) >= 8) {
-    return NextResponse.json({ ended: true });
+  if ((session.items_attempted ?? 0) >= SESSION_ITEM_CAP) {
+    return NextResponse.json({ ended: true, learnerId: session.learner_id });
   }
+
+  const theme = getThemeHeader(session.skill_planned);
 
   const { data: skill } = await db
     .from('skill').select('id, code').eq('code', session.skill_planned).single();
@@ -45,7 +57,9 @@ export async function GET(
   if (excludeIds.length) q = q.not('id', 'in', `(${excludeIds.join(',')})`);
 
   const { data: items } = await q;
-  if (!items || items.length === 0) {
+  let picked = items?.[0];
+
+  if (!picked) {
     const { data: fallback } = await db
       .from('item')
       .select('id, type, content, answer, difficulty_elo, audio_url')
@@ -53,21 +67,23 @@ export async function GET(
       .not('approved_at', 'is', null)
       .limit(1);
     if (!fallback || fallback.length === 0) {
-      return NextResponse.json({ ended: true });
+      return NextResponse.json({ ended: true, learnerId: session.learner_id });
     }
-    return NextResponse.json({
-      itemId: fallback[0].id,
-      type: fallback[0].type,
-      content: fallback[0].content,
-      audioUrl: fallback[0].audio_url,
-    });
+    picked = fallback[0];
   }
 
-  const item = items[0];
   return NextResponse.json({
-    itemId: item.id,
-    type: item.type,
-    content: item.content,
-    audioUrl: item.audio_url,
+    itemId: picked.id,
+    type: picked.type,
+    content: picked.content,
+    audioUrl: picked.audio_url,
+    learnerId: session.learner_id,
+    skillCode: session.skill_planned,
+    themeTitle: theme.title,
+    themeEmoji: theme.themeEmoji,
+    progress: {
+      attempted: session.items_attempted ?? 0,
+      cap: SESSION_ITEM_CAP,
+    },
   });
 }

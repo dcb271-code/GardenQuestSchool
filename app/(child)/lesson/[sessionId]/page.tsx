@@ -11,6 +11,11 @@ interface ItemPayload {
   type: string;
   content: any;
   audioUrl?: string;
+  learnerId?: string;
+  skillCode?: string;
+  themeTitle?: string;
+  themeEmoji?: string;
+  progress?: { attempted: number; cap: number };
 }
 
 export default function LessonPage({ params }: { params: { sessionId: string } }) {
@@ -18,6 +23,7 @@ export default function LessonPage({ params }: { params: { sessionId: string } }
   const [item, setItem] = useState<ItemPayload | null>(null);
   const [status, setStatus] = useState<'loading' | 'ready' | 'feedback'>('loading');
   const [retries, setRetries] = useState(0);
+  const [learnerId, setLearnerId] = useState<string | null>(null);
   const startTime = useRef<number>(Date.now());
 
   const promptText = item
@@ -33,9 +39,9 @@ export default function LessonPage({ params }: { params: { sessionId: string } }
     : '';
   const { replay } = useNarrator(promptText);
 
-  const endSession = useCallback(async () => {
+  const endSession = useCallback(async (target?: string) => {
     await fetch(`/api/session/${params.sessionId}/end`, { method: 'POST' });
-    router.push(`/complete/${params.sessionId}`);
+    router.push(target ?? `/complete/${params.sessionId}`);
   }, [params.sessionId, router]);
 
   const loadNext = useCallback(async () => {
@@ -43,6 +49,7 @@ export default function LessonPage({ params }: { params: { sessionId: string } }
     setRetries(0);
     const res = await fetch(`/api/session/${params.sessionId}/item`);
     const data = await res.json();
+    if (data.learnerId) setLearnerId(data.learnerId);
     if (data.ended) {
       endSession();
       return;
@@ -73,14 +80,36 @@ export default function LessonPage({ params }: { params: { sessionId: string } }
     }
   };
 
+  const skip = async () => {
+    if (!item) return;
+    // record a skipped attempt so the planner doesn't re-serve the same item next turn
+    await fetch(`/api/session/${params.sessionId}/attempt`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({
+        itemId: item.itemId,
+        response: { skipped: true },
+        timeMs: Date.now() - startTime.current,
+        retries,
+      }),
+    });
+    loadNext();
+  };
+
   useEffect(() => { loadNext(); }, [loadNext]);
+
+  const breadcrumb = item
+    ? `${item.themeEmoji ?? '🔍'} ${item.themeTitle ?? 'Exploration'}${item.progress ? `  ·  ${item.progress.attempted + 1}/${item.progress.cap}` : ''}`
+    : 'Loading…';
 
   return (
     <main className="max-w-xl mx-auto p-4">
       <LessonHeader
-        breadcrumb="🔍 Exploration"
+        breadcrumb={breadcrumb}
+        learnerId={learnerId}
         onReplayAudio={() => replay()}
         onWonder={() => {/* Plan 3 virtue detector */}}
+        onSkip={item ? skip : undefined}
       />
       {status === 'loading' && <div className="text-kid-md text-center py-12">…</div>}
       {status === 'ready' && item && (() => {
