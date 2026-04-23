@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { Nunito } from 'next/font/google';
+import AccessibilityApplier from '@/components/shared/AccessibilityApplier';
 import './globals.css';
 
 const nunito = Nunito({
@@ -24,7 +25,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={nunito.variable}>
-      <body>{children}</body>
+      <body>
+        <AccessibilityApplier />
+        {children}
+      </body>
     </html>
   );
 }
