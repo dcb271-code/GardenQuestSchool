@@ -59,6 +59,8 @@ export default function LessonPage({ params }: { params: { sessionId: string } }
     setStatus('ready');
   }, [params.sessionId, endSession]);
 
+  const MAX_RETRIES = 2;
+
   const submit = async (response: any) => {
     if (!item) return;
     const res = await fetch(`/api/session/${params.sessionId}/attempt`, {
@@ -75,6 +77,12 @@ export default function LessonPage({ params }: { params: { sessionId: string } }
     if (data.outcome === 'correct') {
       setStatus('feedback');
       setTimeout(loadNext, 900);
+    } else if (retries >= MAX_RETRIES) {
+      // Already tried MAX+1 times. Auto-advance with a soft message so
+      // she's not stuck on one item. The wrong attempts have already been
+      // recorded; the engine knows she struggled.
+      setStatus('feedback');
+      setTimeout(loadNext, 1200);
     } else {
       setRetries(r => r + 1);
     }

@@ -4,6 +4,9 @@ import { chooseDifficultyBand } from '@/lib/engine';
 import { getThemeHeader as getMathThemeHeader } from '@/lib/packs/math/themes';
 import { getReadingThemeHeader } from '@/lib/packs/reading/themes';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 const SESSION_ITEM_CAP = 5;
 
 function getThemeHeader(skillCode: string) {

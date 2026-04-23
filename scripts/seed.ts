@@ -122,13 +122,21 @@ async function main() {
   // This opens up more expeditions on day 1; otherwise the planner only
   // offers skills with zero prereqs.
   await step('Cecily baseline mastery (math c, reading b\u2192c)', async () => {
+    // Cecily is math-c (multiplication-ready) and reading-b→c (short books).
+    // Don't drill her on counting-to-20 or primer sight words — she's past those.
     const mastered = [
-      'math.counting.to_20', 'math.counting.to_50', 'math.add.within_10',
+      'math.counting.to_20',
+      'math.counting.to_50',
+      'math.counting.skip_2s',
+      'math.add.within_10',
+      'math.subtract.within_10',
+      'math.number_bond.within_10',
       'reading.phonics.cvc_blend',
+      'reading.sight_words.dolch_primer',
     ];
     const reviewing = [
-      'math.subtract.within_10',
-      'reading.sight_words.dolch_primer',
+      'math.add.within_20.no_crossing',
+      'reading.sight_words.dolch_first_grade',
     ];
     const rows = [
       ...mastered.map(code => ({

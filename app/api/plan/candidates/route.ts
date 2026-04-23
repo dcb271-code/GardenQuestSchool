@@ -1,6 +1,9 @@
 import { NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
 import { generateExpeditionCandidates } from '@/lib/engine';
+
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 import { getThemeHeader as getMathThemeHeader } from '@/lib/packs/math/themes';
 import { getReadingThemeHeader } from '@/lib/packs/reading/themes';
 
