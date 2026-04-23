@@ -9,6 +9,7 @@ import type { MapStructure } from '@/lib/world/gardenMap';
 import type { SpeciesData } from '@/lib/world/speciesCatalog';
 import ArrivalCard from '@/components/child/garden/ArrivalCard';
 import LunaWanderer from '@/components/child/garden/LunaWanderer';
+import { StructureIllustration, Tree, PineTree, Flower, GrassTuft } from '@/components/child/garden/illustrations';
 
 interface StructureState {
   unlocked: boolean;
@@ -144,28 +145,39 @@ export default function GardenScene({
           </g>
 
           {/* trees NW (reading grove) */}
-          <g>
-            {[{cx:80,cy:100,r:50},{cx:130,cy:70,r:42},{cx:60,cy:160,r:38}].map((t,i) => (
-              <g key={i}>
-                <circle cx={t.cx} cy={t.cy} r={t.r} fill="#6B8E5A" />
-                <circle cx={t.cx - t.r * 0.3} cy={t.cy - t.r * 0.2} r={t.r * 0.3} fill="#8FB67A" opacity="0.7" />
-              </g>
-            ))}
-          </g>
-          <g>
-            {[{cx:1150,cy:80,r:48},{cx:1100,cy:120,r:40}].map((t,i) => (
-              <g key={i}>
-                <circle cx={t.cx} cy={t.cy} r={t.r} fill="#6B8E5A" />
-                <circle cx={t.cx - t.r * 0.3} cy={t.cy - t.r * 0.2} r={t.r * 0.3} fill="#8FB67A" opacity="0.7" />
-              </g>
-            ))}
-          </g>
-          {[[150,420],[200,500],[280,450],[520,280],[640,220],[620,400],[750,430],[480,620],[420,700],[620,680],[1000,440]].map(([x,y],i) => (
-            <g key={i}>
-              <circle cx={x} cy={y} r={6} fill="#E6B0D0" />
-              <circle cx={x} cy={y} r={2} fill="#FFD166" />
-            </g>
-          ))}
+          <Tree x={80} y={100} size={100} variant={1} />
+          <PineTree x={170} y={80} size={90} />
+          <Tree x={50} y={200} size={80} variant={2} />
+          <Tree x={200} y={50} size={70} variant={3} />
+          {/* trees NE (math mound backdrop) */}
+          <PineTree x={1140} y={70} size={100} />
+          <Tree x={1080} y={130} size={90} variant={1} />
+          <Tree x={1170} y={170} size={70} variant={2} />
+          {/* SW corner tree (bunny glade) */}
+          <Tree x={70} y={680} size={90} variant={2} />
+          <Tree x={120} y={620} size={70} variant={3} />
+          {/* SE corner tree (water's edge) */}
+          <PineTree x={1150} y={550} size={85} />
+          <Tree x={1130} y={650} size={75} variant={1} />
+          {/* meadow flower scatter */}
+          <Flower x={150} y={420} size={11} color="#E6B0D0" />
+          <Flower x={200} y={500} size={10} color="#FFD166" />
+          <Flower x={290} y={460} size={11} color="#A675B0" />
+          <Flower x={520} y={280} size={10} color="#FFB7C5" />
+          <Flower x={640} y={220} size={11} color="#FFD166" />
+          <Flower x={620} y={400} size={10} color="#E6B0D0" />
+          <Flower x={750} y={430} size={11} color="#FFB7C5" />
+          <Flower x={480} y={630} size={10} color="#FFD166" />
+          <Flower x={420} y={700} size={11} color="#A675B0" />
+          <Flower x={620} y={680} size={10} color="#E6B0D0" />
+          <Flower x={1000} y={440} size={11} color="#FFD166" />
+          <Flower x={830} y={420} size={10} color="#A675B0" />
+          {/* grass tufts scattered */}
+          <GrassTuft x={350} y={460} size={12} />
+          <GrassTuft x={580} y={520} size={14} />
+          <GrassTuft x={720} y={380} size={11} />
+          <GrassTuft x={460} y={680} size={13} />
+          <GrassTuft x={870} y={500} size={12} />
 
           {/* zone labels */}
           <text x="180" y="100" fontSize="14" fill="#6B4423" opacity="0.45" fontWeight="600" letterSpacing="2">READING GROVE</text>
@@ -279,34 +291,21 @@ function Structure({
         <motion.circle
           cx={struct.x}
           cy={struct.y}
-          r={struct.size * 0.8}
+          r={struct.size * 0.85}
           fill="#FFE89A"
-          opacity={0.35}
-          animate={{ opacity: [0.2, 0.45, 0.2] }}
+          opacity={0.3}
+          animate={{ opacity: [0.18, 0.4, 0.18] }}
           transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
         />
       )}
-      <ellipse
-        cx={struct.x}
-        cy={struct.y + struct.size * 0.35}
-        rx={struct.size * 0.45}
-        ry={struct.size * 0.12}
-        fill="#000"
-        opacity={unlocked ? 0.18 : 0.1}
-      />
-      <text
-        x={struct.x}
-        y={struct.y + struct.size * 0.35}
-        fontSize={struct.size}
-        textAnchor="middle"
+      <g
         style={{
-          userSelect: 'none',
-          filter: unlocked ? undefined : 'grayscale(1) brightness(0.7)',
-          opacity: unlocked ? 1 : 0.55,
+          filter: unlocked ? undefined : 'grayscale(1) brightness(0.85)',
+          opacity: unlocked ? 1 : 0.6,
         }}
       >
-        {struct.themeEmoji}
-      </text>
+        <StructureIllustration code={struct.code} x={struct.x} y={struct.y} size={struct.size} />
+      </g>
       <g>
         <rect
           x={struct.x - 52}

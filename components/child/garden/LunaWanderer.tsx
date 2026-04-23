@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
+import { LunaCat } from './illustrations';
 
 // Hand-picked lounging spots on the meadow (avoids water, trees, and
 // interfering with structure labels).
@@ -37,8 +38,7 @@ export default function LunaWanderer({
       transition={{ duration: 3, ease: 'easeInOut' }}
       style={{ pointerEvents: 'none' }}
     >
-      <ellipse cx={0} cy={24} rx={22} ry={6} fill="#000" opacity={0.25} />
-      <text fontSize={44} textAnchor="middle" y={16} style={{ userSelect: 'none' }}>🐈</text>
+      <LunaCat size={52} />
     </motion.g>
   );
 }
