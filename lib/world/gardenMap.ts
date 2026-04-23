@@ -154,7 +154,7 @@ export const GARDEN_STRUCTURES: MapStructure[] = [
     habitatCode: 'frog_pond',
     label: 'Frog Pond',
     themeEmoji: '🐸',
-    x: 900, y: 640, size: 80,
+    x: 900, y: 640, size: 140,
     zone: 'water',
   },
   {
