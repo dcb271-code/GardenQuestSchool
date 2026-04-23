@@ -39,7 +39,8 @@ export default async function PickerPage() {
             <div className="mt-2 text-kid-md">Add</div>
           </Link>
         </div>
-        <div className="flex gap-4 justify-center text-sm opacity-60 pt-8">
+        <div className="flex gap-4 justify-center text-sm opacity-60 pt-8 flex-wrap">
+          <Link href="/garden">🌿 Garden</Link>
           <Link href="/journal">📖 Journal</Link>
           <Link href="/habitats">🏠 Habitats</Link>
           <Link href="/settings">⚙️ Settings</Link>

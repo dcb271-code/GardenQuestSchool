@@ -41,8 +41,8 @@ A migration runner (`npm run db:migrate`) is wired for future migrations once `D
 - **Plan 1 — Foundations + First Playable Loop** — ✅ complete + deployed
 - **Plan 2 — Reading Pack (V1.5)** — ✅ complete + deployed
 - **Plan 4 — World Delight (MVP)** — ✅ complete + deployed
+- **Plan 5 — Interactive Garden + Species Arrivals** — ✅ complete + deployed
 - **Plan 3 — Content Generation + Parent Zone** — pending
-- **Plan 5 — Interactive Garden + Species Arrivals** — pending
 
 ## Subject Packs
 
