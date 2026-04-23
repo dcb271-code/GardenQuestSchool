@@ -32,14 +32,43 @@ const DIGRAPH_WORDS: Array<{ word: string; digraph: string; emoji: string }> = [
   { word: 'fish', digraph: 'sh', emoji: '🐟' },
   { word: 'shoe', digraph: 'sh', emoji: '👟' },
   { word: 'shell', digraph: 'sh', emoji: '🐚' },
+  { word: 'shark', digraph: 'sh', emoji: '🦈' },
+  { word: 'sheep', digraph: 'sh', emoji: '🐑' },
+  { word: 'shop', digraph: 'sh', emoji: '🏪' },
   { word: 'chip', digraph: 'ch', emoji: '🍟' },
   { word: 'chin', digraph: 'ch', emoji: '🙂' },
   { word: 'chick', digraph: 'ch', emoji: '🐥' },
   { word: 'cheese', digraph: 'ch', emoji: '🧀' },
+  { word: 'cherry', digraph: 'ch', emoji: '🍒' },
+  { word: 'chair', digraph: 'ch', emoji: '🪑' },
+  { word: 'chain', digraph: 'ch', emoji: '⛓️' },
   { word: 'thin', digraph: 'th', emoji: '➖' },
   { word: 'thumb', digraph: 'th', emoji: '👍' },
   { word: 'three', digraph: 'th', emoji: '3️⃣' },
   { word: 'thick', digraph: 'th', emoji: '📚' },
+  { word: 'think', digraph: 'th', emoji: '💭' },
+  { word: 'thorn', digraph: 'th', emoji: '🌹' },
+  { word: 'thirty', digraph: 'th', emoji: '3️⃣' },
+];
+
+// PhonemeBlend-style items for initial consonant blends (2-letter blend + vowel + consonant)
+const BLEND_WORDS: Array<{ phonemes: string[]; word: string }> = [
+  { phonemes: ['bl', 'o', 'b'], word: 'blob' },
+  { phonemes: ['cl', 'i', 'p'], word: 'clip' },
+  { phonemes: ['fl', 'a', 'g'], word: 'flag' },
+  { phonemes: ['gl', 'o', 'b'], word: 'glob' },
+  { phonemes: ['pl', 'u', 'm'], word: 'plum' },
+  { phonemes: ['sl', 'i', 'p'], word: 'slip' },
+  { phonemes: ['br', 'i', 'ck'], word: 'brick' },
+  { phonemes: ['cr', 'a', 'b'], word: 'crab' },
+  { phonemes: ['dr', 'u', 'm'], word: 'drum' },
+  { phonemes: ['fr', 'o', 'g'], word: 'frog' },
+  { phonemes: ['gr', 'a', 'b'], word: 'grab' },
+  { phonemes: ['pr', 'o', 'p'], word: 'prop' },
+  { phonemes: ['tr', 'i', 'p'], word: 'trip' },
+  { phonemes: ['sp', 'o', 't'], word: 'spot' },
+  { phonemes: ['st', 'o', 'p'], word: 'stop' },
+  { phonemes: ['sw', 'i', 'm'], word: 'swim' },
 ];
 
 const READ_ALOUD_WORDS = [
@@ -101,14 +130,26 @@ export async function seedReading(
   const now = new Date().toISOString();
   const items: any[] = [];
 
-  // SightWordTap: Dolch Primer
+  const SIGHT_PROMPTS = [
+    (w: string) => `Which word says "${w}"?`,
+    (w: string) => `Tap "${w}".`,
+    (w: string) => `Find the word "${w}".`,
+    (w: string) => `Where is "${w}"?`,
+  ];
+
+  // SightWordTap: Dolch Primer — add 3 distractors (not 2) for more variety
   {
     const id = skillIdByCode.get('reading.sight_words.dolch_primer');
     if (id) {
-      for (let i = 0; i < Math.min(20, DOLCH_PRIMER.length); i++) {
+      for (let i = 0; i < Math.min(30, DOLCH_PRIMER.length); i++) {
         const word = DOLCH_PRIMER[i];
         const pool = DOLCH_PRIMER.filter(w => w !== word);
-        const distractors = [pool[(i * 3) % pool.length], pool[(i * 7 + 1) % pool.length]];
+        const distractors = [
+          pool[(i * 3) % pool.length],
+          pool[(i * 7 + 1) % pool.length],
+          pool[(i * 11 + 2) % pool.length],
+        ];
+        const prompt = SIGHT_PROMPTS[i % SIGHT_PROMPTS.length](word);
         items.push({
           skill_id: id,
           type: 'SightWordTap',
@@ -116,7 +157,7 @@ export async function seedReading(
             type: 'SightWordTap',
             word,
             distractors,
-            promptText: `Which word says "${word}"?`,
+            promptText: prompt,
           },
           answer: { word },
           approved_at: now,
@@ -127,14 +168,19 @@ export async function seedReading(
     }
   }
 
-  // SightWordTap: Dolch First Grade
+  // SightWordTap: Dolch First Grade — add 3 distractors + varied prompts
   {
     const id = skillIdByCode.get('reading.sight_words.dolch_first_grade');
     if (id) {
-      for (let i = 0; i < Math.min(20, DOLCH_FIRST_GRADE.length); i++) {
+      for (let i = 0; i < Math.min(30, DOLCH_FIRST_GRADE.length); i++) {
         const word = DOLCH_FIRST_GRADE[i];
         const pool = DOLCH_FIRST_GRADE.filter(w => w !== word);
-        const distractors = [pool[(i * 3) % pool.length], pool[(i * 5 + 2) % pool.length]];
+        const distractors = [
+          pool[(i * 3) % pool.length],
+          pool[(i * 5 + 2) % pool.length],
+          pool[(i * 9 + 4) % pool.length],
+        ];
+        const prompt = SIGHT_PROMPTS[i % SIGHT_PROMPTS.length](word);
         items.push({
           skill_id: id,
           type: 'SightWordTap',
@@ -142,7 +188,7 @@ export async function seedReading(
             type: 'SightWordTap',
             word,
             distractors,
-            promptText: `Which word says "${word}"?`,
+            promptText: prompt,
           },
           answer: { word },
           approved_at: now,
@@ -182,13 +228,19 @@ export async function seedReading(
     }
   }
 
-  // DigraphSort
+  // DigraphSort — generate many rounds with varied word combinations
   {
     const id = skillIdByCode.get('reading.phonics.digraphs');
     if (id) {
       const grouped: Record<string, typeof DIGRAPH_WORDS> = { ch: [], sh: [], th: [] };
       for (const w of DIGRAPH_WORDS) grouped[w.digraph].push(w);
       const rounds = Math.min(grouped.ch.length, grouped.sh.length, grouped.th.length);
+      const prompts = [
+        'Put each word in the right bucket.',
+        'Which digraph is in each word?',
+        'Sort by the special letter pair.',
+        'Drop each word where it belongs.',
+      ];
       for (let r = 0; r < rounds; r++) {
         const roundWords = [grouped.ch[r], grouped.sh[r], grouped.th[r]];
         items.push({
@@ -198,14 +250,42 @@ export async function seedReading(
             type: 'DigraphSort',
             digraphs: ['ch', 'sh', 'th'],
             words: roundWords.map(w => ({ word: w.word, emoji: w.emoji, digraph: w.digraph })),
-            promptText: 'Put each word in the right bucket.',
+            promptText: prompts[r % prompts.length],
           },
           answer: {
             placements: Object.fromEntries(roundWords.map(w => [w.word, w.digraph])),
           },
           approved_at: now,
           generated_by: 'seed',
-          difficulty_elo: 1050 + r * 20,
+          difficulty_elo: 1050 + r * 10,
+        });
+      }
+    }
+  }
+
+  // Initial consonant blends — PhonemeBlend items
+  {
+    const id = skillIdByCode.get('reading.phonics.initial_blends');
+    if (id) {
+      const allWords = BLEND_WORDS.map(b => b.word);
+      for (let i = 0; i < BLEND_WORDS.length; i++) {
+        const { phonemes, word } = BLEND_WORDS[i];
+        const pool = allWords.filter(w => w !== word);
+        const distractors = [pool[(i * 3) % pool.length], pool[(i * 5 + 2) % pool.length]];
+        items.push({
+          skill_id: id,
+          type: 'PhonemeBlend',
+          content: {
+            type: 'PhonemeBlend',
+            phonemes,
+            word,
+            distractors,
+            promptText: 'Blend the sounds and pick the word.',
+          },
+          answer: { word },
+          approved_at: now,
+          generated_by: 'seed',
+          difficulty_elo: 1100 + i * 5,
         });
       }
     }
