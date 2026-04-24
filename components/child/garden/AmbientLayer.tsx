@@ -33,6 +33,25 @@ const LEAVES: LeafSpec[] = [
   { startX: -60,   startY: 220, endX: 900,  endY: 700, color: '#E8C493', duration: 30, delay: 18 },
 ];
 
+// Sakura petals — more numerous, soft pink, gentle sideways drift
+interface SakuraSpec {
+  startX: number;
+  startY: number;
+  drift: number;
+  duration: number;
+  delay: number;
+  opacity: number;
+}
+const SAKURA: SakuraSpec[] = [
+  { startX: 180,  startY: -10, drift:  80, duration: 22, delay: 0,  opacity: 0.9 },
+  { startX: 420,  startY: -10, drift: -60, duration: 26, delay: 4,  opacity: 0.8 },
+  { startX: 660,  startY: -10, drift: 100, duration: 20, delay: 9,  opacity: 0.85 },
+  { startX: 920,  startY: -10, drift: -90, duration: 28, delay: 2,  opacity: 0.75 },
+  { startX: 1180, startY: -10, drift:  70, duration: 24, delay: 6,  opacity: 0.9 },
+  { startX: 300,  startY: -10, drift: -40, duration: 30, delay: 12, opacity: 0.7 },
+  { startX: 780,  startY: -10, drift:  60, duration: 26, delay: 15, opacity: 0.85 },
+];
+
 interface PollenSpec {
   x: number;
   y: number;
@@ -118,6 +137,30 @@ export default function AmbientLayer({ reducedMotion = false }: { reducedMotion?
           }}
         >
           <Cloud x={0} y={c.y} scale={c.scale} opacity={c.opacity} />
+        </motion.g>
+      ))}
+
+      {/* Sakura petals — drift from top to bottom with sideways sway.
+          Softer, more frequent than leaves. Miyazaki-style. */}
+      {SAKURA.map((s, i) => (
+        <motion.g
+          key={`sakura-${i}`}
+          initial={{ x: s.startX, y: s.startY, rotate: 0, opacity: 0 }}
+          animate={{
+            x: [s.startX, s.startX + s.drift * 0.4, s.startX + s.drift * 0.8, s.startX + s.drift],
+            y: [s.startY, 220, 500, 820],
+            rotate: [0, 120, 220, 360],
+            opacity: [0, s.opacity, s.opacity, 0],
+          }}
+          transition={{
+            duration: s.duration,
+            delay: s.delay,
+            repeat: Infinity,
+            repeatDelay: 4,
+            ease: 'linear',
+          }}
+        >
+          <SakuraPetal />
         </motion.g>
       ))}
 
@@ -233,6 +276,25 @@ function Bird() {
     >
       <path d="M -14 0 Q -7 -8 0 0 Q 7 -8 14 0" stroke="#5A3B1F" strokeWidth={2.2} fill="none" strokeLinecap="round" />
     </motion.g>
+  );
+}
+
+// Cherry blossom petal — soft teardrop with notched tip
+function SakuraPetal() {
+  return (
+    <g style={{ transformBox: 'fill-box' as any, transformOrigin: 'center' }}>
+      <path
+        d="M 0 -5 Q 4 -2 4 2 Q 3 5 0 6 Q -3 5 -4 2 Q -4 -2 0 -5 Z"
+        fill="#FFD6E0"
+        stroke="#F09AB0"
+        strokeWidth={0.6}
+        strokeLinejoin="round"
+      />
+      {/* notched tip */}
+      <path d="M -1 -5 L 0 -3 L 1 -5" stroke="#F09AB0" strokeWidth={0.6} fill="none" />
+      {/* center */}
+      <circle cx={0} cy={0.5} r={0.8} fill="#FFF5F8" opacity={0.7} />
+    </g>
   );
 }
 

@@ -95,47 +95,95 @@ export function Tree({ x, y, size = 60, variant = 1 }: IllustrationProps & { var
 
 export function PineTree({ x, y, size = 60 }: IllustrationProps) {
   const h = size;
-  // organic conifer: 4 layered scalloped tiers, slightly rotated for asymmetry
-  // each tier is a path with bumpy bottom edge instead of straight triangles.
-  const tier = (top: number, halfWidth: number, depth: number, fill: string, dx = 0) => {
-    // Start at top apex, curve down to right corner, scallop bottom, curve to left, back up.
-    const left = -halfWidth + dx;
-    const right = halfWidth + dx;
-    const bottom = top + depth;
-    // bumps along the bottom edge
-    const bumps = 5;
-    const segW = (right - left) / bumps;
-    let bottomPath = '';
-    for (let i = 0; i <= bumps; i++) {
-      const px = left + i * segW;
-      const py = i % 2 === 0 ? bottom : bottom - depth * 0.08;
-      bottomPath += `${i === 0 ? 'L' : 'Q'} ${px - segW * 0.5} ${py + depth * 0.04} ${px} ${py} `;
-    }
-    return (
-      <path
-        d={`M ${dx} ${top} Q ${right * 0.5 + dx} ${top + depth * 0.4} ${right} ${bottom} ${bottomPath} Q ${left * 0.5 + dx} ${top + depth * 0.4} ${dx} ${top} Z`}
-        fill={fill}
-        stroke={STROKE}
-        strokeWidth={2}
-        strokeLinejoin="round"
-      />
-    );
-  };
+  // Japanese black pine silhouette — asymmetric horizontal cloud-shelves
+  // of foliage, visible curving trunk (kuromatsu style), not stacked cones.
   return (
     <g transform={`translate(${x},${y})`}>
-      {/* trunk: tapered with subtle stripes */}
+      {/* Ground shadow */}
+      <ellipse cx={0} cy={h * 0.58} rx={h * 0.3} ry={h * 0.04} fill="#000" opacity={0.2} />
+
+      {/* Curving trunk — gently S-shaped, tapered, warm bark */}
       <path
-        d={`M ${-h * 0.06} ${h * 0.32} L ${-h * 0.08} ${h * 0.55} L ${h * 0.08} ${h * 0.55} L ${h * 0.06} ${h * 0.32} Z`}
-        fill="#7B4F2C" stroke={STROKE} strokeWidth={2} strokeLinejoin="round"
+        d={`M ${-h * 0.05} ${h * 0.55}
+            Q ${-h * 0.02} ${h * 0.38} ${-h * 0.08} ${h * 0.22}
+            Q ${-h * 0.12} ${h * 0.02} ${-h * 0.04} ${-h * 0.2}
+            Q ${h * 0.02} ${-h * 0.38} ${-h * 0.02} ${-h * 0.52}
+            L ${h * 0.02} ${-h * 0.52}
+            Q ${h * 0.06} ${-h * 0.38} ${h * 0.0} ${-h * 0.2}
+            Q ${-h * 0.08} ${h * 0.02} ${-h * 0.04} ${h * 0.22}
+            Q ${h * 0.02} ${h * 0.38} ${h * 0.05} ${h * 0.55} Z`}
+        fill="#7B4F2C" stroke={STROKE} strokeWidth={1.8} strokeLinejoin="round"
       />
-      <line x1={-h * 0.04} y1={h * 0.36} x2={-h * 0.04} y2={h * 0.5} stroke={STROKE} strokeWidth={1} opacity={0.5} />
-      {/* tiers (back-to-front, each a slightly different green) */}
-      {tier(-h * 0.18, h * 0.42, h * 0.3, '#5C7E4F', h * 0.02)}
-      {tier(-h * 0.32, h * 0.36, h * 0.28, '#6B8E5A', -h * 0.01)}
-      {tier(-h * 0.46, h * 0.28, h * 0.22, '#7BA46F')}
-      {tier(-h * 0.58, h * 0.18, h * 0.16, '#8FB67A', h * 0.01)}
-      {/* highlight */}
-      <ellipse cx={-h * 0.18} cy={-h * 0.3} rx={h * 0.08} ry={h * 0.04} fill="#FFFFFF" opacity={0.25} />
+      {/* Bark striation */}
+      <path d={`M ${-h * 0.02} ${h * 0.4} Q ${-h * 0.08} ${h * 0.15} ${-h * 0.06} ${-h * 0.1}`} stroke={STROKE} strokeWidth={0.8} fill="none" opacity={0.45} />
+      <path d={`M ${h * 0.02} ${h * 0.45} Q ${-h * 0.04} ${h * 0.2} ${-h * 0.02} ${-h * 0.15}`} stroke={STROKE} strokeWidth={0.7} fill="none" opacity={0.35} />
+
+      {/* A side branch reaching right, with its own cloud */}
+      <path d={`M ${-h * 0.04} ${h * 0.02} Q ${h * 0.1} ${-h * 0.02} ${h * 0.22} ${-h * 0.04}`} stroke="#7B4F2C" strokeWidth={h * 0.035} strokeLinecap="round" fill="none" />
+
+      {/* Foliage shelves — irregular cloud shapes, layered back to front.
+          Each shelf outlined with rough bottom and smooth top, slight asymmetry. */}
+
+      {/* Far back/top cluster — small crown */}
+      <path
+        d={`M ${-h * 0.1} ${-h * 0.58}
+            Q ${-h * 0.18} ${-h * 0.65} ${-h * 0.05} ${-h * 0.72}
+            Q ${h * 0.1} ${-h * 0.75} ${h * 0.16} ${-h * 0.6}
+            Q ${h * 0.08} ${-h * 0.52} ${-h * 0.02} ${-h * 0.55}
+            Q ${-h * 0.12} ${-h * 0.52} ${-h * 0.1} ${-h * 0.58} Z`}
+        fill="#6B8E5A" stroke={STROKE} strokeWidth={1.8} strokeLinejoin="round"
+      />
+
+      {/* Right-leaning mid shelf (Japanese pine signature) */}
+      <path
+        d={`M ${h * 0.06} ${-h * 0.28}
+            Q ${h * 0.0} ${-h * 0.42} ${h * 0.2} ${-h * 0.45}
+            Q ${h * 0.42} ${-h * 0.43} ${h * 0.5} ${-h * 0.32}
+            Q ${h * 0.52} ${-h * 0.24} ${h * 0.38} ${-h * 0.22}
+            Q ${h * 0.22} ${-h * 0.16} ${h * 0.12} ${-h * 0.22}
+            Q ${h * 0.04} ${-h * 0.25} ${h * 0.06} ${-h * 0.28} Z`}
+        fill="#5C7E4F" stroke={STROKE} strokeWidth={1.8} strokeLinejoin="round"
+      />
+      {/* mid shelf highlight */}
+      <path
+        d={`M ${h * 0.18} ${-h * 0.4}
+            Q ${h * 0.3} ${-h * 0.42} ${h * 0.4} ${-h * 0.35}
+            Q ${h * 0.3} ${-h * 0.3} ${h * 0.2} ${-h * 0.33}
+            Q ${h * 0.14} ${-h * 0.36} ${h * 0.18} ${-h * 0.4} Z`}
+        fill="#7BA46F"
+      />
+
+      {/* Left-leaning lower shelf (bigger, asymmetric) */}
+      <path
+        d={`M ${-h * 0.45} ${-h * 0.08}
+            Q ${-h * 0.52} ${-h * 0.24} ${-h * 0.35} ${-h * 0.28}
+            Q ${-h * 0.1} ${-h * 0.32} ${h * 0.05} ${-h * 0.22}
+            Q ${h * 0.12} ${-h * 0.1} ${h * 0.02} ${-h * 0.02}
+            Q ${-h * 0.18} ${h * 0.02} ${-h * 0.35} ${-h * 0.02}
+            Q ${-h * 0.5} ${-h * 0.04} ${-h * 0.45} ${-h * 0.08} Z`}
+        fill="#5C7E4F" stroke={STROKE} strokeWidth={1.8} strokeLinejoin="round"
+      />
+      {/* lower shelf highlight puff */}
+      <path
+        d={`M ${-h * 0.35} ${-h * 0.18}
+            Q ${-h * 0.2} ${-h * 0.24} ${-h * 0.05} ${-h * 0.2}
+            Q ${-h * 0.1} ${-h * 0.12} ${-h * 0.22} ${-h * 0.12}
+            Q ${-h * 0.35} ${-h * 0.14} ${-h * 0.35} ${-h * 0.18} Z`}
+        fill="#7BA46F"
+      />
+
+      {/* Tiny low-right cloud on the branch */}
+      <ellipse cx={h * 0.28} cy={-h * 0.04} rx={h * 0.1} ry={h * 0.07} fill="#6B8E5A" stroke={STROKE} strokeWidth={1.5} />
+      <ellipse cx={h * 0.28} cy={-h * 0.06} rx={h * 0.06} ry={h * 0.03} fill="#8FB67A" />
+
+      {/* Needle suggestions — tiny dark flecks on each cloud */}
+      <circle cx={-h * 0.2} cy={-h * 0.18} r={0.8} fill={STROKE} opacity={0.5} />
+      <circle cx={h * 0.3}  cy={-h * 0.3}  r={0.8} fill={STROKE} opacity={0.5} />
+      <circle cx={-h * 0.02}cy={-h * 0.62} r={0.7} fill={STROKE} opacity={0.5} />
+      <circle cx={h * 0.26} cy={-h * 0.02} r={0.7} fill={STROKE} opacity={0.5} />
+
+      {/* A subtle dappled highlight on the top cloud */}
+      <circle cx={h * 0.02} cy={-h * 0.68} r={h * 0.04} fill="#FFFFFF" opacity={0.35} />
     </g>
   );
 }
@@ -368,8 +416,8 @@ export function FrogPondHabitat({ x, y, size = 80 }: IllustrationProps) {
       {lilyFlower(-r * 0.75, r * 0.05, r * 0.14)}
       {lilyFlower( r * 0.72, -r * 0.18, r * 0.11, '#FFE2E8')}
 
-      {/* Frog on the front-center pad */}
-      <g transform={`translate(${-r * 0.15}, ${r * 0.42})`}>
+      {/* Frog sits on the front-center pad (pad center is -r*0.1, r*0.35) */}
+      <g transform={`translate(${-r * 0.1}, ${r * 0.27})`}>
         {/* hind legs (visible behind body) */}
         <ellipse cx={-r * 0.2} cy={r * 0.05} rx={r * 0.13} ry={r * 0.06} fill="#5C7E4F" stroke={STROKE} strokeWidth={1.3} transform={`rotate(20 ${-r * 0.2} ${r * 0.05})`} />
         <ellipse cx={r * 0.2} cy={r * 0.05} rx={r * 0.13} ry={r * 0.06} fill="#5C7E4F" stroke={STROKE} strokeWidth={1.3} transform={`rotate(-20 ${r * 0.2} ${r * 0.05})`} />

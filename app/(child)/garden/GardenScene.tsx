@@ -201,8 +201,8 @@ export default function GardenScene({
               All paths connect at the meadow junction (~780, 540). */}
           {(() => {
             const mainD = `M 360 160 C 400 280, 420 370, 460 420 S 560 500, 680 515 S 880 515, 960 475 S 1120 380, 1160 300 S 1200 200, 1280 170`;
-            const pondD = `M 780 515 C 880 555, 960 600, 1020 625`;
-            const bunnyD = `M 460 500 C 380 560, 320 620, 280 670`;
+            const pondD = `M 780 515 C 880 555, 960 605, 1055 635`;
+            const bunnyD = `M 580 510 C 500 560, 410 620, 330 665`;
             return (
               <g pointerEvents="none">
                 {/* soft shadow under the path */}
@@ -221,8 +221,8 @@ export default function GardenScene({
                 {[
                   { x: 400, y: 230 }, { x: 450, y: 380 }, { x: 560, y: 490 }, { x: 720, y: 520 },
                   { x: 900, y: 500 }, { x: 1060, y: 420 }, { x: 1180, y: 260 },
-                  { x: 850, y: 580 }, { x: 960, y: 615 },
-                  { x: 400, y: 545 }, { x: 320, y: 635 },
+                  { x: 870, y: 585 }, { x: 980, y: 625 },
+                  { x: 510, y: 550 }, { x: 420, y: 600 }, { x: 360, y: 640 },
                 ].map((s, i) => (
                   <g key={i}>
                     <ellipse cx={s.x + 1} cy={s.y + 2} rx={11} ry={6} fill="#000" opacity={0.2} />
@@ -233,6 +233,83 @@ export default function GardenScene({
               </g>
             );
           })()}
+
+          {/* Distant torii gate — Miyazaki signature, far behind the Math Mound,
+              half-occluded by the hills. Worn red (vermilion) with weathered
+              wood feel. */}
+          <g opacity={0.82} transform="translate(1180, 300)">
+            {/* shadow */}
+            <ellipse cx={0} cy={72} rx={44} ry={4} fill="#000" opacity={0.2} />
+            {/* uprights */}
+            <rect x={-36} y={0} width={8} height={72} fill="#B8563A" stroke="#5A2818" strokeWidth={1.2} />
+            <rect x={28}  y={0} width={8} height={72} fill="#B8563A" stroke="#5A2818" strokeWidth={1.2} />
+            {/* lower crossbar (nuki) */}
+            <rect x={-42} y={-10} width={84} height={7} fill="#8A3F2B" stroke="#5A2818" strokeWidth={1.2} />
+            {/* upper crossbar (kasagi) — upturned ends */}
+            <path
+              d="M -52 -26 Q -52 -34 -48 -34 L 48 -34 Q 52 -34 52 -26 L 42 -20 L -42 -20 Z"
+              fill="#B8563A" stroke="#5A2818" strokeWidth={1.2} strokeLinejoin="round"
+            />
+            {/* top shimmer */}
+            <rect x={-40} y={-32} width={80} height={2} fill="#F5C6B5" opacity={0.5} />
+            {/* center tie */}
+            <rect x={-3} y={-18} width={6} height={10} fill="#3F1E10" />
+          </g>
+
+          {/* Stone lantern (ishidoro) beside the main path — upper middle area */}
+          <g transform="translate(620, 470)">
+            {/* base shadow */}
+            <ellipse cx={0} cy={40} rx={18} ry={4} fill="#000" opacity={0.22} />
+            {/* square base */}
+            <rect x={-14} y={22} width={28} height={16} rx={2} fill="#A8A39A" stroke="#5F5B53" strokeWidth={1.4} />
+            {/* post */}
+            <rect x={-5} y={4} width={10} height={20} fill="#9B968D" stroke="#5F5B53" strokeWidth={1.2} />
+            {/* middle platform */}
+            <rect x={-11} y={-2} width={22} height={7} rx={1} fill="#B0ABA1" stroke="#5F5B53" strokeWidth={1.2} />
+            {/* light chamber (with soft glow inside) */}
+            <rect x={-9} y={-18} width={18} height={18} rx={2} fill="#7F7A70" stroke="#5F5B53" strokeWidth={1.4} />
+            {/* lantern window with warm glow */}
+            <rect x={-5.5} y={-15} width={11} height={11} rx={1} fill="#FFD98A" />
+            <rect x={-5.5} y={-15} width={11} height={11} rx={1} fill="none" stroke="#3F1E10" strokeWidth={0.8} />
+            {/* roof (pagoda-like with slight upturn) */}
+            <path
+              d="M -15 -18 Q -17 -22 -14 -24 L 14 -24 Q 17 -22 15 -18 Z"
+              fill="#6F6A60" stroke="#5F5B53" strokeWidth={1.2} strokeLinejoin="round"
+            />
+            <path
+              d="M -14 -24 L -4 -32 L 4 -32 L 14 -24 Z"
+              fill="#7F7A70" stroke="#5F5B53" strokeWidth={1.2} strokeLinejoin="round"
+            />
+            {/* finial */}
+            <circle cx={0} cy={-34} r={2.5} fill="#6F6A60" stroke="#5F5B53" strokeWidth={1} />
+            {/* moss accents at base */}
+            <ellipse cx={-9} cy={38} rx={5} ry={1.5} fill="#7BA46F" opacity={0.85} />
+            <ellipse cx={11} cy={38} rx={4} ry={1.4} fill="#7BA46F" opacity={0.85} />
+          </g>
+
+          {/* Bamboo cluster — Math Mound edge */}
+          <g transform="translate(880, 180)">
+            {[0, 8, 16, 24].map((dx, i) => (
+              <g key={i}>
+                <path
+                  d={`M ${dx} 150 L ${dx + (i % 2 === 0 ? -3 : 2)} 0`}
+                  stroke="#8CB27A" strokeWidth={5} strokeLinecap="round"
+                />
+                {/* node rings */}
+                {[30, 60, 90, 120].map(ny => (
+                  <line
+                    key={ny}
+                    x1={dx - 3} y1={ny}
+                    x2={dx + 3} y2={ny}
+                    stroke="#5C7E4F" strokeWidth={1.5}
+                  />
+                ))}
+                {/* leaf at top */}
+                <path d={`M ${dx} 5 Q ${dx + 12} -8 ${dx + 18} -16 Q ${dx + 8} -10 ${dx} 0`} fill="#7BA46F" stroke="#5C7E4F" strokeWidth={1} />
+                <path d={`M ${dx} 20 Q ${dx - 12} 10 ${dx - 20} 8 Q ${dx - 8} 16 ${dx} 25`} fill="#8FB67A" stroke="#5C7E4F" strokeWidth={1} />
+              </g>
+            ))}
+          </g>
 
           {/* pond (aligned with FrogPondHabitat at 1060,640) */}
           <g>
@@ -260,6 +337,29 @@ export default function GardenScene({
                 animate={{ rx: [10, 48], ry: [3, 14], opacity: [0.7, 0] }}
                 transition={{ duration: 4.5, repeat: Infinity, ease: 'easeOut', repeatDelay: 3 }}
               />
+            )}
+            {/* Koi swimming slowly in the pond — 2 fish on organic paths */}
+            {!reducedMotion && (
+              <>
+                <motion.g
+                  animate={{ x: [0, 40, 0, -40, 0], y: [0, 8, 14, 6, 0] }}
+                  transition={{ duration: 22, repeat: Infinity, ease: 'easeInOut' }}
+                >
+                  <Koi x={990} y={625} color="#E8713C" />
+                </motion.g>
+                <motion.g
+                  animate={{ x: [0, -30, -10, 20, 0], y: [0, -4, -10, -2, 0] }}
+                  transition={{ duration: 28, repeat: Infinity, ease: 'easeInOut', delay: 3 }}
+                >
+                  <Koi x={1110} y={660} color="#F5E6C9" mirror />
+                </motion.g>
+              </>
+            )}
+            {reducedMotion && (
+              <>
+                <Koi x={990} y={625} color="#E8713C" />
+                <Koi x={1110} y={660} color="#F5E6C9" mirror />
+              </>
             )}
           </g>
 
@@ -495,6 +595,25 @@ function Structure({
         </text>
       </g>
     </motion.g>
+  );
+}
+
+function Koi({ x, y, color, mirror = false }: { x: number; y: number; color: string; mirror?: boolean }) {
+  // Simple overhead-view koi — teardrop body + split tail, with a single
+  // dark spot. Blurred slightly to feel "under the water surface."
+  return (
+    <g transform={`translate(${x}, ${y}) ${mirror ? 'scale(-1, 1)' : ''}`} style={{ filter: 'blur(0.5px)', opacity: 0.88 }}>
+      {/* body */}
+      <ellipse cx={0} cy={0} rx={14} ry={6} fill={color} stroke="#5A3B1F" strokeWidth={0.8} opacity={0.9} />
+      {/* head lighter */}
+      <ellipse cx={-6} cy={0} rx={4} ry={4} fill="#FFFFFF" opacity={0.5} />
+      {/* dark spot */}
+      <ellipse cx={2} cy={-1.5} rx={3} ry={2} fill="#2B1810" opacity={0.7} />
+      {/* tail — split fin shape */}
+      <path d="M 12 0 Q 18 -5 22 -3 Q 20 0 22 3 Q 18 5 12 0 Z" fill={color} opacity={0.85} />
+      {/* side fin */}
+      <path d="M -2 4 Q 0 8 4 7" stroke={color} strokeWidth={2} fill="none" opacity={0.7} strokeLinecap="round" />
+    </g>
   );
 }
 
