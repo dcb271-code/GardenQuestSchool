@@ -34,37 +34,66 @@ export default async function HabitatsPage({
   const allSkills = [...MATH_SKILLS, ...READING_SKILLS];
   const nameBySkillCode = new Map(allSkills.map(s => [s.code, s.name]));
 
+  const unlockedCount = HABITAT_CATALOG.filter(h =>
+    h.prereqSkillCodes.every(c => mastered.has(c))
+  ).length;
+
+  const backHref = learnerId ? `/garden?learner=${learnerId}` : '/picker';
+
   return (
-    <main className="max-w-2xl mx-auto p-6 space-y-4">
+    <main className="max-w-2xl mx-auto p-6 space-y-6 pb-20">
       <div className="flex items-center justify-between">
         <Link
-          href="/picker"
+          href={backHref}
           className="text-2xl p-2 rounded-full bg-white border border-ochre"
-          aria-label="back to profile picker"
+          aria-label="back to garden"
           style={{ minWidth: 44, minHeight: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
         >←</Link>
-        <h1 className="text-kid-lg text-center flex-1">🏠 Habitats</h1>
+        <div className="flex-1 text-center">
+          <div className="text-3xl mb-1">🏠</div>
+          <h1
+            className="font-display text-[28px] text-bark leading-none"
+            style={{ fontWeight: 600, letterSpacing: '-0.015em' }}
+          >
+            <span className="italic text-forest">habitats</span>
+          </h1>
+        </div>
         <div style={{ width: 44 }}></div>
       </div>
 
-      <p className="text-kid-sm text-center text-bark/70">
-        Each habitat attracts different creatures to your garden.
-      </p>
-
-      <div className="space-y-3">
-        {HABITAT_CATALOG.map(h => {
-          const prereqsMet = h.prereqSkillCodes.every(c => mastered.has(c));
-          const prereqNames = h.prereqSkillCodes.map(c => nameBySkillCode.get(c) ?? c);
-          return (
-            <HabitatCard
-              key={h.code}
-              habitat={h}
-              unlocked={prereqsMet}
-              prereqDisplayNames={prereqsMet ? [] : prereqNames}
-            />
-          );
-        })}
+      <div className="bg-white/70 border-2 border-ochre rounded-xl p-4 text-center">
+        <div className="font-display italic text-[13px] tracking-[0.2em] uppercase text-bark/60">
+          your garden has
+        </div>
+        <div className="font-display text-[32px] text-bark mt-1" style={{ fontWeight: 600 }}>
+          <span className="text-forest">{unlockedCount}</span>
+          <span className="text-bark/40"> / {HABITAT_CATALOG.length}</span>
+        </div>
+        <p className="font-display italic text-[15px] text-bark/70 mt-1">
+          habitats built — each one invites different little creatures
+        </p>
       </div>
+
+      <section>
+        <h2 className="font-display italic text-[13px] text-bark/55 tracking-[0.2em] uppercase mb-3">
+          all the homes you can build
+        </h2>
+        <div className="space-y-3">
+          {HABITAT_CATALOG.map((h, i) => {
+            const prereqsMet = h.prereqSkillCodes.every(c => mastered.has(c));
+            const prereqNames = h.prereqSkillCodes.map(c => nameBySkillCode.get(c) ?? c);
+            return (
+              <HabitatCard
+                key={h.code}
+                habitat={h}
+                unlocked={prereqsMet}
+                prereqDisplayNames={prereqsMet ? [] : prereqNames}
+                index={i}
+              />
+            );
+          })}
+        </div>
+      </section>
     </main>
   );
 }
