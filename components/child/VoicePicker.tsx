@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { getAvailableVoices, speak, isSpeechAvailable } from '@/lib/audio/tts';
+import { GOOGLE_VOICE_PREFIX } from '@/lib/audio/useNarrator';
 
 interface VoicePickerProps {
   selected: string | null;
@@ -10,8 +11,32 @@ interface VoicePickerProps {
   onRateChange: (rate: number) => void;
 }
 
-// Regions we group voices into for the picker, in display order.
-// Voices detected as one of these langs get bucketed; the rest land in "Other".
+// Curated list of Google Cloud TTS voices we've picked specifically for
+// storybook-style narration for a 7-year-old. All within the 1M free
+// chars/month tier (Neural2); Studio voices have a lower 100k tier.
+interface GoogleVoice {
+  code: string;         // e.g., "en-GB-Neural2-A"
+  displayName: string;
+  region: string;
+  description: string;
+  premium?: boolean;    // Studio voices are premium (lower free tier)
+}
+
+const GOOGLE_VOICES: GoogleVoice[] = [
+  { code: 'en-GB-Neural2-A', displayName: 'Wren',  region: 'British',    description: 'warm, story-ready' },
+  { code: 'en-GB-Neural2-C', displayName: 'Isla',  region: 'British',    description: 'bright, friendly' },
+  { code: 'en-GB-Neural2-F', displayName: 'Mara',  region: 'British',    description: 'soft-spoken' },
+  { code: 'en-GB-Studio-B',  displayName: 'Beatrix', region: 'British',  description: 'audiobook-grade', premium: true },
+  { code: 'en-GB-Studio-C',  displayName: 'Celia', region: 'British',    description: 'audiobook-grade', premium: true },
+  { code: 'en-AU-Neural2-A', displayName: 'Piper', region: 'Australian', description: 'warm Aussie' },
+  { code: 'en-AU-Neural2-C', displayName: 'Willa', region: 'Australian', description: 'bright Aussie' },
+  { code: 'en-AU-News-E',    displayName: 'Rowan', region: 'Australian', description: 'clear & gentle' },
+  { code: 'en-IN-Neural2-A', displayName: 'Asha',  region: 'Indian',     description: 'melodic English' },
+  { code: 'en-US-Neural2-F', displayName: 'Hazel', region: 'American',   description: 'warm American' },
+  { code: 'en-US-Neural2-C', displayName: 'Jemma', region: 'American',   description: 'bright American' },
+  { code: 'en-US-Studio-O',  displayName: 'Nora',  region: 'American',   description: 'audiobook-grade', premium: true },
+];
+
 const REGION_LABELS: Array<{ label: string; matcher: (lang: string, name: string) => boolean; icon: string }> = [
   { label: 'British',    matcher: l => l === 'en-GB', icon: '🇬🇧' },
   { label: 'Irish',      matcher: l => l === 'en-IE', icon: '🇮🇪' },
@@ -23,11 +48,11 @@ const REGION_LABELS: Array<{ label: string; matcher: (lang: string, name: string
   { label: 'Canadian',   matcher: l => l === 'en-CA', icon: '🇨🇦' },
 ];
 
-// Heuristic: does this voice name sound feminine? (used to prioritize in UI)
 const FEMININE_NAMES = /samantha|karen|moira|fiona|serena|kate|tessa|veena|hazel|susan|heera|sonia|libby|natasha|clara|aria|ava|amy|joanna|emma|olivia|catherine|allison|female/i;
 
 export default function VoicePicker({ selected, rate, onSelect, onRateChange }: VoicePickerProps) {
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const [previewing, setPreviewing] = useState<string | null>(null);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
@@ -35,7 +60,6 @@ export default function VoicePicker({ selected, rate, onSelect, onRateChange }: 
       setLoaded(true);
       return;
     }
-    // Voices load async — listen for them.
     const loadVoices = () => {
       const vs = getAvailableVoices();
       if (vs.length > 0) {
@@ -45,7 +69,6 @@ export default function VoicePicker({ selected, rate, onSelect, onRateChange }: 
     };
     loadVoices();
     window.speechSynthesis.addEventListener('voiceschanged', loadVoices);
-    // Safety fallback: try again after a short delay
     const t = setTimeout(loadVoices, 400);
     return () => {
       window.speechSynthesis.removeEventListener('voiceschanged', loadVoices);
@@ -53,14 +76,34 @@ export default function VoicePicker({ selected, rate, onSelect, onRateChange }: 
     };
   }, []);
 
-  const preview = (voiceName: string | null) => {
-    void speak(
-      'Hello! Let\'s go exploring in the garden today.',
-      { voice: voiceName ?? undefined, rate }
-    );
+  const previewVoice = async (voiceName: string | null) => {
+    const sample = "Hello! Let's go exploring in the garden today.";
+    if (voiceName && voiceName.startsWith(GOOGLE_VOICE_PREFIX)) {
+      setPreviewing(voiceName);
+      try {
+        const googleVoice = voiceName.slice(GOOGLE_VOICE_PREFIX.length);
+        const res = await fetch('/api/tts', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ text: sample, voice: googleVoice, rate }),
+        });
+        if (!res.ok) throw new Error(`TTS HTTP ${res.status}`);
+        const blob = await res.blob();
+        const url = URL.createObjectURL(blob);
+        const audio = new Audio(url);
+        audio.onended = () => { URL.revokeObjectURL(url); setPreviewing(null); };
+        audio.onerror = () => { URL.revokeObjectURL(url); setPreviewing(null); };
+        await audio.play();
+      } catch (err) {
+        console.warn('Preview failed:', err);
+        setPreviewing(null);
+      }
+    } else {
+      void speak(sample, { voice: voiceName ?? undefined, rate });
+    }
   };
 
-  if (!isSpeechAvailable()) {
+  if (!isSpeechAvailable() && !true /* Google is still available via fetch */) {
     return (
       <div className="text-kid-sm text-bark/70 italic">
         Your browser does not support speech.
@@ -68,11 +111,7 @@ export default function VoicePicker({ selected, rate, onSelect, onRateChange }: 
     );
   }
 
-  if (!loaded) {
-    return <div className="text-kid-sm text-bark/70 italic">loading voices…</div>;
-  }
-
-  // Filter to English voices only, sort with feminine-names bubbled up.
+  // Filter web speech voices to English, sort with feminine-names bubbled up.
   const english = voices
     .filter(v => v.lang.toLowerCase().startsWith('en'))
     .sort((a, b) => {
@@ -82,7 +121,7 @@ export default function VoicePicker({ selected, rate, onSelect, onRateChange }: 
       return a.name.localeCompare(b.name);
     });
 
-  // Bucket by region
+  // Bucket web speech voices by region
   const buckets: Record<string, SpeechSynthesisVoice[]> = {};
   for (const v of english) {
     const region = REGION_LABELS.find(r => r.matcher(v.lang, v.name));
@@ -90,7 +129,20 @@ export default function VoicePicker({ selected, rate, onSelect, onRateChange }: 
     (buckets[key] ??= []).push(v);
   }
 
-  const selectedVoice = voices.find(v => v.name === selected) ?? null;
+  // Selected display
+  const selectedIsGoogle = selected?.startsWith(GOOGLE_VOICE_PREFIX);
+  const selectedGoogle = selectedIsGoogle
+    ? GOOGLE_VOICES.find(v => `${GOOGLE_VOICE_PREFIX}${v.code}` === selected)
+    : null;
+  const selectedWeb = !selectedIsGoogle
+    ? voices.find(v => v.name === selected)
+    : null;
+
+  const selectedLabel = selectedGoogle
+    ? `${selectedGoogle.displayName} · ${selectedGoogle.region}`
+    : selectedWeb
+      ? selectedWeb.name
+      : '✨ automatic (best available)';
 
   return (
     <div className="space-y-4">
@@ -99,18 +151,24 @@ export default function VoicePicker({ selected, rate, onSelect, onRateChange }: 
         <div className="flex-1 min-w-0">
           <div className="text-xs uppercase tracking-wider text-bark/60 font-display italic">current voice</div>
           <div className="font-display text-[17px] text-bark truncate" style={{ fontWeight: 500 }}>
-            {selectedVoice ? selectedVoice.name : '✨ automatic (best available)'}
+            {selectedLabel}
           </div>
-          {selectedVoice && (
-            <div className="text-xs text-bark/60 mt-0.5">{selectedVoice.lang}</div>
+          {selectedGoogle && (
+            <div className="text-xs text-bark/60 mt-0.5 font-display italic">
+              ☁ google cloud · {selectedGoogle.description}
+            </div>
+          )}
+          {selectedWeb && (
+            <div className="text-xs text-bark/60 mt-0.5">{selectedWeb.lang}</div>
           )}
         </div>
         <button
-          onClick={() => preview(selected)}
-          className="shrink-0 font-display italic text-[15px] px-4 py-2 rounded-full bg-sage text-white"
+          onClick={() => previewVoice(selected)}
+          disabled={previewing === selected}
+          className="shrink-0 font-display italic text-[15px] px-4 py-2 rounded-full bg-sage text-white disabled:opacity-70"
           style={{ touchAction: 'manipulation', minHeight: 44 }}
         >
-          ▶ hear it
+          {previewing === selected ? 'playing…' : '▶ hear it'}
         </button>
       </div>
 
@@ -134,10 +192,34 @@ export default function VoicePicker({ selected, rate, onSelect, onRateChange }: 
         </div>
       </div>
 
-      {/* Automatic option */}
+      {/* GOOGLE CLOUD VOICES — top of the list as our best picks */}
+      <div>
+        <div className="flex items-center gap-2 mb-2">
+          <span className="text-base">☁</span>
+          <div className="text-xs uppercase tracking-wider text-bark/60 font-display italic">
+            modern voices · google cloud
+          </div>
+        </div>
+        <div className="space-y-1.5">
+          {GOOGLE_VOICES.map(gv => {
+            const fullCode = `${GOOGLE_VOICE_PREFIX}${gv.code}`;
+            return (
+              <GoogleVoiceRow
+                key={gv.code}
+                voice={gv}
+                isSelected={selected === fullCode}
+                isPreviewing={previewing === fullCode}
+                onSelect={() => { onSelect(fullCode); previewVoice(fullCode); }}
+              />
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Automatic (no preference, lets browser pick best web speech) */}
       <div>
         <button
-          onClick={() => { onSelect(null); preview(null); }}
+          onClick={() => { onSelect(null); previewVoice(null); }}
           className={`w-full text-left px-4 py-3 rounded-xl border-2 flex items-center justify-between ${selected === null ? 'border-forest bg-forest/10' : 'border-ochre/60 bg-white hover:bg-ochre/5'}`}
           style={{ touchAction: 'manipulation', minHeight: 52 }}
         >
@@ -145,52 +227,98 @@ export default function VoicePicker({ selected, rate, onSelect, onRateChange }: 
             <div className="font-display text-[17px] text-bark" style={{ fontWeight: 500 }}>
               ✨ automatic
             </div>
-            <div className="text-xs text-bark/60 italic font-display">pick the best available voice</div>
+            <div className="text-xs text-bark/60 italic font-display">pick the best available voice on this device</div>
           </div>
           {selected === null && <div className="text-forest">✓</div>}
         </button>
       </div>
 
-      {/* Voice list grouped by region */}
-      {REGION_LABELS.map(region => {
-        const list = buckets[region.label];
-        if (!list || list.length === 0) return null;
-        return (
-          <div key={region.label}>
-            <div className="text-xs uppercase tracking-wider text-bark/55 font-display italic mb-2 flex items-center gap-2">
-              <span className="text-base not-italic">{region.icon}</span>
-              {region.label}
-            </div>
-            <div className="space-y-1.5">
-              {list.map(v => (
-                <VoiceRow
-                  key={v.name}
-                  voice={v}
-                  isSelected={selected === v.name}
-                  onSelect={() => { onSelect(v.name); preview(v.name); }}
-                />
-              ))}
-            </div>
+      {/* Web Speech voices (device voices) — only shown if available */}
+      {loaded && english.length > 0 && (
+        <details className="border-2 border-ochre/60 rounded-xl bg-white">
+          <summary className="cursor-pointer px-4 py-3 font-display italic text-[15px] text-bark/70">
+            device voices ({english.length})
+          </summary>
+          <div className="px-4 pb-4 space-y-3">
+            {REGION_LABELS.map(region => {
+              const list = buckets[region.label];
+              if (!list || list.length === 0) return null;
+              return (
+                <div key={region.label}>
+                  <div className="text-xs uppercase tracking-wider text-bark/55 font-display italic mb-1.5 flex items-center gap-2">
+                    <span className="text-base not-italic">{region.icon}</span>
+                    {region.label}
+                  </div>
+                  <div className="space-y-1">
+                    {list.map(v => (
+                      <VoiceRow
+                        key={v.name}
+                        voice={v}
+                        isSelected={selected === v.name}
+                        onSelect={() => { onSelect(v.name); previewVoice(v.name); }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+            {buckets['Other'] && (
+              <div>
+                <div className="text-xs uppercase tracking-wider text-bark/55 font-display italic mb-1.5">other</div>
+                <div className="space-y-1">
+                  {buckets['Other'].map(v => (
+                    <VoiceRow
+                      key={v.name}
+                      voice={v}
+                      isSelected={selected === v.name}
+                      onSelect={() => { onSelect(v.name); previewVoice(v.name); }}
+                    />
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
-        );
-      })}
-
-      {buckets['Other'] && (
-        <div>
-          <div className="text-xs uppercase tracking-wider text-bark/55 font-display italic mb-2">other</div>
-          <div className="space-y-1.5">
-            {buckets['Other'].map(v => (
-              <VoiceRow
-                key={v.name}
-                voice={v}
-                isSelected={selected === v.name}
-                onSelect={() => { onSelect(v.name); preview(v.name); }}
-              />
-            ))}
-          </div>
-        </div>
+        </details>
       )}
     </div>
+  );
+}
+
+function GoogleVoiceRow({
+  voice, isSelected, isPreviewing, onSelect,
+}: {
+  voice: GoogleVoice;
+  isSelected: boolean;
+  isPreviewing: boolean;
+  onSelect: () => void;
+}) {
+  return (
+    <button
+      onClick={onSelect}
+      className={`w-full text-left px-3 py-2.5 rounded-lg border-2 flex items-center gap-3 ${isSelected ? 'border-forest bg-forest/10' : 'border-ochre/30 hover:border-ochre bg-white hover:bg-ochre/5'}`}
+      style={{ touchAction: 'manipulation', minHeight: 48 }}
+    >
+      <div className="flex-1 min-w-0">
+        <div className="flex items-center gap-2">
+          <div className="font-display text-[17px] text-bark" style={{ fontWeight: 600, letterSpacing: '-0.005em' }}>
+            {voice.displayName}
+          </div>
+          <span className="text-[10px] text-bark/55 font-display italic">
+            {voice.region}
+          </span>
+          {voice.premium && (
+            <span className="text-[10px] bg-sun/40 text-bark px-1.5 py-0.5 rounded font-display italic">
+              studio
+            </span>
+          )}
+        </div>
+        <div className="text-[12px] text-bark/60 font-display italic mt-0.5">
+          {voice.description}
+        </div>
+      </div>
+      {isPreviewing && <div className="text-sage text-sm animate-pulse">♪</div>}
+      {isSelected && !isPreviewing && <div className="text-forest text-lg">✓</div>}
+    </button>
   );
 }
 
@@ -206,11 +334,11 @@ function VoiceRow({
   return (
     <button
       onClick={onSelect}
-      className={`w-full text-left px-3 py-2.5 rounded-lg border-2 flex items-center gap-3 ${isSelected ? 'border-forest bg-forest/10' : 'border-transparent hover:border-ochre/40 bg-white hover:bg-ochre/5'}`}
+      className={`w-full text-left px-3 py-2 rounded-lg border-2 flex items-center gap-3 ${isSelected ? 'border-forest bg-forest/10' : 'border-transparent hover:border-ochre/40 bg-white hover:bg-ochre/5'}`}
       style={{ touchAction: 'manipulation', minHeight: 44 }}
     >
       <div className="flex-1 min-w-0">
-        <div className="font-display text-[15px] text-bark truncate" style={{ fontWeight: 500 }}>
+        <div className="font-display text-[14px] text-bark truncate" style={{ fontWeight: 500 }}>
           {voice.name}
         </div>
         <div className="flex gap-1.5 mt-0.5 flex-wrap">
