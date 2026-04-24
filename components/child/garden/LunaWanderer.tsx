@@ -45,24 +45,34 @@ export default function LunaWanderer({
   return (
     <motion.g
       animate={{ x: spot.x, y: spot.y }}
-      transition={{ duration: 3.5, ease: [0.4, 0, 0.2, 1] }}
+      transition={{ duration: 3.8, ease: [0.4, 0, 0.22, 1] }}
       style={{ pointerEvents: 'none' }}
     >
-      {/* Breathing scale — Luna gently rises and falls */}
+      {/* Periodic head tilt — subtle curiosity moment every ~12s */}
       <motion.g
-        animate={{ scale: [1, 1.035, 1], y: [0, -1.2, 0] }}
-        transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
-        style={{ transformOrigin: '0px 20px' }}
+        animate={{ rotate: [0, 0, 0, -5, 0, 0] }}
+        transition={{
+          duration: 12,
+          repeat: Infinity,
+          times: [0, 0.7, 0.8, 0.85, 0.92, 1],
+          ease: 'easeInOut',
+        }}
       >
-        <LunaCat size={52} />
-        {/* Eye-blink overlay — two tiny arcs that appear briefly to cover the eyes */}
+        {/* Breathing scale — Luna gently rises and falls */}
         <motion.g
-          animate={{ opacity: [0, 0, 0, 1, 0] }}
-          transition={{ duration: 4.8, repeat: Infinity, times: [0, 0.88, 0.92, 0.94, 1], ease: 'easeInOut' }}
+          animate={{ scale: [1, 1.035, 1], y: [0, -1.2, 0] }}
+          transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
+          style={{ transformOrigin: '0px 20px' }}
         >
-          {/* Match eye positions in LunaCat: r=26, eyes at x=±0.17r, y=-0.04r */}
-          <path d="M -6 -2 Q -4.4 0 -2.8 -2" stroke="#5A3B1F" strokeWidth={1.4} fill="none" strokeLinecap="round" />
-          <path d="M 2.8 -2 Q 4.4 0 6 -2" stroke="#5A3B1F" strokeWidth={1.4} fill="none" strokeLinecap="round" />
+          <LunaCat size={52} />
+          {/* Eye-blink overlay */}
+          <motion.g
+            animate={{ opacity: [0, 0, 0, 1, 0] }}
+            transition={{ duration: 4.8, repeat: Infinity, times: [0, 0.88, 0.92, 0.94, 1], ease: 'easeInOut' }}
+          >
+            <path d="M -6 -2 Q -4.4 0 -2.8 -2" stroke="#5A3B1F" strokeWidth={1.4} fill="none" strokeLinecap="round" />
+            <path d="M 2.8 -2 Q 4.4 0 6 -2" stroke="#5A3B1F" strokeWidth={1.4} fill="none" strokeLinecap="round" />
+          </motion.g>
         </motion.g>
       </motion.g>
     </motion.g>
