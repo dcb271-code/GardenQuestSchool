@@ -50,7 +50,7 @@ export const GARDEN_STRUCTURES: MapStructure[] = [
     label: 'Blending Brook',
     subLabel: 'blending sounds',
     themeEmoji: '🪨',
-    x: 250, y: 370, size: 68,
+    x: 240, y: 340, size: 68,
     zone: 'reading',
   },
   {

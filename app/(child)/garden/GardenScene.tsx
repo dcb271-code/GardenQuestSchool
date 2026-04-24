@@ -203,9 +203,11 @@ export default function GardenScene({
             const mainD = `M 360 160 C 400 280, 420 370, 460 420 S 560 500, 680 515 S 880 515, 960 475 S 1120 380, 1160 300 S 1200 200, 1280 170`;
             const pondD = `M 780 515 C 880 555, 960 605, 1055 635`;
             const bunnyD = `M 580 510 C 500 560, 410 620, 330 665`;
-            // House path — from home's front walk (100, 540) curving up-right
-            // to meet the main path near Digraph Bridge at about (415, 320)
-            const houseD = `M 100 540 C 180 470, 280 400, 415 320`;
+            // House path — from home's front walk (below the house porch)
+            // curving up-right to meet the main path near Digraph Bridge.
+            // Starts at (55, 605) so the path exits from below-left of the
+            // house (like a driveway) and ends at (415, 320) on main path.
+            const houseD = `M 55 605 C 160 560, 290 430, 415 320`;
             return (
               <g pointerEvents="none">
                 {/* soft shadow under the path */}
@@ -229,7 +231,7 @@ export default function GardenScene({
                   { x: 900, y: 500 }, { x: 1060, y: 420 }, { x: 1180, y: 260 },
                   { x: 870, y: 585 }, { x: 980, y: 625 },
                   { x: 510, y: 550 }, { x: 420, y: 600 }, { x: 360, y: 640 },
-                  { x: 180, y: 490 }, { x: 280, y: 410 }, { x: 360, y: 360 },
+                  { x: 160, y: 570 }, { x: 260, y: 490 }, { x: 360, y: 370 },
                 ].map((s, i) => (
                   <g key={i}>
                     <ellipse cx={s.x + 1} cy={s.y + 2} rx={11} ry={6} fill="#000" opacity={0.2} />
@@ -241,88 +243,74 @@ export default function GardenScene({
             );
           })()}
 
-          {/* Brook — a natural Miyazaki stream that finds its way through
-              the woods. Variable width, depth gradient, boulders pinching
-              the flow, moss on wet rocks, grass tufts at the banks. Water
-              widens into a shallow pool where Blending Brook sits, then
-              slips beneath the Digraph Bridge. */}
+          {/* Brook — natural Miyazaki stream. Enters upper-left corner,
+              flows SE through the woods, widens at a pool around the
+              Blending Brook stones, and ends cleanly at the LEFT side of
+              the Digraph Bridge (disappearing beneath it). Kept well away
+              from the main path and the house path. */}
           <g pointerEvents="none">
-            {/* Outer wet-earth bank (dark green, slightly blurred feel
-                created by low opacity). Widest shape; fades into grass. */}
+            {/* Outer wet-earth bank */}
             <path
-              d={`M 35 105
-                  C 85 150, 95 220, 60 275
-                  C 30 335, 80 365, 150 375
-                  C 220 388, 290 395, 355 360
-                  L 390 340
-                  L 395 360
-                  L 355 385
-                  C 285 420, 200 415, 130 398
-                  C 40 380, 10 330, 35 270
-                  C 65 215, 70 150, 35 108 Z`}
+              d={`M 32 100
+                  C 80 145, 88 205, 58 260
+                  C 30 310, 90 330, 155 338
+                  C 215 345, 270 340, 320 328
+                  L 332 340
+                  L 300 352
+                  C 230 365, 150 358, 90 345
+                  C 25 330, 10 280, 38 230
+                  C 68 180, 72 135, 32 108 Z`}
               fill="#6B8E5A" opacity={0.35}
             />
-            {/* Primary water body (irregular, narrow in places, wider in pools) */}
+            {/* Primary water body — irregular, tapers into the bridge */}
             <path
-              d={`M 42 115
-                  C 80 160, 88 218, 58 270
-                  C 35 325, 88 355, 152 365
-                  C 220 378, 280 382, 342 358
-                  L 378 338
-                  L 378 352
-                  L 340 375
-                  C 275 400, 205 398, 138 382
-                  C 58 368, 25 325, 45 275
-                  C 72 225, 78 162, 42 118 Z`}
+              d={`M 40 110
+                  C 75 155, 85 208, 58 258
+                  C 35 305, 92 325, 155 330
+                  C 215 335, 268 330, 315 320
+                  L 325 330
+                  L 300 340
+                  C 235 355, 155 350, 95 338
+                  C 40 325, 22 285, 45 235
+                  C 72 190, 75 145, 40 115 Z`}
               fill="#B2D4D9"
             />
-            {/* Darker depth channel — suggests flowing water depth */}
+            {/* Darker depth channel */}
             <path
-              d={`M 50 140 C 72 190, 80 240, 62 280 C 50 320, 110 348, 170 360 C 240 372, 300 370, 350 345`}
+              d={`M 48 138 C 68 185, 78 232, 60 270 C 50 310, 115 322, 178 328 C 240 335, 290 328, 320 322`}
               stroke="#8FB7C2" strokeWidth={10} fill="none" strokeLinecap="round" opacity={0.7}
             />
-            {/* Shimmer ripples — short subtle arcs, not a single ribbon */}
-            <path d={`M 68 170 Q 78 180 72 192`} stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.7} strokeLinecap="round" />
-            <path d={`M 70 245 Q 62 255 72 262`} stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.6} strokeLinecap="round" />
-            <path d={`M 130 355 Q 148 360 160 358`} stroke="#FFFFFF" strokeWidth={1.1} fill="none" opacity={0.7} strokeLinecap="round" />
-            <path d={`M 240 375 Q 260 380 280 375`} stroke="#FFFFFF" strokeWidth={1.1} fill="none" opacity={0.7} strokeLinecap="round" />
-            <path d={`M 310 358 Q 325 362 340 355`} stroke="#FFFFFF" strokeWidth={1.1} fill="none" opacity={0.65} strokeLinecap="round" />
+            {/* Shimmer ripples — short arcs along the flow */}
+            <path d={`M 66 168 Q 74 178 70 190`} stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.7} strokeLinecap="round" />
+            <path d={`M 68 240 Q 60 250 70 258`} stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.6} strokeLinecap="round" />
+            <path d={`M 125 318 Q 142 323 156 320`} stroke="#FFFFFF" strokeWidth={1.1} fill="none" opacity={0.7} strokeLinecap="round" />
+            <path d={`M 220 328 Q 245 332 265 328`} stroke="#FFFFFF" strokeWidth={1.1} fill="none" opacity={0.7} strokeLinecap="round" />
 
             {/* Moss-topped boulders sitting IN the stream, pinching flow */}
             <g>
-              <ellipse cx={85} cy={208} rx={16} ry={10} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.5} />
-              <ellipse cx={82} cy={202} rx={12} ry={5}  fill="#A89D8A" />
-              <ellipse cx={85} cy={200} rx={14} ry={3.5} fill="#7BA46F" opacity={0.9} />
-              <circle cx={80} cy={199} r={1.2} fill="#8FB67A" />
+              <ellipse cx={82} cy={195} rx={16} ry={10} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.5} />
+              <ellipse cx={80} cy={190} rx={12} ry={5}  fill="#A89D8A" />
+              <ellipse cx={82} cy={188} rx={14} ry={3.5} fill="#7BA46F" opacity={0.9} />
+              <circle cx={78} cy={187} r={1.2} fill="#8FB67A" />
             </g>
             <g>
-              <ellipse cx={182} cy={348} rx={14} ry={8} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.5} />
-              <ellipse cx={180} cy={343} rx={10} ry={4} fill="#A89D8A" />
-              <ellipse cx={182} cy={341} rx={12} ry={3} fill="#7BA46F" opacity={0.9} />
+              <ellipse cx={172} cy={312} rx={14} ry={8} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.5} />
+              <ellipse cx={170} cy={308} rx={10} ry={4} fill="#A89D8A" />
+              <ellipse cx={172} cy={306} rx={12} ry={3} fill="#7BA46F" opacity={0.9} />
             </g>
             <g>
-              <ellipse cx={118} cy={290} rx={11} ry={7} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.4} />
-              <ellipse cx={120} cy={286} rx={7} ry={3} fill="#A89D8A" />
+              <ellipse cx={118} cy={272} rx={11} ry={7} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.4} />
+              <ellipse cx={120} cy={268} rx={7} ry={3} fill="#A89D8A" />
             </g>
 
-            {/* Dry stones on the banks (kare-sansui feeling) */}
-            <g>
-              <ellipse cx={28} cy={200} rx={10} ry={6} fill="#C2B4A0" stroke="#6B5D48" strokeWidth={1.2} />
-              <ellipse cx={26} cy={197} rx={6} ry={2.5} fill="#D6C9B3" />
-            </g>
-            <g>
-              <ellipse cx={20} cy={320} rx={8} ry={5} fill="#C2B4A0" stroke="#6B5D48" strokeWidth={1.2} />
-            </g>
-            <g>
-              <ellipse cx={315} cy={395} rx={10} ry={5} fill="#C2B4A0" stroke="#6B5D48" strokeWidth={1.2} />
-              <ellipse cx={312} cy={392} rx={5} ry={2} fill="#D6C9B3" />
-            </g>
-            <g>
-              <ellipse cx={90} cy={385} rx={9} ry={5} fill="#B8AA96" stroke="#6B5D48" strokeWidth={1.2} />
-            </g>
+            {/* Dry stones on the banks */}
+            <ellipse cx={28} cy={190} rx={10} ry={6} fill="#C2B4A0" stroke="#6B5D48" strokeWidth={1.2} />
+            <ellipse cx={26} cy={187} rx={6} ry={2.5} fill="#D6C9B3" />
+            <ellipse cx={20} cy={295} rx={8} ry={5} fill="#C2B4A0" stroke="#6B5D48" strokeWidth={1.2} />
+            <ellipse cx={82} cy={355} rx={9} ry={5} fill="#B8AA96" stroke="#6B5D48" strokeWidth={1.2} />
 
             {/* Grass tufts at the bank edges */}
-            {[[30, 240], [98, 330], [240, 360], [340, 380]].map(([gx, gy], i) => (
+            {[[30, 235], [95, 305], [200, 320], [280, 318]].map(([gx, gy], i) => (
               <g key={i} transform={`translate(${gx},${gy})`}>
                 <path d="M 0 0 Q -1 -6 -2 -10" stroke="#5C7E4F" strokeWidth={1.3} fill="none" strokeLinecap="round" />
                 <path d="M 0 0 Q 1 -7 3 -11" stroke="#5C7E4F" strokeWidth={1.3} fill="none" strokeLinecap="round" />
@@ -330,22 +318,22 @@ export default function GardenScene({
               </g>
             ))}
 
-            {/* A small cattail at a bend */}
-            <g transform="translate(45, 180)">
+            {/* Cattail at a bend */}
+            <g transform="translate(45, 170)">
               <path d="M 0 0 Q -1 -14 -3 -28" stroke="#6B8E5A" strokeWidth={1.6} fill="none" strokeLinecap="round" />
               <ellipse cx={-3} cy={-30} rx={1.8} ry={6} fill="#7B4F2C" stroke="#3F2817" strokeWidth={0.8} />
             </g>
 
-            {/* Concentric ripple — natural animation, subtle */}
+            {/* Concentric ripples */}
             {!reducedMotion && (
               <>
                 <motion.ellipse
-                  cx={150} cy={355} rx={6} ry={2} fill="none" stroke="#FFFFFF" strokeWidth={0.9}
+                  cx={150} cy={325} rx={6} ry={2} fill="none" stroke="#FFFFFF" strokeWidth={0.9}
                   animate={{ rx: [4, 18], ry: [1.2, 5], opacity: [0.7, 0] }}
                   transition={{ duration: 5.5, repeat: Infinity, ease: 'easeOut', repeatDelay: 3.5 }}
                 />
                 <motion.ellipse
-                  cx={270} cy={380} rx={5} ry={1.6} fill="none" stroke="#FFFFFF" strokeWidth={0.8}
+                  cx={255} cy={328} rx={5} ry={1.6} fill="none" stroke="#FFFFFF" strokeWidth={0.8}
                   animate={{ rx: [3, 14], ry: [1, 4], opacity: [0.6, 0] }}
                   transition={{ duration: 4.8, repeat: Infinity, ease: 'easeOut', repeatDelay: 5, delay: 2 }}
                 />
@@ -494,15 +482,15 @@ export default function GardenScene({
 
           {/* COZY HOUSE — off to the left, anchoring the house-path entrance.
               Painted BEFORE the trees so foliage can overlap naturally. */}
-          <CozyHouse x={100} y={460} size={140} />
-          {/* Chimney smoke — 3 soft puffs drifting up from (146, 388) */}
+          <CozyHouse x={100} y={525} size={140} />
+          {/* Chimney smoke — 3 soft puffs drifting up from chimney top ~(146, 455) */}
           {!reducedMotion && (
             <g pointerEvents="none">
               {[0, 1, 2].map(i => (
                 <motion.ellipse
                   key={i}
                   cx={146}
-                  cy={388}
+                  cy={455}
                   rx={8}
                   ry={6}
                   fill="#E8E0D3"
@@ -524,11 +512,11 @@ export default function GardenScene({
             </g>
           )}
 
-          {/* trees NW (reading grove) */}
-          <Sway x={80}   y={100} delay={0.0}><Tree x={80}  y={100} size={100} variant={1} /></Sway>
-          <Sway x={170}  y={80}  delay={0.6}><PineTree x={170} y={80} size={90} /></Sway>
-          <Sway x={50}   y={200} delay={1.2}><Tree x={50}  y={200} size={80} variant={2} /></Sway>
-          <Sway x={200}  y={50}  delay={1.8}><Tree x={200} y={50} size={70} variant={3} /></Sway>
+          {/* trees NW (reading grove) — spaced out so crowns don't overlap */}
+          <Sway x={70}   y={110} delay={0.0}><Tree x={70}  y={110} size={95}  variant={1} /></Sway>
+          <Sway x={250}  y={70}  delay={0.6}><PineTree x={250} y={70}  size={90} /></Sway>
+          <Sway x={30}   y={240} delay={1.2}><Tree x={30}  y={240} size={75}  variant={2} /></Sway>
+          <Sway x={180}  y={40}  delay={1.8}><Tree x={180} y={40}  size={62}  variant={3} /></Sway>
           {/* trees NE (math mound backdrop) — extended for 1440 */}
           <Sway x={1380} y={70}  delay={0.3}><PineTree x={1380} y={70} size={100} /></Sway>
           <Sway x={1320} y={130} delay={0.9}><Tree x={1320} y={130} size={90} variant={1} /></Sway>
