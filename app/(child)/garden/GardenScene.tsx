@@ -10,6 +10,7 @@ import type { SpeciesData } from '@/lib/world/speciesCatalog';
 import ArrivalCard from '@/components/child/garden/ArrivalCard';
 import LunaWanderer from '@/components/child/garden/LunaWanderer';
 import AmbientLayer from '@/components/child/garden/AmbientLayer';
+import SisterWalkers, { SISTERS_HOME } from '@/components/child/garden/SisterWalkers';
 import { StructureIllustration, Tree, PineTree, Flower, GrassTuft, CozyHouse } from '@/components/child/garden/illustrations';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
 
@@ -39,6 +40,11 @@ export default function GardenScene({
   const [starting, setStarting] = useState(false);
   const [tappedCode, setTappedCode] = useState<string | null>(null);
 
+  // Sister walkers — always start at home on a fresh load; walk to
+  // tapped structure before starting a session.
+  const [sistersTarget, setSistersTarget] = useState(SISTERS_HOME);
+  const [sistersWalking, setSistersWalking] = useState(false);
+
   const hour = typeof window !== 'undefined' ? new Date().getHours() : 12;
   // Softer tints — the garden stays bright and legible across all hours
   const tint =
@@ -59,6 +65,13 @@ export default function GardenScene({
     router.push(`/lesson/${sessionId}`);
   };
 
+  // Offset so sisters stand in front of / just below the structure,
+  // not on top of its illustration.
+  const walkOffsetFor = (s: MapStructure) => ({
+    x: s.x - 10,                        // slight left so Cecily fronts the structure
+    y: s.y + s.size * 0.6,              // stand just in front of the base
+  });
+
   const onStructureTap = (s: MapStructure) => {
     const state = structureStates[s.code];
     if (!state?.unlocked) {
@@ -68,11 +81,26 @@ export default function GardenScene({
     // Trigger a petal burst on unlocked tap
     setTappedCode(s.code);
     window.setTimeout(() => setTappedCode(null), 700);
+
     if (s.kind === 'skill' && s.skillCode) {
-      startSkill(s.skillCode);
+      // Walk the sisters over first (1.2s), then start the session
+      setSistersTarget(walkOffsetFor(s));
+      setSistersWalking(true);
+      const walkMs = reducedMotion ? 200 : 1200;
+      window.setTimeout(() => {
+        setSistersWalking(false);
+        startSkill(s.skillCode!);
+      }, walkMs);
       return;
     }
-    setSelected(s);
+    // Habitats: also walk over, then open the habitat modal
+    setSistersTarget(walkOffsetFor(s));
+    setSistersWalking(true);
+    const walkMs = reducedMotion ? 200 : 1200;
+    window.setTimeout(() => {
+      setSistersWalking(false);
+      setSelected(s);
+    }, walkMs);
   };
 
   return (
@@ -169,35 +197,87 @@ export default function GardenScene({
           {/* Distant layered hills (Totoro-style) — paint these BEFORE zones
               so zone washes sit atop them. */}
           <g opacity="0.75">
-            {/* FARTHEST — a single Fuji-like mountain silhouette far back,
-                pale blue, with a soft snow cap. Sits above the hill band. */}
-            <g opacity={0.7}>
-              {/* mountain cone */}
+            {/* MOUNTAIN RANGE — 4 Fuji-like Miyazaki peaks at the very top.
+                Varying heights, asymmetric bases, whimsical snow caps.
+                Farthest peaks are cooler and more transparent for depth. */}
+            <g>
+              {/* Peak 4 — far-left, small, most distant & misty */}
               <path
-                d={`M 530 ${MAP_HEIGHT * 0.42}
-                    Q 570 ${MAP_HEIGHT * 0.3} 620 ${MAP_HEIGHT * 0.18}
-                    L 660 ${MAP_HEIGHT * 0.12}
-                    L 710 ${MAP_HEIGHT * 0.2}
-                    Q 760 ${MAP_HEIGHT * 0.31} 790 ${MAP_HEIGHT * 0.42} Z`}
-                fill="#B8BED8"
+                d="M 180 280 Q 230 215 270 150 Q 285 138 300 152 Q 340 215 380 280 Z"
+                fill="#D4DAE8" opacity={0.55}
               />
-              {/* snow cap */}
               <path
-                d={`M 622 ${MAP_HEIGHT * 0.22}
-                    L 660 ${MAP_HEIGHT * 0.12}
-                    L 698 ${MAP_HEIGHT * 0.22}
-                    Q 680 ${MAP_HEIGHT * 0.2} 668 ${MAP_HEIGHT * 0.23}
-                    Q 655 ${MAP_HEIGHT * 0.21} 642 ${MAP_HEIGHT * 0.24}
-                    Q 630 ${MAP_HEIGHT * 0.21} 622 ${MAP_HEIGHT * 0.22} Z`}
-                fill="#F4F0E3"
+                d="M 272 168 Q 288 148 300 156 Q 310 162 318 170
+                   Q 306 168 298 174 Q 288 170 280 178 Q 272 172 272 168 Z"
+                fill="#F4F0E3" opacity={0.7}
               />
-              {/* shadow side */}
+
+              {/* Peak 2 — left side, medium-tall, classic Fuji silhouette */}
               <path
-                d={`M 660 ${MAP_HEIGHT * 0.12}
-                    L 710 ${MAP_HEIGHT * 0.2}
-                    Q 760 ${MAP_HEIGHT * 0.31} 790 ${MAP_HEIGHT * 0.42}
-                    L 660 ${MAP_HEIGHT * 0.42} Z`}
-                fill="#A6ADC7" opacity={0.5}
+                d="M 400 285 Q 450 220 505 130 Q 525 112 545 132 Q 600 220 645 285 Z"
+                fill="#B5BED4" opacity={0.72}
+              />
+              {/* snow cap — asymmetric, with drippy irregular bottom edge */}
+              <path
+                d="M 482 160 Q 510 124 527 128 Q 543 132 562 162
+                   Q 552 158 542 168 Q 528 156 518 170 Q 505 162 495 172 Q 485 166 482 160 Z"
+                fill="#F8F4E8"
+              />
+              {/* shadow (right side) */}
+              <path
+                d="M 527 128 Q 600 220 645 285 L 527 285 Z"
+                fill="#9BA4BD" opacity={0.42}
+              />
+
+              {/* Peak 1 — THE BIG ONE, center, tallest & most prominent */}
+              <path
+                d="M 620 290 Q 680 210 758 80 Q 782 62 806 82 Q 870 210 920 290 Z"
+                fill="#ABB5CE"
+              />
+              {/* snow cap — generous, with drippy irregular bottom */}
+              <path
+                d="M 708 140 Q 752 80 778 76 Q 800 80 830 142
+                   Q 816 138 804 150 Q 790 134 778 150 Q 762 138 748 154
+                   Q 732 142 720 156 Q 712 148 708 140 Z"
+                fill="#FBF8ED"
+              />
+              {/* shadow side (more pronounced on the big peak) */}
+              <path
+                d="M 782 72 Q 870 210 920 290 L 782 290 Z"
+                fill="#8D97B4" opacity={0.5}
+              />
+              {/* soft highlight on left slope */}
+              <path
+                d="M 720 160 Q 700 220 660 280 Q 690 210 735 150 Z"
+                fill="#C8D0E3" opacity={0.55}
+              />
+
+              {/* Peak 3 — right of big peak, medium, with mist at base */}
+              <path
+                d="M 900 285 Q 955 215 1010 125 Q 1030 108 1050 128 Q 1095 215 1135 285 Z"
+                fill="#C0C8DB" opacity={0.78}
+              />
+              <path
+                d="M 988 150 Q 1016 118 1035 124 Q 1050 132 1075 160
+                   Q 1060 155 1048 162 Q 1032 148 1022 162 Q 1008 152 998 164 Q 988 156 988 150 Z"
+                fill="#F2EDE0" opacity={0.85}
+              />
+              <path
+                d="M 1035 124 Q 1095 215 1135 285 L 1035 285 Z"
+                fill="#A4ACC3" opacity={0.38}
+              />
+
+              {/* Peak 5 — far-right, smallest & most faded (atmospheric distance) */}
+              <path
+                d="M 1180 285 Q 1220 230 1255 178 Q 1270 165 1285 180 Q 1320 232 1355 285 Z"
+                fill="#DCE0ED" opacity={0.5}
+              />
+
+              {/* Soft mist band at the base of the whole range */}
+              <path
+                d="M 160 280 Q 400 260 700 275 T 1200 270 Q 1300 275 1400 282
+                   L 1400 310 L 160 310 Z"
+                fill="#FFFFFF" opacity={0.35}
               />
             </g>
 
@@ -657,6 +737,12 @@ export default function GardenScene({
           </AnimatePresence>
 
           <LunaWanderer mapWidth={MAP_WIDTH} mapHeight={MAP_HEIGHT} reducedMotion={reducedMotion} />
+
+          <SisterWalkers
+            target={sistersTarget}
+            walking={sistersWalking}
+            reducedMotion={reducedMotion}
+          />
 
           <rect width={MAP_WIDTH} height={MAP_HEIGHT} fill={tint} pointerEvents="none" />
         </svg>
