@@ -7,10 +7,13 @@
   body {
     @apply bg-cream text-bark font-body antialiased;
     touch-action: manipulation;
+    font-feature-settings: "ss01", "cv01", "cv05", "cv10";
   }
   button { touch-action: manipulation; }
-  /* iPad safari: disable callout on long-press */
   * { -webkit-touch-callout: none; }
+  .font-display {
+    letter-spacing: -0.015em;
+  }
 }
 
 @layer utilities {

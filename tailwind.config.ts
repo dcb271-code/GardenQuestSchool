@@ -19,8 +19,9 @@ const config: Config = {
         sun: '#FFD93D',
       },
       fontFamily: {
-        sans: ['Nunito', 'Quicksand', 'system-ui', 'sans-serif'],
-        body: ['Nunito', 'system-ui', 'sans-serif'],
+        sans: ['var(--font-nunito)', 'Nunito', 'Quicksand', 'system-ui', 'sans-serif'],
+        body: ['var(--font-nunito)', 'Nunito', 'system-ui', 'sans-serif'],
+        display: ['var(--font-fraunces)', 'Fraunces', 'Georgia', 'serif'],
       },
       fontSize: {
         'kid-lg': ['28px', { lineHeight: '1.4', fontWeight: '700' }],
