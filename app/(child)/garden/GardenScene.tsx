@@ -155,6 +155,38 @@ export default function GardenScene({
           {/* Distant layered hills (Totoro-style) — paint these BEFORE zones
               so zone washes sit atop them. */}
           <g opacity="0.75">
+            {/* FARTHEST — a single Fuji-like mountain silhouette far back,
+                pale blue, with a soft snow cap. Sits above the hill band. */}
+            <g opacity={0.7}>
+              {/* mountain cone */}
+              <path
+                d={`M 530 ${MAP_HEIGHT * 0.42}
+                    Q 570 ${MAP_HEIGHT * 0.3} 620 ${MAP_HEIGHT * 0.18}
+                    L 660 ${MAP_HEIGHT * 0.12}
+                    L 710 ${MAP_HEIGHT * 0.2}
+                    Q 760 ${MAP_HEIGHT * 0.31} 790 ${MAP_HEIGHT * 0.42} Z`}
+                fill="#B8BED8"
+              />
+              {/* snow cap */}
+              <path
+                d={`M 622 ${MAP_HEIGHT * 0.22}
+                    L 660 ${MAP_HEIGHT * 0.12}
+                    L 698 ${MAP_HEIGHT * 0.22}
+                    Q 680 ${MAP_HEIGHT * 0.2} 668 ${MAP_HEIGHT * 0.23}
+                    Q 655 ${MAP_HEIGHT * 0.21} 642 ${MAP_HEIGHT * 0.24}
+                    Q 630 ${MAP_HEIGHT * 0.21} 622 ${MAP_HEIGHT * 0.22} Z`}
+                fill="#F4F0E3"
+              />
+              {/* shadow side */}
+              <path
+                d={`M 660 ${MAP_HEIGHT * 0.12}
+                    L 710 ${MAP_HEIGHT * 0.2}
+                    Q 760 ${MAP_HEIGHT * 0.31} 790 ${MAP_HEIGHT * 0.42}
+                    L 660 ${MAP_HEIGHT * 0.42} Z`}
+                fill="#A6ADC7" opacity={0.5}
+              />
+            </g>
+
             {/* farthest hills (pale periwinkle) */}
             <path
               d={`M 0 ${MAP_HEIGHT * 0.38} Q 180 ${MAP_HEIGHT * 0.28} 360 ${MAP_HEIGHT * 0.34} T 720 ${MAP_HEIGHT * 0.3} T 1080 ${MAP_HEIGHT * 0.34} T ${MAP_WIDTH} ${MAP_HEIGHT * 0.32} L ${MAP_WIDTH} ${MAP_HEIGHT * 0.55} L 0 ${MAP_HEIGHT * 0.55} Z`}
