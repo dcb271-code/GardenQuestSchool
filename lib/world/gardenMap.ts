@@ -47,10 +47,10 @@ export const GARDEN_STRUCTURES: MapStructure[] = [
     code: 'reading_blending_beach',
     kind: 'skill',
     skillCode: 'reading.phonics.cvc_blend',
-    label: 'Blending Beach',
+    label: 'Blending Stones',
     subLabel: 'blending sounds',
-    themeEmoji: '🐚',
-    x: 150, y: 340, size: 68,
+    themeEmoji: '🪨',
+    x: 250, y: 370, size: 68,
     zone: 'reading',
   },
   {

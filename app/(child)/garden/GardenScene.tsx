@@ -241,6 +241,54 @@ export default function GardenScene({
             );
           })()}
 
+          {/* Brook — flows from upper-left corner, winds through the woods,
+              past the Blending Stones, and disappears under the Digraph
+              Bridge. A Miyazaki "stream cuts the woods" touch. Painted
+              BEFORE the bridge structure so the bridge overlays naturally. */}
+          <g>
+            {/* banks shadow */}
+            <path
+              d={`M 30 100
+                  Q 80 180 60 260
+                  Q 40 330 140 360
+                  Q 220 390 280 370
+                  Q 340 350 360 330
+                  L 380 330 L 380 348 L 360 348
+                  Q 340 368 280 388 Q 220 408 140 378
+                  Q 40 348 60 270 Q 80 190 30 115 Z`}
+              fill="#5C7E4F" opacity={0.22}
+            />
+            {/* water body */}
+            <path
+              d={`M 30 110
+                  Q 75 185 58 258
+                  Q 40 330 140 360
+                  Q 215 385 275 368
+                  Q 335 350 355 332
+                  L 380 332 L 380 342 L 357 342
+                  Q 337 360 276 378 Q 215 396 140 370
+                  Q 45 342 50 268 Q 68 188 30 122 Z`}
+              fill="#A8CFD8"
+            />
+            {/* current hint — subtle white ripple line along stream center */}
+            <path
+              d={`M 40 130 Q 70 200 55 265 Q 50 330 150 360 Q 230 390 340 348`}
+              stroke="#FFFFFF" strokeWidth={1.2} fill="none" opacity={0.55}
+            />
+            {/* Small pebbles at stream edges */}
+            {[[70, 180], [50, 260], [110, 340], [200, 382], [310, 365]].map(([px, py], i) => (
+              <ellipse key={i} cx={px} cy={py} rx={4} ry={2.4} fill="#C9B489" stroke="#8A7050" strokeWidth={0.8} />
+            ))}
+            {/* Subtle concentric ripple somewhere along the stream */}
+            {!reducedMotion && (
+              <motion.ellipse
+                cx={100} cy={340} rx={6} ry={2} fill="none" stroke="#FFFFFF" strokeWidth={0.9}
+                animate={{ rx: [4, 16], ry: [1.2, 5], opacity: [0.7, 0] }}
+                transition={{ duration: 5, repeat: Infinity, ease: 'easeOut', repeatDelay: 4 }}
+              />
+            )}
+          </g>
+
           {/* Torii gate — spans the main path at its Math Mound terminus,
               so the path literally runs through it. Worn vermilion with
               upturned kasagi ends. */}

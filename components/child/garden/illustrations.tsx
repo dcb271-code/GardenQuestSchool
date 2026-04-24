@@ -346,9 +346,11 @@ export function BunnyBurrow({ x, y, size = 80 }: IllustrationProps) {
         {/* inner ear pink */}
         <ellipse cx={-r * 0.08} cy={-r * 0.18} rx={r * 0.018} ry={r * 0.08} fill="#F5BFAE" transform={`rotate(-10 ${-r * 0.08} ${-r * 0.18})`} />
         <ellipse cx={r * 0.08} cy={-r * 0.18} rx={r * 0.018} ry={r * 0.08} fill="#F5BFAE" transform={`rotate(10 ${r * 0.08} ${-r * 0.18})`} />
-        {/* simple closed eyes — Miyazaki minimal — two short gentle arcs */}
-        <path d={`M ${-r * 0.09} ${-r * 0.02} Q ${-r * 0.06} ${r * 0.01} ${-r * 0.03} ${-r * 0.02}`} stroke={STROKE} strokeWidth={1.4} fill="none" strokeLinecap="round" />
-        <path d={`M ${r * 0.03} ${-r * 0.02} Q ${r * 0.06} ${r * 0.01} ${r * 0.09} ${-r * 0.02}`} stroke={STROKE} strokeWidth={1.4} fill="none" strokeLinecap="round" />
+        {/* gentle round dark eyes with tiny highlights — cute but soft */}
+        <ellipse cx={-r * 0.06} cy={-r * 0.02} rx={r * 0.03} ry={r * 0.038} fill="#1A1A1A" />
+        <ellipse cx={r * 0.06}  cy={-r * 0.02} rx={r * 0.03} ry={r * 0.038} fill="#1A1A1A" />
+        <circle cx={-r * 0.05} cy={-r * 0.035} r={r * 0.012} fill="#FFFFFF" />
+        <circle cx={r * 0.07}  cy={-r * 0.035} r={r * 0.012} fill="#FFFFFF" />
         {/* little nose */}
         <ellipse cx={0} cy={r * 0.05} rx={r * 0.018} ry={r * 0.012} fill="#C38D9E" />
         {/* soft mouth — tiny line */}
@@ -466,19 +468,19 @@ export function FrogPondHabitat({ x, y, size = 80 }: IllustrationProps) {
       {reed(r * 0.85, r * 0.5, 2)}
       {reed(r * 1.05, r * 0.6, -1)}
 
-      {/* Three lily pads — well-spaced inside the pond. The front-center
-          pad is the biggest so the frog clearly sits on it. Pad positions
-          and sizes chosen so no two pads touch. */}
-      {lilyPad(-r * 0.95,  r * 0.15, r * 0.3,  -30, '#7BA46F')}
-      {lilyPad( r * 0.85, -r * 0.2,  r * 0.28, 155, '#6B8E5A')}
-      {lilyPad( 0,         r * 0.35, r * 0.5, -110)}
+      {/* Three lily pads — naturally scattered, asymmetric. The front-right
+          pad is the biggest and holds the frog. Distance-checked so none
+          touch: upper-left ↔ front ≈ 1.3r, upper-right ↔ front ≈ 1.1r. */}
+      {lilyPad(-r * 1.05,  -r * 0.1, r * 0.32,  -20, '#7BA46F')}   // upper-left, tilted away
+      {lilyPad( r * 0.9,   -r * 0.3, r * 0.26,  170, '#6B8E5A')}   // upper-right, back facing
+      {lilyPad( r * 0.15,   r * 0.38, r * 0.48,  -95)}             // front, main (frog)
 
-      {/* Lily flower on the left pad (frog sits on the front pad) */}
-      {lilyFlower(-r * 0.82, r * 0.08, r * 0.14)}
+      {/* Lily flower on the upper-left pad */}
+      {lilyFlower(-r * 0.92, -r * 0.16, r * 0.13)}
 
-      {/* Frog sits clearly on the big front-center pad (pad center 0, r*0.35,
-          pad radius r*0.5 — frog body radius ~r*0.22 fits comfortably). */}
-      <g transform={`translate(0, ${r * 0.3})`}>
+      {/* Frog sits on the big front pad at (r*0.15, r*0.38). Pad radius
+          r*0.48 gives plenty of room. */}
+      <g transform={`translate(${r * 0.15}, ${r * 0.33})`}>
         {/* hind legs (visible behind body) */}
         <ellipse cx={-r * 0.2} cy={r * 0.05} rx={r * 0.13} ry={r * 0.06} fill="#5C7E4F" stroke={STROKE} strokeWidth={1.3} transform={`rotate(20 ${-r * 0.2} ${r * 0.05})`} />
         <ellipse cx={r * 0.2} cy={r * 0.05} rx={r * 0.13} ry={r * 0.06} fill="#5C7E4F" stroke={STROKE} strokeWidth={1.3} transform={`rotate(-20 ${r * 0.2} ${r * 0.05})`} />
@@ -733,24 +735,66 @@ export function WordStump({ x, y, size = 70 }: IllustrationProps) {
 
 export function BlendingBeach({ x, y, size = 60 }: IllustrationProps) {
   const r = size / 2;
+  // Whimsical "blending stones": three rounded stepping stones in a little
+  // brook, each with a lowercase letter (c · a · t) that spell together into
+  // a word. Water flows beneath with soft ripples. No more awkward shell.
+  const letters: [string, number, number][] = [
+    ['c', -r * 0.6,  r * 0.05],
+    ['a',  0,        r * 0.25],
+    ['t',  r * 0.6,  r * 0.05],
+  ];
   return (
     <g transform={`translate(${x},${y})`}>
-      {/* sandy patch */}
-      <ellipse cx={0} cy={r * 0.3} rx={r} ry={r * 0.5} fill="#F4E0B8" stroke={STROKE_LIGHT} strokeWidth={1.5} />
-      {/* shell (spiral) */}
-      <g transform={`translate(${-r * 0.1}, 0)`}>
-        <ellipse cx={0} cy={0} rx={r * 0.4} ry={r * 0.35} fill="#F8C9D2" stroke={STROKE} strokeWidth={1.5} />
-        <ellipse cx={r * 0.05} cy={-r * 0.05} rx={r * 0.28} ry={r * 0.24} fill="#F5B0BD" stroke={STROKE_LIGHT} strokeWidth={1} />
-        <path d={`M ${-r * 0.2} ${-r * 0.05} Q ${-r * 0.05} ${-r * 0.15} ${r * 0.1} ${-r * 0.05}`} stroke={STROKE} strokeWidth={1.2} fill="none" />
-        <path d={`M ${-r * 0.15} ${r * 0.05} Q ${0} ${r * 0.15} ${r * 0.15} ${r * 0.05}`} stroke={STROKE} strokeWidth={1.2} fill="none" />
-      </g>
-      {/* pebbles with letters */}
-      {[['c', -r * 0.55, r * 0.3], ['a', r * 0.55, r * 0.4], ['t', r * 0.3, r * 0.55]].map(([letter, px, py], i) => (
+      {/* Ground shadow */}
+      <ellipse cx={0} cy={r * 0.8} rx={r * 1.1} ry={r * 0.1} fill="#000" opacity={0.18} />
+
+      {/* Brook — soft irregular blue patch (the water this sits in) */}
+      <path
+        d={`M ${-r * 1.05} ${r * 0.1}
+            Q ${-r * 0.7} ${-r * 0.15} ${-r * 0.2} ${-r * 0.05}
+            Q ${r * 0.4} ${r * 0.1} ${r * 1.05} ${-r * 0.05}
+            Q ${r * 1.1} ${r * 0.3} ${r * 0.7} ${r * 0.45}
+            Q ${r * 0.15} ${r * 0.55} ${-r * 0.3} ${r * 0.48}
+            Q ${-r * 0.9} ${r * 0.4} ${-r * 1.05} ${r * 0.1} Z`}
+        fill="#A8CFD8" stroke="#5A8A80" strokeWidth={1.4} strokeLinejoin="round" opacity={0.92}
+      />
+      {/* darker water at the edges */}
+      <path
+        d={`M ${-r * 1.0} ${r * 0.12}
+            Q ${-r * 0.7} ${-r * 0.1} ${-r * 0.2} ${-r * 0.02}
+            Q ${r * 0.4} ${r * 0.12} ${r * 1.0} ${-r * 0.02}`}
+        stroke="#8DB7C2" strokeWidth={2.5} fill="none" opacity={0.6}
+      />
+      {/* shimmer highlights */}
+      <ellipse cx={-r * 0.4} cy={r * 0.22} rx={r * 0.14} ry={r * 0.03} fill="#FFFFFF" opacity={0.5} />
+      <ellipse cx={r * 0.35} cy={r * 0.3}  rx={r * 0.1}  ry={r * 0.025} fill="#FFFFFF" opacity={0.45} />
+      {/* little concentric ripple */}
+      <ellipse cx={r * 0.25} cy={r * 0.18} rx={r * 0.08} ry={r * 0.018} fill="none" stroke="#FFFFFF" strokeWidth={0.7} opacity={0.5} />
+
+      {/* Stepping stones with letters — laid in a shallow arc, so they
+          read as a path you could hop across. */}
+      {letters.map(([letter, px, py], i) => (
         <g key={i} transform={`translate(${px},${py})`}>
-          <ellipse rx={r * 0.13} ry={r * 0.1} fill="#C8B1A6" stroke={STROKE} strokeWidth={1} />
-          <text x={0} y={3} fontSize={r * 0.18} textAnchor="middle" fill={STROKE} fontWeight="bold">{letter as string}</text>
+          {/* stone shadow on water */}
+          <ellipse cx={0} cy={r * 0.1} rx={r * 0.24} ry={r * 0.05} fill="#000" opacity={0.18} />
+          {/* stone body */}
+          <ellipse cx={0} cy={0} rx={r * 0.26} ry={r * 0.16} fill="#D6CCB8" stroke={STROKE} strokeWidth={1.4} />
+          {/* stone top highlight */}
+          <ellipse cx={-r * 0.05} cy={-r * 0.05} rx={r * 0.18} ry={r * 0.08} fill="#EDE6D1" opacity={0.8} />
+          {/* bit of moss */}
+          <ellipse cx={r * 0.12} cy={r * 0.04} rx={r * 0.06} ry={r * 0.018} fill="#8FB67A" opacity={0.75} />
+          {/* letter */}
+          <text x={0} y={r * 0.06} fontSize={r * 0.32} textAnchor="middle" fill={STROKE} fontWeight="700" fontStyle="italic">
+            {letter}
+          </text>
         </g>
       ))}
+
+      {/* A reed on the left bank */}
+      <path d={`M ${-r * 0.95} ${r * 0.1} Q ${-r * 0.9} ${-r * 0.25} ${-r * 0.82} ${-r * 0.45}`} stroke="#6B8E5A" strokeWidth={1.5} fill="none" strokeLinecap="round" />
+      <ellipse cx={-r * 0.82} cy={-r * 0.5} rx={1.5} ry={5} fill="#7B4F2C" stroke={STROKE} strokeWidth={0.8} />
+      {/* Tiny yellow flower on the right bank */}
+      <Flower x={r * 0.95} y={-r * 0.15} size={5} color="#FFD166" />
     </g>
   );
 }
