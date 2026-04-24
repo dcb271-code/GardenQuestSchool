@@ -12,9 +12,25 @@ interface CloudSpec {
 }
 
 const CLOUDS: CloudSpec[] = [
-  { y: 55,  scale: 1.1, delay: 0,    duration: 90, opacity: 0.75 },
-  { y: 110, scale: 0.7, delay: 24,   duration: 72, opacity: 0.55 },
-  { y: 180, scale: 0.9, delay: 48,   duration: 110, opacity: 0.45 },
+  { y: 60,  scale: 1.25, delay: 0,    duration: 95,  opacity: 0.92 },
+  { y: 120, scale: 0.75, delay: 28,   duration: 78,  opacity: 0.78 },
+  { y: 190, scale: 1.0,  delay: 52,   duration: 115, opacity: 0.65 },
+];
+
+// Drifting leaves — occasional, float diagonally like autumn wind
+interface LeafSpec {
+  startX: number;
+  startY: number;
+  endX: number;
+  endY: number;
+  color: string;
+  duration: number;
+  delay: number;
+}
+const LEAVES: LeafSpec[] = [
+  { startX: -40,   startY: 80,  endX: 700,  endY: 620, color: '#E8A87C', duration: 22, delay: 8 },
+  { startX: 400,   startY: 50,  endX: 1100, endY: 580, color: '#C38D9E', duration: 26, delay: 32 },
+  { startX: -60,   startY: 220, endX: 900,  endY: 700, color: '#E8C493', duration: 30, delay: 18 },
 ];
 
 interface PollenSpec {
@@ -57,19 +73,19 @@ export default function AmbientLayer({ reducedMotion = false }: { reducedMotion?
     setHour(new Date().getHours());
   }, []);
 
-  // Cycle a fresh bird flight every 35-70 seconds
+  // Cycle a fresh bird flight every 25-50 seconds
   useEffect(() => {
     if (reducedMotion) return;
+    let handle: ReturnType<typeof setTimeout>;
     const cycle = () => {
-      const wait = 35000 + Math.random() * 35000;
-      const id = setTimeout(() => {
+      const wait = 25000 + Math.random() * 25000;
+      handle = setTimeout(() => {
         setBirdKey(k => k + 1);
         cycle();
       }, wait);
-      return id;
     };
-    const id = cycle();
-    return () => clearTimeout(id);
+    cycle();
+    return () => clearTimeout(handle);
   }, [reducedMotion]);
 
   const isNight = hour < 6 || hour >= 20;
@@ -92,8 +108,8 @@ export default function AmbientLayer({ reducedMotion = false }: { reducedMotion?
       {CLOUDS.map((c, i) => (
         <motion.g
           key={i}
-          initial={{ x: -260 }}
-          animate={{ x: 1460 }}
+          initial={{ x: -280 }}
+          animate={{ x: 1720 }}
           transition={{
             duration: c.duration,
             delay: c.delay,
@@ -102,6 +118,29 @@ export default function AmbientLayer({ reducedMotion = false }: { reducedMotion?
           }}
         >
           <Cloud x={0} y={c.y} scale={c.scale} opacity={c.opacity} />
+        </motion.g>
+      ))}
+
+      {/* Drifting leaves — occasional autumn motion across the sky/meadow */}
+      {LEAVES.map((l, i) => (
+        <motion.g
+          key={`leaf-${i}`}
+          initial={{ x: l.startX, y: l.startY, rotate: 0, opacity: 0 }}
+          animate={{
+            x: l.endX,
+            y: l.endY,
+            rotate: [0, 180, 360, 540, 720],
+            opacity: [0, 0.85, 0.85, 0.85, 0],
+          }}
+          transition={{
+            duration: l.duration,
+            delay: l.delay,
+            repeat: Infinity,
+            repeatDelay: 18,
+            ease: 'easeInOut',
+          }}
+        >
+          <Leaf color={l.color} />
         </motion.g>
       ))}
 
@@ -129,12 +168,16 @@ export default function AmbientLayer({ reducedMotion = false }: { reducedMotion?
         />
       ))}
 
-      {/* Occasional bird flight (diagonal across sky) */}
+      {/* Occasional bird flight — arcs across the sky, stays above structures */}
       <motion.g
         key={birdKey}
-        initial={{ x: -80, y: 0 }}
-        animate={{ x: 1400, y: 40 }}
-        transition={{ duration: 16, ease: 'easeOut' }}
+        initial={{ x: -60, y: 80, opacity: 0 }}
+        animate={{
+          x: [-60, 400, 900, 1500],
+          y: [80, 50, 90, 60],
+          opacity: [0, 1, 1, 0],
+        }}
+        transition={{ duration: 22, times: [0, 0.2, 0.7, 1], ease: 'easeInOut' }}
       >
         <Bird />
       </motion.g>
@@ -168,25 +211,46 @@ export default function AmbientLayer({ reducedMotion = false }: { reducedMotion?
 function Cloud({ x, y, scale, opacity }: { x: number; y: number; scale: number; opacity: number }) {
   return (
     <g transform={`translate(${x}, ${y}) scale(${scale})`} opacity={opacity}>
-      <ellipse cx={0}  cy={0} rx={42} ry={18} fill="#FFFFFF" />
-      <ellipse cx={26} cy={-6} rx={30} ry={16} fill="#FFFFFF" />
-      <ellipse cx={-24} cy={-4} rx={26} ry={14} fill="#FFFFFF" />
-      <ellipse cx={8}  cy={-14} rx={22} ry={12} fill="#FFFFFF" />
-      {/* subtle under-shadow */}
-      <ellipse cx={0}  cy={8} rx={40} ry={6} fill="#D9CFC0" opacity={0.35} />
+      {/* fluffy cumulus — 4 overlapping puffs, no hard under-shadow */}
+      <ellipse cx={-28} cy={-2} rx={28} ry={15} fill="#FFFFFF" />
+      <ellipse cx={30}  cy={-2} rx={32} ry={16} fill="#FFFFFF" />
+      <ellipse cx={0}   cy={0}  rx={46} ry={20} fill="#FFFFFF" />
+      <ellipse cx={10}  cy={-16} rx={24} ry={14} fill="#FFFFFF" />
+      <ellipse cx={-14} cy={-14} rx={20} ry={12} fill="#FFFFFF" />
+      {/* soft warm underside */}
+      <ellipse cx={0}   cy={6}  rx={42} ry={6}  fill="#F5E6C9" opacity={0.55} />
     </g>
   );
 }
 
 function Bird() {
-  // Simple seagull-M silhouette, wings flapping
+  // Two wings, gentle M-curve, scaled for sky distance
   return (
     <motion.g
-      animate={{ scaleY: [1, 0.6, 1] }}
-      transition={{ duration: 0.6, repeat: Infinity, ease: 'easeInOut' }}
+      animate={{ scaleY: [1, 0.55, 1] }}
+      transition={{ duration: 0.55, repeat: Infinity, ease: 'easeInOut' }}
       style={{ transformOrigin: '0px 0px' }}
     >
-      <path d="M -10 0 Q -5 -6 0 0 Q 5 -6 10 0" stroke="#5A3B1F" strokeWidth={2} fill="none" strokeLinecap="round" />
+      <path d="M -14 0 Q -7 -8 0 0 Q 7 -8 14 0" stroke="#5A3B1F" strokeWidth={2.2} fill="none" strokeLinecap="round" />
     </motion.g>
+  );
+}
+
+// A simple tumbling leaf — oak-shape silhouette
+function Leaf({ color }: { color: string }) {
+  return (
+    <g style={{ transformBox: 'fill-box' as any, transformOrigin: 'center' }}>
+      <path
+        d="M 0 -8 Q 6 -4 6 2 Q 4 8 0 10 Q -4 8 -6 2 Q -6 -4 0 -8 Z"
+        fill={color}
+        stroke="#5A3B1F"
+        strokeWidth={0.8}
+        strokeLinejoin="round"
+      />
+      {/* center vein */}
+      <line x1={0} y1={-7} x2={0} y2={9} stroke="#5A3B1F" strokeWidth={0.6} opacity={0.6} />
+      {/* side veins */}
+      <path d="M 0 -2 L -3 1 M 0 -2 L 3 1 M 0 3 L -3 6 M 0 3 L 3 6" stroke="#5A3B1F" strokeWidth={0.4} fill="none" opacity={0.5} />
+    </g>
   );
 }

@@ -28,7 +28,7 @@ export interface MapStructure {
   zone: 'reading' | 'math' | 'water' | 'meadow' | 'bunny';
 }
 
-export const MAP_WIDTH = 1200;
+export const MAP_WIDTH = 1440;
 export const MAP_HEIGHT = 800;
 
 export const GARDEN_STRUCTURES: MapStructure[] = [
@@ -92,7 +92,7 @@ export const GARDEN_STRUCTURES: MapStructure[] = [
     label: 'Counting Path',
     subLabel: 'skip counting',
     themeEmoji: '🪨',
-    x: 830, y: 180, size: 60,
+    x: 960, y: 180, size: 60,
     zone: 'math',
   },
   {
@@ -102,7 +102,7 @@ export const GARDEN_STRUCTURES: MapStructure[] = [
     label: 'Bee Swarms',
     subLabel: 'add within 20',
     themeEmoji: '🐝',
-    x: 1060, y: 200, size: 64,
+    x: 1190, y: 200, size: 64,
     zone: 'math',
   },
   {
@@ -112,7 +112,7 @@ export const GARDEN_STRUCTURES: MapStructure[] = [
     label: 'Butterfly Clusters',
     subLabel: 'make-10 add',
     themeEmoji: '🦋',
-    x: 980, y: 340, size: 68,
+    x: 1110, y: 340, size: 68,
     zone: 'math',
   },
   // Grade 2 stretches
@@ -123,7 +123,7 @@ export const GARDEN_STRUCTURES: MapStructure[] = [
     label: 'Tens Tower',
     subLabel: 'tens and ones',
     themeEmoji: '🏯',
-    x: 1100, y: 340, size: 64,
+    x: 1310, y: 340, size: 64,
     zone: 'math',
   },
   {
@@ -133,7 +133,7 @@ export const GARDEN_STRUCTURES: MapStructure[] = [
     label: "Hundred's Hollow",
     subLabel: '2-digit add',
     themeEmoji: '🌳',
-    x: 790, y: 320, size: 60,
+    x: 920, y: 320, size: 60,
     zone: 'math',
   },
   {
@@ -143,7 +143,7 @@ export const GARDEN_STRUCTURES: MapStructure[] = [
     label: 'Array Orchard',
     subLabel: 'rows × columns',
     themeEmoji: '🍎',
-    x: 1100, y: 440, size: 62,
+    x: 1310, y: 440, size: 62,
     zone: 'math',
   },
   {
@@ -153,7 +153,7 @@ export const GARDEN_STRUCTURES: MapStructure[] = [
     label: 'Compare Trees',
     subLabel: 'which is bigger?',
     themeEmoji: '🌲',
-    x: 870, y: 440, size: 56,
+    x: 1000, y: 440, size: 56,
     zone: 'math',
   },
   {
@@ -163,7 +163,7 @@ export const GARDEN_STRUCTURES: MapStructure[] = [
     label: 'Garden Stories',
     subLabel: 'word problems',
     themeEmoji: '📖',
-    x: 400, y: 420, size: 58,
+    x: 420, y: 420, size: 58,
     zone: 'meadow',
   },
   {
@@ -173,7 +173,7 @@ export const GARDEN_STRUCTURES: MapStructure[] = [
     label: 'Part & Whole',
     subLabel: 'number bonds',
     themeEmoji: '🌸',
-    x: 870, y: 330, size: 60,
+    x: 1000, y: 330, size: 60,
     zone: 'math',
   },
 
@@ -205,7 +205,7 @@ export const GARDEN_STRUCTURES: MapStructure[] = [
     habitatCode: 'frog_pond',
     label: 'Frog Pond',
     themeEmoji: '🐸',
-    x: 900, y: 640, size: 140,
+    x: 1060, y: 640, size: 140,
     zone: 'water',
   },
   {
@@ -214,7 +214,7 @@ export const GARDEN_STRUCTURES: MapStructure[] = [
     habitatCode: 'bee_hotel',
     label: 'Bee Hotel',
     themeEmoji: '🏡',
-    x: 1060, y: 560, size: 72,
+    x: 1240, y: 560, size: 72,
     zone: 'water',
   },
   {
@@ -223,7 +223,7 @@ export const GARDEN_STRUCTURES: MapStructure[] = [
     habitatCode: 'butterfly_bush',
     label: 'Butterfly Bush',
     themeEmoji: '🌷',
-    x: 1080, y: 700, size: 72,
+    x: 1260, y: 700, size: 72,
     zone: 'water',
   },
 
@@ -234,7 +234,7 @@ export const GARDEN_STRUCTURES: MapStructure[] = [
     habitatCode: 'ant_hill',
     label: 'Ant Hill',
     themeEmoji: '⛰️',
-    x: 700, y: 170, size: 72,
+    x: 780, y: 170, size: 72,
     zone: 'math',
   },
   {
@@ -243,7 +243,7 @@ export const GARDEN_STRUCTURES: MapStructure[] = [
     habitatCode: 'log_pile',
     label: 'Log Pile',
     themeEmoji: '🪵',
-    x: 560, y: 620, size: 72,
+    x: 620, y: 620, size: 72,
     zone: 'meadow',
   },
 ];

@@ -27,33 +27,68 @@ interface IllustrationProps {
 // ─────────────────────────────────────────────────────────────────────────
 
 export function Tree({ x, y, size = 60, variant = 1 }: IllustrationProps & { variant?: 1 | 2 | 3 }) {
-  // tree with trunk + double-layered foliage
+  // Miyazaki-style broad-leaf: a cloud of overlapping puffs, slight asymmetry,
+  // clear outline only on the outer silhouette (via a combined hull).
   const r = size / 2;
-  const trunkW = r * 0.28;
-  const trunkH = r * 0.5;
-  const foliageColors =
-    variant === 1 ? ['#7BA46F', '#8FB67A'] :
-    variant === 2 ? ['#6B8E5A', '#8FB67A'] :
-    ['#5C7E4F', '#7BA46F'];
+  const trunkW = r * 0.26;
+  const trunkH = r * 0.55;
+  const [darkLeaf, midLeaf, hiLeaf] =
+    variant === 1 ? ['#5C7E4F', '#7BA46F', '#A2C794'] :
+    variant === 2 ? ['#4F6F42', '#6B8E5A', '#93B884'] :
+    ['#426037', '#5C7E4F', '#82A877'];
+
+  // Seed for slight variation between trees
+  const v = (variant - 1) * 0.5;
+
   return (
     <g transform={`translate(${x},${y})`}>
-      {/* trunk */}
-      <rect
-        x={-trunkW / 2}
-        y={r * 0.2}
-        width={trunkW}
-        height={trunkH}
-        rx={trunkW * 0.2}
-        fill="#8B5A2B"
-        stroke={STROKE}
-        strokeWidth={2}
+      {/* ground shadow */}
+      <ellipse cx={0} cy={r * 0.78} rx={r * 0.7} ry={r * 0.08} fill="#000" opacity={0.18} />
+
+      {/* trunk — tapered, with a little base flare */}
+      <path
+        d={`M ${-trunkW / 2} ${r * 0.25}
+            Q ${-trunkW / 1.6} ${r * 0.55} ${-trunkW / 1.3} ${r * 0.77}
+            L ${trunkW / 1.3} ${r * 0.77}
+            Q ${trunkW / 1.6} ${r * 0.55} ${trunkW / 2} ${r * 0.25} Z`}
+        fill="#8B5A2B" stroke={STROKE} strokeWidth={2} strokeLinejoin="round"
       />
-      {/* foliage back */}
-      <circle cx={r * 0.2} cy={-r * 0.05} r={r * 0.95} fill={foliageColors[0]} stroke={STROKE} strokeWidth={2} />
-      {/* foliage front */}
-      <circle cx={-r * 0.15} cy={r * 0.1} r={r * 0.7} fill={foliageColors[1]} />
-      {/* highlight */}
-      <ellipse cx={-r * 0.25} cy={-r * 0.2} rx={r * 0.25} ry={r * 0.18} fill="#FFFFFF" opacity={0.25} />
+      {/* bark line */}
+      <line x1={0} y1={r * 0.3} x2={0} y2={r * 0.72} stroke={STROKE} strokeWidth={0.9} opacity={0.4} />
+
+      {/* Silhouette foliage — a compound hull that outlines the whole canopy
+          with a single stroke, so overlapping circles don't look "assembled." */}
+      <path
+        d={`M ${-r * 0.9} ${-r * 0.1 + v * 10}
+            Q ${-r * 1.1} ${-r * 0.55} ${-r * 0.55} ${-r * 0.85}
+            Q ${-r * 0.15} ${-r * 1.05} ${r * 0.25} ${-r * 0.95}
+            Q ${r * 0.85} ${-r * 0.85} ${r * 1.0} ${-r * 0.35}
+            Q ${r * 1.1} ${r * 0.15} ${r * 0.65} ${r * 0.3}
+            Q ${r * 0.2} ${r * 0.38} ${-r * 0.25} ${r * 0.32}
+            Q ${-r * 0.85} ${r * 0.25} ${-r * 0.9} ${-r * 0.1 + v * 10} Z`}
+        fill={darkLeaf} stroke={STROKE} strokeWidth={2} strokeLinejoin="round"
+      />
+      {/* Inner mid-tone layer — offset slightly, gives volumetric feel */}
+      <path
+        d={`M ${-r * 0.6} ${-r * 0.25}
+            Q ${-r * 0.75} ${-r * 0.65} ${-r * 0.25} ${-r * 0.75}
+            Q ${r * 0.15} ${-r * 0.8} ${r * 0.6} ${-r * 0.55}
+            Q ${r * 0.85} ${-r * 0.15} ${r * 0.55} ${r * 0.15}
+            Q ${r * 0.1} ${r * 0.25} ${-r * 0.3} ${r * 0.18}
+            Q ${-r * 0.65} ${r * 0.1} ${-r * 0.6} ${-r * 0.25} Z`}
+        fill={midLeaf}
+      />
+      {/* Highlight puff on upper-left — where the sun hits */}
+      <path
+        d={`M ${-r * 0.45} ${-r * 0.55}
+            Q ${-r * 0.25} ${-r * 0.75} ${r * 0.05} ${-r * 0.6}
+            Q ${-r * 0.1} ${-r * 0.4} ${-r * 0.35} ${-r * 0.35}
+            Q ${-r * 0.55} ${-r * 0.45} ${-r * 0.45} ${-r * 0.55} Z`}
+        fill={hiLeaf} opacity={0.85}
+      />
+      {/* Tiny dappled sun spots */}
+      <circle cx={-r * 0.2} cy={-r * 0.55} r={r * 0.05} fill="#FFFFFF" opacity={0.5} />
+      <circle cx={r * 0.15} cy={-r * 0.42} r={r * 0.035} fill="#FFFFFF" opacity={0.35} />
     </g>
   );
 }
@@ -177,9 +212,16 @@ export function BunnyBurrow({ x, y, size = 80 }: IllustrationProps) {
   // burrow tunnel + bunny inside, dangling roots, embedded pebbles.
   return (
     <g transform={`translate(${x},${y})`}>
-      {/* dirt cross-section (below ground line) */}
+      {/* dirt cross-section — a soft mound, not a box. The top "grass line"
+          arcs gently and the whole underside is a rounded curve. */}
       <path
-        d={`M ${-r * 1.05} ${-r * 0.1} L ${r * 1.05} ${-r * 0.1} L ${r * 1.05} ${r * 0.85} Q ${r * 0.5} ${r * 0.95} 0 ${r * 0.9} Q ${-r * 0.5} ${r * 0.95} ${-r * 1.05} ${r * 0.85} Z`}
+        d={`M ${-r * 1.15} ${-r * 0.02}
+            Q ${-r * 0.55} ${-r * 0.22} 0 ${-r * 0.2}
+            Q ${r * 0.55} ${-r * 0.22} ${r * 1.15} ${-r * 0.02}
+            Q ${r * 1.2} ${r * 0.45} ${r * 0.9} ${r * 0.8}
+            Q ${r * 0.45} ${r * 1.0} 0 ${r * 0.95}
+            Q ${-r * 0.45} ${r * 1.0} ${-r * 0.9} ${r * 0.8}
+            Q ${-r * 1.2} ${r * 0.45} ${-r * 1.15} ${-r * 0.02} Z`}
         fill="#7B5538" stroke={STROKE} strokeWidth={2}
       />
       {/* dirt texture: lighter horizontal layers */}
@@ -228,13 +270,31 @@ export function BunnyBurrow({ x, y, size = 80 }: IllustrationProps) {
         <path d={`M ${-r * 0.03} ${r * 0.08} Q ${0} ${r * 0.13} ${r * 0.03} ${r * 0.1}`} stroke={STROKE} strokeWidth={1.1} fill="none" strokeLinecap="round" />
       </g>
 
-      {/* grass strip on top with thick blades */}
-      <rect x={-r * 1.05} y={-r * 0.16} width={r * 2.1} height={r * 0.08} fill="#6B8E5A" />
-      <path d={`M ${-r * 1.05} ${-r * 0.16} Q -${r * 0.7} ${-r * 0.1} ${-r * 0.4} ${-r * 0.13} Q 0 ${-r * 0.16} ${r * 0.4} ${-r * 0.13} Q ${r * 0.7} ${-r * 0.1} ${r * 1.05} ${-r * 0.16}`} stroke="#5C7E4F" strokeWidth={1.5} fill="none" />
-      {/* grass blades sticking up */}
-      {[-1, -0.7, -0.3, 0.1, 0.4, 0.75, 1].map((t, i) => (
-        <path key={i} d={`M ${r * t} ${-r * 0.16} Q ${r * t + (i % 2 === 0 ? 1 : -1)} ${-r * 0.3} ${r * t + (i % 2 === 0 ? 2 : -2)} ${-r * 0.45}`} stroke="#5C7E4F" strokeWidth={1.5} fill="none" strokeLinecap="round" />
-      ))}
+      {/* grass strip along the rounded top */}
+      <path
+        d={`M ${-r * 1.15} ${-r * 0.02}
+            Q ${-r * 0.55} ${-r * 0.22} 0 ${-r * 0.2}
+            Q ${r * 0.55} ${-r * 0.22} ${r * 1.15} ${-r * 0.02}
+            L ${r * 1.15} ${r * 0.05}
+            Q ${r * 0.55} ${-r * 0.14} 0 ${-r * 0.12}
+            Q ${-r * 0.55} ${-r * 0.14} ${-r * 1.15} ${r * 0.05} Z`}
+        fill="#6B8E5A"
+      />
+      {/* grass blades sticking up above the mound */}
+      {[-0.95, -0.65, -0.3, 0.1, 0.4, 0.75, 1.0].map((t, i) => {
+        // y-offset follows the arc of the mound top
+        const yBase = -r * (0.2 - Math.abs(t) * 0.18);
+        return (
+          <path
+            key={i}
+            d={`M ${r * t} ${yBase} Q ${r * t + (i % 2 === 0 ? 1.5 : -1.5)} ${yBase - 12} ${r * t + (i % 2 === 0 ? 2.5 : -2.5)} ${yBase - 24}`}
+            stroke="#5C7E4F"
+            strokeWidth={1.6}
+            fill="none"
+            strokeLinecap="round"
+          />
+        );
+      })}
       {/* small flower above */}
       <Flower x={-r * 0.55} y={-r * 0.55} size={8} color="#E6B0D0" />
       <Flower x={r * 0.6} y={-r * 0.6} size={8} color="#FFD166" />
@@ -296,18 +356,20 @@ export function FrogPondHabitat({ x, y, size = 80 }: IllustrationProps) {
       {reed(r * 0.85, r * 0.5, 2)}
       {reed(r * 1.05, r * 0.6, -1)}
 
-      {/* Lily pads spread across the pond */}
-      {lilyPad(-r * 0.65, r * 0.05, r * 0.42, -25, '#7BA46F')}
-      {lilyPad(r * 0.55, -r * 0.25, r * 0.36, 165, '#6B8E5A')}
-      {lilyPad(r * 0.7, r * 0.3, r * 0.38, 90, '#5C7E4F')}
-      {lilyPad(0, r * 0.45, r * 0.45, -110)}
+      {/* Lily pads — kept well inside the pond ellipse (the painted pond is
+          ~2r wide / ~r tall; we stay within 0.9r / 0.4r to ensure no pad
+          leaks onto the shore). */}
+      {lilyPad(-r * 0.9,   r * 0.1,   r * 0.28, -30, '#7BA46F')}
+      {lilyPad( r * 0.75, -r * 0.2,   r * 0.24, 160, '#6B8E5A')}
+      {lilyPad( r * 0.9,   r * 0.22,  r * 0.26,  95, '#5C7E4F')}
+      {lilyPad(-r * 0.1,   r * 0.35,  r * 0.32, -110)}
 
-      {/* Lily flowers */}
-      {lilyFlower(-r * 0.2, r * 0.08, r * 0.18)}
-      {lilyFlower(r * 0.85, -r * 0.05, r * 0.13, '#FFE2E8')}
+      {/* Lily flowers — on pads that don't hold the frog */}
+      {lilyFlower(-r * 0.75, r * 0.05, r * 0.14)}
+      {lilyFlower( r * 0.72, -r * 0.18, r * 0.11, '#FFE2E8')}
 
       {/* Frog on the front-center pad */}
-      <g transform={`translate(${-r * 0.05}, ${r * 0.35})`}>
+      <g transform={`translate(${-r * 0.15}, ${r * 0.42})`}>
         {/* hind legs (visible behind body) */}
         <ellipse cx={-r * 0.2} cy={r * 0.05} rx={r * 0.13} ry={r * 0.06} fill="#5C7E4F" stroke={STROKE} strokeWidth={1.3} transform={`rotate(20 ${-r * 0.2} ${r * 0.05})`} />
         <ellipse cx={r * 0.2} cy={r * 0.05} rx={r * 0.13} ry={r * 0.06} fill="#5C7E4F" stroke={STROKE} strokeWidth={1.3} transform={`rotate(-20 ${r * 0.2} ${r * 0.05})`} />
@@ -815,6 +877,135 @@ export function LunaCat({ size = 44 }: { size?: number }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────
+// GARDEN STORIES — a storytelling spot (bench + open book + tea + mushrooms)
+// ─────────────────────────────────────────────────────────────────────────
+
+export function GardenStories({ x, y, size = 60 }: IllustrationProps) {
+  const r = size / 2;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {/* Ground shadow */}
+      <ellipse cx={0} cy={r * 0.72} rx={r * 0.95} ry={r * 0.12} fill="#000" opacity={0.18} />
+
+      {/* Little grass clump base */}
+      <path d={`M ${-r * 0.85} ${r * 0.65} Q ${-r * 0.55} ${r * 0.5} ${-r * 0.3} ${r * 0.6} Q 0 ${r * 0.48} ${r * 0.3} ${r * 0.6} Q ${r * 0.6} ${r * 0.5} ${r * 0.85} ${r * 0.65} Z`}
+            fill="#7BA46F" stroke={STROKE} strokeWidth={1.5} strokeLinejoin="round" />
+
+      {/* Wooden bench — two legs and a seat plank */}
+      <rect x={-r * 0.7} y={r * 0.1} width={r * 1.4} height={r * 0.14} rx={r * 0.04} fill="#A87147" stroke={STROKE} strokeWidth={1.8} />
+      {/* bench grain */}
+      <line x1={-r * 0.65} y1={r * 0.13} x2={r * 0.65} y2={r * 0.13} stroke={STROKE} strokeWidth={0.8} opacity={0.35} />
+      <line x1={-r * 0.65} y1={r * 0.2} x2={r * 0.65} y2={r * 0.2} stroke={STROKE} strokeWidth={0.8} opacity={0.35} />
+      {/* legs */}
+      <rect x={-r * 0.62} y={r * 0.24} width={r * 0.14} height={r * 0.3} fill="#8B5A2B" stroke={STROKE} strokeWidth={1.5} />
+      <rect x={r * 0.48} y={r * 0.24} width={r * 0.14} height={r * 0.3} fill="#8B5A2B" stroke={STROKE} strokeWidth={1.5} />
+
+      {/* Open book on the bench — two gently curving pages */}
+      <g transform={`translate(0, ${r * 0.02})`}>
+        {/* back shadow */}
+        <path d={`M ${-r * 0.42} ${r * 0.08} Q 0 ${r * 0.1} ${r * 0.42} ${r * 0.08} L ${r * 0.42} ${r * 0.05} Q 0 ${r * 0.08} ${-r * 0.42} ${r * 0.05} Z`} fill={STROKE} opacity={0.5} />
+        {/* left page */}
+        <path d={`M ${-r * 0.42} ${r * 0.05} Q ${-r * 0.25} ${-r * 0.05} 0 ${-r * 0.05} L 0 ${r * 0.08} Q ${-r * 0.25} ${r * 0.05} ${-r * 0.42} ${r * 0.08} Z`}
+              fill="#FFFDF2" stroke={STROKE} strokeWidth={1.5} strokeLinejoin="round" />
+        {/* right page */}
+        <path d={`M ${r * 0.42} ${r * 0.05} Q ${r * 0.25} ${-r * 0.05} 0 ${-r * 0.05} L 0 ${r * 0.08} Q ${r * 0.25} ${r * 0.05} ${r * 0.42} ${r * 0.08} Z`}
+              fill="#F5E6C9" stroke={STROKE} strokeWidth={1.5} strokeLinejoin="round" />
+        {/* text lines */}
+        <line x1={-r * 0.33} y1={0} x2={-r * 0.1} y2={0} stroke={STROKE} strokeWidth={0.8} opacity={0.5} />
+        <line x1={-r * 0.33} y1={r * 0.03} x2={-r * 0.08} y2={r * 0.03} stroke={STROKE} strokeWidth={0.8} opacity={0.5} />
+        <line x1={r * 0.1}  y1={0} x2={r * 0.33} y2={0} stroke={STROKE} strokeWidth={0.8} opacity={0.5} />
+        <line x1={r * 0.08} y1={r * 0.03} x2={r * 0.33} y2={r * 0.03} stroke={STROKE} strokeWidth={0.8} opacity={0.5} />
+        {/* spine binding */}
+        <line x1={0} y1={-r * 0.05} x2={0} y2={r * 0.08} stroke={STROKE} strokeWidth={1} />
+      </g>
+
+      {/* Little mushroom beside the bench */}
+      <g transform={`translate(${-r * 0.85}, ${r * 0.45})`}>
+        <ellipse cx={0} cy={0} rx={r * 0.12} ry={r * 0.07} fill="#E8A87C" stroke={STROKE} strokeWidth={1.3} />
+        <rect x={-r * 0.04} y={0} width={r * 0.08} height={r * 0.12} fill="#FFFDF2" stroke={STROKE} strokeWidth={1.2} />
+        <circle cx={-r * 0.04} cy={-r * 0.02} r={r * 0.018} fill="#FFFFFF" />
+        <circle cx={r * 0.035} cy={-r * 0.015} r={r * 0.015} fill="#FFFFFF" />
+      </g>
+
+      {/* Floating idea: wisp / question spark rising from the book */}
+      <circle cx={r * 0.25} cy={-r * 0.35} r={2.5} fill="#FFD166" opacity={0.85} />
+      <circle cx={r * 0.4} cy={-r * 0.5} r={1.8} fill="#FFD166" opacity={0.7} />
+      <circle cx={r * 0.15} cy={-r * 0.2} r={2} fill="#FFD166" opacity={0.9} />
+    </g>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// HUNDRED'S HOLLOW — an upright hollow tree stump with mushrooms
+// ─────────────────────────────────────────────────────────────────────────
+
+export function HundredsHollow({ x, y, size = 60 }: IllustrationProps) {
+  const r = size / 2;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {/* Shadow */}
+      <ellipse cx={0} cy={r * 0.78} rx={r * 0.85} ry={r * 0.1} fill="#000" opacity={0.22} />
+
+      {/* Stump body (upright cylinder) */}
+      <path
+        d={`M ${-r * 0.6} ${-r * 0.3}
+            Q ${-r * 0.65} ${r * 0.7} ${-r * 0.55} ${r * 0.72}
+            L ${r * 0.55} ${r * 0.72}
+            Q ${r * 0.65} ${r * 0.7} ${r * 0.6} ${-r * 0.3}
+            Q ${r * 0.35} ${-r * 0.45} 0 ${-r * 0.45}
+            Q ${-r * 0.35} ${-r * 0.45} ${-r * 0.6} ${-r * 0.3} Z`}
+        fill="#9B6738" stroke={STROKE} strokeWidth={2}
+      />
+
+      {/* Bark texture — vertical grooves */}
+      <path d={`M ${-r * 0.4} ${-r * 0.2} Q ${-r * 0.38} ${r * 0.2} ${-r * 0.35} ${r * 0.6}`} stroke={STROKE} strokeWidth={1.2} fill="none" opacity={0.45} />
+      <path d={`M ${-r * 0.1} ${-r * 0.35} Q ${-r * 0.08} ${r * 0.2} ${-r * 0.05} ${r * 0.65}`} stroke={STROKE} strokeWidth={1.1} fill="none" opacity={0.4} />
+      <path d={`M ${r * 0.2} ${-r * 0.3} Q ${r * 0.22} ${r * 0.2} ${r * 0.25} ${r * 0.62}`} stroke={STROKE} strokeWidth={1.2} fill="none" opacity={0.45} />
+      <path d={`M ${r * 0.42} ${-r * 0.2} Q ${r * 0.44} ${r * 0.2} ${r * 0.45} ${r * 0.6}`} stroke={STROKE} strokeWidth={1.1} fill="none" opacity={0.4} />
+
+      {/* Top of stump — oval ring (cross-section) with growth rings */}
+      <ellipse cx={0} cy={-r * 0.35} rx={r * 0.6} ry={r * 0.14} fill="#B8824F" stroke={STROKE} strokeWidth={1.8} />
+      <ellipse cx={0} cy={-r * 0.35} rx={r * 0.48} ry={r * 0.11} fill="none" stroke="#8B5A2B" strokeWidth={0.9} opacity={0.6} />
+      <ellipse cx={0} cy={-r * 0.35} rx={r * 0.32} ry={r * 0.075} fill="none" stroke="#8B5A2B" strokeWidth={0.9} opacity={0.55} />
+      <ellipse cx={0} cy={-r * 0.35} rx={r * 0.16} ry={r * 0.04} fill="none" stroke="#8B5A2B" strokeWidth={0.9} opacity={0.5} />
+
+      {/* Hollow opening in the front — dark cavity with warm glow from inside */}
+      <ellipse cx={0} cy={r * 0.28} rx={r * 0.28} ry={r * 0.32} fill="#2E1D10" />
+      {/* inner warm glow */}
+      <ellipse cx={0} cy={r * 0.3} rx={r * 0.22} ry={r * 0.24} fill="#7A4520" opacity={0.55} />
+      <ellipse cx={0} cy={r * 0.35} rx={r * 0.12} ry={r * 0.08} fill="#FFD166" opacity={0.3} />
+      {/* opening rim highlight */}
+      <ellipse cx={0} cy={r * 0.28} rx={r * 0.28} ry={r * 0.32} fill="none" stroke={STROKE} strokeWidth={1.8} />
+
+      {/* Moss patch on top-left */}
+      <path d={`M ${-r * 0.55} ${-r * 0.4} Q ${-r * 0.35} ${-r * 0.5} ${-r * 0.1} ${-r * 0.44} Q ${-r * 0.2} ${-r * 0.35} ${-r * 0.55} ${-r * 0.32} Z`}
+            fill="#7BA46F" stroke="#5C7E4F" strokeWidth={1} />
+      <ellipse cx={-r * 0.25} cy={-r * 0.42} rx={r * 0.04} ry={r * 0.025} fill="#8FB67A" />
+      <ellipse cx={-r * 0.1}  cy={-r * 0.4}  rx={r * 0.035} ry={r * 0.022} fill="#8FB67A" />
+
+      {/* Cluster of 3 mushrooms on top */}
+      <g transform={`translate(${r * 0.18}, ${-r * 0.42})`}>
+        <ellipse cx={0} cy={0} rx={r * 0.15} ry={r * 0.08} fill="#E8A87C" stroke={STROKE} strokeWidth={1.4} />
+        <rect x={-r * 0.05} y={0} width={r * 0.1} height={r * 0.15} fill="#FFFDF2" stroke={STROKE} strokeWidth={1.3} />
+        <circle cx={-r * 0.04} cy={-r * 0.02} r={r * 0.022} fill="#FFFFFF" />
+        <circle cx={r * 0.04}  cy={-r * 0.01} r={r * 0.018} fill="#FFFFFF" />
+      </g>
+      <g transform={`translate(${r * 0.35}, ${-r * 0.37})`}>
+        <ellipse cx={0} cy={0} rx={r * 0.1} ry={r * 0.055} fill="#C38D9E" stroke={STROKE} strokeWidth={1.2} />
+        <rect x={-r * 0.03} y={0} width={r * 0.06} height={r * 0.1} fill="#FFFDF2" stroke={STROKE} strokeWidth={1.1} />
+        <circle cx={0} cy={-r * 0.015} r={r * 0.012} fill="#FFFFFF" />
+      </g>
+
+      {/* Small flower at base */}
+      <g transform={`translate(${-r * 0.5}, ${r * 0.7})`}>
+        <circle r={r * 0.05} fill="#FFD166" stroke={STROKE} strokeWidth={1} />
+        <circle r={r * 0.02} fill="#FFFFFF" />
+      </g>
+    </g>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────
 // ROUTER — pick the right illustration for a structure code
 // ─────────────────────────────────────────────────────────────────────────
 
@@ -840,10 +1031,10 @@ export function StructureIllustration({
     case 'math_petal_falls':         return <PetalFalls x={x} y={y} size={size * 1.1} />;
     // Grade 2 stretches — reuse existing illustrations thematically
     case 'math_tens_tower':          return <WordStump x={x} y={y} size={size * 1.1} />;  // a "tower" of rings
-    case 'math_hundreds_hollow':     return <StoryLog x={x} y={y} size={size * 1.1} />;   // hollow log for 2-digit add
+    case 'math_hundreds_hollow':     return <HundredsHollow x={x} y={y} size={size * 1.2} />;
     case 'math_array_orchard':       return <ButterflyClusters x={x} y={y} size={size * 1.1} />;
     case 'math_compare_trees':       return <PartWholeFlower x={x} y={y} size={size * 1.05} />;
-    case 'math_word_stories':        return <StoryLog x={x} y={y} size={size * 1.1} />;
+    case 'math_word_stories':        return <GardenStories x={x} y={y} size={size * 1.2} />;
     default:                         return null;
   }
 }

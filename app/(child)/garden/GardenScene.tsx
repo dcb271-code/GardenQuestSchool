@@ -36,12 +36,13 @@ export default function GardenScene({
   const [tappedCode, setTappedCode] = useState<string | null>(null);
 
   const hour = typeof window !== 'undefined' ? new Date().getHours() : 12;
+  // Softer tints — the garden stays bright and legible across all hours
   const tint =
-    hour < 6 ? 'rgba(40, 50, 100, 0.35)' :
-    hour < 9 ? 'rgba(255, 200, 140, 0.15)' :
+    hour < 6 ? 'rgba(40, 50, 100, 0.25)' :
+    hour < 9 ? 'rgba(255, 200, 140, 0.08)' :
     hour < 17 ? 'transparent' :
-    hour < 20 ? 'rgba(255, 150, 90, 0.18)' :
-    'rgba(20, 25, 60, 0.35)';
+    hour < 20 ? 'rgba(255, 170, 110, 0.10)' :
+    'rgba(20, 25, 60, 0.22)';
 
   const startSkill = async (skillCode: string) => {
     setStarting(true);
@@ -98,76 +99,165 @@ export default function GardenScene({
           style={{ touchAction: 'manipulation', maxHeight: '78vh' }}
         >
           <defs>
-            <radialGradient id="readingZone" cx="20%" cy="30%" r="50%">
-              <stop offset="0%" stopColor="#E8D5B7" />
+            <radialGradient id="readingZone" cx="18%" cy="30%" r="48%">
+              <stop offset="0%" stopColor="#F3E0C0" />
               <stop offset="100%" stopColor="#B8D4A8" stopOpacity="0" />
             </radialGradient>
             <radialGradient id="mathZone" cx="85%" cy="30%" r="45%">
-              <stop offset="0%" stopColor="#F4CFA3" />
+              <stop offset="0%" stopColor="#F9D9AE" />
               <stop offset="100%" stopColor="#B8D4A8" stopOpacity="0" />
             </radialGradient>
-            <radialGradient id="bunnyZone" cx="18%" cy="80%" r="35%">
-              <stop offset="0%" stopColor="#C8B1A6" />
+            <radialGradient id="bunnyZone" cx="14%" cy="80%" r="34%">
+              <stop offset="0%" stopColor="#D6C4BA" />
               <stop offset="100%" stopColor="#B8D4A8" stopOpacity="0" />
             </radialGradient>
             <radialGradient id="waterZone" cx="85%" cy="82%" r="40%">
-              <stop offset="0%" stopColor="#A6D0D8" />
+              <stop offset="0%" stopColor="#B5DAE1" />
               <stop offset="100%" stopColor="#B8D4A8" stopOpacity="0" />
             </radialGradient>
+            {/* Sky — a warm wash that fades into the meadow */}
+            <linearGradient id="skyBase" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#E6DFFF" />
+              <stop offset="35%" stopColor="#F6EAD4" />
+              <stop offset="55%" stopColor="#E8E4BE" />
+              <stop offset="100%" stopColor="#CEE3B4" stopOpacity="0" />
+            </linearGradient>
+            {/* Meadow — brighter, more golden */}
             <linearGradient id="meadowBase" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#C8E4B0" />
-              <stop offset="100%" stopColor="#95B88F" />
+              <stop offset="0%" stopColor="#D7EFB9" />
+              <stop offset="55%" stopColor="#AED29A" />
+              <stop offset="100%" stopColor="#8EB98A" />
             </linearGradient>
             <pattern id="grassTexture" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
               <rect width="40" height="40" fill="transparent" />
-              <path d="M 4 36 Q 4 30 6 28" stroke="#7BA46F" strokeWidth="1.2" fill="none" opacity="0.55" />
-              <path d="M 20 38 Q 22 32 24 30" stroke="#7BA46F" strokeWidth="1.2" fill="none" opacity="0.5" />
-              <path d="M 32 36 Q 30 32 32 28" stroke="#7BA46F" strokeWidth="1.2" fill="none" opacity="0.55" />
+              <path d="M 4 36 Q 4 30 6 28" stroke="#7BA46F" strokeWidth="1.2" fill="none" opacity="0.5" />
+              <path d="M 20 38 Q 22 32 24 30" stroke="#7BA46F" strokeWidth="1.2" fill="none" opacity="0.45" />
+              <path d="M 32 36 Q 30 32 32 28" stroke="#7BA46F" strokeWidth="1.2" fill="none" opacity="0.5" />
             </pattern>
+            {/* Warm sunbeam gradient for light rays */}
+            <linearGradient id="sunbeam" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#FFF5D0" stopOpacity="0.55" />
+              <stop offset="100%" stopColor="#FFF5D0" stopOpacity="0" />
+            </linearGradient>
+            <radialGradient id="sunGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#FFF5B0" stopOpacity="0.95" />
+              <stop offset="40%" stopColor="#FFE89A" stopOpacity="0.55" />
+              <stop offset="100%" stopColor="#FFE89A" stopOpacity="0" />
+            </radialGradient>
           </defs>
 
-          <rect width={MAP_WIDTH} height={MAP_HEIGHT} fill="url(#meadowBase)" />
+          {/* Sky wash (top third) */}
+          <rect width={MAP_WIDTH} height={MAP_HEIGHT * 0.55} fill="url(#skyBase)" />
+          {/* Meadow fills the rest, with the sky fading into it */}
+          <rect width={MAP_WIDTH} height={MAP_HEIGHT} fill="url(#meadowBase)" opacity="0.95" />
           <rect width={MAP_WIDTH} height={MAP_HEIGHT} fill="url(#grassTexture)" />
+
+          {/* Distant layered hills (Totoro-style) — paint these BEFORE zones
+              so zone washes sit atop them. */}
+          <g opacity="0.75">
+            {/* farthest hills (pale periwinkle) */}
+            <path
+              d={`M 0 ${MAP_HEIGHT * 0.38} Q 180 ${MAP_HEIGHT * 0.28} 360 ${MAP_HEIGHT * 0.34} T 720 ${MAP_HEIGHT * 0.3} T 1080 ${MAP_HEIGHT * 0.34} T ${MAP_WIDTH} ${MAP_HEIGHT * 0.32} L ${MAP_WIDTH} ${MAP_HEIGHT * 0.55} L 0 ${MAP_HEIGHT * 0.55} Z`}
+              fill="#B8C4DB" opacity="0.55"
+            />
+            {/* middle hills (pale sage) */}
+            <path
+              d={`M 0 ${MAP_HEIGHT * 0.45} Q 220 ${MAP_HEIGHT * 0.37} 460 ${MAP_HEIGHT * 0.43} T 900 ${MAP_HEIGHT * 0.4} T ${MAP_WIDTH} ${MAP_HEIGHT * 0.44} L ${MAP_WIDTH} ${MAP_HEIGHT * 0.6} L 0 ${MAP_HEIGHT * 0.6} Z`}
+              fill="#A3BEA2" opacity="0.7"
+            />
+            {/* near hills (deeper sage) */}
+            <path
+              d={`M 0 ${MAP_HEIGHT * 0.53} Q 300 ${MAP_HEIGHT * 0.46} 640 ${MAP_HEIGHT * 0.51} T ${MAP_WIDTH} ${MAP_HEIGHT * 0.48} L ${MAP_WIDTH} ${MAP_HEIGHT * 0.65} L 0 ${MAP_HEIGHT * 0.65} Z`}
+              fill="#8AAF84" opacity="0.65"
+            />
+          </g>
+
+          {/* Soft sun with glow — upper-right */}
+          <circle cx={MAP_WIDTH * 0.78} cy={110} r={90} fill="url(#sunGlow)" opacity="0.75" />
+          <circle cx={MAP_WIDTH * 0.78} cy={110} r={32} fill="#FFF2B5" opacity="0.9" />
+
+          {/* Sunbeam rays from upper-right, angled down-left */}
+          <g opacity="0.5" style={{ mixBlendMode: 'screen' }} pointerEvents="none">
+            {[0, 1, 2, 3, 4].map(i => (
+              <polygon
+                key={i}
+                points={`${MAP_WIDTH * 0.78 - 30},${80} ${MAP_WIDTH * 0.78 + 40},${80} ${MAP_WIDTH * 0.78 + 40 - i * 120 - 200},${MAP_HEIGHT} ${MAP_WIDTH * 0.78 - 30 - i * 120 - 240},${MAP_HEIGHT}`}
+                fill="url(#sunbeam)"
+                opacity={0.22 - i * 0.03}
+              />
+            ))}
+          </g>
 
           <rect width={MAP_WIDTH} height={MAP_HEIGHT} fill="url(#readingZone)" />
           <rect width={MAP_WIDTH} height={MAP_HEIGHT} fill="url(#mathZone)" />
           <rect width={MAP_WIDTH} height={MAP_HEIGHT} fill="url(#bunnyZone)" />
           <rect width={MAP_WIDTH} height={MAP_HEIGHT} fill="url(#waterZone)" />
 
-          {/* winding main path */}
-          <path
-            d="M 450 120 Q 500 250 420 360 Q 380 450 540 520 Q 680 560 720 470 Q 780 380 720 280 Q 680 200 780 160"
-            stroke="#E8D5B7" strokeWidth="44" fill="none" strokeLinecap="round" opacity="0.85"
-          />
-          <path
-            d="M 450 120 Q 500 250 420 360 Q 380 450 540 520 Q 680 560 720 470 Q 780 380 720 280 Q 680 200 780 160"
-            stroke="#D9C29B" strokeWidth="44" fill="none" strokeLinecap="round" strokeDasharray="2 20" opacity="0.5"
-          />
-          <path d="M 720 470 Q 820 540 940 620" stroke="#E8D5B7" strokeWidth="36" fill="none" strokeLinecap="round" opacity="0.8" />
-          <path d="M 540 520 Q 420 580 300 640" stroke="#E8D5B7" strokeWidth="36" fill="none" strokeLinecap="round" opacity="0.8" />
+          {/* Organic path system — softer edges, natural taper, with stepping
+              stones breaking the uniform look. Three layers per path:
+                1. soft outer shadow (wider, darker, low opacity) — anti-tube
+                2. main path surface
+                3. lighter inner ribbon + discrete stepping stones
+              All paths connect at the meadow junction (~780, 540). */}
+          {(() => {
+            const mainD = `M 360 160 C 400 280, 420 370, 460 420 S 560 500, 680 515 S 880 515, 960 475 S 1120 380, 1160 300 S 1200 200, 1280 170`;
+            const pondD = `M 780 515 C 880 555, 960 600, 1020 625`;
+            const bunnyD = `M 460 500 C 380 560, 320 620, 280 670`;
+            return (
+              <g pointerEvents="none">
+                {/* soft shadow under the path */}
+                <path d={mainD}  stroke="#A99878" strokeWidth={50} fill="none" strokeLinecap="round" opacity={0.22} />
+                <path d={pondD}  stroke="#A99878" strokeWidth={40} fill="none" strokeLinecap="round" opacity={0.22} />
+                <path d={bunnyD} stroke="#A99878" strokeWidth={40} fill="none" strokeLinecap="round" opacity={0.22} />
+                {/* main path */}
+                <path d={mainD}  stroke="#EAD2A8" strokeWidth={36} fill="none" strokeLinecap="round" opacity={0.92} />
+                <path d={pondD}  stroke="#EAD2A8" strokeWidth={28} fill="none" strokeLinecap="round" opacity={0.88} />
+                <path d={bunnyD} stroke="#EAD2A8" strokeWidth={28} fill="none" strokeLinecap="round" opacity={0.88} />
+                {/* inner highlight ribbon (organic worn center) */}
+                <path d={mainD}  stroke="#F7E6C4" strokeWidth={14} fill="none" strokeLinecap="round" opacity={0.65} />
+                <path d={pondD}  stroke="#F7E6C4" strokeWidth={10} fill="none" strokeLinecap="round" opacity={0.6} />
+                <path d={bunnyD} stroke="#F7E6C4" strokeWidth={10} fill="none" strokeLinecap="round" opacity={0.6} />
+                {/* stepping stones along the path — break up uniformity */}
+                {[
+                  { x: 400, y: 230 }, { x: 450, y: 380 }, { x: 560, y: 490 }, { x: 720, y: 520 },
+                  { x: 900, y: 500 }, { x: 1060, y: 420 }, { x: 1180, y: 260 },
+                  { x: 850, y: 580 }, { x: 960, y: 615 },
+                  { x: 400, y: 545 }, { x: 320, y: 635 },
+                ].map((s, i) => (
+                  <g key={i}>
+                    <ellipse cx={s.x + 1} cy={s.y + 2} rx={11} ry={6} fill="#000" opacity={0.2} />
+                    <ellipse cx={s.x} cy={s.y} rx={11} ry={6} fill="#C9B489" stroke="#8A7050" strokeWidth={1.2} />
+                    <ellipse cx={s.x - 2} cy={s.y - 1.5} rx={5} ry={2} fill="#E0CBA1" opacity={0.8} />
+                  </g>
+                ))}
+              </g>
+            );
+          })()}
 
-          {/* pond */}
+          {/* pond (aligned with FrogPondHabitat at 1060,640) */}
           <g>
-            <ellipse cx="900" cy="640" rx="140" ry="80" fill="#8DB7C2" opacity="0.9" />
-            <ellipse cx="900" cy="640" rx="120" ry="64" fill="#A8CFD8" />
+            <ellipse cx={1060} cy={640} rx={160} ry={86} fill="#8DB7C2" opacity={0.9} />
+            <ellipse cx={1060} cy={640} rx={140} ry={70} fill="#A8CFD8" />
+            {/* pond rim shadow where water meets grass */}
+            <ellipse cx={1060} cy={722} rx={150} ry={10} fill="#5A8A80" opacity={0.25} />
             {/* slow shimmer highlights */}
             <motion.ellipse
-              cx="870" cy="625" rx="20" ry="6" fill="#FFFFFF"
+              cx={1020} cy={625} rx={24} ry={6} fill="#FFFFFF"
               animate={reducedMotion ? undefined : { opacity: [0.2, 0.55, 0.2], scaleX: [1, 1.12, 1] }}
               transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut' }}
-              style={{ transformOrigin: '870px 625px', opacity: 0.4 }}
+              style={{ transformOrigin: '1020px 625px', opacity: 0.4 }}
             />
             <motion.ellipse
-              cx="930" cy="655" rx="14" ry="5" fill="#FFFFFF"
+              cx={1110} cy={665} rx={16} ry={5} fill="#FFFFFF"
               animate={reducedMotion ? undefined : { opacity: [0.15, 0.45, 0.15], scaleX: [1, 1.18, 1] }}
               transition={{ duration: 6.5, delay: 1.2, repeat: Infinity, ease: 'easeInOut' }}
-              style={{ transformOrigin: '930px 655px', opacity: 0.3 }}
+              style={{ transformOrigin: '1110px 665px', opacity: 0.3 }}
             />
             {/* concentric ripple, occasional */}
             {!reducedMotion && (
               <motion.ellipse
-                cx="895" cy="645" rx="18" ry="6" fill="none" stroke="#FFFFFF" strokeWidth="1"
-                animate={{ rx: [10, 40], ry: [3, 12], opacity: [0.7, 0] }}
+                cx={1055} cy={650} rx={18} ry={6} fill="none" stroke="#FFFFFF" strokeWidth={1}
+                animate={{ rx: [10, 48], ry: [3, 14], opacity: [0.7, 0] }}
                 transition={{ duration: 4.5, repeat: Infinity, ease: 'easeOut', repeatDelay: 3 }}
               />
             )}
@@ -178,16 +268,18 @@ export default function GardenScene({
           <Sway x={170}  y={80}  delay={0.6}><PineTree x={170} y={80} size={90} /></Sway>
           <Sway x={50}   y={200} delay={1.2}><Tree x={50}  y={200} size={80} variant={2} /></Sway>
           <Sway x={200}  y={50}  delay={1.8}><Tree x={200} y={50} size={70} variant={3} /></Sway>
-          {/* trees NE (math mound backdrop) */}
-          <Sway x={1140} y={70}  delay={0.3}><PineTree x={1140} y={70} size={100} /></Sway>
-          <Sway x={1080} y={130} delay={0.9}><Tree x={1080} y={130} size={90} variant={1} /></Sway>
-          <Sway x={1170} y={170} delay={1.5}><Tree x={1170} y={170} size={70} variant={2} /></Sway>
+          {/* trees NE (math mound backdrop) — extended for 1440 */}
+          <Sway x={1380} y={70}  delay={0.3}><PineTree x={1380} y={70} size={100} /></Sway>
+          <Sway x={1320} y={130} delay={0.9}><Tree x={1320} y={130} size={90} variant={1} /></Sway>
+          <Sway x={1410} y={170} delay={1.5}><Tree x={1410} y={170} size={70} variant={2} /></Sway>
+          <Sway x={1250} y={80}  delay={2.4}><Tree x={1250} y={80}  size={72} variant={3} /></Sway>
           {/* SW corner tree (bunny glade) */}
           <Sway x={70}   y={680} delay={2.1}><Tree x={70}  y={680} size={90} variant={2} /></Sway>
           <Sway x={120}  y={620} delay={0.4}><Tree x={120} y={620} size={70} variant={3} /></Sway>
-          {/* SE corner tree (water's edge) */}
-          <Sway x={1150} y={550} delay={1.0}><PineTree x={1150} y={550} size={85} /></Sway>
-          <Sway x={1130} y={650} delay={1.6}><Tree x={1130} y={650} size={75} variant={1} /></Sway>
+          {/* SE corner trees (water's edge) — extended for 1440 */}
+          <Sway x={1390} y={560} delay={1.0}><PineTree x={1390} y={560} size={85} /></Sway>
+          <Sway x={1370} y={660} delay={1.6}><Tree x={1370} y={660} size={78} variant={1} /></Sway>
+          <Sway x={1310} y={720} delay={0.7}><Tree x={1310} y={720} size={64} variant={2} /></Sway>
           {/* meadow flower scatter */}
           <Flower x={150} y={420} size={11} color="#E6B0D0" />
           <Flower x={200} y={500} size={10} color="#FFD166" />
@@ -201,6 +293,9 @@ export default function GardenScene({
           <Flower x={620} y={680} size={10} color="#E6B0D0" />
           <Flower x={1000} y={440} size={11} color="#FFD166" />
           <Flower x={830} y={420} size={10} color="#A675B0" />
+          <Flower x={1200} y={480} size={11} color="#FFB7C5" />
+          <Flower x={1280} y={520} size={10} color="#FFD166" />
+          <Flower x={1340} y={480} size={10} color="#E6B0D0" />
           {/* grass tufts scattered */}
           <GrassTuft x={350} y={460} size={12} />
           <GrassTuft x={580} y={520} size={14} />
@@ -209,10 +304,29 @@ export default function GardenScene({
           <GrassTuft x={870} y={500} size={12} />
 
           {/* zone labels */}
-          <text x="180" y="100" fontSize="14" fill="#6B4423" opacity="0.45" fontWeight="600" letterSpacing="2">READING GROVE</text>
-          <text x="920" y="70" fontSize="14" fill="#6B4423" opacity="0.45" fontWeight="600" letterSpacing="2">MATH MOUND</text>
-          <text x="150" y="770" fontSize="14" fill="#6B4423" opacity="0.45" fontWeight="600" letterSpacing="2">BUNNY GLADE</text>
-          <text x="830" y="770" fontSize="14" fill="#6B4423" opacity="0.45" fontWeight="600" letterSpacing="2">WATER&apos;S EDGE</text>
+          <text x="180" y="100" fontSize="14" fill="#6B4423" opacity="0.4" fontWeight="600" letterSpacing="3" fontStyle="italic">Reading Grove</text>
+          <text x="1080" y="70" fontSize="14" fill="#6B4423" opacity="0.4" fontWeight="600" letterSpacing="3" fontStyle="italic">Math Mound</text>
+          <text x="150" y="770" fontSize="14" fill="#6B4423" opacity="0.4" fontWeight="600" letterSpacing="3" fontStyle="italic">Bunny Glade</text>
+          <text x="1060" y="770" fontSize="14" fill="#6B4423" opacity="0.4" fontWeight="600" letterSpacing="3" fontStyle="italic">Water&apos;s Edge</text>
+
+          {/* Foreground grass silhouette — Miyazaki depth-frame along bottom */}
+          <g opacity="0.5" pointerEvents="none">
+            <path
+              d={`M 0 ${MAP_HEIGHT} L 0 ${MAP_HEIGHT - 22} Q 80 ${MAP_HEIGHT - 34} 160 ${MAP_HEIGHT - 24} T 320 ${MAP_HEIGHT - 28} T 480 ${MAP_HEIGHT - 22} T 640 ${MAP_HEIGHT - 30} T 800 ${MAP_HEIGHT - 24} T 960 ${MAP_HEIGHT - 32} T 1120 ${MAP_HEIGHT - 24} T 1280 ${MAP_HEIGHT - 30} T ${MAP_WIDTH} ${MAP_HEIGHT - 22} L ${MAP_WIDTH} ${MAP_HEIGHT} Z`}
+              fill="#6B8E5A"
+            />
+            {/* tall grass blades peeking up */}
+            {[40, 130, 250, 380, 520, 680, 820, 970, 1130, 1270, 1400].map((gx, i) => (
+              <path
+                key={i}
+                d={`M ${gx} ${MAP_HEIGHT - 20} Q ${gx + (i % 2 === 0 ? 3 : -3)} ${MAP_HEIGHT - 40} ${gx + (i % 2 === 0 ? 5 : -5)} ${MAP_HEIGHT - 58}`}
+                stroke="#5C7E4F"
+                strokeWidth={2}
+                fill="none"
+                strokeLinecap="round"
+              />
+            ))}
+          </g>
 
           <AmbientLayer reducedMotion={reducedMotion} />
 
