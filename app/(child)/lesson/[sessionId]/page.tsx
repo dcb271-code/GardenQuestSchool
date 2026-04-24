@@ -92,6 +92,9 @@ export default function LessonPage({ params }: { params: { sessionId: string } }
       setRetries(r => r + 1);
       setStatus('retry');
       setTimeout(() => setStatus('ready'), 650);
+      // Re-narrate on retry so the child hears the prompt again.
+      // Voice reps: 1 (initial), 2 (after 1st wrong), 3 (after 2nd wrong).
+      setTimeout(() => replay(), 1100);
     }
   };
 

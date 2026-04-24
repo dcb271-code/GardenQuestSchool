@@ -683,7 +683,7 @@ export default function GardenScene({
           {/* zone labels */}
           <text x="145" y="175" fontSize="14" fill="#6B4423" opacity="0.4" fontWeight="600" letterSpacing="3" fontStyle="italic">Reading Grove</text>
           <text x="1080" y="70" fontSize="14" fill="#6B4423" opacity="0.4" fontWeight="600" letterSpacing="3" fontStyle="italic">Math Mound</text>
-          <text x="150" y="770" fontSize="14" fill="#6B4423" opacity="0.4" fontWeight="600" letterSpacing="3" fontStyle="italic">Bunny Glade</text>
+          <text x="30" y="560" fontSize="14" fill="#6B4423" opacity="0.4" fontWeight="600" letterSpacing="3" fontStyle="italic">Bunny Glade</text>
           <text x="1060" y="770" fontSize="14" fill="#6B4423" opacity="0.4" fontWeight="600" letterSpacing="3" fontStyle="italic">Water&apos;s Edge</text>
 
           {/* Foreground grass silhouette — Miyazaki depth-frame along bottom */}

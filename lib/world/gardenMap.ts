@@ -50,7 +50,7 @@ export const GARDEN_STRUCTURES: MapStructure[] = [
     label: 'Blending Brook',
     subLabel: 'blending sounds',
     themeEmoji: '🪨',
-    x: 250, y: 360, size: 68,
+    x: 220, y: 360, size: 68,
     zone: 'reading',
   },
   {
@@ -92,7 +92,7 @@ export const GARDEN_STRUCTURES: MapStructure[] = [
     label: 'Counting Path',
     subLabel: 'skip counting',
     themeEmoji: '🪨',
-    x: 1010, y: 140, size: 60,
+    x: 1070, y: 260, size: 60,
     zone: 'math',
   },
   {
