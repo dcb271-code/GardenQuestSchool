@@ -15,6 +15,10 @@ import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySetting
 
 interface StructureState {
   unlocked: boolean;
+  completed: boolean;
+  isNext: boolean;
+  correctCount: number;
+  target: number;
   prereqDisplay: string;
 }
 
@@ -83,12 +87,22 @@ export default function GardenScene({
         <h1 className="font-display text-[26px] text-bark" style={{ fontWeight: 600, letterSpacing: '-0.01em' }}>
           <span className="italic">my</span> garden
         </h1>
-        <Link
-          href={`/journal?learner=${learnerId}`}
-          className="text-xl p-2 rounded-full bg-white border border-ochre"
-          aria-label="journal"
-          style={{ minWidth: 44, minHeight: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
-        >📖</Link>
+        <div className="flex gap-2">
+          <Link
+            href={`/explore?learner=${learnerId}`}
+            className="text-xl p-2 rounded-full bg-white border border-ochre"
+            aria-label="compass — choose a quest"
+            title="Compass"
+            style={{ minWidth: 44, minHeight: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+          >🧭</Link>
+          <Link
+            href={`/journal?learner=${learnerId}`}
+            className="text-xl p-2 rounded-full bg-white border border-ochre"
+            aria-label="field journal"
+            title="Field Journal"
+            style={{ minWidth: 44, minHeight: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+          >📖</Link>
+        </div>
       </div>
 
       <div className="flex-1 relative overflow-hidden">
@@ -618,12 +632,15 @@ export default function GardenScene({
           <AmbientLayer reducedMotion={reducedMotion} />
 
           {GARDEN_STRUCTURES.map(s => {
-            const state = structureStates[s.code] ?? { unlocked: false, prereqDisplay: '' };
+            const state = structureStates[s.code] ?? {
+              unlocked: false, completed: false, isNext: false,
+              correctCount: 0, target: 10, prereqDisplay: '',
+            };
             return (
               <Structure
                 key={s.code}
                 struct={s}
-                unlocked={state.unlocked}
+                state={state}
                 onTap={() => onStructureTap(s)}
                 reducedMotion={reducedMotion}
               />
@@ -660,8 +677,10 @@ export default function GardenScene({
               {!structureStates[selected.code]?.unlocked && (
                 <>
                   <div className="bg-white/60 rounded-xl p-3 text-sm text-bark/80">
-                    Not yet — keep practicing:
-                    <div className="mt-1 font-semibold text-bark">{structureStates[selected.code]?.prereqDisplay}</div>
+                    <div className="font-display italic text-bark/70">not ready yet</div>
+                    <div className="mt-1 font-semibold text-bark">
+                      {structureStates[selected.code]?.prereqDisplay || 'complete an earlier stop in this zone first'}
+                    </div>
                   </div>
                   <button
                     onClick={() => setSelected(null)}
@@ -717,14 +736,26 @@ export default function GardenScene({
   );
 }
 
+interface StructureStateProp {
+  unlocked: boolean;
+  completed: boolean;
+  isNext: boolean;
+  correctCount: number;
+  target: number;
+  prereqDisplay: string;
+}
+
 function Structure({
-  struct, unlocked, onTap, reducedMotion = false,
+  struct, state, onTap, reducedMotion = false,
 }: {
   struct: MapStructure;
-  unlocked: boolean;
+  state: StructureStateProp;
   onTap: () => void;
   reducedMotion?: boolean;
 }) {
+  const { unlocked, completed, isNext, correctCount, target } = state;
+  const showProgressBadge = struct.kind === 'skill' && target > 0;
+
   return (
     <motion.g
       whileHover={unlocked ? { scale: 1.08 } : { scale: 1.03 }}
@@ -732,31 +763,102 @@ function Structure({
       onClick={onTap}
       style={{ cursor: 'pointer', transformOrigin: `${struct.x}px ${struct.y}px` }}
       role="button"
-      aria-label={`${struct.label}${unlocked ? '' : ' (locked)'}`}
+      aria-label={`${struct.label}${unlocked ? '' : ' (locked)'}${showProgressBadge ? ` ${correctCount} of ${target} complete` : ''}`}
       tabIndex={0}
     >
+      {/* "Next" structure gets an extra pulsing ring — a soft "come here" cue */}
+      {isNext && !reducedMotion && (
+        <motion.circle
+          cx={struct.x}
+          cy={struct.y}
+          r={struct.size * 1.05}
+          fill="none"
+          stroke="#E8A87C"
+          strokeWidth={3}
+          strokeDasharray="4 8"
+          animate={{ rotate: 360, opacity: [0.5, 0.9, 0.5] }}
+          transition={{
+            rotate: { duration: 30, repeat: Infinity, ease: 'linear' },
+            opacity: { duration: 3.2, repeat: Infinity, ease: 'easeInOut' },
+          }}
+          style={{ transformOrigin: `${struct.x}px ${struct.y}px` }}
+        />
+      )}
+      {isNext && reducedMotion && (
+        <circle
+          cx={struct.x} cy={struct.y} r={struct.size * 1.05}
+          fill="none" stroke="#E8A87C" strokeWidth={3} strokeDasharray="4 8" opacity={0.7}
+        />
+      )}
+
       {unlocked && !reducedMotion && (
         <motion.circle
           cx={struct.x}
           cy={struct.y}
           r={struct.size * 0.85}
-          fill="#FFE89A"
+          fill={completed ? '#C8E4B0' : '#FFE89A'}
           opacity={0.3}
           animate={{ opacity: [0.18, 0.4, 0.18], r: [struct.size * 0.82, struct.size * 0.95, struct.size * 0.82] }}
           transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
         />
       )}
       {unlocked && reducedMotion && (
-        <circle cx={struct.x} cy={struct.y} r={struct.size * 0.85} fill="#FFE89A" opacity={0.25} />
+        <circle cx={struct.x} cy={struct.y} r={struct.size * 0.85}
+                fill={completed ? '#C8E4B0' : '#FFE89A'} opacity={0.25} />
       )}
       <g
         style={{
           filter: unlocked ? undefined : 'grayscale(1) brightness(0.85)',
-          opacity: unlocked ? 1 : 0.6,
+          opacity: unlocked ? 1 : 0.55,
         }}
       >
         <StructureIllustration code={struct.code} x={struct.x} y={struct.y} size={struct.size} />
       </g>
+
+      {/* Lock icon overlay on locked structures */}
+      {!unlocked && (
+        <g pointerEvents="none">
+          <circle
+            cx={struct.x + struct.size * 0.38}
+            cy={struct.y - struct.size * 0.38}
+            r={11}
+            fill="#FFFFFF"
+            stroke="#8A7E6C"
+            strokeWidth={1.5}
+          />
+          <text
+            x={struct.x + struct.size * 0.38}
+            y={struct.y - struct.size * 0.38 + 4}
+            fontSize={13}
+            textAnchor="middle"
+            style={{ userSelect: 'none' }}
+          >
+            🔒
+          </text>
+        </g>
+      )}
+
+      {/* Completed checkmark */}
+      {completed && (
+        <g pointerEvents="none">
+          <circle
+            cx={struct.x + struct.size * 0.4}
+            cy={struct.y - struct.size * 0.4}
+            r={11}
+            fill="#6B8E5A"
+            stroke="#4F6F42"
+            strokeWidth={1.5}
+          />
+          <path
+            d={`M ${struct.x + struct.size * 0.35} ${struct.y - struct.size * 0.4 + 1}
+                L ${struct.x + struct.size * 0.38} ${struct.y - struct.size * 0.4 + 5}
+                L ${struct.x + struct.size * 0.45} ${struct.y - struct.size * 0.4 - 3}`}
+            stroke="#FFFFFF" strokeWidth={2.2} fill="none" strokeLinecap="round" strokeLinejoin="round"
+          />
+        </g>
+      )}
+
+      {/* Label + x/n progress badge */}
       <g>
         <rect
           x={struct.x - 52}
@@ -780,6 +882,33 @@ function Structure({
         >
           {struct.label}
         </text>
+
+        {/* x/n badge to the right of label */}
+        {showProgressBadge && (
+          <g pointerEvents="none">
+            <rect
+              x={struct.x + 26}
+              y={struct.y + struct.size * 0.48 + 22}
+              width={42}
+              height={18}
+              rx={9}
+              fill={completed ? '#6B8E5A' : (unlocked ? '#FDF6E8' : '#EBE5D8')}
+              stroke={completed ? '#4F6F42' : (unlocked ? '#E8A87C' : '#AAAAAA')}
+              strokeWidth={1.4}
+            />
+            <text
+              x={struct.x + 47}
+              y={struct.y + struct.size * 0.48 + 35}
+              fontSize={11}
+              textAnchor="middle"
+              fill={completed ? '#FFFFFF' : (unlocked ? '#6B4423' : '#777777')}
+              fontWeight="700"
+              style={{ userSelect: 'none', fontFamily: 'ui-monospace, SFMono-Regular, monospace' }}
+            >
+              {Math.min(correctCount, target)}/{target}
+            </text>
+          </g>
+        )}
       </g>
     </motion.g>
   );

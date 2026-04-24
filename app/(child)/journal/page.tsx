@@ -40,21 +40,33 @@ export default async function JournalPage({
     .eq('learner_id', learnerId!);
   const unlocked = new Set((journalRows ?? []).map((r: any) => r.species.code));
 
+  const backHref = learnerId ? `/garden?learner=${learnerId}` : '/picker';
+
   return (
-    <main className="max-w-2xl mx-auto p-6 space-y-6">
+    <main className="max-w-2xl mx-auto p-6 space-y-8 pb-20">
       <div className="flex items-center justify-between">
         <Link
-          href="/picker"
+          href={backHref}
           className="text-2xl p-2 rounded-full bg-white border border-ochre"
-          aria-label="back to profile picker"
+          aria-label="back to garden"
           style={{ minWidth: 44, minHeight: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
         >←</Link>
-        <h1 className="text-kid-lg text-center flex-1">📖 Field Journal</h1>
+        <div className="flex-1 text-center">
+          <div className="text-3xl mb-1">📖</div>
+          <h1
+            className="font-display text-[28px] text-bark leading-none"
+            style={{ fontWeight: 600, letterSpacing: '-0.015em' }}
+          >
+            <span className="italic text-forest">field</span> journal
+          </h1>
+        </div>
         <div style={{ width: 44 }}></div>
       </div>
 
       <section>
-        <h2 className="text-kid-sm uppercase tracking-wider opacity-70 mb-3">Virtue Gems</h2>
+        <h2 className="font-display italic text-[13px] text-bark/55 tracking-[0.2em] uppercase mb-3">
+          virtue gems
+        </h2>
         <div className="grid grid-cols-4 gap-3">
           {Object.entries(VIRTUE_EMOJI).map(([v, e]) => {
             const count = gemsByVirtue[v] ?? 0;
@@ -64,8 +76,10 @@ export default async function JournalPage({
                 className={`border-4 rounded-2xl p-3 text-center ${count > 0 ? 'bg-rose/10 border-rose' : 'bg-gray-50 border-gray-200 opacity-60'}`}
               >
                 <div className="text-3xl">{e}</div>
-                <div className="text-xs mt-1 capitalize">{v}</div>
-                <div className="text-kid-sm font-bold">{count}</div>
+                <div className="font-display italic text-xs text-bark/70 mt-1 capitalize">{v}</div>
+                <div className="font-display text-[18px] text-bark" style={{ fontWeight: 700 }}>
+                  {count}
+                </div>
               </div>
             );
           })}
@@ -74,20 +88,24 @@ export default async function JournalPage({
 
       {(gemRows ?? []).slice(0, 3).length > 0 && (
         <section>
-          <h2 className="text-kid-sm uppercase tracking-wider opacity-70 mb-3">Recent moments</h2>
+          <h2 className="font-display italic text-[13px] text-bark/55 tracking-[0.2em] uppercase mb-3">
+            recent moments
+          </h2>
           <div className="space-y-3">
             {(gemRows ?? []).slice(0, 3).map((g: any, i: number) => (
-              <VirtueGemMoment key={i} virtue={g.virtue} narrativeText={g.evidence?.narrativeText ?? ''} />
+              <VirtueGemMoment key={i} virtue={g.virtue} narrativeText={g.evidence?.narrativeText ?? ''} index={i} />
             ))}
           </div>
         </section>
       )}
 
       <section>
-        <h2 className="text-kid-sm uppercase tracking-wider opacity-70 mb-3">Possible discoveries</h2>
+        <h2 className="font-display italic text-[13px] text-bark/55 tracking-[0.2em] uppercase mb-3">
+          possible discoveries
+        </h2>
         <div className="space-y-3">
-          {SPECIES_CATALOG.map(s => (
-            <JournalSpeciesCard key={s.code} species={s} unlocked={unlocked.has(s.code)} />
+          {SPECIES_CATALOG.map((s, i) => (
+            <JournalSpeciesCard key={s.code} species={s} unlocked={unlocked.has(s.code)} index={i} />
           ))}
         </div>
       </section>

@@ -2,7 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import { motion } from 'framer-motion';
 import ExpeditionCard from '@/components/child/ExpeditionCard';
+import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
 
 interface Candidate {
   skillCode: string;
@@ -15,6 +17,8 @@ export default function ExploreClient() {
   const router = useRouter();
   const sp = useSearchParams();
   const learnerId = sp.get('learner');
+  const { settings } = useAccessibilitySettings();
+  const reducedMotion = settings.reducedMotion;
   const [candidates, setCandidates] = useState<Candidate[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -38,20 +42,43 @@ export default function ExploreClient() {
     router.push(`/lesson/${sessionId}`);
   };
 
+  if (loading) {
+    return <div className="text-center font-display italic text-bark/60 py-8">…</div>;
+  }
+
   return (
-    <>
-      {loading && <div className="text-center text-kid-sm opacity-70">…</div>}
-      <div className="flex flex-col gap-4">
-        {candidates.map(c => (
+    <motion.div
+      className="flex flex-col gap-4"
+      initial="hidden"
+      animate="show"
+      variants={{
+        hidden: {},
+        show: {
+          transition: {
+            staggerChildren: reducedMotion ? 0 : 0.1,
+            delayChildren: 0.2,
+          },
+        },
+      }}
+    >
+      {candidates.map((c, i) => (
+        <motion.div
+          key={c.skillCode}
+          variants={{
+            hidden: { opacity: 0, x: reducedMotion ? 0 : -20 },
+            show: { opacity: 1, x: 0 },
+          }}
+          transition={{ duration: 0.55, ease: [0.22, 0.9, 0.34, 1] }}
+        >
           <ExpeditionCard
-            key={c.skillCode}
             emoji={c.themeEmoji}
             title={c.title}
             hint={c.skillHint}
             onSelect={() => start(c.skillCode)}
+            index={i}
           />
-        ))}
-      </div>
-    </>
+        </motion.div>
+      ))}
+    </motion.div>
   );
 }
