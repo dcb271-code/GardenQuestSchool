@@ -197,85 +197,81 @@ export default function GardenScene({
           {/* Distant layered hills (Totoro-style) — paint these BEFORE zones
               so zone washes sit atop them. */}
           <g opacity="0.75">
-            {/* MOUNTAIN RANGE — 4 Fuji-like Miyazaki peaks at the very top.
-                Varying heights, asymmetric bases, whimsical snow caps.
-                Farthest peaks are cooler and more transparent for depth. */}
+            {/* MOUNTAIN RANGE — 5 Fuji-like Miyazaki peaks pushed up
+                near the top of the sky. Mist band left lower so it
+                bridges the gap to the hills. */}
             <g>
               {/* Peak 4 — far-left, small, most distant & misty */}
               <path
-                d="M 180 280 Q 230 215 270 150 Q 285 138 300 152 Q 340 215 380 280 Z"
+                d="M 180 225 Q 230 160 270 95 Q 285 83 300 97 Q 340 160 380 225 Z"
                 fill="#D4DAE8" opacity={0.55}
               />
               <path
-                d="M 272 168 Q 288 148 300 156 Q 310 162 318 170
-                   Q 306 168 298 174 Q 288 170 280 178 Q 272 172 272 168 Z"
+                d="M 272 113 Q 288 93 300 101 Q 310 107 318 115
+                   Q 306 113 298 119 Q 288 115 280 123 Q 272 117 272 113 Z"
                 fill="#F4F0E3" opacity={0.7}
               />
 
-              {/* Peak 2 — left side, medium-tall, classic Fuji silhouette */}
+              {/* Peak 2 — left, medium-tall, classic Fuji silhouette */}
               <path
-                d="M 400 285 Q 450 220 505 130 Q 525 112 545 132 Q 600 220 645 285 Z"
+                d="M 400 230 Q 450 165 505 75 Q 525 57 545 77 Q 600 165 645 230 Z"
                 fill="#B5BED4" opacity={0.72}
               />
-              {/* snow cap — asymmetric, with drippy irregular bottom edge */}
               <path
-                d="M 482 160 Q 510 124 527 128 Q 543 132 562 162
-                   Q 552 158 542 168 Q 528 156 518 170 Q 505 162 495 172 Q 485 166 482 160 Z"
+                d="M 482 105 Q 510 69 527 73 Q 543 77 562 107
+                   Q 552 103 542 113 Q 528 101 518 115 Q 505 107 495 117 Q 485 111 482 105 Z"
                 fill="#F8F4E8"
               />
-              {/* shadow (right side) */}
               <path
-                d="M 527 128 Q 600 220 645 285 L 527 285 Z"
+                d="M 527 73 Q 600 165 645 230 L 527 230 Z"
                 fill="#9BA4BD" opacity={0.42}
               />
 
-              {/* Peak 1 — THE BIG ONE, center, tallest & most prominent */}
+              {/* Peak 1 — THE BIG ONE, tallest, now near the top edge */}
               <path
-                d="M 620 290 Q 680 210 758 80 Q 782 62 806 82 Q 870 210 920 290 Z"
+                d="M 620 235 Q 680 155 758 25 Q 782 7 806 27 Q 870 155 920 235 Z"
                 fill="#ABB5CE"
               />
-              {/* snow cap — generous, with drippy irregular bottom */}
               <path
-                d="M 708 140 Q 752 80 778 76 Q 800 80 830 142
-                   Q 816 138 804 150 Q 790 134 778 150 Q 762 138 748 154
-                   Q 732 142 720 156 Q 712 148 708 140 Z"
+                d="M 708 85 Q 752 25 778 21 Q 800 25 830 87
+                   Q 816 83 804 95 Q 790 79 778 95 Q 762 83 748 99
+                   Q 732 87 720 101 Q 712 93 708 85 Z"
                 fill="#FBF8ED"
               />
-              {/* shadow side (more pronounced on the big peak) */}
               <path
-                d="M 782 72 Q 870 210 920 290 L 782 290 Z"
+                d="M 782 17 Q 870 155 920 235 L 782 235 Z"
                 fill="#8D97B4" opacity={0.5}
               />
-              {/* soft highlight on left slope */}
               <path
-                d="M 720 160 Q 700 220 660 280 Q 690 210 735 150 Z"
+                d="M 720 105 Q 700 165 660 225 Q 690 155 735 95 Z"
                 fill="#C8D0E3" opacity={0.55}
               />
 
-              {/* Peak 3 — right of big peak, medium, with mist at base */}
+              {/* Peak 3 — right of big peak */}
               <path
-                d="M 900 285 Q 955 215 1010 125 Q 1030 108 1050 128 Q 1095 215 1135 285 Z"
+                d="M 900 230 Q 955 160 1010 70 Q 1030 53 1050 73 Q 1095 160 1135 230 Z"
                 fill="#C0C8DB" opacity={0.78}
               />
               <path
-                d="M 988 150 Q 1016 118 1035 124 Q 1050 132 1075 160
-                   Q 1060 155 1048 162 Q 1032 148 1022 162 Q 1008 152 998 164 Q 988 156 988 150 Z"
+                d="M 988 95 Q 1016 63 1035 69 Q 1050 77 1075 105
+                   Q 1060 100 1048 107 Q 1032 93 1022 107 Q 1008 97 998 109 Q 988 101 988 95 Z"
                 fill="#F2EDE0" opacity={0.85}
               />
               <path
-                d="M 1035 124 Q 1095 215 1135 285 L 1035 285 Z"
+                d="M 1035 69 Q 1095 160 1135 230 L 1035 230 Z"
                 fill="#A4ACC3" opacity={0.38}
               />
 
-              {/* Peak 5 — far-right, smallest & most faded (atmospheric distance) */}
+              {/* Peak 5 — far-right, smallest & most faded */}
               <path
-                d="M 1180 285 Q 1220 230 1255 178 Q 1270 165 1285 180 Q 1320 232 1355 285 Z"
+                d="M 1180 230 Q 1220 175 1255 123 Q 1270 110 1285 125 Q 1320 177 1355 230 Z"
                 fill="#DCE0ED" opacity={0.5}
               />
 
-              {/* Soft mist band at the base of the whole range */}
+              {/* Soft mist band — stays LOW (between mountains and hills)
+                  so the range feels atmospheric and tied into the world. */}
               <path
-                d="M 160 280 Q 400 260 700 275 T 1200 270 Q 1300 275 1400 282
+                d="M 160 270 Q 400 250 700 265 T 1200 260 Q 1300 265 1400 272
                    L 1400 310 L 160 310 Z"
                 fill="#FFFFFF" opacity={0.35}
               />
@@ -335,7 +331,7 @@ export default function GardenScene({
             // exit at x=180) and winds up to meet the main path near
             // Digraph Bridge at (415, 320). Alternating curves give it a
             // meandering, stepping-stone quality.
-            const houseD = `M 180 590 C 240 560, 210 510, 260 480 C 305 450, 280 395, 345 370 C 390 355, 395 325, 415 320`;
+            const houseD = `M 180 565 C 240 540, 210 495, 260 465 C 305 440, 280 390, 345 365 C 390 350, 395 325, 415 320`;
             return (
               <g pointerEvents="none">
                 {/* soft shadow under the path */}
@@ -614,15 +610,15 @@ export default function GardenScene({
 
           {/* COZY HOUSE — off to the left, anchoring the house-path entrance.
               Painted BEFORE the trees so foliage can overlap naturally. */}
-          <CozyHouse x={100} y={525} size={140} />
-          {/* Chimney smoke — 3 soft puffs drifting up from chimney top ~(146, 455) */}
+          <CozyHouse x={100} y={500} size={140} />
+          {/* Chimney smoke — 3 soft puffs drifting up from chimney top ~(146, 430) */}
           {!reducedMotion && (
             <g pointerEvents="none">
               {[0, 1, 2].map(i => (
                 <motion.ellipse
                   key={i}
                   cx={146}
-                  cy={455}
+                  cy={430}
                   rx={8}
                   ry={6}
                   fill="#E8E0D3"

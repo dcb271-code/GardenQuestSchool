@@ -133,7 +133,7 @@ export const GARDEN_STRUCTURES: MapStructure[] = [
     label: "Hundred's Hollow",
     subLabel: '2-digit add',
     themeEmoji: '🌳',
-    x: 850, y: 250, size: 60,
+    x: 900, y: 250, size: 60,
     zone: 'math',
   },
   {
@@ -185,7 +185,7 @@ export const GARDEN_STRUCTURES: MapStructure[] = [
     label: 'Petal Falls',
     subLabel: 'subtract within 10',
     themeEmoji: '🌺',
-    x: 200, y: 580, size: 68,
+    x: 170, y: 720, size: 68,
     zone: 'bunny',
   },
   {
@@ -234,7 +234,7 @@ export const GARDEN_STRUCTURES: MapStructure[] = [
     habitatCode: 'ant_hill',
     label: 'Ant Hill',
     themeEmoji: '⛰️',
-    x: 780, y: 170, size: 72,
+    x: 720, y: 220, size: 72,
     zone: 'math',
   },
   {
