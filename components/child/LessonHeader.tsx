@@ -19,9 +19,9 @@ export default function LessonHeader({
       transition={{ duration: 0.4, ease: 'easeOut' }}
     >
       <Link
-        href={learnerId ? `/explore?learner=${learnerId}` : '/picker'}
+        href={learnerId ? `/garden?learner=${learnerId}` : '/picker'}
         className="text-2xl p-2 rounded-full bg-white border border-ochre hover:bg-ochre/10 active:bg-ochre/20"
-        aria-label="exit to expedition picker"
+        aria-label="exit to garden"
         style={{
           touchAction: 'manipulation',
           minWidth: 44,

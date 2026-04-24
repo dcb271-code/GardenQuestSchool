@@ -69,7 +69,7 @@ export default function PickerClient({ learners }: { learners: Learner[] }) {
               <ProfileTile
                 name={l.first_name}
                 avatarEmoji={avatarMap[l.avatar_key ?? 'fox'] ?? '🦊'}
-                href={`/explore?learner=${l.id}`}
+                href={`/garden?learner=${l.id}`}
               />
             </motion.div>
           ))}

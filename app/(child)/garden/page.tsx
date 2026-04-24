@@ -5,12 +5,17 @@ import { SPECIES_CATALOG } from '@/lib/world/speciesCatalog';
 import { computeNewArrivals } from '@/lib/world/arrivals';
 import { MATH_SKILLS } from '@/lib/packs/math/skills';
 import { READING_SKILLS } from '@/lib/packs/reading/skills';
+import { computeStructureProgress, ZONE_COMPLETION_TARGET } from '@/lib/world/zoneProgress';
 import GardenScene from './GardenScene';
 
 export const dynamic = 'force-dynamic';
 
-interface StructureState {
+export interface StructureState {
   unlocked: boolean;
+  completed: boolean;
+  isNext: boolean;
+  correctCount: number;
+  target: number;
   prereqDisplay: string;
 }
 
@@ -30,6 +35,7 @@ export default async function GardenPage({
     return <div className="p-6">No learner found.</div>;
   }
 
+  // Existing skill-progress query (we still use mastery for habitat gating)
   const { data: progress } = await db
     .from('skill_progress')
     .select('mastery_state, skill:skill_id(code)')
@@ -39,30 +45,51 @@ export default async function GardenPage({
       .filter((p: any) => p.mastery_state === 'mastered')
       .map((p: any) => p.skill.code)
   );
-  const inProgress = new Set(
-    (progress ?? [])
-      .filter((p: any) => ['learning', 'review'].includes(p.mastery_state))
-      .map((p: any) => p.skill.code)
-  );
+
+  // Cumulative correct attempts per skill, joined via item → skill.
+  const { data: attemptRows } = await db
+    .from('attempt')
+    .select('outcome, item:item_id(skill:skill_id(code))')
+    .eq('learner_id', learnerId)
+    .eq('outcome', 'correct');
+  const correctByCode = new Map<string, number>();
+  for (const row of attemptRows ?? []) {
+    const code = (row as any).item?.skill?.code;
+    if (!code) continue;
+    correctByCode.set(code, (correctByCode.get(code) ?? 0) + 1);
+  }
 
   const allSkills = [...MATH_SKILLS, ...READING_SKILLS];
   const skillNameByCode = new Map(allSkills.map(s => [s.code, s.name]));
-  const skillByCode = new Map(allSkills.map(s => [s.code, s]));
 
+  // Build skill structure progress via zone rules
+  const prereqFallback = (structureCode: string) => {
+    const struct = GARDEN_STRUCTURES.find(s => s.code === structureCode);
+    if (!struct || !struct.skillCode) return 'more practice';
+    const skill = allSkills.find(s => s.code === struct.skillCode);
+    const unmet = skill
+      ? skill.prereqSkillCodes.filter(c => !mastered.has(c)).map(c => skillNameByCode.get(c) ?? c)
+      : [];
+    return unmet.length > 0 ? unmet.join(', ') : 'more practice';
+  };
+  const skillProgress = computeStructureProgress(
+    GARDEN_STRUCTURES,
+    correctByCode,
+    prereqFallback,
+  );
+
+  // Habitats: unlock by prereq_skill_codes (mastery), no x/n count
   const structureStates: Record<string, StructureState> = {};
-
   for (const s of GARDEN_STRUCTURES) {
-    if (s.kind === 'skill' && s.skillCode) {
-      const skill = skillByCode.get(s.skillCode);
-      const prereqsMet = skill ? skill.prereqSkillCodes.every(c => mastered.has(c)) : false;
-      const isMasteredAlready = mastered.has(s.skillCode);
-      const unlocked = prereqsMet || isMasteredAlready || inProgress.has(s.skillCode);
-      const prereqNames = skill
-        ? skill.prereqSkillCodes.filter(c => !mastered.has(c)).map(c => skillNameByCode.get(c) ?? c)
-        : [];
+    if (s.kind === 'skill') {
+      const p = skillProgress[s.code];
       structureStates[s.code] = {
-        unlocked,
-        prereqDisplay: prereqNames.length > 0 ? prereqNames.join(', ') : 'more practice',
+        unlocked: p?.unlocked ?? false,
+        completed: p?.completed ?? false,
+        isNext: p?.isNext ?? false,
+        correctCount: p?.correctCount ?? 0,
+        target: p?.target ?? ZONE_COMPLETION_TARGET,
+        prereqDisplay: p?.prereqDisplay ?? '',
       };
     } else if (s.kind === 'habitat' && s.habitatCode) {
       const habitat = HABITAT_CATALOG.find(h => h.code === s.habitatCode);
@@ -72,12 +99,16 @@ export default async function GardenPage({
         : [];
       structureStates[s.code] = {
         unlocked: prereqsMet,
+        completed: false,
+        isNext: false,
+        correctCount: 0,
+        target: 0,
         prereqDisplay: prereqNames.length > 0 ? prereqNames.join(', ') : 'more practice',
       };
     }
   }
 
-  // Auto-place unlocked habitats on first visit (needed for arrival detection)
+  // Auto-place unlocked habitats (for arrival detection)
   const placedCodesList: string[] = [];
   {
     const { data: existing } = await db
