@@ -1,8 +1,26 @@
 'use client';
 
 import { useState } from 'react';
+import {
+  DndContext,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
+  MouseSensor,
+  PointerSensor,
+  TouchSensor,
+  useDraggable,
+  useDroppable,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
 import type { DigraphSortContent, DigraphSortResponse } from '@/lib/packs/reading/types';
 
+/**
+ * Drag-and-drop sorting — words are dragged into bucket columns by
+ * digraph. Works identically on touch and mouse. Click/tap on a placed
+ * word returns it to the unsorted pool (touch-friendly "undo").
+ */
 export default function DigraphSort({
   content, onSubmit,
 }: {
@@ -13,12 +31,32 @@ export default function DigraphSort({
   const [placements, setPlacements] = useState<Record<string, string | null>>(
     Object.fromEntries(content.words.map(w => [w.word, null]))
   );
+  const [activeWord, setActiveWord] = useState<string | null>(null);
 
-  const place = (word: string, digraph: string) => {
-    setPlacements(prev => ({ ...prev, [word]: digraph || null }));
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 120, tolerance: 5 } }),
+    useSensor(MouseSensor, { activationConstraint: { distance: 4 } }),
+  );
+
+  const unsorted = content.words.filter(w => placements[w.word] === null);
+  const allPlaced = Object.values(placements).every(v => v !== null);
+
+  const handleDragStart = (e: DragStartEvent) => {
+    setActiveWord(String(e.active.id));
   };
 
-  const allPlaced = Object.values(placements).every(v => v !== null);
+  const handleDragEnd = (e: DragEndEvent) => {
+    setActiveWord(null);
+    const word = String(e.active.id);
+    const target = e.over ? String(e.over.id) : null;
+    if (!target) return;
+    if (target === '__POOL__') {
+      setPlacements(prev => ({ ...prev, [word]: null }));
+    } else {
+      setPlacements(prev => ({ ...prev, [word]: target }));
+    }
+  };
 
   const submit = () => {
     const finalPlacements: Record<string, string> = {};
@@ -28,64 +66,162 @@ export default function DigraphSort({
     onSubmit({ placements: finalPlacements });
   };
 
+  const activeWordData = activeWord ? content.words.find(w => w.word === activeWord) : null;
+
   return (
-    <div className="space-y-4 py-2">
-      <div className="text-kid-lg text-center">{content.promptText}</div>
+    <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
+      <div className="space-y-5 py-2">
+        <div className="font-display text-[22px] text-bark text-center" style={{ fontWeight: 600 }}>
+          {content.promptText}
+        </div>
+        <div className="font-display italic text-[13px] text-bark/55 text-center tracking-[0.15em] uppercase -mt-3">
+          drag each word into a bucket
+        </div>
 
-      <div className="grid grid-cols-3 gap-2">
-        {content.digraphs.map(dg => (
-          <div key={dg} className="bg-cream border-4 border-terracotta rounded-2xl p-3 min-h-32">
-            <div className="text-center font-bold text-kid-md mb-2">{dg}</div>
-            <div className="flex flex-col gap-1">
-              {Object.entries(placements)
+        {/* Buckets */}
+        <div className="grid grid-cols-3 gap-3">
+          {content.digraphs.map(dg => (
+            <Bucket
+              key={dg}
+              id={dg}
+              label={dg}
+              words={Object.entries(placements)
                 .filter(([, d]) => d === dg)
-                .map(([word]) => {
-                  const ref = content.words.find(w => w.word === word);
-                  return (
-                    <button
-                      key={word}
-                      onClick={() => place(word, '')}
-                      className="bg-white border border-terracotta rounded-lg p-1 text-sm text-center"
-                      style={{ touchAction: 'manipulation' }}
-                      aria-label={`remove ${word}`}
-                    >
-                      {ref?.emoji ?? ''} {word}
-                    </button>
-                  );
-                })}
-            </div>
-          </div>
-        ))}
+                .map(([word]) => content.words.find(w => w.word === word)!)
+                .filter(Boolean)}
+              isDragging={!!activeWord}
+            />
+          ))}
+        </div>
+
+        {/* Unsorted word pool */}
+        <UnsortedPool words={unsorted} isDragging={!!activeWord} />
+
+        <button
+          onClick={submit}
+          disabled={!allPlaced}
+          className="block mx-auto bg-forest text-white rounded-full px-8 py-4 text-kid-md disabled:opacity-50 font-display"
+          style={{ touchAction: 'manipulation', minHeight: 60, fontWeight: 600 }}
+        >
+          Check
+        </button>
       </div>
 
-      <div className="space-y-2">
-        {content.words.filter(w => placements[w.word] === null).map(w => (
-          <div key={w.word} className="flex items-center gap-2">
-            <div className="flex-none w-24 text-right font-bold text-kid-sm">{w.emoji ?? ''} {w.word}</div>
-            <div className="flex gap-2 flex-1">
-              {content.digraphs.map(dg => (
-                <button
-                  key={dg}
-                  onClick={() => place(w.word, dg)}
-                  className="flex-1 bg-white border-2 border-ochre rounded-lg py-2 text-sm hover:bg-ochre/20 font-bold"
-                  style={{ touchAction: 'manipulation', minHeight: 44 }}
-                >
-                  {dg}
-                </button>
-              ))}
-            </div>
-          </div>
-        ))}
-      </div>
+      {/* Drag overlay — the floating card that follows the pointer */}
+      <DragOverlay dropAnimation={{ duration: 180, easing: 'cubic-bezier(0.22, 0.9, 0.34, 1)' }}>
+        {activeWordData && <DraggingCard word={activeWordData.word} emoji={activeWordData.emoji} />}
+      </DragOverlay>
+    </DndContext>
+  );
+}
 
-      <button
-        onClick={submit}
-        disabled={!allPlaced}
-        className="block mx-auto bg-forest text-white rounded-full px-8 py-4 text-kid-md disabled:opacity-50"
-        style={{ touchAction: 'manipulation', minHeight: 60 }}
-      >
-        Check
-      </button>
+// ─────────────────────────────────────────────────────────────────────────
+// Bucket — drop target for a digraph
+// ─────────────────────────────────────────────────────────────────────────
+
+function Bucket({
+  id, label, words, isDragging,
+}: {
+  id: string;
+  label: string;
+  words: Array<{ word: string; emoji?: string }>;
+  isDragging: boolean;
+}) {
+  const { setNodeRef, isOver } = useDroppable({ id });
+  return (
+    <div
+      ref={setNodeRef}
+      className={`rounded-2xl p-3 min-h-36 border-4 transition-colors ${
+        isOver
+          ? 'border-forest bg-forest/15 ring-2 ring-forest/40'
+          : isDragging
+            ? 'border-terracotta/80 bg-cream border-dashed'
+            : 'border-terracotta bg-cream'
+      }`}
+    >
+      <div className="text-center font-display text-[22px] text-bark mb-2" style={{ fontWeight: 700 }}>
+        {label}
+      </div>
+      <div className="flex flex-col gap-1.5">
+        {words.map(w => (
+          <DraggableWord key={w.word} word={w.word} emoji={w.emoji} />
+        ))}
+        {words.length === 0 && (
+          <div className="text-center font-display italic text-[12px] text-bark/35 py-2">
+            drop here
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// UnsortedPool — drop target for returning words to the pool
+// ─────────────────────────────────────────────────────────────────────────
+
+function UnsortedPool({
+  words, isDragging,
+}: {
+  words: Array<{ word: string; emoji?: string }>;
+  isDragging: boolean;
+}) {
+  const { setNodeRef, isOver } = useDroppable({ id: '__POOL__' });
+  return (
+    <div
+      ref={setNodeRef}
+      className={`rounded-2xl p-3 border-2 transition-colors ${
+        isOver
+          ? 'border-sage bg-sage/15 ring-2 ring-sage/40'
+          : 'border-ochre/50 bg-white'
+      }`}
+    >
+      <div className="font-display italic text-[12px] text-bark/55 text-center tracking-[0.15em] uppercase mb-2">
+        {words.length > 0 ? 'still to sort' : 'all sorted — hit check!'}
+      </div>
+      {words.length > 0 && (
+        <div className="flex flex-wrap gap-2 justify-center">
+          {words.map(w => (
+            <DraggableWord key={w.word} word={w.word} emoji={w.emoji} />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// DraggableWord — a word chip that can be dragged
+// ─────────────────────────────────────────────────────────────────────────
+
+function DraggableWord({ word, emoji }: { word: string; emoji?: string }) {
+  const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: word });
+  return (
+    <button
+      ref={setNodeRef}
+      {...listeners}
+      {...attributes}
+      className={`bg-white border-2 border-ochre rounded-xl px-3 py-1.5 text-sm font-display select-none cursor-grab active:cursor-grabbing ${
+        isDragging ? 'opacity-30' : ''
+      }`}
+      style={{ touchAction: 'none', fontWeight: 600 }}
+      aria-label={`drag ${word}`}
+    >
+      {emoji && <span className="mr-1">{emoji}</span>}
+      {word}
+    </button>
+  );
+}
+
+// The floating card shown while dragging
+function DraggingCard({ word, emoji }: { word: string; emoji?: string }) {
+  return (
+    <div
+      className="bg-white border-2 border-forest rounded-xl px-3 py-1.5 text-sm font-display shadow-lg"
+      style={{ fontWeight: 600 }}
+    >
+      {emoji && <span className="mr-1">{emoji}</span>}
+      {word}
     </div>
   );
 }
