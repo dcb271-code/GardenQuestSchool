@@ -47,7 +47,7 @@ export const GARDEN_STRUCTURES: MapStructure[] = [
     code: 'reading_blending_beach',
     kind: 'skill',
     skillCode: 'reading.phonics.cvc_blend',
-    label: 'Blending Stones',
+    label: 'Blending Brook',
     subLabel: 'blending sounds',
     themeEmoji: '🪨',
     x: 250, y: 370, size: 68,
@@ -133,7 +133,7 @@ export const GARDEN_STRUCTURES: MapStructure[] = [
     label: "Hundred's Hollow",
     subLabel: '2-digit add',
     themeEmoji: '🌳',
-    x: 920, y: 320, size: 60,
+    x: 850, y: 250, size: 60,
     zone: 'math',
   },
   {

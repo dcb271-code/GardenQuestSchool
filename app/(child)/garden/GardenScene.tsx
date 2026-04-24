@@ -241,51 +241,115 @@ export default function GardenScene({
             );
           })()}
 
-          {/* Brook — flows from upper-left corner, winds through the woods,
-              past the Blending Stones, and disappears under the Digraph
-              Bridge. A Miyazaki "stream cuts the woods" touch. Painted
-              BEFORE the bridge structure so the bridge overlays naturally. */}
-          <g>
-            {/* banks shadow */}
+          {/* Brook — a natural Miyazaki stream that finds its way through
+              the woods. Variable width, depth gradient, boulders pinching
+              the flow, moss on wet rocks, grass tufts at the banks. Water
+              widens into a shallow pool where Blending Brook sits, then
+              slips beneath the Digraph Bridge. */}
+          <g pointerEvents="none">
+            {/* Outer wet-earth bank (dark green, slightly blurred feel
+                created by low opacity). Widest shape; fades into grass. */}
             <path
-              d={`M 30 100
-                  Q 80 180 60 260
-                  Q 40 330 140 360
-                  Q 220 390 280 370
-                  Q 340 350 360 330
-                  L 380 330 L 380 348 L 360 348
-                  Q 340 368 280 388 Q 220 408 140 378
-                  Q 40 348 60 270 Q 80 190 30 115 Z`}
-              fill="#5C7E4F" opacity={0.22}
+              d={`M 35 105
+                  C 85 150, 95 220, 60 275
+                  C 30 335, 80 365, 150 375
+                  C 220 388, 290 395, 355 360
+                  L 390 340
+                  L 395 360
+                  L 355 385
+                  C 285 420, 200 415, 130 398
+                  C 40 380, 10 330, 35 270
+                  C 65 215, 70 150, 35 108 Z`}
+              fill="#6B8E5A" opacity={0.35}
             />
-            {/* water body */}
+            {/* Primary water body (irregular, narrow in places, wider in pools) */}
             <path
-              d={`M 30 110
-                  Q 75 185 58 258
-                  Q 40 330 140 360
-                  Q 215 385 275 368
-                  Q 335 350 355 332
-                  L 380 332 L 380 342 L 357 342
-                  Q 337 360 276 378 Q 215 396 140 370
-                  Q 45 342 50 268 Q 68 188 30 122 Z`}
-              fill="#A8CFD8"
+              d={`M 42 115
+                  C 80 160, 88 218, 58 270
+                  C 35 325, 88 355, 152 365
+                  C 220 378, 280 382, 342 358
+                  L 378 338
+                  L 378 352
+                  L 340 375
+                  C 275 400, 205 398, 138 382
+                  C 58 368, 25 325, 45 275
+                  C 72 225, 78 162, 42 118 Z`}
+              fill="#B2D4D9"
             />
-            {/* current hint — subtle white ripple line along stream center */}
+            {/* Darker depth channel — suggests flowing water depth */}
             <path
-              d={`M 40 130 Q 70 200 55 265 Q 50 330 150 360 Q 230 390 340 348`}
-              stroke="#FFFFFF" strokeWidth={1.2} fill="none" opacity={0.55}
+              d={`M 50 140 C 72 190, 80 240, 62 280 C 50 320, 110 348, 170 360 C 240 372, 300 370, 350 345`}
+              stroke="#8FB7C2" strokeWidth={10} fill="none" strokeLinecap="round" opacity={0.7}
             />
-            {/* Small pebbles at stream edges */}
-            {[[70, 180], [50, 260], [110, 340], [200, 382], [310, 365]].map(([px, py], i) => (
-              <ellipse key={i} cx={px} cy={py} rx={4} ry={2.4} fill="#C9B489" stroke="#8A7050" strokeWidth={0.8} />
+            {/* Shimmer ripples — short subtle arcs, not a single ribbon */}
+            <path d={`M 68 170 Q 78 180 72 192`} stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.7} strokeLinecap="round" />
+            <path d={`M 70 245 Q 62 255 72 262`} stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.6} strokeLinecap="round" />
+            <path d={`M 130 355 Q 148 360 160 358`} stroke="#FFFFFF" strokeWidth={1.1} fill="none" opacity={0.7} strokeLinecap="round" />
+            <path d={`M 240 375 Q 260 380 280 375`} stroke="#FFFFFF" strokeWidth={1.1} fill="none" opacity={0.7} strokeLinecap="round" />
+            <path d={`M 310 358 Q 325 362 340 355`} stroke="#FFFFFF" strokeWidth={1.1} fill="none" opacity={0.65} strokeLinecap="round" />
+
+            {/* Moss-topped boulders sitting IN the stream, pinching flow */}
+            <g>
+              <ellipse cx={85} cy={208} rx={16} ry={10} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.5} />
+              <ellipse cx={82} cy={202} rx={12} ry={5}  fill="#A89D8A" />
+              <ellipse cx={85} cy={200} rx={14} ry={3.5} fill="#7BA46F" opacity={0.9} />
+              <circle cx={80} cy={199} r={1.2} fill="#8FB67A" />
+            </g>
+            <g>
+              <ellipse cx={182} cy={348} rx={14} ry={8} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.5} />
+              <ellipse cx={180} cy={343} rx={10} ry={4} fill="#A89D8A" />
+              <ellipse cx={182} cy={341} rx={12} ry={3} fill="#7BA46F" opacity={0.9} />
+            </g>
+            <g>
+              <ellipse cx={118} cy={290} rx={11} ry={7} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.4} />
+              <ellipse cx={120} cy={286} rx={7} ry={3} fill="#A89D8A" />
+            </g>
+
+            {/* Dry stones on the banks (kare-sansui feeling) */}
+            <g>
+              <ellipse cx={28} cy={200} rx={10} ry={6} fill="#C2B4A0" stroke="#6B5D48" strokeWidth={1.2} />
+              <ellipse cx={26} cy={197} rx={6} ry={2.5} fill="#D6C9B3" />
+            </g>
+            <g>
+              <ellipse cx={20} cy={320} rx={8} ry={5} fill="#C2B4A0" stroke="#6B5D48" strokeWidth={1.2} />
+            </g>
+            <g>
+              <ellipse cx={315} cy={395} rx={10} ry={5} fill="#C2B4A0" stroke="#6B5D48" strokeWidth={1.2} />
+              <ellipse cx={312} cy={392} rx={5} ry={2} fill="#D6C9B3" />
+            </g>
+            <g>
+              <ellipse cx={90} cy={385} rx={9} ry={5} fill="#B8AA96" stroke="#6B5D48" strokeWidth={1.2} />
+            </g>
+
+            {/* Grass tufts at the bank edges */}
+            {[[30, 240], [98, 330], [240, 360], [340, 380]].map(([gx, gy], i) => (
+              <g key={i} transform={`translate(${gx},${gy})`}>
+                <path d="M 0 0 Q -1 -6 -2 -10" stroke="#5C7E4F" strokeWidth={1.3} fill="none" strokeLinecap="round" />
+                <path d="M 0 0 Q 1 -7 3 -11" stroke="#5C7E4F" strokeWidth={1.3} fill="none" strokeLinecap="round" />
+                <path d="M 0 0 Q 2 -5 5 -9" stroke="#5C7E4F" strokeWidth={1.2} fill="none" strokeLinecap="round" />
+              </g>
             ))}
-            {/* Subtle concentric ripple somewhere along the stream */}
+
+            {/* A small cattail at a bend */}
+            <g transform="translate(45, 180)">
+              <path d="M 0 0 Q -1 -14 -3 -28" stroke="#6B8E5A" strokeWidth={1.6} fill="none" strokeLinecap="round" />
+              <ellipse cx={-3} cy={-30} rx={1.8} ry={6} fill="#7B4F2C" stroke="#3F2817" strokeWidth={0.8} />
+            </g>
+
+            {/* Concentric ripple — natural animation, subtle */}
             {!reducedMotion && (
-              <motion.ellipse
-                cx={100} cy={340} rx={6} ry={2} fill="none" stroke="#FFFFFF" strokeWidth={0.9}
-                animate={{ rx: [4, 16], ry: [1.2, 5], opacity: [0.7, 0] }}
-                transition={{ duration: 5, repeat: Infinity, ease: 'easeOut', repeatDelay: 4 }}
-              />
+              <>
+                <motion.ellipse
+                  cx={150} cy={355} rx={6} ry={2} fill="none" stroke="#FFFFFF" strokeWidth={0.9}
+                  animate={{ rx: [4, 18], ry: [1.2, 5], opacity: [0.7, 0] }}
+                  transition={{ duration: 5.5, repeat: Infinity, ease: 'easeOut', repeatDelay: 3.5 }}
+                />
+                <motion.ellipse
+                  cx={270} cy={380} rx={5} ry={1.6} fill="none" stroke="#FFFFFF" strokeWidth={0.8}
+                  animate={{ rx: [3, 14], ry: [1, 4], opacity: [0.6, 0] }}
+                  transition={{ duration: 4.8, repeat: Infinity, ease: 'easeOut', repeatDelay: 5, delay: 2 }}
+                />
+              </>
             )}
           </g>
 

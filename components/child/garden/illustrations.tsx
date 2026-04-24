@@ -334,32 +334,50 @@ export function BunnyBurrow({ x, y, size = 80 }: IllustrationProps) {
       <path d={`M ${-r * 0.3} ${r * 0.04} Q ${-r * 0.45} ${-r * 0.05} ${-r * 0.52} ${-r * 0.2}`} stroke={STROKE} strokeWidth={1} fill="none" opacity={0.6} />
       <path d={`M ${r * 0.3} ${r * 0.04} Q ${r * 0.48} ${-r * 0.08} ${r * 0.58} ${-r * 0.25}`} stroke={STROKE} strokeWidth={1} fill="none" opacity={0.6} />
 
-      {/* Bunny peeking out — sitting just at the entrance */}
-      <g transform={`translate(0, ${r * 0.38})`}>
+      {/* Bunny peeking out — sitting just at the entrance, properly cute */}
+      <g transform={`translate(0, ${r * 0.42})`}>
         {/* back body silhouette (partly in shadow) */}
-        <ellipse cx={0} cy={r * 0.2} rx={r * 0.22} ry={r * 0.14} fill="#D9B38A" opacity={0.85} />
-        {/* head */}
-        <circle cx={0} cy={0} r={r * 0.18} fill="#E8C493" stroke={STROKE} strokeWidth={1.5} />
-        {/* ears — soft, relaxed, NOT kawaii giant */}
-        <ellipse cx={-r * 0.08} cy={-r * 0.2} rx={r * 0.045} ry={r * 0.14} fill="#E8C493" stroke={STROKE} strokeWidth={1.3} transform={`rotate(-10 ${-r * 0.08} ${-r * 0.2})`} />
-        <ellipse cx={r * 0.08} cy={-r * 0.2} rx={r * 0.045} ry={r * 0.14} fill="#E8C493" stroke={STROKE} strokeWidth={1.3} transform={`rotate(10 ${r * 0.08} ${-r * 0.2})`} />
-        {/* inner ear pink */}
-        <ellipse cx={-r * 0.08} cy={-r * 0.18} rx={r * 0.018} ry={r * 0.08} fill="#F5BFAE" transform={`rotate(-10 ${-r * 0.08} ${-r * 0.18})`} />
-        <ellipse cx={r * 0.08} cy={-r * 0.18} rx={r * 0.018} ry={r * 0.08} fill="#F5BFAE" transform={`rotate(10 ${r * 0.08} ${-r * 0.18})`} />
-        {/* gentle round dark eyes with tiny highlights — cute but soft */}
-        <ellipse cx={-r * 0.06} cy={-r * 0.02} rx={r * 0.03} ry={r * 0.038} fill="#1A1A1A" />
-        <ellipse cx={r * 0.06}  cy={-r * 0.02} rx={r * 0.03} ry={r * 0.038} fill="#1A1A1A" />
-        <circle cx={-r * 0.05} cy={-r * 0.035} r={r * 0.012} fill="#FFFFFF" />
-        <circle cx={r * 0.07}  cy={-r * 0.035} r={r * 0.012} fill="#FFFFFF" />
-        {/* little nose */}
-        <ellipse cx={0} cy={r * 0.05} rx={r * 0.018} ry={r * 0.012} fill="#C38D9E" />
-        {/* soft mouth — tiny line */}
-        <path d={`M 0 ${r * 0.06} L 0 ${r * 0.08}`} stroke={STROKE} strokeWidth={1} strokeLinecap="round" />
-        <path d={`M 0 ${r * 0.08} Q ${-r * 0.02} ${r * 0.1} ${-r * 0.04} ${r * 0.09}`} stroke={STROKE} strokeWidth={1} fill="none" strokeLinecap="round" />
-        <path d={`M 0 ${r * 0.08} Q ${r * 0.02} ${r * 0.1} ${r * 0.04} ${r * 0.09}`} stroke={STROKE} strokeWidth={1} fill="none" strokeLinecap="round" />
-        {/* cheek blush (very soft) */}
-        <ellipse cx={-r * 0.13} cy={r * 0.04} rx={r * 0.03} ry={r * 0.018} fill="#F8C9D2" opacity={0.5} />
-        <ellipse cx={r * 0.13} cy={r * 0.04} rx={r * 0.03} ry={r * 0.018} fill="#F8C9D2" opacity={0.5} />
+        <ellipse cx={0} cy={r * 0.22} rx={r * 0.25} ry={r * 0.15} fill="#D9B38A" opacity={0.85} />
+        {/* bigger round head for baby-animal cuteness */}
+        <circle cx={0} cy={0} r={r * 0.22} fill="#F5D8AE" stroke={STROKE} strokeWidth={1.5} />
+        {/* ears — short, round, relaxed (soft ears = cute; tall/pointed = alert) */}
+        <ellipse cx={-r * 0.1} cy={-r * 0.22} rx={r * 0.07} ry={r * 0.13}
+                 fill="#F5D8AE" stroke={STROKE} strokeWidth={1.3}
+                 transform={`rotate(-22 ${-r * 0.1} ${-r * 0.22})`} />
+        <ellipse cx={r * 0.1} cy={-r * 0.22} rx={r * 0.07} ry={r * 0.13}
+                 fill="#F5D8AE" stroke={STROKE} strokeWidth={1.3}
+                 transform={`rotate(22 ${r * 0.1} ${-r * 0.22})`} />
+        {/* inner ear pink — cozy warm tone */}
+        <ellipse cx={-r * 0.1} cy={-r * 0.2} rx={r * 0.03} ry={r * 0.08}
+                 fill="#F5BFAE" transform={`rotate(-22 ${-r * 0.1} ${-r * 0.2})`} />
+        <ellipse cx={r * 0.1} cy={-r * 0.2} rx={r * 0.03} ry={r * 0.08}
+                 fill="#F5BFAE" transform={`rotate(22 ${r * 0.1} ${-r * 0.2})`} />
+        {/* BIG round eyes with a big highlight — the key to "cute not mad".
+            Eyes are placed wide and low (babyface proportions). */}
+        <circle cx={-r * 0.08} cy={r * 0.0} r={r * 0.05} fill="#2E1D10" />
+        <circle cx={r * 0.08}  cy={r * 0.0} r={r * 0.05} fill="#2E1D10" />
+        {/* big glossy highlights */}
+        <circle cx={-r * 0.065} cy={-r * 0.015} r={r * 0.022} fill="#FFFFFF" />
+        <circle cx={r * 0.095}  cy={-r * 0.015} r={r * 0.022} fill="#FFFFFF" />
+        {/* tiny secondary highlight at bottom of each eye */}
+        <circle cx={-r * 0.09} cy={r * 0.015} r={r * 0.008} fill="#FFFFFF" opacity={0.8} />
+        <circle cx={r * 0.07}  cy={r * 0.015} r={r * 0.008} fill="#FFFFFF" opacity={0.8} />
+        {/* pink nose — a soft triangle */}
+        <path d={`M ${-r * 0.02} ${r * 0.08} L ${r * 0.02} ${r * 0.08} L 0 ${r * 0.1} Z`}
+              fill="#E88FA0" stroke={STROKE} strokeWidth={0.7} strokeLinejoin="round" />
+        {/* Mouth — a tiny smile (two gentle arcs under the nose) */}
+        <path d={`M 0 ${r * 0.105} Q ${-r * 0.025} ${r * 0.13} ${-r * 0.045} ${r * 0.12}`}
+              stroke={STROKE} strokeWidth={1} fill="none" strokeLinecap="round" />
+        <path d={`M 0 ${r * 0.105} Q ${r * 0.025} ${r * 0.13} ${r * 0.045} ${r * 0.12}`}
+              stroke={STROKE} strokeWidth={1} fill="none" strokeLinecap="round" />
+        {/* warm cheek blush — more present, gives the "awww" */}
+        <ellipse cx={-r * 0.15} cy={r * 0.06} rx={r * 0.04} ry={r * 0.022}
+                 fill="#F8B4B4" opacity={0.65} />
+        <ellipse cx={r * 0.15} cy={r * 0.06} rx={r * 0.04} ry={r * 0.022}
+                 fill="#F8B4B4" opacity={0.65} />
+        {/* soft forehead fluff highlight */}
+        <ellipse cx={-r * 0.05} cy={-r * 0.12} rx={r * 0.06} ry={r * 0.04}
+                 fill="#FFFFFF" opacity={0.35} />
       </g>
 
       {/* Tall grass blades on top of the mound */}
@@ -468,19 +486,36 @@ export function FrogPondHabitat({ x, y, size = 80 }: IllustrationProps) {
       {reed(r * 0.85, r * 0.5, 2)}
       {reed(r * 1.05, r * 0.6, -1)}
 
-      {/* Three lily pads — naturally scattered, asymmetric. The front-right
-          pad is the biggest and holds the frog. Distance-checked so none
-          touch: upper-left ↔ front ≈ 1.3r, upper-right ↔ front ≈ 1.1r. */}
-      {lilyPad(-r * 1.05,  -r * 0.1, r * 0.32,  -20, '#7BA46F')}   // upper-left, tilted away
-      {lilyPad( r * 0.9,   -r * 0.3, r * 0.26,  170, '#6B8E5A')}   // upper-right, back facing
-      {lilyPad( r * 0.15,   r * 0.38, r * 0.48,  -95)}             // front, main (frog)
+      {/* Two background pads (with the V-notch, darker greens) */}
+      {lilyPad(-r * 1.15, -r * 0.15, r * 0.28, -25, '#6B8E5A')}   // upper-left
+      {lilyPad( r * 1.0,  -r * 0.35, r * 0.24, 165, '#5C7E4F')}   // upper-right
+
+      {/* FRONT pad — a clean disc (no V-notch) under the frog. Lighter
+          sage, tilted 8° so it looks like a top-down lily pad, with
+          radiating veins and a water shadow. Fully contains the frog. */}
+      <g transform={`translate(${r * 0.1}, ${r * 0.4}) rotate(-8)`}>
+        {/* shadow in the water beneath the pad */}
+        <ellipse cx={0} cy={r * 0.06} rx={r * 0.58} ry={r * 0.14} fill="#5A8A80" opacity={0.35} />
+        {/* pad body */}
+        <ellipse cx={0} cy={0} rx={r * 0.56} ry={r * 0.28} fill="#A2C794" stroke={STROKE} strokeWidth={1.5} />
+        {/* inner lighter gradient disc */}
+        <ellipse cx={-r * 0.05} cy={-r * 0.04} rx={r * 0.42} ry={r * 0.2} fill="#B8D4A8" opacity={0.85} />
+        {/* radiating veins */}
+        <line x1={-r * 0.45} y1={0} x2={r * 0.45} y2={0} stroke={STROKE} strokeWidth={0.7} opacity={0.35} />
+        <line x1={-r * 0.35} y1={-r * 0.18} x2={r * 0.35} y2={r * 0.18} stroke={STROKE} strokeWidth={0.6} opacity={0.3} />
+        <line x1={-r * 0.35} y1={r * 0.18} x2={r * 0.35} y2={-r * 0.18} stroke={STROKE} strokeWidth={0.6} opacity={0.3} />
+        <line x1={0} y1={-r * 0.22} x2={0} y2={r * 0.22} stroke={STROKE} strokeWidth={0.6} opacity={0.3} />
+        {/* upper-edge highlight arc */}
+        <path d={`M ${-r * 0.4} ${-r * 0.22} Q 0 ${-r * 0.3} ${r * 0.4} ${-r * 0.22}`} stroke="#D6E8C2" strokeWidth={1.5} fill="none" opacity={0.9} />
+      </g>
 
       {/* Lily flower on the upper-left pad */}
-      {lilyFlower(-r * 0.92, -r * 0.16, r * 0.13)}
+      {lilyFlower(-r * 1.02, -r * 0.2, r * 0.13)}
 
-      {/* Frog sits on the big front pad at (r*0.15, r*0.38). Pad radius
-          r*0.48 gives plenty of room. */}
-      <g transform={`translate(${r * 0.15}, ${r * 0.33})`}>
+      {/* Frog sits on the angled disc pad at (r*0.1, r*0.4). Centered
+          horizontally on the pad; body y slightly above pad center so the
+          frog appears perched on the disc surface. */}
+      <g transform={`translate(${r * 0.1}, ${r * 0.33})`}>
         {/* hind legs (visible behind body) */}
         <ellipse cx={-r * 0.2} cy={r * 0.05} rx={r * 0.13} ry={r * 0.06} fill="#5C7E4F" stroke={STROKE} strokeWidth={1.3} transform={`rotate(20 ${-r * 0.2} ${r * 0.05})`} />
         <ellipse cx={r * 0.2} cy={r * 0.05} rx={r * 0.13} ry={r * 0.06} fill="#5C7E4F" stroke={STROKE} strokeWidth={1.3} transform={`rotate(-20 ${r * 0.2} ${r * 0.05})`} />
