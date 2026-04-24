@@ -10,7 +10,7 @@ import type { SpeciesData } from '@/lib/world/speciesCatalog';
 import ArrivalCard from '@/components/child/garden/ArrivalCard';
 import LunaWanderer from '@/components/child/garden/LunaWanderer';
 import AmbientLayer from '@/components/child/garden/AmbientLayer';
-import { StructureIllustration, Tree, PineTree, Flower, GrassTuft } from '@/components/child/garden/illustrations';
+import { StructureIllustration, Tree, PineTree, Flower, GrassTuft, CozyHouse } from '@/components/child/garden/illustrations';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
 
 interface StructureState {
@@ -203,26 +203,33 @@ export default function GardenScene({
             const mainD = `M 360 160 C 400 280, 420 370, 460 420 S 560 500, 680 515 S 880 515, 960 475 S 1120 380, 1160 300 S 1200 200, 1280 170`;
             const pondD = `M 780 515 C 880 555, 960 605, 1055 635`;
             const bunnyD = `M 580 510 C 500 560, 410 620, 330 665`;
+            // House path — from home's front walk (100, 540) curving up-right
+            // to meet the main path near Digraph Bridge at about (415, 320)
+            const houseD = `M 100 540 C 180 470, 280 400, 415 320`;
             return (
               <g pointerEvents="none">
                 {/* soft shadow under the path */}
                 <path d={mainD}  stroke="#A99878" strokeWidth={50} fill="none" strokeLinecap="round" opacity={0.22} />
                 <path d={pondD}  stroke="#A99878" strokeWidth={40} fill="none" strokeLinecap="round" opacity={0.22} />
                 <path d={bunnyD} stroke="#A99878" strokeWidth={40} fill="none" strokeLinecap="round" opacity={0.22} />
+                <path d={houseD} stroke="#A99878" strokeWidth={38} fill="none" strokeLinecap="round" opacity={0.22} />
                 {/* main path */}
                 <path d={mainD}  stroke="#EAD2A8" strokeWidth={36} fill="none" strokeLinecap="round" opacity={0.92} />
                 <path d={pondD}  stroke="#EAD2A8" strokeWidth={28} fill="none" strokeLinecap="round" opacity={0.88} />
                 <path d={bunnyD} stroke="#EAD2A8" strokeWidth={28} fill="none" strokeLinecap="round" opacity={0.88} />
+                <path d={houseD} stroke="#EAD2A8" strokeWidth={26} fill="none" strokeLinecap="round" opacity={0.88} />
                 {/* inner highlight ribbon (organic worn center) */}
                 <path d={mainD}  stroke="#F7E6C4" strokeWidth={14} fill="none" strokeLinecap="round" opacity={0.65} />
                 <path d={pondD}  stroke="#F7E6C4" strokeWidth={10} fill="none" strokeLinecap="round" opacity={0.6} />
                 <path d={bunnyD} stroke="#F7E6C4" strokeWidth={10} fill="none" strokeLinecap="round" opacity={0.6} />
+                <path d={houseD} stroke="#F7E6C4" strokeWidth={10} fill="none" strokeLinecap="round" opacity={0.6} />
                 {/* stepping stones along the path — break up uniformity */}
                 {[
                   { x: 400, y: 230 }, { x: 450, y: 380 }, { x: 560, y: 490 }, { x: 720, y: 520 },
                   { x: 900, y: 500 }, { x: 1060, y: 420 }, { x: 1180, y: 260 },
                   { x: 870, y: 585 }, { x: 980, y: 625 },
                   { x: 510, y: 550 }, { x: 420, y: 600 }, { x: 360, y: 640 },
+                  { x: 180, y: 490 }, { x: 280, y: 410 }, { x: 360, y: 360 },
                 ].map((s, i) => (
                   <g key={i}>
                     <ellipse cx={s.x + 1} cy={s.y + 2} rx={11} ry={6} fill="#000" opacity={0.2} />
@@ -296,8 +303,9 @@ export default function GardenScene({
             )}
           </g>
 
-          {/* Bamboo cluster — Math Mound edge */}
-          <g transform="translate(880, 180)">
+          {/* Bamboo cluster — hugs the torii on the left to create a
+              coherent Japanese-garden corner */}
+          <g transform="translate(1130, 110)">
             {[0, 8, 16, 24].map((dx, i) => (
               <g key={i}>
                 <path
@@ -371,6 +379,38 @@ export default function GardenScene({
               </>
             )}
           </g>
+
+          {/* COZY HOUSE — off to the left, anchoring the house-path entrance.
+              Painted BEFORE the trees so foliage can overlap naturally. */}
+          <CozyHouse x={100} y={460} size={140} />
+          {/* Chimney smoke — 3 soft puffs drifting up from (146, 388) */}
+          {!reducedMotion && (
+            <g pointerEvents="none">
+              {[0, 1, 2].map(i => (
+                <motion.ellipse
+                  key={i}
+                  cx={146}
+                  cy={388}
+                  rx={8}
+                  ry={6}
+                  fill="#E8E0D3"
+                  initial={{ opacity: 0, y: 0, scale: 0.6 }}
+                  animate={{
+                    opacity: [0, 0.85, 0.6, 0],
+                    y: [0, -20, -45, -75],
+                    x: [0, 4, -3, 6],
+                    scale: [0.6, 1.1, 1.6, 2.2],
+                  }}
+                  transition={{
+                    duration: 6,
+                    delay: i * 2,
+                    repeat: Infinity,
+                    ease: 'easeOut',
+                  }}
+                />
+              ))}
+            </g>
+          )}
 
           {/* trees NW (reading grove) */}
           <Sway x={80}   y={100} delay={0.0}><Tree x={80}  y={100} size={100} variant={1} /></Sway>

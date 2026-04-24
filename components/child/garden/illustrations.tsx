@@ -256,96 +256,158 @@ export function AntHill({ x, y, size = 80 }: IllustrationProps) {
 
 export function BunnyBurrow({ x, y, size = 80 }: IllustrationProps) {
   const r = size / 2;
-  // Cross-section view: green grass strip on top, dirt below with visible
-  // burrow tunnel + bunny inside, dangling roots, embedded pebbles.
+  // Miyazaki mossy burrow: a grass-and-moss mound (not a dirt cross-section)
+  // with a soft arched entrance framed by roots, a bunny peeking out, ferns
+  // and mushrooms at the base, a small flower crown on top.
   return (
     <g transform={`translate(${x},${y})`}>
-      {/* dirt cross-section — a soft mound, not a box. The top "grass line"
-          arcs gently and the whole underside is a rounded curve. */}
+      {/* Ground shadow */}
+      <ellipse cx={0} cy={r * 0.92} rx={r * 1.15} ry={r * 0.12} fill="#000" opacity={0.2} />
+
+      {/* Mound — all green moss, generous round shape, slight asymmetry */}
       <path
-        d={`M ${-r * 1.15} ${-r * 0.02}
-            Q ${-r * 0.55} ${-r * 0.22} 0 ${-r * 0.2}
-            Q ${r * 0.55} ${-r * 0.22} ${r * 1.15} ${-r * 0.02}
-            Q ${r * 1.2} ${r * 0.45} ${r * 0.9} ${r * 0.8}
-            Q ${r * 0.45} ${r * 1.0} 0 ${r * 0.95}
-            Q ${-r * 0.45} ${r * 1.0} ${-r * 0.9} ${r * 0.8}
-            Q ${-r * 1.2} ${r * 0.45} ${-r * 1.15} ${-r * 0.02} Z`}
-        fill="#7B5538" stroke={STROKE} strokeWidth={2}
+        d={`M ${-r * 1.15} ${r * 0.85}
+            Q ${-r * 1.18} ${r * 0.25} ${-r * 0.75} ${-r * 0.2}
+            Q ${-r * 0.35} ${-r * 0.7} ${r * 0.05} ${-r * 0.8}
+            Q ${r * 0.55} ${-r * 0.75} ${r * 0.92} ${-r * 0.35}
+            Q ${r * 1.2} ${r * 0.15} ${r * 1.18} ${r * 0.85} Z`}
+        fill="#6B8E5A" stroke={STROKE} strokeWidth={2} strokeLinejoin="round"
       />
-      {/* dirt texture: lighter horizontal layers */}
-      <path d={`M ${-r * 1.05} ${r * 0.15} Q 0 ${r * 0.05} ${r * 1.05} ${r * 0.15}`} stroke="#9B7352" strokeWidth={1.2} fill="none" opacity={0.6} />
-      <path d={`M ${-r * 1.05} ${r * 0.45} Q 0 ${r * 0.35} ${r * 1.05} ${r * 0.45}`} stroke="#9B7352" strokeWidth={1.2} fill="none" opacity={0.5} />
-      {/* embedded pebbles */}
-      <ellipse cx={-r * 0.7} cy={r * 0.5} rx={3} ry={2} fill="#5A3B1F" />
-      <ellipse cx={r * 0.6} cy={r * 0.3} rx={2.5} ry={1.8} fill="#5A3B1F" />
-      <ellipse cx={r * 0.75} cy={r * 0.65} rx={3} ry={2} fill="#5A3B1F" />
-      {/* dangling roots */}
-      <path d={`M ${-r * 0.9} ${-r * 0.1} Q ${-r * 0.85} ${r * 0.05} ${-r * 0.92} ${r * 0.2}`} stroke={STROKE_LIGHT} strokeWidth={1.2} fill="none" opacity={0.7} />
-      <path d={`M ${-r * 0.6} ${-r * 0.1} Q ${-r * 0.55} ${r * 0.0} ${-r * 0.62} ${r * 0.12}`} stroke={STROKE_LIGHT} strokeWidth={1} fill="none" opacity={0.7} />
-      <path d={`M ${r * 0.85} ${-r * 0.1} Q ${r * 0.9} ${r * 0.05} ${r * 0.82} ${r * 0.18}`} stroke={STROKE_LIGHT} strokeWidth={1.2} fill="none" opacity={0.7} />
-      <path d={`M ${r * 0.55} ${-r * 0.1} Q ${r * 0.6} ${r * 0.0} ${r * 0.52} ${r * 0.1}`} stroke={STROKE_LIGHT} strokeWidth={1} fill="none" opacity={0.7} />
+      {/* Darker moss under-layer for depth */}
+      <path
+        d={`M ${-r * 1.1} ${r * 0.85}
+            Q ${-r * 1.0} ${r * 0.4} ${-r * 0.55} ${r * 0.1}
+            Q ${-r * 0.1} ${-r * 0.1} ${r * 0.4} ${r * 0.05}
+            Q ${r * 0.95} ${r * 0.2} ${r * 1.12} ${r * 0.85} Z`}
+        fill="#5C7E4F" opacity={0.75}
+      />
+      {/* Lighter sun-lit highlight puff on upper-left */}
+      <path
+        d={`M ${-r * 0.85} ${-r * 0.1}
+            Q ${-r * 0.5} ${-r * 0.55} ${-r * 0.1} ${-r * 0.58}
+            Q ${-r * 0.4} ${-r * 0.25} ${-r * 0.75} ${-r * 0.05}
+            Q ${-r * 0.9} ${-r * 0.05} ${-r * 0.85} ${-r * 0.1} Z`}
+        fill="#8FB67A" opacity={0.85}
+      />
 
-      {/* burrow chamber (rounded oval cavity) */}
-      <ellipse cx={0} cy={r * 0.4} rx={r * 0.55} ry={r * 0.32} fill="#3A2818" />
-      {/* inner shadow ring on chamber */}
-      <ellipse cx={0} cy={r * 0.4} rx={r * 0.55} ry={r * 0.32} fill="none" stroke="#5A3B1F" strokeWidth={2} />
-      {/* dirt floor of chamber */}
-      <ellipse cx={0} cy={r * 0.6} rx={r * 0.5} ry={r * 0.06} fill="#5A3B1F" />
+      {/* Moss dapples scattered on the mound */}
+      <circle cx={r * 0.5} cy={-r * 0.3} r={r * 0.06} fill="#8FB67A" opacity={0.7} />
+      <circle cx={-r * 0.3} cy={r * 0.2} r={r * 0.05} fill="#8FB67A" opacity={0.65} />
+      <circle cx={r * 0.7} cy={r * 0.3} r={r * 0.04} fill="#8FB67A" opacity={0.7} />
 
-      {/* bunny inside the burrow */}
-      <g transform={`translate(0, ${r * 0.42})`}>
-        {/* body */}
-        <ellipse cx={0} cy={r * 0.15} rx={r * 0.28} ry={r * 0.18} fill="#E8C493" stroke={STROKE} strokeWidth={1.5} />
-        {/* ears */}
-        <ellipse cx={-r * 0.13} cy={-r * 0.15} rx={r * 0.07} ry={r * 0.2} fill="#E8C493" stroke={STROKE} strokeWidth={1.3} transform={`rotate(-12 ${-r * 0.13} ${-r * 0.15})`} />
-        <ellipse cx={r * 0.07} cy={-r * 0.15} rx={r * 0.07} ry={r * 0.2} fill="#E8C493" stroke={STROKE} strokeWidth={1.3} transform={`rotate(8 ${r * 0.07} ${-r * 0.15})`} />
-        {/* inner ear pink */}
-        <ellipse cx={-r * 0.13} cy={-r * 0.15} rx={r * 0.025} ry={r * 0.12} fill="#F5BFAE" transform={`rotate(-12 ${-r * 0.13} ${-r * 0.15})`} />
-        <ellipse cx={r * 0.07} cy={-r * 0.15} rx={r * 0.025} ry={r * 0.12} fill="#F5BFAE" transform={`rotate(8 ${r * 0.07} ${-r * 0.15})`} />
+      {/* Arched entrance — rounded pointed arch, warm dark inside */}
+      <path
+        d={`M ${-r * 0.3} ${r * 0.9}
+            L ${-r * 0.3} ${r * 0.35}
+            Q ${-r * 0.3} ${r * 0.1} 0 ${r * 0.08}
+            Q ${r * 0.3} ${r * 0.1} ${r * 0.3} ${r * 0.35}
+            L ${r * 0.3} ${r * 0.9} Z`}
+        fill="#2E1D10"
+      />
+      {/* Warm glow inside the entrance */}
+      <ellipse cx={0} cy={r * 0.6} rx={r * 0.22} ry={r * 0.18} fill="#7A4520" opacity={0.6} />
+      <ellipse cx={0} cy={r * 0.75} rx={r * 0.12} ry={r * 0.05} fill="#FFD98A" opacity={0.3} />
+      {/* Arched opening outline */}
+      <path
+        d={`M ${-r * 0.3} ${r * 0.9}
+            L ${-r * 0.3} ${r * 0.35}
+            Q ${-r * 0.3} ${r * 0.1} 0 ${r * 0.08}
+            Q ${r * 0.3} ${r * 0.1} ${r * 0.3} ${r * 0.35}
+            L ${r * 0.3} ${r * 0.9}`}
+        fill="none" stroke={STROKE} strokeWidth={2} strokeLinejoin="round"
+      />
+
+      {/* Twisting tree roots framing the arch (Miyazaki signature) */}
+      <path
+        d={`M ${-r * 0.3} ${r * 0.08}
+            Q ${-r * 0.5} ${-r * 0.05} ${-r * 0.55} ${-r * 0.25}
+            Q ${-r * 0.45} ${-r * 0.1} ${-r * 0.3} ${-r * 0.02}`}
+        stroke="#7B4F2C" strokeWidth={r * 0.06} fill="none" strokeLinecap="round"
+      />
+      <path
+        d={`M ${r * 0.3} ${r * 0.08}
+            Q ${r * 0.52} ${-r * 0.08} ${r * 0.62} ${-r * 0.3}
+            Q ${r * 0.45} ${-r * 0.1} ${r * 0.3} 0`}
+        stroke="#7B4F2C" strokeWidth={r * 0.055} fill="none" strokeLinecap="round"
+      />
+      {/* root outline highlights */}
+      <path d={`M ${-r * 0.3} ${r * 0.04} Q ${-r * 0.45} ${-r * 0.05} ${-r * 0.52} ${-r * 0.2}`} stroke={STROKE} strokeWidth={1} fill="none" opacity={0.6} />
+      <path d={`M ${r * 0.3} ${r * 0.04} Q ${r * 0.48} ${-r * 0.08} ${r * 0.58} ${-r * 0.25}`} stroke={STROKE} strokeWidth={1} fill="none" opacity={0.6} />
+
+      {/* Bunny peeking out — sitting just at the entrance */}
+      <g transform={`translate(0, ${r * 0.38})`}>
+        {/* back body silhouette (partly in shadow) */}
+        <ellipse cx={0} cy={r * 0.2} rx={r * 0.22} ry={r * 0.14} fill="#D9B38A" opacity={0.85} />
         {/* head */}
-        <circle cx={-r * 0.03} cy={0} r={r * 0.18} fill="#E8C493" stroke={STROKE} strokeWidth={1.5} />
-        {/* big round eyes */}
-        <circle cx={-r * 0.1} cy={-r * 0.02} r={r * 0.045} fill="#1A1A1A" />
-        <circle cx={r * 0.04} cy={-r * 0.02} r={r * 0.045} fill="#1A1A1A" />
-        <circle cx={-r * 0.09} cy={-r * 0.03} r={r * 0.015} fill="#FFFFFF" />
-        <circle cx={r * 0.05} cy={-r * 0.03} r={r * 0.015} fill="#FFFFFF" />
-        {/* nose + cheek blush */}
-        <ellipse cx={-r * 0.03} cy={r * 0.06} rx={r * 0.025} ry={r * 0.018} fill="#C38D9E" />
-        <ellipse cx={-r * 0.13} cy={r * 0.05} rx={r * 0.04} ry={r * 0.022} fill="#F8C9D2" opacity={0.6} />
-        <ellipse cx={r * 0.07} cy={r * 0.05} rx={r * 0.04} ry={r * 0.022} fill="#F8C9D2" opacity={0.6} />
-        {/* mouth */}
-        <path d={`M ${-r * 0.03} ${r * 0.08} Q ${-r * 0.06} ${r * 0.13} ${-r * 0.09} ${r * 0.1}`} stroke={STROKE} strokeWidth={1.1} fill="none" strokeLinecap="round" />
-        <path d={`M ${-r * 0.03} ${r * 0.08} Q ${0} ${r * 0.13} ${r * 0.03} ${r * 0.1}`} stroke={STROKE} strokeWidth={1.1} fill="none" strokeLinecap="round" />
+        <circle cx={0} cy={0} r={r * 0.18} fill="#E8C493" stroke={STROKE} strokeWidth={1.5} />
+        {/* ears — soft, relaxed, NOT kawaii giant */}
+        <ellipse cx={-r * 0.08} cy={-r * 0.2} rx={r * 0.045} ry={r * 0.14} fill="#E8C493" stroke={STROKE} strokeWidth={1.3} transform={`rotate(-10 ${-r * 0.08} ${-r * 0.2})`} />
+        <ellipse cx={r * 0.08} cy={-r * 0.2} rx={r * 0.045} ry={r * 0.14} fill="#E8C493" stroke={STROKE} strokeWidth={1.3} transform={`rotate(10 ${r * 0.08} ${-r * 0.2})`} />
+        {/* inner ear pink */}
+        <ellipse cx={-r * 0.08} cy={-r * 0.18} rx={r * 0.018} ry={r * 0.08} fill="#F5BFAE" transform={`rotate(-10 ${-r * 0.08} ${-r * 0.18})`} />
+        <ellipse cx={r * 0.08} cy={-r * 0.18} rx={r * 0.018} ry={r * 0.08} fill="#F5BFAE" transform={`rotate(10 ${r * 0.08} ${-r * 0.18})`} />
+        {/* simple closed eyes — Miyazaki minimal — two short gentle arcs */}
+        <path d={`M ${-r * 0.09} ${-r * 0.02} Q ${-r * 0.06} ${r * 0.01} ${-r * 0.03} ${-r * 0.02}`} stroke={STROKE} strokeWidth={1.4} fill="none" strokeLinecap="round" />
+        <path d={`M ${r * 0.03} ${-r * 0.02} Q ${r * 0.06} ${r * 0.01} ${r * 0.09} ${-r * 0.02}`} stroke={STROKE} strokeWidth={1.4} fill="none" strokeLinecap="round" />
+        {/* little nose */}
+        <ellipse cx={0} cy={r * 0.05} rx={r * 0.018} ry={r * 0.012} fill="#C38D9E" />
+        {/* soft mouth — tiny line */}
+        <path d={`M 0 ${r * 0.06} L 0 ${r * 0.08}`} stroke={STROKE} strokeWidth={1} strokeLinecap="round" />
+        <path d={`M 0 ${r * 0.08} Q ${-r * 0.02} ${r * 0.1} ${-r * 0.04} ${r * 0.09}`} stroke={STROKE} strokeWidth={1} fill="none" strokeLinecap="round" />
+        <path d={`M 0 ${r * 0.08} Q ${r * 0.02} ${r * 0.1} ${r * 0.04} ${r * 0.09}`} stroke={STROKE} strokeWidth={1} fill="none" strokeLinecap="round" />
+        {/* cheek blush (very soft) */}
+        <ellipse cx={-r * 0.13} cy={r * 0.04} rx={r * 0.03} ry={r * 0.018} fill="#F8C9D2" opacity={0.5} />
+        <ellipse cx={r * 0.13} cy={r * 0.04} rx={r * 0.03} ry={r * 0.018} fill="#F8C9D2" opacity={0.5} />
       </g>
 
-      {/* grass strip along the rounded top */}
-      <path
-        d={`M ${-r * 1.15} ${-r * 0.02}
-            Q ${-r * 0.55} ${-r * 0.22} 0 ${-r * 0.2}
-            Q ${r * 0.55} ${-r * 0.22} ${r * 1.15} ${-r * 0.02}
-            L ${r * 1.15} ${r * 0.05}
-            Q ${r * 0.55} ${-r * 0.14} 0 ${-r * 0.12}
-            Q ${-r * 0.55} ${-r * 0.14} ${-r * 1.15} ${r * 0.05} Z`}
-        fill="#6B8E5A"
-      />
-      {/* grass blades sticking up above the mound */}
-      {[-0.95, -0.65, -0.3, 0.1, 0.4, 0.75, 1.0].map((t, i) => {
-        // y-offset follows the arc of the mound top
-        const yBase = -r * (0.2 - Math.abs(t) * 0.18);
+      {/* Tall grass blades on top of the mound */}
+      {[-0.8, -0.5, -0.15, 0.2, 0.55, 0.85].map((t, i) => {
+        const bx = r * t;
+        const by = -r * (0.7 - Math.abs(t) * 0.35);
         return (
           <path
             key={i}
-            d={`M ${r * t} ${yBase} Q ${r * t + (i % 2 === 0 ? 1.5 : -1.5)} ${yBase - 12} ${r * t + (i % 2 === 0 ? 2.5 : -2.5)} ${yBase - 24}`}
+            d={`M ${bx} ${by} Q ${bx + (i % 2 === 0 ? 2 : -2)} ${by - 14} ${bx + (i % 2 === 0 ? 4 : -4)} ${by - 28}`}
             stroke="#5C7E4F"
-            strokeWidth={1.6}
+            strokeWidth={1.8}
             fill="none"
             strokeLinecap="round"
           />
         );
       })}
-      {/* small flower above */}
-      <Flower x={-r * 0.55} y={-r * 0.55} size={8} color="#E6B0D0" />
-      <Flower x={r * 0.6} y={-r * 0.6} size={8} color="#FFD166" />
+
+      {/* Fern fronds to the left and right of the arch */}
+      <g transform={`translate(${-r * 0.55}, ${r * 0.62})`}>
+        <path d="M 0 0 Q -4 -8 -8 -14 Q -12 -20 -14 -26" stroke="#5C7E4F" strokeWidth={1.6} fill="none" strokeLinecap="round" />
+        {[0.3, 0.55, 0.8].map((t, i) => (
+          <path key={i} d={`M ${-t * 10} ${-t * 18} Q ${-t * 15 - 4} ${-t * 18 - 2} ${-t * 18 - 6} ${-t * 18 + 2}`} stroke="#7BA46F" strokeWidth={1.3} fill="none" strokeLinecap="round" />
+        ))}
+        {[0.3, 0.55, 0.8].map((t, i) => (
+          <path key={`r${i}`} d={`M ${-t * 10} ${-t * 18} Q ${-t * 5 + 4} ${-t * 18 - 3} ${-t * 2 + 8} ${-t * 18 - 1}`} stroke="#7BA46F" strokeWidth={1.3} fill="none" strokeLinecap="round" />
+        ))}
+      </g>
+      <g transform={`translate(${r * 0.58}, ${r * 0.65})`}>
+        <path d="M 0 0 Q 4 -9 9 -15 Q 13 -20 16 -25" stroke="#5C7E4F" strokeWidth={1.6} fill="none" strokeLinecap="round" />
+        {[0.3, 0.55, 0.8].map((t, i) => (
+          <path key={i} d={`M ${t * 10} ${-t * 18} Q ${t * 15 + 4} ${-t * 18 - 2} ${t * 18 + 6} ${-t * 18 + 2}`} stroke="#7BA46F" strokeWidth={1.3} fill="none" strokeLinecap="round" />
+        ))}
+        {[0.3, 0.55, 0.8].map((t, i) => (
+          <path key={`r${i}`} d={`M ${t * 10} ${-t * 18} Q ${t * 5 - 4} ${-t * 18 - 3} ${t * 2 - 8} ${-t * 18 - 1}`} stroke="#7BA46F" strokeWidth={1.3} fill="none" strokeLinecap="round" />
+        ))}
+      </g>
+
+      {/* Red mushroom at the base */}
+      <g transform={`translate(${-r * 0.85}, ${r * 0.82})`}>
+        <ellipse cx={0} cy={-1} rx={7} ry={4} fill="#D4644F" stroke={STROKE} strokeWidth={1.2} />
+        <circle cx={-2} cy={-2} r={1.2} fill="#FFFFFF" />
+        <circle cx={2.5} cy={-1} r={1} fill="#FFFFFF" />
+        <rect x={-2.5} y={-1} width={5} height={7} fill="#FFFDF2" stroke={STROKE} strokeWidth={1} />
+      </g>
+
+      {/* tiny pink flowers nestled on top */}
+      <Flower x={-r * 0.25} y={-r * 0.55} size={6} color="#FFB7C5" />
+      <Flower x={r * 0.4} y={-r * 0.5} size={6} color="#FFD166" />
+      <Flower x={r * 0.05} y={-r * 0.72} size={5} color="#E6B0D0" />
     </g>
   );
 }
@@ -404,20 +466,19 @@ export function FrogPondHabitat({ x, y, size = 80 }: IllustrationProps) {
       {reed(r * 0.85, r * 0.5, 2)}
       {reed(r * 1.05, r * 0.6, -1)}
 
-      {/* Lily pads — kept well inside the pond ellipse (the painted pond is
-          ~2r wide / ~r tall; we stay within 0.9r / 0.4r to ensure no pad
-          leaks onto the shore). */}
-      {lilyPad(-r * 0.9,   r * 0.1,   r * 0.28, -30, '#7BA46F')}
-      {lilyPad( r * 0.75, -r * 0.2,   r * 0.24, 160, '#6B8E5A')}
-      {lilyPad( r * 0.9,   r * 0.22,  r * 0.26,  95, '#5C7E4F')}
-      {lilyPad(-r * 0.1,   r * 0.35,  r * 0.32, -110)}
+      {/* Three lily pads — well-spaced inside the pond. The front-center
+          pad is the biggest so the frog clearly sits on it. Pad positions
+          and sizes chosen so no two pads touch. */}
+      {lilyPad(-r * 0.95,  r * 0.15, r * 0.3,  -30, '#7BA46F')}
+      {lilyPad( r * 0.85, -r * 0.2,  r * 0.28, 155, '#6B8E5A')}
+      {lilyPad( 0,         r * 0.35, r * 0.5, -110)}
 
-      {/* Lily flowers — on pads that don't hold the frog */}
-      {lilyFlower(-r * 0.75, r * 0.05, r * 0.14)}
-      {lilyFlower( r * 0.72, -r * 0.18, r * 0.11, '#FFE2E8')}
+      {/* Lily flower on the left pad (frog sits on the front pad) */}
+      {lilyFlower(-r * 0.82, r * 0.08, r * 0.14)}
 
-      {/* Frog sits on the front-center pad (pad center is -r*0.1, r*0.35) */}
-      <g transform={`translate(${-r * 0.1}, ${r * 0.27})`}>
+      {/* Frog sits clearly on the big front-center pad (pad center 0, r*0.35,
+          pad radius r*0.5 — frog body radius ~r*0.22 fits comfortably). */}
+      <g transform={`translate(0, ${r * 0.3})`}>
         {/* hind legs (visible behind body) */}
         <ellipse cx={-r * 0.2} cy={r * 0.05} rx={r * 0.13} ry={r * 0.06} fill="#5C7E4F" stroke={STROKE} strokeWidth={1.3} transform={`rotate(20 ${-r * 0.2} ${r * 0.05})`} />
         <ellipse cx={r * 0.2} cy={r * 0.05} rx={r * 0.13} ry={r * 0.06} fill="#5C7E4F" stroke={STROKE} strokeWidth={1.3} transform={`rotate(-20 ${r * 0.2} ${r * 0.05})`} />
@@ -1051,6 +1112,164 @@ export function HundredsHollow({ x, y, size = 60 }: IllustrationProps) {
       </g>
     </g>
   );
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// COZY HOUSE — Miyazaki-render of a 3-story Victorian with red door,
+// tan siding, white porch with X-rail and wraparound columns, a gable
+// dormer on top, rose bushes, and a chimney with curling smoke.
+// ─────────────────────────────────────────────────────────────────────────
+
+export function CozyHouse({ x, y, size = 150 }: IllustrationProps) {
+  const r = size / 2;
+  // Palette chosen to echo the real house: warm tan siding, cream trim,
+  // deep red door, slate-grey roof, with climbing rose details.
+  const WALL = '#C9A880';
+  const WALL_DARK = '#A6875E';
+  const TRIM = '#FDF6E8';
+  const ROOF = '#5D5A54';
+  const DOOR = '#C94C3E';
+  const WINDOW = '#A8C8D8';
+
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {/* Ground shadow */}
+      <ellipse cx={0} cy={r * 1.08} rx={r * 1.15} ry={r * 0.09} fill="#000" opacity={0.22} />
+
+      {/* Back-side visible sliver (gives depth) */}
+      <path d={`M ${r * 0.72} ${-r * 0.55} L ${r * 0.82} ${-r * 0.5} L ${r * 0.82} ${r * 1.0} L ${r * 0.72} ${r * 1.0} Z`}
+            fill={WALL_DARK} stroke={STROKE} strokeWidth={1.5} />
+
+      {/* Main body (2 floors of tan siding) */}
+      <rect x={-r * 0.72} y={-r * 0.55} width={r * 1.44} height={r * 1.55} fill={WALL} stroke={STROKE} strokeWidth={2} strokeLinejoin="round" />
+
+      {/* Hand-drawn siding lines */}
+      {[-0.4, -0.22, -0.04, 0.14, 0.32, 0.5, 0.68, 0.86].map((yOff, i) => (
+        <line key={i} x1={-r * 0.7} y1={r * yOff} x2={r * 0.7} y2={r * yOff} stroke={STROKE} strokeWidth={0.6} opacity={0.32} />
+      ))}
+
+      {/* Main roof cornice — cream trim */}
+      <rect x={-r * 0.78} y={-r * 0.62} width={r * 1.56} height={r * 0.09} fill={TRIM} stroke={STROKE} strokeWidth={1.8} strokeLinejoin="round" />
+      {/* Dentil detail */}
+      {[-0.66, -0.5, -0.34, -0.18, -0.02, 0.14, 0.3, 0.46, 0.62].map((cx, i) => (
+        <rect key={i} x={r * cx} y={-r * 0.56} width={r * 0.035} height={r * 0.025} fill={STROKE} opacity={0.5} />
+      ))}
+
+      {/* Pitched attic gable (centered dormer) */}
+      <path
+        d={`M ${-r * 0.3} ${-r * 0.62} L ${-r * 0.32} ${-r * 0.7} L 0 ${-r * 1.08} L ${r * 0.32} ${-r * 0.7} L ${r * 0.3} ${-r * 0.62} Z`}
+        fill={WALL} stroke={STROKE} strokeWidth={2} strokeLinejoin="round"
+      />
+      {/* Gable roof (slate) */}
+      <path
+        d={`M ${-r * 0.36} ${-r * 0.7} L 0 ${-r * 1.12} L ${r * 0.36} ${-r * 0.7} L ${r * 0.32} ${-r * 0.66} L 0 ${-r * 1.02} L ${-r * 0.32} ${-r * 0.66} Z`}
+        fill={ROOF} stroke={STROKE} strokeWidth={1.8} strokeLinejoin="round"
+      />
+      {/* Gable trim bottom */}
+      <rect x={-r * 0.3} y={-r * 0.64} width={r * 0.6} height={r * 0.05} fill={TRIM} stroke={STROKE} strokeWidth={1.3} />
+      {/* Dormer window (tall arched) */}
+      <path d={`M ${-r * 0.1} ${-r * 0.94} L ${-r * 0.1} ${-r * 0.7} L ${r * 0.1} ${-r * 0.7} L ${r * 0.1} ${-r * 0.94} Q ${r * 0.1} ${-r * 1.0} 0 ${-r * 1.0} Q ${-r * 0.1} ${-r * 1.0} ${-r * 0.1} ${-r * 0.94} Z`}
+            fill={WINDOW} stroke={STROKE} strokeWidth={1.3} />
+      <line x1={0} y1={-r * 1.0} x2={0} y2={-r * 0.7} stroke={STROKE} strokeWidth={0.8} />
+      <line x1={-r * 0.1} y1={-r * 0.82} x2={r * 0.1} y2={-r * 0.82} stroke={STROKE} strokeWidth={0.8} />
+      {/* Warm glow in attic */}
+      <rect x={-r * 0.08} y={-r * 0.82} width={r * 0.16} height={r * 0.1} fill="#FFE89A" opacity={0.5} />
+
+      {/* Second-story windows (left + right) */}
+      <rect x={-r * 0.5} y={-r * 0.35} width={r * 0.32} height={r * 0.3} fill={WINDOW} stroke={STROKE} strokeWidth={1.4} />
+      <rect x={r * 0.18}  y={-r * 0.35} width={r * 0.32} height={r * 0.3} fill={WINDOW} stroke={STROKE} strokeWidth={1.4} />
+      {/* Window panes (4-pane) */}
+      <line x1={-r * 0.34} y1={-r * 0.35} x2={-r * 0.34} y2={-r * 0.05} stroke={STROKE} strokeWidth={0.7} />
+      <line x1={-r * 0.5}  y1={-r * 0.2}  x2={-r * 0.18} y2={-r * 0.2}  stroke={STROKE} strokeWidth={0.7} />
+      <line x1={r * 0.34}  y1={-r * 0.35} x2={r * 0.34}  y2={-r * 0.05} stroke={STROKE} strokeWidth={0.7} />
+      <line x1={r * 0.18}  y1={-r * 0.2}  x2={r * 0.5}   y2={-r * 0.2}  stroke={STROKE} strokeWidth={0.7} />
+      {/* Warm glow in second-story */}
+      <rect x={-r * 0.48} y={-r * 0.33} width={r * 0.28} height={r * 0.26} fill="#FFE89A" opacity={0.25} />
+
+      {/* Porch roof (wide overhang) */}
+      <rect x={-r * 0.88} y={r * 0.05} width={r * 1.76} height={r * 0.11} fill={TRIM} stroke={STROKE} strokeWidth={1.8} strokeLinejoin="round" />
+      {/* Porch floor */}
+      <rect x={-r * 0.85} y={r * 0.78} width={r * 1.7} height={r * 0.08} fill={TRIM} stroke={STROKE} strokeWidth={1.4} />
+
+      {/* Porch columns — 4 white posts */}
+      {[-0.82, -0.3, 0.3, 0.82].map((cx, i) => (
+        <rect key={i} x={r * cx - r * 0.045} y={r * 0.16} width={r * 0.09} height={r * 0.62} fill={TRIM} stroke={STROKE} strokeWidth={1.3} />
+      ))}
+
+      {/* Porch railing — X-pattern bays between columns */}
+      {[-0.56, 0, 0.56].map((cx, i) => (
+        <g key={i}>
+          {/* top rail */}
+          <line x1={r * cx - r * 0.22} y1={r * 0.55} x2={r * cx + r * 0.22} y2={r * 0.55} stroke={TRIM} strokeWidth={2.2} />
+          {/* bottom rail */}
+          <line x1={r * cx - r * 0.22} y1={r * 0.73} x2={r * cx + r * 0.22} y2={r * 0.73} stroke={TRIM} strokeWidth={2.2} />
+          {/* X crossings */}
+          <line x1={r * cx - r * 0.22} y1={r * 0.55} x2={r * cx} y2={r * 0.73} stroke={TRIM} strokeWidth={1.5} />
+          <line x1={r * cx + r * 0.22} y1={r * 0.55} x2={r * cx} y2={r * 0.73} stroke={TRIM} strokeWidth={1.5} />
+          <line x1={r * cx} y1={r * 0.55} x2={r * cx - r * 0.22} y2={r * 0.73} stroke={TRIM} strokeWidth={1.5} />
+          <line x1={r * cx} y1={r * 0.55} x2={r * cx + r * 0.22} y2={r * 0.73} stroke={TRIM} strokeWidth={1.5} />
+        </g>
+      ))}
+
+      {/* RED DOUBLE DOOR — centered on porch */}
+      <rect x={-r * 0.14} y={r * 0.18} width={r * 0.28} height={r * 0.6} fill={DOOR} stroke={STROKE} strokeWidth={1.8} />
+      {/* door split */}
+      <line x1={0} y1={r * 0.18} x2={0} y2={r * 0.78} stroke={STROKE} strokeWidth={1} />
+      {/* door windows (upper) */}
+      <rect x={-r * 0.1} y={r * 0.22} width={r * 0.09} height={r * 0.16} fill="#FFF5D0" opacity={0.75} stroke={STROKE} strokeWidth={0.7} />
+      <rect x={r * 0.01} y={r * 0.22} width={r * 0.09} height={r * 0.16} fill="#FFF5D0" opacity={0.75} stroke={STROKE} strokeWidth={0.7} />
+      {/* mullions in door windows */}
+      <line x1={-r * 0.1} y1={r * 0.3} x2={-r * 0.01} y2={r * 0.3} stroke={STROKE} strokeWidth={0.5} />
+      <line x1={r * 0.01} y1={r * 0.3} x2={r * 0.1} y2={r * 0.3} stroke={STROKE} strokeWidth={0.5} />
+      <line x1={-r * 0.055} y1={r * 0.22} x2={-r * 0.055} y2={r * 0.38} stroke={STROKE} strokeWidth={0.5} />
+      <line x1={r * 0.055} y1={r * 0.22} x2={r * 0.055} y2={r * 0.38} stroke={STROKE} strokeWidth={0.5} />
+      {/* door handles */}
+      <circle cx={-r * 0.03} cy={r * 0.55} r={r * 0.018} fill="#F0C44A" stroke={STROKE} strokeWidth={0.6} />
+      <circle cx={r * 0.03}  cy={r * 0.55} r={r * 0.018} fill="#F0C44A" stroke={STROKE} strokeWidth={0.6} />
+
+      {/* Porch steps */}
+      <rect x={-r * 0.12} y={r * 0.86} width={r * 0.24} height={r * 0.08} fill="#B8B0A4" stroke={STROKE} strokeWidth={1.3} />
+      <rect x={-r * 0.16} y={r * 0.94} width={r * 0.32} height={r * 0.06} fill="#A8A094" stroke={STROKE} strokeWidth={1.3} />
+
+      {/* Rose bushes at base of porch — pink blooms on sage leaves */}
+      <g transform={`translate(${-r * 0.75}, ${r * 0.95})`}>
+        <ellipse cx={0} cy={0} rx={r * 0.22} ry={r * 0.1} fill="#7BA46F" stroke={STROKE} strokeWidth={1.4} />
+        <circle cx={-r * 0.1} cy={-r * 0.03} r={r * 0.045} fill="#D4577A" stroke={STROKE} strokeWidth={0.8} />
+        <circle cx={r * 0.03} cy={-r * 0.05} r={r * 0.04} fill="#E8708C" stroke={STROKE} strokeWidth={0.8} />
+        <circle cx={r * 0.12} cy={-r * 0.01} r={r * 0.035} fill="#D4577A" stroke={STROKE} strokeWidth={0.8} />
+      </g>
+      <g transform={`translate(${r * 0.75}, ${r * 0.95})`}>
+        <ellipse cx={0} cy={0} rx={r * 0.2} ry={r * 0.09} fill="#7BA46F" stroke={STROKE} strokeWidth={1.4} />
+        <circle cx={-r * 0.08} cy={-r * 0.03} r={r * 0.04} fill="#E8708C" stroke={STROKE} strokeWidth={0.8} />
+        <circle cx={r * 0.06} cy={-r * 0.04} r={r * 0.045} fill="#D4577A" stroke={STROKE} strokeWidth={0.8} />
+      </g>
+      {/* front rose bed (below steps) */}
+      <g transform={`translate(0, ${r * 1.02})`}>
+        <ellipse cx={0} cy={0} rx={r * 0.25} ry={r * 0.07} fill="#7BA46F" stroke={STROKE} strokeWidth={1.3} />
+        <circle cx={-r * 0.12} cy={-r * 0.02} r={r * 0.035} fill="#E8708C" stroke={STROKE} strokeWidth={0.7} />
+        <circle cx={0}          cy={-r * 0.04} r={r * 0.045} fill="#D4577A" stroke={STROKE} strokeWidth={0.7} />
+        <circle cx={r * 0.12}   cy={-r * 0.02} r={r * 0.035} fill="#E8708C" stroke={STROKE} strokeWidth={0.7} />
+      </g>
+
+      {/* Chimney on back-right with gentle smoke */}
+      <rect x={r * 0.46} y={-r * 0.82} width={r * 0.12} height={r * 0.2} fill="#8B5A2B" stroke={STROKE} strokeWidth={1.3} />
+      <rect x={r * 0.44} y={-r * 0.86} width={r * 0.16} height={r * 0.05} fill="#6B4423" stroke={STROKE} strokeWidth={1.3} />
+
+      {/* Climbing vine up the left wall */}
+      <path d={`M ${-r * 0.7} ${r * 0.9} Q ${-r * 0.62} ${r * 0.5} ${-r * 0.68} ${r * 0.1} Q ${-r * 0.6} ${-r * 0.15} ${-r * 0.66} ${-r * 0.45}`}
+            stroke="#5C7E4F" strokeWidth={1.5} fill="none" strokeLinecap="round" />
+      <circle cx={-r * 0.62} cy={r * 0.45} r={r * 0.025} fill="#95B88F" />
+      <circle cx={-r * 0.68} cy={r * 0.25} r={r * 0.02} fill="#95B88F" />
+      <circle cx={-r * 0.62} cy={0}       r={r * 0.025} fill="#95B88F" />
+      <circle cx={-r * 0.66} cy={-r * 0.25} r={r * 0.02} fill="#95B88F" />
+    </g>
+  );
+}
+
+// Lightweight smoke curl that lives near a chimney — used in GardenScene
+// to animate the column of smoke without blocking SSR.
+export function ChimneySmoke({ x, y }: { x: number; y: number }) {
+  return null; // placeholder; the animated smoke lives in GardenScene
 }
 
 // ─────────────────────────────────────────────────────────────────────────

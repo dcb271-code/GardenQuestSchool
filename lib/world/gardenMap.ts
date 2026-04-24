@@ -92,7 +92,7 @@ export const GARDEN_STRUCTURES: MapStructure[] = [
     label: 'Counting Path',
     subLabel: 'skip counting',
     themeEmoji: '🪨',
-    x: 960, y: 180, size: 60,
+    x: 1010, y: 140, size: 60,
     zone: 'math',
   },
   {
@@ -112,7 +112,7 @@ export const GARDEN_STRUCTURES: MapStructure[] = [
     label: 'Butterfly Clusters',
     subLabel: 'make-10 add',
     themeEmoji: '🦋',
-    x: 1110, y: 340, size: 68,
+    x: 1180, y: 400, size: 68,
     zone: 'math',
   },
   // Grade 2 stretches
@@ -153,7 +153,7 @@ export const GARDEN_STRUCTURES: MapStructure[] = [
     label: 'Compare Trees',
     subLabel: 'which is bigger?',
     themeEmoji: '🌲',
-    x: 1000, y: 440, size: 56,
+    x: 870, y: 400, size: 56,
     zone: 'math',
   },
   {
