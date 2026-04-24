@@ -102,8 +102,8 @@ export const GARDEN_STRUCTURES: MapStructure[] = [
     label: 'Bee Swarms',
     subLabel: 'add within 20',
     themeEmoji: '🐝',
-    x: 1190, y: 200, size: 64,
-    zone: 'math',
+    x: 780, y: 360, size: 64,
+    zone: 'meadow',
   },
   {
     code: 'math_butterfly_arrays',

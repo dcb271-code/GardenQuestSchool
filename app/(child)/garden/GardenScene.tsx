@@ -234,39 +234,43 @@ export default function GardenScene({
             );
           })()}
 
-          {/* Distant torii gate — Miyazaki signature, far behind the Math Mound,
-              half-occluded by the hills. Worn red (vermilion) with weathered
-              wood feel. */}
-          <g opacity={0.82} transform="translate(1180, 300)">
+          {/* Torii gate — spans the main path at its Math Mound terminus,
+              so the path literally runs through it. Worn vermilion with
+              upturned kasagi ends. */}
+          <g opacity={0.9} transform="translate(1220, 195)">
             {/* shadow */}
-            <ellipse cx={0} cy={72} rx={44} ry={4} fill="#000" opacity={0.2} />
-            {/* uprights */}
-            <rect x={-36} y={0} width={8} height={72} fill="#B8563A" stroke="#5A2818" strokeWidth={1.2} />
-            <rect x={28}  y={0} width={8} height={72} fill="#B8563A" stroke="#5A2818" strokeWidth={1.2} />
+            <ellipse cx={0} cy={82} rx={52} ry={5} fill="#000" opacity={0.2} />
+            {/* uprights — slightly splayed outward (Japanese style) */}
+            <path d="M -40 0 L -34 82 L -26 82 L -32 0 Z" fill="#B8563A" stroke="#5A2818" strokeWidth={1.2} strokeLinejoin="round" />
+            <path d="M  40 0 L  34 82 L  26 82 L  32 0 Z" fill="#B8563A" stroke="#5A2818" strokeWidth={1.2} strokeLinejoin="round" />
             {/* lower crossbar (nuki) */}
-            <rect x={-42} y={-10} width={84} height={7} fill="#8A3F2B" stroke="#5A2818" strokeWidth={1.2} />
+            <rect x={-46} y={-10} width={92} height={8} fill="#8A3F2B" stroke="#5A2818" strokeWidth={1.2} />
             {/* upper crossbar (kasagi) — upturned ends */}
             <path
-              d="M -52 -26 Q -52 -34 -48 -34 L 48 -34 Q 52 -34 52 -26 L 42 -20 L -42 -20 Z"
+              d="M -58 -30 Q -60 -40 -54 -40 L 54 -40 Q 60 -40 58 -30 L 46 -22 L -46 -22 Z"
               fill="#B8563A" stroke="#5A2818" strokeWidth={1.2} strokeLinejoin="round"
             />
             {/* top shimmer */}
-            <rect x={-40} y={-32} width={80} height={2} fill="#F5C6B5" opacity={0.5} />
+            <rect x={-48} y={-38} width={96} height={2.5} fill="#F5C6B5" opacity={0.5} />
             {/* center tie */}
-            <rect x={-3} y={-18} width={6} height={10} fill="#3F1E10" />
+            <rect x={-4} y={-20} width={8} height={12} fill="#3F1E10" />
           </g>
 
-          {/* Stone lantern (ishidoro) beside the main path — upper middle area */}
-          <g transform="translate(620, 470)">
+          {/* Stone lantern (ishidoro) — just off to the side of the path,
+              standing on a patch of moss. Sits below path curve. */}
+          <g transform="translate(720, 555)">
             {/* base shadow */}
             <ellipse cx={0} cy={40} rx={18} ry={4} fill="#000" opacity={0.22} />
+            {/* moss patch under the lantern (wider than the stone) */}
+            <ellipse cx={-2} cy={40} rx={22} ry={5} fill="#7BA46F" opacity={0.75} />
+            <ellipse cx={8}  cy={41} rx={6} ry={1.5} fill="#8FB67A" opacity={0.9} />
             {/* square base */}
             <rect x={-14} y={22} width={28} height={16} rx={2} fill="#A8A39A" stroke="#5F5B53" strokeWidth={1.4} />
             {/* post */}
             <rect x={-5} y={4} width={10} height={20} fill="#9B968D" stroke="#5F5B53" strokeWidth={1.2} />
             {/* middle platform */}
             <rect x={-11} y={-2} width={22} height={7} rx={1} fill="#B0ABA1" stroke="#5F5B53" strokeWidth={1.2} />
-            {/* light chamber (with soft glow inside) */}
+            {/* light chamber */}
             <rect x={-9} y={-18} width={18} height={18} rx={2} fill="#7F7A70" stroke="#5F5B53" strokeWidth={1.4} />
             {/* lantern window with warm glow */}
             <rect x={-5.5} y={-15} width={11} height={11} rx={1} fill="#FFD98A" />
@@ -282,9 +286,14 @@ export default function GardenScene({
             />
             {/* finial */}
             <circle cx={0} cy={-34} r={2.5} fill="#6F6A60" stroke="#5F5B53" strokeWidth={1} />
-            {/* moss accents at base */}
-            <ellipse cx={-9} cy={38} rx={5} ry={1.5} fill="#7BA46F" opacity={0.85} />
-            <ellipse cx={11} cy={38} rx={4} ry={1.4} fill="#7BA46F" opacity={0.85} />
+            {/* tiny flicker on the glow */}
+            {!reducedMotion && (
+              <motion.rect
+                x={-5.5} y={-15} width={11} height={11} rx={1} fill="#FFF5D0"
+                animate={{ opacity: [0.3, 0.8, 0.3] }}
+                transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
+              />
+            )}
           </g>
 
           {/* Bamboo cluster — Math Mound edge */}
