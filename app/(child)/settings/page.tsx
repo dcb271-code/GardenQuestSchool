@@ -2,12 +2,13 @@
 
 import Link from 'next/link';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
+import VoicePicker from '@/components/child/VoicePicker';
 
 export default function SettingsPage() {
   const { settings, update } = useAccessibilitySettings();
 
   return (
-    <main className="max-w-xl mx-auto p-6 space-y-6">
+    <main className="max-w-xl mx-auto p-6 space-y-6 pb-20">
       <div className="flex items-center justify-between">
         <Link
           href="/picker"
@@ -15,12 +16,16 @@ export default function SettingsPage() {
           aria-label="back"
           style={{ minWidth: 44, minHeight: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
         >←</Link>
-        <h1 className="text-kid-lg text-center flex-1">⚙️ Settings</h1>
+        <h1 className="font-display text-[32px] text-bark text-center flex-1" style={{ fontWeight: 600, letterSpacing: '-0.015em' }}>
+          <span className="italic text-forest">settings</span>
+        </h1>
         <div style={{ width: 44 }}></div>
       </div>
 
-      <section className="bg-white border-4 border-ochre rounded-2xl p-4 space-y-4">
-        <h2 className="text-kid-sm font-bold">Display</h2>
+      <section className="bg-white border-4 border-ochre rounded-2xl p-5 space-y-5">
+        <h2 className="font-display text-[20px] text-bark" style={{ fontWeight: 600 }}>
+          Display
+        </h2>
 
         <label className="flex items-center justify-between gap-3">
           <span className="text-kid-sm">Easier-to-read font (OpenDyslexic)</span>
@@ -28,7 +33,7 @@ export default function SettingsPage() {
             type="checkbox"
             checked={settings.openDyslexic}
             onChange={e => update({ openDyslexic: e.target.checked })}
-            className="w-6 h-6"
+            className="w-6 h-6 accent-forest"
           />
         </label>
 
@@ -38,7 +43,7 @@ export default function SettingsPage() {
             type="checkbox"
             checked={settings.reducedMotion}
             onChange={e => update({ reducedMotion: e.target.checked })}
-            className="w-6 h-6"
+            className="w-6 h-6 accent-forest"
           />
         </label>
 
@@ -57,6 +62,24 @@ export default function SettingsPage() {
             ))}
           </div>
         </div>
+      </section>
+
+      <section className="bg-white border-4 border-ochre rounded-2xl p-5 space-y-4">
+        <div>
+          <h2 className="font-display text-[20px] text-bark" style={{ fontWeight: 600 }}>
+            Narrator <span className="font-display italic text-bark/60 text-[16px] font-normal">· the voice that reads to you</span>
+          </h2>
+          <p className="text-xs text-bark/60 mt-1 font-display italic">
+            British, Irish, and Australian voices often sound the most storybook-ish.
+            Tap a voice to preview it.
+          </p>
+        </div>
+        <VoicePicker
+          selected={settings.voiceName}
+          rate={settings.voiceRate}
+          onSelect={name => update({ voiceName: name })}
+          onRateChange={rate => update({ voiceRate: rate })}
+        />
       </section>
     </main>
   );

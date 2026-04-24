@@ -9,12 +9,30 @@ describe('accessibility settings', () => {
   });
 
   it('loadSettings returns defaults when nothing saved', () => {
-    expect(loadSettings()).toEqual({ openDyslexic: false, reducedMotion: false, textSize: 1 });
+    expect(loadSettings()).toEqual({
+      openDyslexic: false,
+      reducedMotion: false,
+      textSize: 1,
+      voiceName: null,
+      voiceRate: 0.88,
+    });
   });
 
   it('saveSettings + loadSettings roundtrip', () => {
-    saveSettings({ openDyslexic: true, reducedMotion: true, textSize: 1.5 });
-    expect(loadSettings()).toEqual({ openDyslexic: true, reducedMotion: true, textSize: 1.5 });
+    saveSettings({
+      openDyslexic: true,
+      reducedMotion: true,
+      textSize: 1.5,
+      voiceName: 'Moira',
+      voiceRate: 0.95,
+    });
+    expect(loadSettings()).toEqual({
+      openDyslexic: true,
+      reducedMotion: true,
+      textSize: 1.5,
+      voiceName: 'Moira',
+      voiceRate: 0.95,
+    });
   });
 
   it('loadSettings clamps invalid textSize to 1', () => {
@@ -22,8 +40,19 @@ describe('accessibility settings', () => {
     expect(loadSettings().textSize).toBe(1);
   });
 
+  it('loadSettings clamps invalid voiceRate to default', () => {
+    window.localStorage.setItem('gqs:accessibility', JSON.stringify({ voiceRate: 99 }));
+    expect(loadSettings().voiceRate).toBe(0.88);
+  });
+
   it('applySettingsToDocument toggles body classes and font size', () => {
-    applySettingsToDocument({ openDyslexic: true, reducedMotion: true, textSize: 1.25 });
+    applySettingsToDocument({
+      openDyslexic: true,
+      reducedMotion: true,
+      textSize: 1.25,
+      voiceName: null,
+      voiceRate: 0.88,
+    });
     expect(document.body.classList.contains('dyslexic-font')).toBe(true);
     expect(document.body.classList.contains('reduced-motion')).toBe(true);
     expect(document.body.style.fontSize).toBe('125%');
