@@ -202,12 +202,14 @@ export default function GardenScene({
           {(() => {
             const mainD = `M 360 160 C 400 280, 420 370, 460 420 S 560 500, 680 515 S 880 515, 960 475 S 1120 380, 1160 300 S 1200 200, 1280 170`;
             const pondD = `M 780 515 C 880 555, 960 605, 1055 635`;
-            const bunnyD = `M 580 510 C 500 560, 410 620, 330 665`;
-            // House path — from home's front walk (below the house porch)
-            // curving up-right to meet the main path near Digraph Bridge.
-            // Starts at (55, 605) so the path exits from below-left of the
-            // house (like a driveway) and ends at (415, 320) on main path.
-            const houseD = `M 55 605 C 160 560, 290 430, 415 320`;
+            // Bunny path — winding meander from the main path down to the
+            // burrow at (330, 665). Alternating bends for organic feel.
+            const bunnyD = `M 580 510 C 540 540, 570 580, 510 585 C 450 595, 440 635, 395 640 C 355 648, 345 660, 330 665`;
+            // House path — begins just to the RIGHT of the house (porch
+            // exit at x=180) and winds up to meet the main path near
+            // Digraph Bridge at (415, 320). Alternating curves give it a
+            // meandering, stepping-stone quality.
+            const houseD = `M 180 590 C 240 560, 210 510, 260 480 C 305 450, 280 395, 345 370 C 390 355, 395 325, 415 320`;
             return (
               <g pointerEvents="none">
                 {/* soft shadow under the path */}
@@ -227,11 +229,15 @@ export default function GardenScene({
                 <path d={houseD} stroke="#F7E6C4" strokeWidth={10} fill="none" strokeLinecap="round" opacity={0.6} />
                 {/* stepping stones along the path — break up uniformity */}
                 {[
+                  // main path
                   { x: 400, y: 230 }, { x: 450, y: 380 }, { x: 560, y: 490 }, { x: 720, y: 520 },
                   { x: 900, y: 500 }, { x: 1060, y: 420 }, { x: 1180, y: 260 },
+                  // pond branch
                   { x: 870, y: 585 }, { x: 980, y: 625 },
-                  { x: 510, y: 550 }, { x: 420, y: 600 }, { x: 360, y: 640 },
-                  { x: 160, y: 570 }, { x: 260, y: 490 }, { x: 360, y: 370 },
+                  // bunny branch (winding)
+                  { x: 540, y: 555 }, { x: 480, y: 590 }, { x: 420, y: 625 }, { x: 360, y: 655 },
+                  // house branch (winding, from right of house)
+                  { x: 220, y: 560 }, { x: 265, y: 490 }, { x: 310, y: 425 }, { x: 370, y: 370 },
                 ].map((s, i) => (
                   <g key={i}>
                     <ellipse cx={s.x + 1} cy={s.y + 2} rx={11} ry={6} fill="#000" opacity={0.2} />
@@ -553,7 +559,7 @@ export default function GardenScene({
           <GrassTuft x={870} y={500} size={12} />
 
           {/* zone labels */}
-          <text x="180" y="100" fontSize="14" fill="#6B4423" opacity="0.4" fontWeight="600" letterSpacing="3" fontStyle="italic">Reading Grove</text>
+          <text x="145" y="175" fontSize="14" fill="#6B4423" opacity="0.4" fontWeight="600" letterSpacing="3" fontStyle="italic">Reading Grove</text>
           <text x="1080" y="70" fontSize="14" fill="#6B4423" opacity="0.4" fontWeight="600" letterSpacing="3" fontStyle="italic">Math Mound</text>
           <text x="150" y="770" fontSize="14" fill="#6B4423" opacity="0.4" fontWeight="600" letterSpacing="3" fontStyle="italic">Bunny Glade</text>
           <text x="1060" y="770" fontSize="14" fill="#6B4423" opacity="0.4" fontWeight="600" letterSpacing="3" fontStyle="italic">Water&apos;s Edge</text>

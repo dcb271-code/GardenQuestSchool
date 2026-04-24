@@ -50,7 +50,7 @@ export const GARDEN_STRUCTURES: MapStructure[] = [
     label: 'Blending Brook',
     subLabel: 'blending sounds',
     themeEmoji: '🪨',
-    x: 240, y: 340, size: 68,
+    x: 250, y: 360, size: 68,
     zone: 'reading',
   },
   {
@@ -70,7 +70,7 @@ export const GARDEN_STRUCTURES: MapStructure[] = [
     label: 'Bee Words',
     subLabel: 'more sight words',
     themeEmoji: '🌼',
-    x: 380, y: 140, size: 68,
+    x: 380, y: 110, size: 68,
     zone: 'reading',
   },
   {
@@ -223,7 +223,7 @@ export const GARDEN_STRUCTURES: MapStructure[] = [
     habitatCode: 'butterfly_bush',
     label: 'Butterfly Bush',
     themeEmoji: '🌷',
-    x: 1260, y: 700, size: 72,
+    x: 1200, y: 700, size: 72,
     zone: 'water',
   },
 
