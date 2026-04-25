@@ -1,11 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { GARDEN_STRUCTURES, MAP_WIDTH, MAP_HEIGHT } from '@/lib/world/gardenMap';
 import type { MapStructure } from '@/lib/world/gardenMap';
+import { HABITAT_CATALOG } from '@/lib/world/habitatCatalog';
+import { SPECIES_CATALOG } from '@/lib/world/speciesCatalog';
 import type { SpeciesData } from '@/lib/world/speciesCatalog';
 import ArrivalCard from '@/components/child/garden/ArrivalCard';
 import LunaWanderer from '@/components/child/garden/LunaWanderer';
@@ -48,14 +50,18 @@ export default function GardenScene({
   const [sistersTarget, setSistersTarget] = useState(SISTERS_HOME);
   const [sistersWalking, setSistersWalking] = useState(false);
 
-  const hour = typeof window !== 'undefined' ? new Date().getHours() : 12;
-  // Softer tints — the garden stays bright and legible across all hours
+  // Time-of-day tint — initialised to "noon" (transparent) and updated
+  // after mount so SSR + hydration always agree (no flash of darkness).
+  // The tint is intentionally very subtle so the garden stays bright
+  // and legible across daytime hours.
+  const [hour, setHour] = useState(12);
+  useEffect(() => { setHour(new Date().getHours()); }, []);
   const tint =
-    hour < 6 ? 'rgba(40, 50, 100, 0.25)' :
-    hour < 9 ? 'rgba(255, 200, 140, 0.08)' :
-    hour < 17 ? 'transparent' :
-    hour < 20 ? 'rgba(255, 170, 110, 0.10)' :
-    'rgba(20, 25, 60, 0.22)';
+    hour < 5  ? 'rgba(40, 50, 100, 0.18)' :    // deep night
+    hour < 7  ? 'rgba(255, 200, 140, 0.04)' :  // dawn — barely there
+    hour < 19 ? 'transparent' :                 // BROAD daytime window 7am-7pm
+    hour < 21 ? 'rgba(255, 170, 110, 0.05)' :   // dusk — barely there
+                'rgba(20, 25, 60, 0.18)';       // night
 
   const startSkill = async (skillCode: string) => {
     setStarting(true);
@@ -780,7 +786,7 @@ export default function GardenScene({
                   )}
                 </div>
 
-                {!structureStates[selected.code]?.unlocked && (
+                {selected.kind === 'skill' && !structureStates[selected.code]?.unlocked && (
                   <>
                     <div className="bg-white/70 rounded-xl p-3 border-2 border-ochre/40">
                       <div className="font-display italic text-[13px] text-bark/65 tracking-wider uppercase">
@@ -813,21 +819,59 @@ export default function GardenScene({
                   </motion.button>
                 )}
 
-                {structureStates[selected.code]?.unlocked && selected.kind === 'habitat' && (
-                  <>
-                    <div className="bg-white/70 rounded-xl p-3 font-display italic text-[15px] text-bark/75 leading-snug border-2 border-ochre/40">
-                      you&apos;ve built this habitat. creatures who like it may visit you after a session of practice.
-                    </div>
-                    <motion.button
-                      onClick={() => setSelected(null)}
-                      className="w-full bg-sage text-white rounded-full py-3 font-display"
-                      style={{ touchAction: 'manipulation', minHeight: 52, fontWeight: 600 }}
-                      whileTap={{ scale: 0.97 }}
-                    >
-                      close
-                    </motion.button>
-                  </>
-                )}
+                {selected.kind === 'habitat' && (() => {
+                  const habitat = selected.habitatCode
+                    ? HABITAT_CATALOG.find(h => h.code === selected.habitatCode)
+                    : null;
+                  const possibleSpecies = habitat
+                    ? SPECIES_CATALOG.filter(s => habitat.attractsSpeciesCodes.includes(s.code))
+                    : [];
+                  const unlocked = structureStates[selected.code]?.unlocked;
+                  return (
+                    <>
+                      {habitat && (
+                        <div className="bg-white/70 rounded-xl p-3 font-display text-[14px] text-bark/80 leading-snug border-2 border-ochre/40 text-left">
+                          <div className="italic">{habitat.description}</div>
+                          {possibleSpecies.length > 0 && (
+                            <div className="mt-2.5">
+                              <div className="text-[11px] tracking-[0.15em] uppercase text-bark/55 italic mb-1.5">
+                                visitors who love it
+                              </div>
+                              <div className="flex flex-wrap gap-1.5">
+                                {possibleSpecies.map(s => (
+                                  <span
+                                    key={s.code}
+                                    className="inline-flex items-center gap-1 bg-cream border border-ochre/50 rounded-full px-2 py-0.5 text-[12px]"
+                                  >
+                                    <span className="not-italic text-base">{s.emoji}</span>
+                                    <span className="not-italic" style={{ fontWeight: 600 }}>{s.commonName}</span>
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          {unlocked ? (
+                            <div className="mt-2.5 text-[12px] not-italic text-forest font-display" style={{ fontWeight: 600 }}>
+                              ✓ built — keep practicing and a visitor may arrive
+                            </div>
+                          ) : (
+                            <div className="mt-2.5 text-[12px] not-italic text-bark/60 font-display italic">
+                              🔒 finish {structureStates[selected.code]?.prereqDisplay || 'an earlier stop'} to build this
+                            </div>
+                          )}
+                        </div>
+                      )}
+                      <motion.button
+                        onClick={() => setSelected(null)}
+                        className="w-full bg-sage text-white rounded-full py-3 font-display"
+                        style={{ touchAction: 'manipulation', minHeight: 52, fontWeight: 600 }}
+                        whileTap={{ scale: 0.97 }}
+                      >
+                        close
+                      </motion.button>
+                    </>
+                  );
+                })()}
               </motion.div>
             </motion.div>
           )}

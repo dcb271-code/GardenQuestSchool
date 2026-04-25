@@ -9,9 +9,11 @@ export const dynamic = 'force-dynamic';
 export default async function CompletePage({ params }: { params: { sessionId: string } }) {
   const db = createServiceClient();
 
+  // Note: session has no skill_id column (it has skill_planned text).
+  // Skill info comes through attempt → item → skill below.
   const { data: session } = await db
     .from('session')
-    .select('learner_id, items_attempted, items_correct, started_at, ended_at, skill:skill_id(code, name)')
+    .select('learner_id, items_attempted, items_correct, started_at, ended_at')
     .eq('id', params.sessionId)
     .single();
 
