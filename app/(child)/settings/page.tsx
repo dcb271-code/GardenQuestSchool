@@ -139,12 +139,12 @@ export default function SettingsPage() {
           <div>
             <div className="flex justify-between items-baseline mb-1.5">
               <div className="font-display italic text-[14px] text-bark/70">soundtrack volume</div>
-              <div className="text-xs text-bark/60 font-mono">{Math.round((settings.soundtrackVolume ?? 0.18) * 100)}%</div>
+              <div className="text-xs text-bark/60 font-mono">{Math.round((settings.soundtrackVolume ?? 0.10) * 100)}%</div>
             </div>
             <input
               type="range"
               min={0} max={0.5} step={0.02}
-              value={settings.soundtrackVolume ?? 0.18}
+              value={settings.soundtrackVolume ?? 0.10}
               onChange={e => update({ soundtrackVolume: parseFloat(e.target.value) })}
               className="w-full accent-sage"
               style={{ touchAction: 'manipulation' }}
