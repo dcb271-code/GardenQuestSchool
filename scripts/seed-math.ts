@@ -759,8 +759,21 @@ export async function seedMath(
       .select('id').eq('generated_by', 'seed').in('skill_id', mathSkillIds);
     const priorIds = (prior ?? []).map(r => r.id);
     if (priorIds.length > 0) {
-      await sb.from('attempt').delete().in('item_id', priorIds);
-      await sb.from('item').delete().in('id', priorIds);
+      // PostgREST has a URL-length limit (~8KB). With ~1000 UUIDs of
+      // 37 chars each, a single .in('id', priorIds) blows the URL,
+      // the delete fails silently, and items pile up across re-seed
+      // runs (we've seen 3x duplication). Batch the deletes.
+      const DELETE_BATCH = 50;
+      for (let i = 0; i < priorIds.length; i += DELETE_BATCH) {
+        const batch = priorIds.slice(i, i + DELETE_BATCH);
+        const { error: aErr } = await sb.from('attempt').delete().in('item_id', batch);
+        if (aErr) throw aErr;
+      }
+      for (let i = 0; i < priorIds.length; i += DELETE_BATCH) {
+        const batch = priorIds.slice(i, i + DELETE_BATCH);
+        const { error: iErr } = await sb.from('item').delete().in('id', batch);
+        if (iErr) throw iErr;
+      }
     }
   }
 
