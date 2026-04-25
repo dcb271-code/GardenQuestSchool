@@ -100,9 +100,40 @@ export default async function JournalPage({
       )}
 
       <section>
-        <h2 className="font-display italic text-[13px] text-bark/55 tracking-[0.2em] uppercase mb-3">
-          possible discoveries
-        </h2>
+        <div className="flex items-baseline justify-between mb-3">
+          <h2 className="font-display italic text-[13px] text-bark/55 tracking-[0.2em] uppercase">
+            discoveries
+          </h2>
+          <div className="font-display text-[14px] text-bark/65">
+            <span className="font-bold text-forest">{unlocked.size}</span>
+            <span className="text-bark/40"> / {SPECIES_CATALOG.length}</span>
+          </div>
+        </div>
+
+        {/* Empty / nearly-empty hero — warm copy when no creatures yet */}
+        {unlocked.size === 0 && (
+          <div className="relative mb-5 bg-gradient-to-br from-cream to-ochre/20 border-4 border-ochre/50 rounded-2xl p-5 overflow-hidden">
+            <div className="relative z-10 flex items-start gap-4">
+              <div className="text-5xl shrink-0">🌱</div>
+              <div className="flex-1">
+                <div className="font-display text-[22px] text-bark leading-tight" style={{ fontWeight: 600 }}>
+                  <span className="italic text-forest">your journal</span> is waiting
+                </div>
+                <p className="font-display italic text-[15px] text-bark/70 mt-2 leading-snug">
+                  practice at any glowing spot in the garden — when you finish a real session, a creature will come to visit.
+                  every one you welcome lands here.
+                </p>
+              </div>
+            </div>
+            {/* tiny faded silhouettes of upcoming species */}
+            <div className="flex gap-2 mt-4 opacity-40 text-2xl flex-wrap">
+              {SPECIES_CATALOG.slice(0, 8).map(s => (
+                <span key={s.code}>❓</span>
+              ))}
+            </div>
+          </div>
+        )}
+
         <div className="space-y-3">
           {SPECIES_CATALOG.map((s, i) => (
             <JournalSpeciesCard key={s.code} species={s} unlocked={unlocked.has(s.code)} index={i} />

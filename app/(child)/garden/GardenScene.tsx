@@ -746,65 +746,92 @@ export default function GardenScene({
           <rect width={MAP_WIDTH} height={MAP_HEIGHT} fill={tint} pointerEvents="none" />
         </svg>
 
-        {selected && (
-          <div
-            className="absolute inset-0 bg-black/30 flex items-center justify-center p-6 z-20"
-            onClick={() => setSelected(null)}
-          >
-            <div
-              className="bg-cream border-4 border-terracotta rounded-3xl max-w-sm w-full p-5 space-y-3 text-center"
-              onClick={e => e.stopPropagation()}
+        <AnimatePresence>
+          {selected && (
+            <motion.div
+              className="absolute inset-0 flex items-center justify-center p-6 z-20"
+              style={{ background: 'radial-gradient(circle at 50% 40%, rgba(20, 25, 40, 0.3), rgba(20, 25, 40, 0.5))' }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              onClick={() => setSelected(null)}
             >
-              <div className="text-6xl">{selected.themeEmoji}</div>
-              <h3 className="text-kid-md font-bold text-bark">{selected.label}</h3>
-              {selected.subLabel && <div className="text-xs opacity-70">{selected.subLabel}</div>}
-
-              {!structureStates[selected.code]?.unlocked && (
-                <>
-                  <div className="bg-white/60 rounded-xl p-3 text-sm text-bark/80">
-                    <div className="font-display italic text-bark/70">not ready yet</div>
-                    <div className="mt-1 font-semibold text-bark">
-                      {structureStates[selected.code]?.prereqDisplay || 'complete an earlier stop in this zone first'}
+              <motion.div
+                className="bg-cream border-4 border-terracotta rounded-3xl max-w-sm w-full p-6 space-y-4 text-center shadow-2xl"
+                initial={{ scale: 0.9, y: 12, opacity: 0 }}
+                animate={{ scale: 1, y: 0, opacity: 1 }}
+                exit={{ scale: 0.95, y: 8, opacity: 0 }}
+                transition={{ duration: 0.35, ease: [0.22, 0.9, 0.34, 1] }}
+                onClick={e => e.stopPropagation()}
+              >
+                <div className="text-6xl">{selected.themeEmoji}</div>
+                <div>
+                  <h3
+                    className="font-display text-[24px] text-bark leading-tight"
+                    style={{ fontWeight: 600, letterSpacing: '-0.01em' }}
+                  >
+                    {selected.label}
+                  </h3>
+                  {selected.subLabel && (
+                    <div className="font-display italic text-[13px] text-bark/55 mt-0.5 tracking-wider">
+                      {selected.subLabel}
                     </div>
-                  </div>
-                  <button
-                    onClick={() => setSelected(null)}
-                    className="w-full bg-ochre/40 border-2 border-ochre rounded-full py-3 text-kid-sm"
-                    style={{ touchAction: 'manipulation', minHeight: 48 }}
-                  >
-                    OK
-                  </button>
-                </>
-              )}
+                  )}
+                </div>
 
-              {structureStates[selected.code]?.unlocked && selected.kind === 'skill' && selected.skillCode && (
-                <button
-                  onClick={() => startSkill(selected.skillCode!)}
-                  disabled={starting}
-                  className="w-full bg-forest text-white rounded-full py-4 text-kid-md disabled:opacity-50"
-                  style={{ touchAction: 'manipulation', minHeight: 60 }}
-                >
-                  {starting ? 'Starting…' : '🔍 Start exploration'}
-                </button>
-              )}
+                {!structureStates[selected.code]?.unlocked && (
+                  <>
+                    <div className="bg-white/70 rounded-xl p-3 border-2 border-ochre/40">
+                      <div className="font-display italic text-[13px] text-bark/65 tracking-wider uppercase">
+                        not ready yet
+                      </div>
+                      <div className="mt-1 font-display text-[15px] text-bark" style={{ fontWeight: 600 }}>
+                        {structureStates[selected.code]?.prereqDisplay || 'complete an earlier stop in this zone first'}
+                      </div>
+                    </div>
+                    <motion.button
+                      onClick={() => setSelected(null)}
+                      className="w-full bg-white border-2 border-ochre rounded-full py-3 font-display italic text-bark/70"
+                      style={{ touchAction: 'manipulation', minHeight: 52 }}
+                      whileTap={{ scale: 0.97 }}
+                    >
+                      ok
+                    </motion.button>
+                  </>
+                )}
 
-              {structureStates[selected.code]?.unlocked && selected.kind === 'habitat' && (
-                <>
-                  <div className="bg-white/60 rounded-xl p-3 text-sm text-bark/80">
-                    You&apos;ve built this habitat. Creatures that like it may arrive when you visit next.
-                  </div>
-                  <button
-                    onClick={() => setSelected(null)}
-                    className="w-full bg-sage text-white rounded-full py-3 text-kid-sm"
-                    style={{ touchAction: 'manipulation', minHeight: 48 }}
+                {structureStates[selected.code]?.unlocked && selected.kind === 'skill' && selected.skillCode && (
+                  <motion.button
+                    onClick={() => startSkill(selected.skillCode!)}
+                    disabled={starting}
+                    className="w-full bg-forest text-white rounded-full py-4 font-display disabled:opacity-50"
+                    style={{ touchAction: 'manipulation', minHeight: 60, fontWeight: 600 }}
+                    whileTap={{ scale: 0.97 }}
                   >
-                    Close
-                  </button>
-                </>
-              )}
-            </div>
-          </div>
-        )}
+                    {starting ? 'starting…' : '🔍 start exploring'}
+                  </motion.button>
+                )}
+
+                {structureStates[selected.code]?.unlocked && selected.kind === 'habitat' && (
+                  <>
+                    <div className="bg-white/70 rounded-xl p-3 font-display italic text-[15px] text-bark/75 leading-snug border-2 border-ochre/40">
+                      you&apos;ve built this habitat. creatures who like it may visit you after a session of practice.
+                    </div>
+                    <motion.button
+                      onClick={() => setSelected(null)}
+                      className="w-full bg-sage text-white rounded-full py-3 font-display"
+                      style={{ touchAction: 'manipulation', minHeight: 52, fontWeight: 600 }}
+                      whileTap={{ scale: 0.97 }}
+                    >
+                      close
+                    </motion.button>
+                  </>
+                )}
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {arrival && (
