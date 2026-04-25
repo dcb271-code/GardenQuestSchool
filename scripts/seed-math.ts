@@ -80,16 +80,29 @@ export function buildMathItems(skillId: (code: string) => string | undefined): R
 
   // ═══════════ COUNTING ═══════════
 
-  // count to 20 — CountingTiles (40 items, 3..20 each with 2 theme variants)
+  // count to 20 — CountingTiles. Two themed passes for n=10..20 (the
+  // "Just right" 1st-grade range) and a single pass for n=3..9 (which
+  // is pre-K/early-K and only surfaces in "easier" mode). The Elo
+  // formula gives n<10 a low rating so it drops out of the normal
+  // band; n>=10 sits in the 1st-grade band.
   {
     const r = rng(1);
+    // Pre-K / early K material (one pass only)
+    for (let n = 3; n <= 9; n++) {
+      const theme = themeList[Math.floor(r() * themeList.length)];
+      push('math.counting.to_20', 'CountingTiles', {
+        type: 'CountingTiles', emoji: THEMES[theme].emoji, count: n,
+        promptText: 'How many do you see?',
+      }, { count: n }, 800 + n * 6);     // 818..854 → easier mode only
+    }
+    // Late-K / 1st grade material (two themed passes)
     for (let pass = 0; pass < 2; pass++) {
-      for (let n = 3; n <= 20; n++) {
+      for (let n = 10; n <= 20; n++) {
         const theme = themeList[Math.floor(r() * themeList.length)];
         push('math.counting.to_20', 'CountingTiles', {
           type: 'CountingTiles', emoji: THEMES[theme].emoji, count: n,
           promptText: pass === 0 ? 'How many do you see?' : `Count the ${THEMES[theme].noun}.`,
-        }, { count: n }, 900 + n * 8);
+        }, { count: n }, 950 + (n - 10) * 8);   // 950..1030
       }
     }
   }
@@ -193,7 +206,10 @@ export function buildMathItems(skillId: (code: string) => string | undefined): R
 
   // ═══════════ ADDITION ═══════════
 
-  // add within 10 — all unique pairs, mix of formats (45+ items)
+  // add within 10 — all unique pairs, mix of formats.
+  // Cognitive difficulty proxy = min(a, b): adding by 0 or 1 is
+  // trivial, so those drop into the "easier" band only. Larger
+  // smaller-addend pairs sit at 1st-grade default.
   {
     const r = rng(10);
     for (let a = 0; a <= 9; a++) {
@@ -207,14 +223,20 @@ export function buildMathItems(skillId: (code: string) => string | undefined): R
         if (format === 1) promptText = `What is ${a} + ${b}?`;
         else if (format === 2) { equation = `? = ${a} + ${b}`; promptText = `Find the sum.`; }
         else if (format === 3) promptText = `${a} and ${b} make…?`;
+        const small = Math.min(a, b);
+        // small=0 → 850, small=1 → 920, small=2 → 990, small=3 → 1060,
+        // small=4 → 1130, small=5 → 1200. Adding by 0/1 is easier-only.
+        const elo = 850 + small * 70;
         push('math.add.within_10', 'EquationTap', {
           type: 'EquationTap', equation, choices, promptText,
-        }, { correct: sum }, 950 + sum * 3);
+        }, { correct: sum }, elo);
       }
     }
   }
 
-  // add within 20 (no crossing) — 2-digit+1 or 1+2, units sum < 10
+  // add within 20 (no crossing) — 2-digit + 1 or 1 + 2-digit, units
+  // sum < 10. b is the cognitive load proxy here too — adding by 1
+  // is easier than adding by 8.
   {
     const r = rng(11);
     for (let a = 10; a <= 18; a++) {
@@ -222,12 +244,14 @@ export function buildMathItems(skillId: (code: string) => string | undefined): R
         if ((a % 10) + b >= 10) continue;
         if (a + b > 20) continue;
         const sum = a + b;
+        // b=1 → 1000, b=2 → 1030, ... b=9 → 1240
+        const elo = 970 + b * 30;
         push('math.add.within_20.no_crossing', 'EquationTap', {
           type: 'EquationTap',
           equation: `${a} + ${b} = ?`,
           choices: mkChoices(sum, r, 6),
           promptText: r() < 0.5 ? `${a} plus ${b} is?` : `What's ${a} + ${b}?`,
-        }, { correct: sum }, 1000 + sum * 3);
+        }, { correct: sum }, elo);
       }
     }
   }
@@ -335,7 +359,12 @@ export function buildMathItems(skillId: (code: string) => string | undefined): R
 
   // ═══════════ SUBTRACTION ═══════════
 
-  // subtract within 10 (40 items)
+  // subtract within 10 (Petal Falls).
+  // Cognitive difficulty proxy = b (the subtrahend): subtracting 0 or
+  // 1 is trivial regardless of a, so those drop into the "easier"
+  // band. b = a (returns 0) is also trivial. The previous formula
+  // used `diff = a - b` which inverted the actual difficulty —
+  // "10 − 9 = 1" was rated easier than "5 − 0 = 5".
   {
     const r = rng(20);
     for (let a = 2; a <= 10; a++) {
@@ -348,25 +377,33 @@ export function buildMathItems(skillId: (code: string) => string | undefined): R
         let promptText = `${a} minus ${b} is?`;
         if (format === 1) promptText = `Take ${b} away from ${a}.`;
         else if (format === 2) promptText = `How many left when ${a} loses ${b}?`;
+        // b=0 → 850, b=1 → 880, b=2 → 910, b=3 → 940, b=4 → 970,
+        // b=5 → 1000, ... b=9 → 1120. Anything subtracting 3 or
+        // larger lands in the default band.
+        // b == a (returns 0) is trivial — clamp to easier-only.
+        const elo = (b === a) ? 850 : 850 + b * 30;
         push('math.subtract.within_10', 'EquationTap', {
           type: 'EquationTap', equation, choices, promptText,
-        }, { correct: diff }, 1000 + diff * 3);
+        }, { correct: diff }, elo);
       }
     }
   }
 
-  // subtract within 20 (no crossing) — tens digit stays
+  // subtract within 20 (no crossing) — tens digit stays. b is the
+  // cognitive load proxy — subtracting 1 is trivial regardless of a.
   {
     const r = rng(21);
     for (let a = 11; a <= 19; a++) {
       for (let b = 1; b <= (a % 10); b++) {
         const diff = a - b;
+        // b=1 → 1010, b=2 → 1050, ... b=9 → 1330
+        const elo = 970 + b * 40;
         push('math.subtract.within_20.no_crossing', 'EquationTap', {
           type: 'EquationTap',
           equation: `${a} − ${b} = ?`,
           choices: mkChoices(diff, r, 6),
           promptText: `${a} take away ${b} is?`,
-        }, { correct: diff }, 1100 + diff * 2);
+        }, { correct: diff }, elo);
       }
     }
   }
