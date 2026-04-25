@@ -7,7 +7,7 @@ import LessonHeader from '@/components/child/LessonHeader';
 import SkillIntroOverlay from '@/components/child/SkillIntroOverlay';
 import { getItemHandler, getPromptText } from '@/lib/packs';
 import { useNarrator } from '@/lib/audio/useNarrator';
-import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
+import { useAccessibilitySettings, type ChallengeLevel } from '@/lib/settings/useAccessibilitySettings';
 
 interface ItemPayload {
   itemId: string;
@@ -25,7 +25,7 @@ type LessonStatus = 'loading' | 'ready' | 'correct' | 'retry' | 'moving-on';
 
 export default function LessonPage({ params }: { params: { sessionId: string } }) {
   const router = useRouter();
-  const { settings } = useAccessibilitySettings();
+  const { settings, update } = useAccessibilitySettings();
   const reducedMotion = settings.reducedMotion;
   const [item, setItem] = useState<ItemPayload | null>(null);
   const [status, setStatus] = useState<LessonStatus>('loading');
@@ -56,7 +56,8 @@ export default function LessonPage({ params }: { params: { sessionId: string } }
     setStatus('loading');
     setRetries(0);
     try {
-      const res = await fetch(`/api/session/${params.sessionId}/item`);
+      const challenge = settings.challengeLevel ?? 'normal';
+      const res = await fetch(`/api/session/${params.sessionId}/item?challenge=${challenge}`);
       if (!res.ok) {
         throw new Error(`HTTP ${res.status}`);
       }
@@ -74,7 +75,8 @@ export default function LessonPage({ params }: { params: { sessionId: string } }
       // Don't crash — push the user back to the garden gracefully.
       router.push('/picker');
     }
-  }, [params.sessionId, endSession, router]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params.sessionId, endSession, router, settings.challengeLevel]);
 
   const MAX_RETRIES = 2;
 
@@ -146,6 +148,13 @@ export default function LessonPage({ params }: { params: { sessionId: string } }
         themeEmoji={item?.themeEmoji}
       />
 
+      {/* Challenge chip — child can bump difficulty inline if it's too
+          easy or too hard. Persists in accessibility settings. */}
+      <ChallengeChip
+        level={settings.challengeLevel ?? 'normal'}
+        onChange={(next) => update({ challengeLevel: next })}
+      />
+
       <div className="flex-1 relative">
         <AnimatePresence mode="wait">
           {status === 'loading' && (
@@ -215,6 +224,50 @@ export default function LessonPage({ params }: { params: { sessionId: string } }
         </AnimatePresence>
       </div>
     </main>
+  );
+}
+
+function ChallengeChip({
+  level, onChange,
+}: {
+  level: ChallengeLevel;
+  onChange: (next: ChallengeLevel) => void;
+}) {
+  const ORDER: ChallengeLevel[] = ['easier', 'normal', 'harder'];
+  const META: Record<ChallengeLevel, { emoji: string; label: string }> = {
+    easier: { emoji: '🌱', label: 'easier' },
+    normal: { emoji: '🍃', label: 'just right' },
+    harder: { emoji: '🔥', label: 'harder' },
+  };
+  const idx = ORDER.indexOf(level);
+  const cur = META[level] ?? META.normal;
+  const canDown = idx > 0;
+  const canUp = idx < ORDER.length - 1;
+  return (
+    <div className="flex items-center gap-2 justify-center pb-2 text-bark/65">
+      <button
+        onClick={() => canDown && onChange(ORDER[idx - 1])}
+        disabled={!canDown}
+        className="font-display italic text-[12px] px-2 py-1 rounded-full border border-ochre/40 bg-white/70 disabled:opacity-30"
+        style={{ touchAction: 'manipulation', minHeight: 30 }}
+        aria-label="too hard — make it easier"
+      >
+        ◀ too hard
+      </button>
+      <div className="font-display italic text-[13px] flex items-center gap-1.5 px-3 py-1 rounded-full bg-cream/80 border border-ochre/40">
+        <span className="not-italic">{cur.emoji}</span>
+        {cur.label}
+      </div>
+      <button
+        onClick={() => canUp && onChange(ORDER[idx + 1])}
+        disabled={!canUp}
+        className="font-display italic text-[12px] px-2 py-1 rounded-full border border-ochre/40 bg-white/70 disabled:opacity-30"
+        style={{ touchAction: 'manipulation', minHeight: 30 }}
+        aria-label="too easy — make it harder"
+      >
+        too easy ▶
+      </button>
+    </div>
   );
 }
 

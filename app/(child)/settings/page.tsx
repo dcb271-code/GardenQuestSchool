@@ -22,6 +22,44 @@ export default function SettingsPage() {
         <div style={{ width: 44 }}></div>
       </div>
 
+      <section className="bg-white border-4 border-ochre rounded-2xl p-5 space-y-4">
+        <div>
+          <h2 className="font-display text-[20px] text-bark" style={{ fontWeight: 600 }}>
+            Challenge level <span className="font-display italic text-bark/60 text-[16px] font-normal">· make it just right</span>
+          </h2>
+          <p className="text-xs text-bark/60 mt-1 font-display italic">
+            If a learner says &ldquo;this is too easy!&rdquo; or &ldquo;this is too hard!&rdquo;, slide it here.
+            Affects how hard the questions you see actually are.
+          </p>
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          {([
+            { key: 'easier' as const,  label: 'Easier',  emoji: '🌱', desc: 'gentler' },
+            { key: 'normal' as const,  label: 'Just right', emoji: '🍃', desc: 'normal' },
+            { key: 'harder' as const,  label: 'Harder', emoji: '🔥', desc: 'bring it' },
+          ]).map(opt => (
+            <button
+              key={opt.key}
+              onClick={() => update({ challengeLevel: opt.key })}
+              className={`rounded-xl py-3 px-2 border-4 text-center ${
+                settings.challengeLevel === opt.key
+                  ? 'border-forest bg-forest/10'
+                  : 'border-ochre bg-white hover:border-ochre/80'
+              }`}
+              style={{ touchAction: 'manipulation', minHeight: 72 }}
+            >
+              <div className="text-2xl">{opt.emoji}</div>
+              <div className="font-display text-[15px] text-bark mt-0.5" style={{ fontWeight: 600 }}>
+                {opt.label}
+              </div>
+              <div className="font-display italic text-[11px] text-bark/55">
+                {opt.desc}
+              </div>
+            </button>
+          ))}
+        </div>
+      </section>
+
       <section className="bg-white border-4 border-ochre rounded-2xl p-5 space-y-5">
         <h2 className="font-display text-[20px] text-bark" style={{ fontWeight: 600 }}>
           Display

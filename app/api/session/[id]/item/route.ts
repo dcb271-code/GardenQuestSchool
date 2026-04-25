@@ -15,11 +15,21 @@ function getThemeHeader(skillCode: string) {
   return { title: skillCode, themeEmoji: '🌿', skillHint: '' };
 }
 
+// Elo offsets must mirror lib/settings/useAccessibilitySettings.ts.
+const CHALLENGE_OFFSET: Record<string, number> = {
+  easier: -120,
+  normal: 0,
+  harder: 150,
+};
+
 export async function GET(
-  _req: Request,
+  req: Request,
   { params }: { params: { id: string } }
 ) {
   const db = createServiceClient();
+  const url = new URL(req.url);
+  const level = url.searchParams.get('challenge') ?? 'normal';
+  const eloOffset = CHALLENGE_OFFSET[level] ?? 0;
 
   const { data: session, error: sErr } = await db
     .from('session').select('*').eq('id', params.id).single();
@@ -42,7 +52,9 @@ export async function GET(
     .eq('skill_id', skill.id)
     .maybeSingle();
 
-  const studentElo = progress?.student_elo ?? 1000;
+  // Apply the learner's challenge-level preference on top of their
+  // adaptive Elo so "easier" / "harder" actually shifts the band.
+  const studentElo = (progress?.student_elo ?? 1000) + eloOffset;
   const band = chooseDifficultyBand(studentElo);
 
   const { data: alreadyAttempted } = await db
