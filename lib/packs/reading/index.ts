@@ -44,6 +44,9 @@ export const readingItemTypes: ItemTypeMap = {
   ReadAloudSimple: {
     renderer: ReadAloudSimple,
     score: scoreReadAloudSimple,
-    getPromptText: (item) => `${item.content?.promptText ?? ''} ${item.content?.word ?? ''}`.trim(),
+    // The narrator should NOT speak the word aloud — the entire point is
+    // for the child to read it themselves. Only narrate the prompt
+    // (e.g. "Say it out loud.").
+    getPromptText: (item) => item.content?.promptText ?? '',
   },
 };
