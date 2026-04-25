@@ -62,32 +62,55 @@ export async function GET(
 
   const { data: alreadyAttempted } = await db
     .from('attempt').select('item_id').eq('session_id', params.id);
-  const excludeIds = (alreadyAttempted ?? []).map(r => r.item_id);
+  const excludeSet = new Set((alreadyAttempted ?? []).map(r => r.item_id));
 
-  let q = db.from('item')
-    .select('id, type, content, answer, difficulty_elo, audio_url')
+  // Fetch a healthy pool of candidates and filter / randomize in JS.
+  // Doing the exclusion server-side via PostgREST's `not.in.(uuid,…)`
+  // syntax has been unreliable for UUID arrays — items the learner
+  // just attempted were sometimes returned again. Filtering client-
+  // side is bulletproof. We also need randomization among tied
+  // usage_counts: right after a (re)seed, every item has
+  // usage_count=0 and PostgreSQL's tie-break is by physical row order,
+  // which means the same item keeps getting picked first.
+  const CANDIDATE_POOL = 50;
+
+  const { data: candidates } = await db.from('item')
+    .select('id, type, content, answer, difficulty_elo, audio_url, usage_count')
     .eq('skill_id', skill.id)
     .not('approved_at', 'is', null)
     .gte('difficulty_elo', band.min)
     .lte('difficulty_elo', band.stretchMax)
     .order('usage_count', { ascending: true })
-    .limit(1);
-  if (excludeIds.length) q = q.not('id', 'in', `(${excludeIds.join(',')})`);
+    .limit(CANDIDATE_POOL);
 
-  const { data: items } = await q;
-  let picked = items?.[0];
+  const eligible = (candidates ?? []).filter(c => !excludeSet.has(c.id));
+
+  let picked: typeof eligible[number] | undefined;
+  if (eligible.length > 0) {
+    // Among the lowest usage_count, pick at random to break ties.
+    const minUsage = eligible[0].usage_count ?? 0;
+    const leastUsed = eligible.filter(c => (c.usage_count ?? 0) === minUsage);
+    picked = leastUsed[Math.floor(Math.random() * leastUsed.length)];
+  }
 
   if (!picked) {
+    // No in-band items left for this skill+session. Try the same
+    // pool without the band constraint, still excluding session
+    // attempts and still randomizing among least-used.
     const { data: fallback } = await db
       .from('item')
-      .select('id, type, content, answer, difficulty_elo, audio_url')
+      .select('id, type, content, answer, difficulty_elo, audio_url, usage_count')
       .eq('skill_id', skill.id)
       .not('approved_at', 'is', null)
-      .limit(1);
-    if (!fallback || fallback.length === 0) {
+      .order('usage_count', { ascending: true })
+      .limit(CANDIDATE_POOL);
+    const eligibleFallback = (fallback ?? []).filter(c => !excludeSet.has(c.id));
+    if (eligibleFallback.length === 0) {
       return NextResponse.json({ ended: true, learnerId: session.learner_id });
     }
-    picked = fallback[0];
+    const minUsage = eligibleFallback[0].usage_count ?? 0;
+    const leastUsed = eligibleFallback.filter(c => (c.usage_count ?? 0) === minUsage);
+    picked = leastUsed[Math.floor(Math.random() * leastUsed.length)];
   }
 
   return NextResponse.json({
