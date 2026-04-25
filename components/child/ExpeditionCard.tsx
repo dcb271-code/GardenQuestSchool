@@ -19,6 +19,7 @@ export interface ExpeditionCardProps {
   correctCount?: number;
   target?: number;
   completed?: boolean;
+  unlocksLabel?: string | null;  // e.g. "Bee Words" — what finishing this opens up
   onSelect: () => void;
   index?: number;
 }
@@ -26,6 +27,7 @@ export interface ExpeditionCardProps {
 export default function ExpeditionCard({
   emoji, title, hint, structureLabel, zone = 'meadow',
   correctCount = 0, target = 10, completed = false,
+  unlocksLabel = null,
   onSelect, index = 0,
 }: ExpeditionCardProps) {
   const meta = ZONE_META[zone] ?? ZONE_META.meadow;
@@ -123,6 +125,20 @@ export default function ExpeditionCard({
             →
           </motion.div>
         </div>
+
+        {/* "Finishing this opens [Next]" — only on the active stop in
+            its zone. Lets the child see what their work is building
+            toward without turning it into a points-to-unlock economy. */}
+        {unlocksLabel && !completed && (
+          <div
+            className="font-display italic text-[12px] mt-1.5 truncate"
+            style={{ color: meta.accent, opacity: 0.85 }}
+          >
+            <span className="not-italic">↪</span>{' '}
+            finishing this <span className="text-bark/55">opens</span>{' '}
+            <span className="not-italic" style={{ fontWeight: 600 }}>{unlocksLabel}</span>
+          </div>
+        )}
       </div>
     </motion.button>
   );

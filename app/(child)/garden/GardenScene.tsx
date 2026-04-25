@@ -971,6 +971,7 @@ interface StructureStateProp {
   target: number;
   prereqDisplay: string;
   built?: boolean;
+  unlocksLabel?: string | null;
 }
 
 function Structure({
@@ -982,7 +983,7 @@ function Structure({
   reducedMotion?: boolean;
   justBuilt?: boolean;
 }) {
-  const { unlocked, completed, isNext, correctCount, target, built } = state;
+  const { unlocked, completed, isNext, correctCount, target, built, unlocksLabel } = state;
   const showProgressBadge = struct.kind === 'skill' && target > 0;
   const isHabitat = struct.kind === 'habitat';
   // Ghost state: skill prereqs met but ecology quest not done yet.
@@ -1181,6 +1182,37 @@ function Structure({
               style={{ userSelect: 'none', fontFamily: 'ui-monospace, SFMono-Regular, monospace' }}
             >
               {Math.min(correctCount, target)}/{target}
+            </text>
+          </g>
+        )}
+
+        {/* "↪ opens [Next]" — only on the active stop in a zone, so the
+            child sees what their work is building toward without it
+            feeling like an unlock economy. Sits below the x/n badge. */}
+        {isNext && unlocksLabel && (
+          <g pointerEvents="none">
+            <text
+              x={struct.x}
+              y={struct.y + struct.size * 0.48 + 56}
+              fontSize={10.5}
+              textAnchor="middle"
+              fill="#6B4423"
+              fillOpacity={0.7}
+              fontStyle="italic"
+              style={{ userSelect: 'none' }}
+            >
+              ↪ opens
+            </text>
+            <text
+              x={struct.x}
+              y={struct.y + struct.size * 0.48 + 70}
+              fontSize={11}
+              textAnchor="middle"
+              fill="#E8A87C"
+              fontWeight="700"
+              style={{ userSelect: 'none' }}
+            >
+              {unlocksLabel}
             </text>
           </g>
         )}

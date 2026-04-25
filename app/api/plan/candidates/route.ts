@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
 import { generateExpeditionCandidates } from '@/lib/engine';
 import { GARDEN_STRUCTURES } from '@/lib/world/gardenMap';
-import { ZONE_COMPLETION_TARGET } from '@/lib/world/zoneProgress';
+import { ZONE_COMPLETION_TARGET, ZONE_SKILL_ORDER } from '@/lib/world/zoneProgress';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -80,10 +80,43 @@ export async function GET(req: Request) {
   }
 
   // Enrich each candidate with its garden structure (label, zone) and
-  // its real progress so the compass and the garden agree.
+  // its real progress so the compass and the garden agree. Also compute
+  // "next opens" — the very next structure in this zone after this
+  // candidate — so the child sees what their work is building toward.
   const enriched = candidates.map(c => {
     const struct = GARDEN_STRUCTURES.find(s => s.kind === 'skill' && s.skillCode === c.skillCode);
     const correctCount = correctByCode.get(c.skillCode) ?? 0;
+    const completed = correctCount >= ZONE_COMPLETION_TARGET;
+
+    // Find the next-in-zone structure that the learner hasn't finished
+    // yet. We only show "next opens" when this candidate is the
+    // currently-active stop in its zone (i.e. it's the first
+    // not-completed one), otherwise the hint is misleading.
+    let unlocksLabel: string | null = null;
+    if (struct) {
+      const order = ZONE_SKILL_ORDER[struct.zone] ?? [];
+      const idx = order.indexOf(struct.code);
+      if (idx >= 0) {
+        // Is this candidate the active stop in its zone?
+        const earlierAllDone = order.slice(0, idx).every(code => {
+          const sc = GARDEN_STRUCTURES.find(s => s.code === code)?.skillCode;
+          return sc ? (correctByCode.get(sc) ?? 0) >= ZONE_COMPLETION_TARGET : true;
+        });
+        if (earlierAllDone) {
+          // Walk forward to the next structure that isn't itself complete.
+          for (let j = idx + 1; j < order.length; j++) {
+            const nextStruct = GARDEN_STRUCTURES.find(s => s.code === order[j]);
+            if (!nextStruct?.skillCode) continue;
+            const nextDone = (correctByCode.get(nextStruct.skillCode) ?? 0) >= ZONE_COMPLETION_TARGET;
+            if (!nextDone) {
+              unlocksLabel = nextStruct.label;
+              break;
+            }
+          }
+        }
+      }
+    }
+
     return {
       ...c,
       structureCode: struct?.code ?? null,
@@ -91,7 +124,8 @@ export async function GET(req: Request) {
       zone: struct?.zone ?? 'meadow',
       correctCount,
       target: ZONE_COMPLETION_TARGET,
-      completed: correctCount >= ZONE_COMPLETION_TARGET,
+      completed,
+      unlocksLabel,
     };
   });
 

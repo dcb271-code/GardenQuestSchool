@@ -43,6 +43,7 @@ export async function POST(
   await db.from('attempt').insert({
     session_id: params.id,
     item_id: body.itemId,
+    learner_id: session.learner_id,
     outcome,
     response: body.response,
     time_ms: body.timeMs,

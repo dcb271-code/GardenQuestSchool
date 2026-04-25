@@ -17,6 +17,7 @@ interface Candidate {
   correctCount?: number;
   target?: number;
   completed?: boolean;
+  unlocksLabel?: string | null;
 }
 
 export default function ExploreClient() {
@@ -85,6 +86,7 @@ export default function ExploreClient() {
             correctCount={c.correctCount}
             target={c.target}
             completed={c.completed}
+            unlocksLabel={c.unlocksLabel ?? null}
             onSelect={() => start(c.skillCode)}
             index={i}
           />

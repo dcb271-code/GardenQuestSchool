@@ -4,11 +4,18 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 
+export interface LessonProgress {
+  attempted: number;     // 0-indexed: 0 means we're serving item #1
+  cap: number;           // SESSION_ITEM_CAP
+  tier?: 'easy' | 'mid' | 'hard';
+}
+
 export default function LessonHeader({
-  breadcrumb, learnerId, onReplayAudio, onWonder, onSkip,
+  breadcrumb, learnerId, progress, onReplayAudio, onWonder, onSkip,
 }: {
   breadcrumb: string;
   learnerId?: string | null;
+  progress?: LessonProgress;
   onReplayAudio?: () => void;
   onWonder?: () => void;
   onSkip?: () => void;
@@ -50,11 +57,20 @@ export default function LessonHeader({
           <span className="text-bark/70">✕</span>
         </motion.button>
 
-        <div
-          className="flex-1 text-center truncate font-display text-[17px] text-bark/85"
-          style={{ fontWeight: 500, letterSpacing: '-0.005em' }}
-        >
-          {breadcrumb}
+        <div className="flex-1 flex flex-col items-center min-w-0">
+          <div
+            className="text-center truncate font-display text-[17px] text-bark/85 max-w-full"
+            style={{ fontWeight: 500, letterSpacing: '-0.005em' }}
+          >
+            {breadcrumb}
+          </div>
+          {progress && progress.cap > 0 && (
+            <DifficultyRamp
+              attempted={progress.attempted}
+              cap={progress.cap}
+              tier={progress.tier ?? 'easy'}
+            />
+          )}
         </div>
 
         <div className="flex gap-2">
@@ -148,5 +164,73 @@ export default function LessonHeader({
         )}
       </AnimatePresence>
     </>
+  );
+}
+
+/**
+ * Tiny "the activity gets harder as you go" indicator — five seedlings
+ * climbing into a small tree. The current item is highlighted, past
+ * items are filled-in (sage), upcoming ones are pale outlines. The
+ * size step subtly says "this one is bigger than the last."
+ *
+ * `attempted` is 0-indexed: 0 means we're serving item #1.
+ */
+function DifficultyRamp({
+  attempted, cap, tier,
+}: {
+  attempted: number;
+  cap: number;
+  tier: 'easy' | 'mid' | 'hard';
+}) {
+  const positions = Array.from({ length: cap }).map((_, i) => i);
+  const tierLabel =
+    tier === 'easy' ? 'warming up' :
+    tier === 'mid'  ? 'finding your stride' :
+                      'the climb';
+  return (
+    <div className="flex items-center gap-1.5 mt-0.5 select-none" aria-label={`${tierLabel} — item ${attempted + 1} of ${cap}`}>
+      {positions.map(i => {
+        const past = i < attempted;
+        const current = i === attempted;
+        // Visual size step: each plant a little bigger than the last
+        // so the eye reads "growing into something."
+        const radius = 2.4 + i * 0.55;
+        return (
+          <svg key={i} width={14} height={16} viewBox="-7 -8 14 16">
+            {/* stem */}
+            <line
+              x1={0} y1={6}
+              x2={0} y2={6 - radius * 1.5}
+              stroke={current ? '#6B8E5A' : past ? '#95B88F' : '#C8D4BE'}
+              strokeWidth={current ? 1.6 : 1.2}
+              strokeLinecap="round"
+            />
+            {/* leaf / crown */}
+            <ellipse
+              cx={0}
+              cy={6 - radius * 1.5}
+              rx={radius}
+              ry={radius * 0.85}
+              fill={
+                current ? '#FFD93D' :   // sun-yellow highlight
+                past    ? '#95B88F' :
+                          '#FFFFFF'
+              }
+              stroke={
+                current ? '#E8A87C' :
+                past    ? '#6B8E5A' :
+                          '#C8D4BE'
+              }
+              strokeWidth={current ? 1.6 : 1.1}
+            />
+          </svg>
+        );
+      })}
+      <span
+        className="font-display italic text-[11px] text-bark/55 ml-1"
+      >
+        {tierLabel}
+      </span>
+    </div>
   );
 }

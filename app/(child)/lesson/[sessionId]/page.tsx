@@ -19,7 +19,7 @@ interface ItemPayload {
   skillCode?: string;
   themeTitle?: string;
   themeEmoji?: string;
-  progress?: { attempted: number; cap: number };
+  progress?: { attempted: number; cap: number; tier?: 'easy' | 'mid' | 'hard' };
 }
 
 type LessonStatus = 'loading' | 'ready' | 'correct' | 'retry' | 'moving-on';
@@ -33,6 +33,10 @@ export default function LessonPage({ params }: { params: { sessionId: string } }
   const [retries, setRetries] = useState(0);
   const [shakeToken, setShakeToken] = useState(0);
   const [learnerId, setLearnerId] = useState<string | null>(null);
+  // True while the one-time SkillIntroOverlay is on screen. We keep
+  // the narrator silent during that window so the prompt audio doesn't
+  // talk under the explainer card.
+  const [introVisible, setIntroVisible] = useState(false);
   const startTime = useRef<number>(Date.now());
 
   const promptText = item
@@ -46,7 +50,7 @@ export default function LessonPage({ params }: { params: { sessionId: string } }
         generatedBy: 'seed',
       })
     : '';
-  const { replay } = useNarrator(promptText);
+  const { replay } = useNarrator(promptText, introVisible);
 
   const endSession = useCallback(async (target?: string) => {
     await fetch(`/api/session/${params.sessionId}/end`, { method: 'POST' });
@@ -133,8 +137,10 @@ export default function LessonPage({ params }: { params: { sessionId: string } }
 
   useEffect(() => { loadNext(); }, [loadNext]);
 
+  // Visual ramp + count now live in LessonHeader so we don't double up
+  // on "1/5" text. Breadcrumb stays clean: just the place.
   const breadcrumb = item
-    ? `${item.themeEmoji ?? '🔍'} ${item.themeTitle ?? 'Exploration'}${item.progress ? `  ·  ${item.progress.attempted + 1}/${item.progress.cap}` : ''}`
+    ? `${item.themeEmoji ?? '🔍'} ${item.themeTitle ?? 'Exploration'}`
     : 'Loading…';
 
   return (
@@ -142,6 +148,7 @@ export default function LessonPage({ params }: { params: { sessionId: string } }
       <LessonHeader
         breadcrumb={breadcrumb}
         learnerId={learnerId}
+        progress={item?.progress}
         onReplayAudio={() => replay()}
         onWonder={() => {/* Plan 3 virtue detector */}}
         onSkip={item ? skip : undefined}
@@ -152,6 +159,7 @@ export default function LessonPage({ params }: { params: { sessionId: string } }
         skillCode={item?.skillCode ?? null}
         themeTitle={item?.themeTitle}
         themeEmoji={item?.themeEmoji}
+        onVisibilityChange={setIntroVisible}
       />
 
       {/* Challenge chip — child can bump difficulty inline if it's too
@@ -225,7 +233,14 @@ export default function LessonPage({ params }: { params: { sessionId: string } }
             );
           })()}
 
-          {status === 'correct' && <CorrectFeedback key="correct" reducedMotion={reducedMotion} />}
+          {status === 'correct' && (
+            <CorrectFeedback
+              key="correct"
+              reducedMotion={reducedMotion}
+              attemptIndex={item?.progress?.attempted ?? 0}
+              retries={retries}
+            />
+          )}
           {status === 'moving-on' && <MovingOnFeedback key="moving-on" reducedMotion={reducedMotion} />}
         </AnimatePresence>
       </div>
@@ -277,7 +292,27 @@ function ChallengeChip({
   );
 }
 
-function CorrectFeedback({ reducedMotion }: { reducedMotion: boolean }) {
+// Pool of effort-/learning-oriented phrases. Carol-Dweck-leaning,
+// not generic praise — focuses on the work itself or the climb.
+// Pulled at random by the CorrectFeedback component.
+const ENCOURAGEMENT_PHRASES = [
+  'good effort',
+  'you are learning',
+  'well thought',
+  'you stuck with it',
+  'figured it out',
+  'that took thinking',
+  'your brain is growing',
+  'nice work, scientist',
+];
+
+function CorrectFeedback({
+  reducedMotion, attemptIndex, retries,
+}: {
+  reducedMotion: boolean;
+  attemptIndex: number;
+  retries: number;
+}) {
   const petals = Array.from({ length: 8 }).map((_, i) => {
     const angle = (i / 8) * Math.PI * 2;
     return {
@@ -287,6 +322,18 @@ function CorrectFeedback({ reducedMotion }: { reducedMotion: boolean }) {
       color: ['#FFB7C5', '#FFD166', '#E6B0D0', '#95B88F'][i % 4],
     };
   });
+
+  // Show an encouragement phrase ~40% of the time, with a guaranteed
+  // showing whenever the child got it right after a retry (that's the
+  // moment that most deserves "you stuck with it"). The randomness
+  // is seeded by attemptIndex so the same item doesn't flip phrases
+  // mid-render.
+  const seed = (attemptIndex * 9301 + 49297) % 233280;
+  const showEncouragement = retries > 0 || (seed / 233280) < 0.4;
+  const phrase = showEncouragement
+    ? ENCOURAGEMENT_PHRASES[Math.floor((seed / 233280) * ENCOURAGEMENT_PHRASES.length)]
+    : null;
+
   return (
     <motion.div
       className="flex flex-col items-center justify-center py-16 relative"
@@ -358,7 +405,7 @@ function CorrectFeedback({ reducedMotion }: { reducedMotion: boolean }) {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.7, duration: 0.4 }}
       >
-        yes
+        {phrase ?? 'yes'}
       </motion.div>
     </motion.div>
   );

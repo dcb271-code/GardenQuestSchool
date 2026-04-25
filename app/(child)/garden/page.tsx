@@ -17,6 +17,7 @@ export interface StructureState {
   target: number;
   prereqDisplay: string;
   built?: boolean;       // habitats only — true if ecology quest done
+  unlocksLabel?: string | null;  // skill structures: what finishing this opens
 }
 
 export default async function GardenPage({
@@ -109,6 +110,7 @@ export default async function GardenPage({
         correctCount: p?.correctCount ?? 0,
         target: p?.target ?? ZONE_COMPLETION_TARGET,
         prereqDisplay: p?.prereqDisplay ?? '',
+        unlocksLabel: p?.unlocksLabel ?? null,
       };
     } else if (s.kind === 'habitat' && s.habitatCode) {
       const habitat = HABITAT_CATALOG.find(h => h.code === s.habitatCode);

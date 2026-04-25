@@ -8,16 +8,27 @@ import { motion, AnimatePresence } from 'framer-motion';
  * given skill. Explains the three universal affordances: hear it again,
  * tap an answer, skip if needed. Stored per-learner+skill in
  * localStorage so it never appears twice.
+ *
+ * `onVisibilityChange` fires when the overlay becomes visible or is
+ * dismissed. The lesson page uses this to keep the narrator silent
+ * while the explainer is up — otherwise the first item's audio
+ * starts talking under the card.
  */
 export default function SkillIntroOverlay({
-  learnerId, skillCode, themeTitle, themeEmoji,
+  learnerId, skillCode, themeTitle, themeEmoji, onVisibilityChange,
 }: {
   learnerId: string | null;
   skillCode: string | null;
   themeTitle?: string;
   themeEmoji?: string;
+  onVisibilityChange?: (visible: boolean) => void;
 }) {
   const [visible, setVisible] = useState(false);
+
+  // Bubble visibility changes up so the lesson can pause its narrator.
+  useEffect(() => {
+    onVisibilityChange?.(visible);
+  }, [visible, onVisibilityChange]);
 
   useEffect(() => {
     if (!learnerId || !skillCode) return;

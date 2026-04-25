@@ -40,8 +40,13 @@ export function prefetchTts(text: string, voice: string, rate: number): void {
  * Auto-narrates `text` once when it changes. If the selected voice is a
  * Google voice, plays the cached audio via an HTMLAudioElement (browser
  * HTTP cache makes repeat plays instant). Falls back to Web Speech.
+ *
+ * `paused`: when true, suppresses auto-narration AND silences anything
+ * already speaking. Used by the lesson page to hold the narrator silent
+ * until the SkillIntroOverlay is dismissed — otherwise the first item's
+ * prompt was talking over the explainer card.
  */
-export function useNarrator(text: string): { replay: () => void } {
+export function useNarrator(text: string, paused: boolean = false): { replay: () => void } {
   const { settings } = useAccessibilitySettings();
   const lastSpokenRef = useRef<string>('');
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -77,7 +82,13 @@ export function useNarrator(text: string): { replay: () => void } {
     });
   }, [settings.voiceName, settings.voiceRate, stopAll]);
 
+  // If we just paused, silence whatever is currently playing.
   useEffect(() => {
+    if (paused) stopAll();
+  }, [paused, stopAll]);
+
+  useEffect(() => {
+    if (paused) return;
     if (!text || text === lastSpokenRef.current) return;
     lastSpokenRef.current = text;
     const timer = setTimeout(() => { void playText(text); }, 80);
@@ -86,7 +97,7 @@ export function useNarrator(text: string): { replay: () => void } {
       stopAll();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [text, settings.voiceName, settings.voiceRate]);
+  }, [text, paused, settings.voiceName, settings.voiceRate]);
 
   const replay = useCallback(() => {
     if (!text) return;

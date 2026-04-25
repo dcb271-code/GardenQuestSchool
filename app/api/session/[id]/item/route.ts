@@ -64,6 +64,15 @@ export async function GET(
     .from('attempt').select('item_id').eq('session_id', params.id);
   const excludeSet = new Set((alreadyAttempted ?? []).map(r => r.item_id));
 
+  // Within-session difficulty ramp. We want the 5 items in a session
+  // to climb from the easier end of the band to the harder end so a
+  // child feels themselves stretching as they go (item 1 = warm-up,
+  // item 5 = the reach). progress is 0..1 across the session.
+  const attempted = session.items_attempted ?? 0;
+  const rampProgress = SESSION_ITEM_CAP > 1 ? attempted / (SESSION_ITEM_CAP - 1) : 0;
+  // Three difficulty tiers: easy / mid / hard within the band.
+  const tier = rampProgress < 0.34 ? 'easy' : rampProgress < 0.7 ? 'mid' : 'hard';
+
   // Fetch a healthy pool of candidates and filter / randomize in JS.
   // Doing the exclusion server-side via PostgREST's `not.in.(uuid,…)`
   // syntax has been unreliable for UUID arrays — items the learner
@@ -85,18 +94,42 @@ export async function GET(
 
   const eligible = (candidates ?? []).filter(c => !excludeSet.has(c.id));
 
-  let picked: typeof eligible[number] | undefined;
-  if (eligible.length > 0) {
-    // Among the lowest usage_count, pick at random to break ties.
-    const minUsage = eligible[0].usage_count ?? 0;
-    const leastUsed = eligible.filter(c => (c.usage_count ?? 0) === minUsage);
-    picked = leastUsed[Math.floor(Math.random() * leastUsed.length)];
-  }
+  // Pick within the tier slice of the band, preferring least-used.
+  const pickFromTier = (pool: typeof eligible) => {
+    if (pool.length === 0) return undefined;
+    const sorted = pool.slice().sort((a, b) =>
+      (a.difficulty_elo ?? 0) - (b.difficulty_elo ?? 0)
+    );
+    const n = sorted.length;
+    // Slice the pool into thirds. With small n (<6) we treat the whole
+    // pool as the slice for the tier so we don't end up with empty
+    // sub-pools.
+    let slice: typeof pool;
+    if (n < 6) {
+      slice = sorted;
+    } else if (tier === 'easy') {
+      slice = sorted.slice(0, Math.ceil(n / 3));
+    } else if (tier === 'hard') {
+      slice = sorted.slice(Math.floor((2 * n) / 3));
+    } else {
+      slice = sorted.slice(Math.ceil(n / 3), Math.floor((2 * n) / 3));
+      // mid-third can come up empty for borderline pool sizes — fall
+      // back to the whole sorted pool minus the easy bottom.
+      if (slice.length === 0) slice = sorted.slice(Math.ceil(n / 3));
+    }
+    // Within the tier, prefer least-used and randomize ties.
+    const minUsage = Math.min(...slice.map(c => c.usage_count ?? 0));
+    const leastUsed = slice.filter(c => (c.usage_count ?? 0) === minUsage);
+    return leastUsed[Math.floor(Math.random() * leastUsed.length)];
+  };
+
+  let picked = pickFromTier(eligible);
 
   if (!picked) {
     // No in-band items left for this skill+session. Try the same
     // pool without the band constraint, still excluding session
-    // attempts and still randomizing among least-used.
+    // attempts. The ramp still applies — even outside the band we
+    // want the within-session climb to feel real.
     const { data: fallback } = await db
       .from('item')
       .select('id, type, content, answer, difficulty_elo, audio_url, usage_count')
@@ -108,9 +141,10 @@ export async function GET(
     if (eligibleFallback.length === 0) {
       return NextResponse.json({ ended: true, learnerId: session.learner_id });
     }
-    const minUsage = eligibleFallback[0].usage_count ?? 0;
-    const leastUsed = eligibleFallback.filter(c => (c.usage_count ?? 0) === minUsage);
-    picked = leastUsed[Math.floor(Math.random() * leastUsed.length)];
+    picked = pickFromTier(eligibleFallback);
+    if (!picked) {
+      return NextResponse.json({ ended: true, learnerId: session.learner_id });
+    }
   }
 
   return NextResponse.json({
@@ -125,6 +159,9 @@ export async function GET(
     progress: {
       attempted: session.items_attempted ?? 0,
       cap: SESSION_ITEM_CAP,
+      // 'easy' | 'mid' | 'hard' — drives the lesson-header ramp glyph
+      // so the child can see they're climbing within the activity.
+      tier,
     },
   });
 }

@@ -51,6 +51,8 @@ export interface StructureProgress {
   correctCount: number;
   target: number;
   prereqDisplay: string;        // hint text when locked
+  unlocksLabel?: string | null; // label of the next zone-stop that finishing
+                                // this one opens (only on the isNext stop)
 }
 
 /**
@@ -77,7 +79,8 @@ export function computeStructureProgress(
     const ordered = ZONE_SKILL_ORDER[zone];
     let foundNext = false;
 
-    for (const structureCode of ordered) {
+    for (let i = 0; i < ordered.length; i++) {
+      const structureCode = ordered[i];
       const struct = structures.find(s => s.code === structureCode);
       if (!struct || struct.kind !== 'skill' || !struct.skillCode) continue;
 
@@ -85,6 +88,23 @@ export function computeStructureProgress(
       const completed = correctCount >= target;
       const isNext = !completed && !foundNext;
       if (isNext) foundNext = true;
+
+      // For the current "next" stop, look ahead to whatever comes
+      // after it in the zone — that's what finishing this one will
+      // open. We skip past anything already complete (rare but
+      // possible if someone bumped the target down).
+      let unlocksLabel: string | null = null;
+      if (isNext) {
+        for (let j = i + 1; j < ordered.length; j++) {
+          const nextStruct = structures.find(s => s.code === ordered[j]);
+          if (!nextStruct?.skillCode) continue;
+          const nextDone = (correctByCode.get(nextStruct.skillCode) ?? 0) >= target;
+          if (!nextDone) {
+            unlocksLabel = nextStruct.label;
+            break;
+          }
+        }
+      }
 
       result[structureCode] = {
         unlocked: completed || isNext,
@@ -99,6 +119,7 @@ export function computeStructureProgress(
               .map(c => structures.find(s => s.code === c)?.label ?? c)
               .filter(Boolean)
               .slice(-1)[0] ?? 'the earlier stop'} first`,
+        unlocksLabel,
       };
     }
   }
