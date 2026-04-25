@@ -316,8 +316,20 @@ export async function seedReading(
       .select('id').eq('generated_by', 'seed').in('skill_id', readingSkillIds);
     const priorIds = (prior ?? []).map(r => r.id);
     if (priorIds.length > 0) {
-      await sb.from('attempt').delete().in('item_id', priorIds);
-      await sb.from('item').delete().in('id', priorIds);
+      // Batch deletes — see scripts/seed-math.ts for the same fix.
+      // Single .in() with hundreds of UUIDs blows PostgREST's URL
+      // length limit and fails silently.
+      const DELETE_BATCH = 50;
+      for (let i = 0; i < priorIds.length; i += DELETE_BATCH) {
+        const batch = priorIds.slice(i, i + DELETE_BATCH);
+        const { error: aErr } = await sb.from('attempt').delete().in('item_id', batch);
+        if (aErr) throw aErr;
+      }
+      for (let i = 0; i < priorIds.length; i += DELETE_BATCH) {
+        const batch = priorIds.slice(i, i + DELETE_BATCH);
+        const { error: iErr } = await sb.from('item').delete().in('id', batch);
+        if (iErr) throw iErr;
+      }
     }
   }
 
