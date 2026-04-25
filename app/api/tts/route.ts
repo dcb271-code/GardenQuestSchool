@@ -13,35 +13,20 @@ function cacheKey(text: string, voice: string, rate: number) {
   return `${voice}|${rate}|${text}`;
 }
 
-export async function POST(req: NextRequest) {
+interface SynthRequest {
+  text: string;
+  voice: string;
+  rate: number;
+}
+
+async function synthesize({ text, voice, rate }: SynthRequest): Promise<NextResponse> {
   const apiKey = process.env.GOOGLE_TTS_API_KEY;
   if (!apiKey) {
-    return NextResponse.json(
-      { error: 'GOOGLE_TTS_API_KEY not set' },
-      { status: 500 },
-    );
+    return NextResponse.json({ error: 'GOOGLE_TTS_API_KEY not set' }, { status: 500 });
   }
 
-  let body: { text?: string; voice?: string; rate?: number };
-  try {
-    body = await req.json();
-  } catch {
-    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
-  }
-
-  const text = (body.text ?? '').trim();
-  const voice = body.voice || 'en-GB-Neural2-A';
-  const rate = typeof body.rate === 'number'
-    ? Math.max(0.5, Math.min(1.5, body.rate))
-    : 0.9;
-
-  if (!text) {
-    return NextResponse.json({ error: 'Empty text' }, { status: 400 });
-  }
-  // Cap input size (free tier friendliness + sanity)
-  if (text.length > 800) {
-    return NextResponse.json({ error: 'Text too long' }, { status: 400 });
-  }
+  if (!text) return NextResponse.json({ error: 'Empty text' }, { status: 400 });
+  if (text.length > 800) return NextResponse.json({ error: 'Text too long' }, { status: 400 });
 
   const key = cacheKey(text, voice, rate);
   const cached = memoryCache.get(key);
@@ -50,7 +35,9 @@ export async function POST(req: NextRequest) {
       status: 200,
       headers: {
         'content-type': 'audio/mpeg',
-        'cache-control': 'public, max-age=86400',
+        // Aggressively cache in the browser too — same text + voice + rate
+        // always produces the same bytes, so an immutable response is safe.
+        'cache-control': 'public, max-age=31536000, immutable',
         'x-cache': 'HIT',
       },
     });
@@ -94,7 +81,6 @@ export async function POST(req: NextRequest) {
   }
 
   const buf = Buffer.from(payload.audioContent, 'base64');
-  // LRU-ish cache: evict oldest if too big
   if (memoryCache.size >= MAX_CACHE_ENTRIES) {
     const oldest = memoryCache.keys().next().value;
     if (oldest) memoryCache.delete(oldest);
@@ -105,8 +91,40 @@ export async function POST(req: NextRequest) {
     status: 200,
     headers: {
       'content-type': 'audio/mpeg',
-      'cache-control': 'public, max-age=86400',
+      'cache-control': 'public, max-age=31536000, immutable',
       'x-cache': 'MISS',
     },
+  });
+}
+
+function clampRate(r: unknown, fallback: number): number {
+  const n = typeof r === 'number' ? r : typeof r === 'string' ? parseFloat(r) : NaN;
+  if (!isFinite(n)) return fallback;
+  return Math.max(0.5, Math.min(1.5, n));
+}
+
+// GET endpoint — browser-cacheable. Use this in <audio src> for free
+// HTTP caching. Same text+voice+rate URL → same MP3 → cache hit.
+export async function GET(req: NextRequest) {
+  const url = new URL(req.url);
+  const text = (url.searchParams.get('text') ?? '').trim();
+  const voice = url.searchParams.get('voice') || 'en-GB-Neural2-A';
+  const rate = clampRate(url.searchParams.get('rate'), 0.9);
+  return synthesize({ text, voice, rate });
+}
+
+// POST endpoint — kept for back-compat / longer prompts that wouldn't fit
+// in a URL.
+export async function POST(req: NextRequest) {
+  let body: { text?: string; voice?: string; rate?: number };
+  try {
+    body = await req.json();
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
+  }
+  return synthesize({
+    text: (body.text ?? '').trim(),
+    voice: body.voice || 'en-GB-Neural2-A',
+    rate: clampRate(body.rate, 0.9),
   });
 }

@@ -9,29 +9,49 @@ import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySetting
 export const GOOGLE_VOICE_PREFIX = 'google:';
 
 /**
+ * Build the GET URL for the /api/tts proxy. Browser HTTP cache will hit
+ * for repeated prompts, so the same word/sentence never triggers a
+ * second network round-trip on the device.
+ */
+export function buildTtsUrl(text: string, voice: string, rate: number): string {
+  const params = new URLSearchParams({
+    text,
+    voice,
+    rate: rate.toFixed(2),
+  });
+  return `/api/tts?${params.toString()}`;
+}
+
+/**
+ * Fire-and-forget audio prefetch. Browsers will keep the response in
+ * the HTTP cache, so a subsequent <audio src=...>.play() is instant.
+ */
+export function prefetchTts(text: string, voice: string, rate: number): void {
+  if (typeof window === 'undefined' || !text.trim()) return;
+  // Use Image-style prefetch via fetch with low priority. Keep the
+  // promise alive without blocking.
+  void fetch(buildTtsUrl(text, voice, rate), {
+    method: 'GET',
+    cache: 'force-cache',
+  }).catch(() => {});
+}
+
+/**
  * Auto-narrates `text` once when it changes. If the selected voice is a
- * Google voice, fetches modern Neural2/Studio audio from our /api/tts
- * proxy and plays it via an HTMLAudioElement. Falls back to the Web
- * Speech API if no voice is selected, the fetch fails, or the API key
- * is missing in production.
+ * Google voice, plays the cached audio via an HTMLAudioElement (browser
+ * HTTP cache makes repeat plays instant). Falls back to Web Speech.
  */
 export function useNarrator(text: string): { replay: () => void } {
   const { settings } = useAccessibilitySettings();
   const lastSpokenRef = useRef<string>('');
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const currentUrlRef = useRef<string | null>(null);
 
   const stopAll = useCallback(() => {
-    // Stop both Web Speech and any active audio
     stopSpeaking();
     if (audioRef.current) {
       audioRef.current.pause();
       audioRef.current.src = '';
       audioRef.current = null;
-    }
-    if (currentUrlRef.current) {
-      URL.revokeObjectURL(currentUrlRef.current);
-      currentUrlRef.current = null;
     }
   }, []);
 
@@ -40,36 +60,17 @@ export function useNarrator(text: string): { replay: () => void } {
     if (voiceName && voiceName.startsWith(GOOGLE_VOICE_PREFIX)) {
       const googleVoice = voiceName.slice(GOOGLE_VOICE_PREFIX.length);
       try {
-        const res = await fetch('/api/tts', {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({
-            text: textToSpeak,
-            voice: googleVoice,
-            rate: settings.voiceRate,
-          }),
-        });
-        if (!res.ok) throw new Error(`TTS HTTP ${res.status}`);
-        const blob = await res.blob();
         stopAll();
-        const url = URL.createObjectURL(blob);
-        currentUrlRef.current = url;
+        const url = buildTtsUrl(textToSpeak, googleVoice, settings.voiceRate);
         const audio = new Audio(url);
-        audio.onended = () => {
-          if (currentUrlRef.current === url) {
-            URL.revokeObjectURL(url);
-            currentUrlRef.current = null;
-          }
-        };
+        audio.preload = 'auto';
         audioRef.current = audio;
         await audio.play();
         return;
       } catch (err) {
         console.warn('Google TTS failed, falling back to Web Speech:', err);
-        // fall through
       }
     }
-    // Web Speech API fallback
     void webSpeak(textToSpeak, {
       voice: voiceName && !voiceName.startsWith(GOOGLE_VOICE_PREFIX) ? voiceName : undefined,
       rate: settings.voiceRate,
@@ -79,7 +80,6 @@ export function useNarrator(text: string): { replay: () => void } {
   useEffect(() => {
     if (!text || text === lastSpokenRef.current) return;
     lastSpokenRef.current = text;
-    // Slight delay helps iOS Safari "wake" the speech engine after nav.
     const timer = setTimeout(() => { void playText(text); }, 80);
     return () => {
       clearTimeout(timer);
