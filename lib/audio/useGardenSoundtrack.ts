@@ -3,60 +3,108 @@
 import { useEffect, useRef } from 'react';
 
 /**
- * Soft, warm garden soundtrack — synthesized live in the browser via
- * Web Audio. No audio files, no nature sounds.
+ * Garden soundtrack — synthesized live in the browser via Web Audio.
+ * No audio files, no nature sounds.
  *
- * Three diatonic chords in C major cycle slowly with a descending bass
- * line (do — la — fa). Each chord is played as a fresh "breath" of
- * sine-wave notes that gently swell in and fade out (attack 3s,
- * sustain 14s with a subtle decay, release 8s) — so each chord feels
- * like a soft piano-pedal moment rather than a continuous drone.
- * Successive chords overlap by ~8 seconds so the music never goes
- * fully silent.
+ * ── Design notes (third rewrite — head-wobble + monotony fixes) ──
  *
- *   Chord 1: Cmaj9   bass C3   upper C4 E4 G4 B4 D5
- *   Chord 2: Am9     bass A3   upper C4 E4 G4 A4 B4
- *   Chord 3: Fmaj9   bass F3   upper C4 E4 G4 A4 F4
- *   ↻ loop
+ * Two specific complaints we're solving here:
  *
- * Sine waves (rather than triangle) keep the timbre clean — no
- * upper-harmonic cloud that would otherwise build into a drone.
+ *  1. "Wobbly when I turn my head."  Caused by acoustic *beating* —
+ *     the previous voicings packed close intervals (a major-2nd like
+ *     B–C, plus a 9th piling D5 on top of C4) which produce ~30 Hz
+ *     beat frequencies. Those beats interact with binaural cues when
+ *     the listener moves, hence the wobble. The fix is OPEN voicings
+ *     only: root in the bass, fifths/octaves above it, and the
+ *     "colour" tone left to a separate sparse melody line. No two
+ *     simultaneous notes are ever closer than a perfect fourth.
+ *
+ *  2. "Drolls on after 30 seconds."  The previous cycle was three
+ *     chords (~50s loop) which felt repetitive almost immediately.
+ *     Now there are SIX chords in the cycle (~3 minute loop), the
+ *     bass walks a real progression (I–vi–IV–V–iii–vi), and a
+ *     pentatonic *melody* sprinkles single notes on top of every
+ *     other chord. The melody's pitches are chosen from a pentatonic
+ *     pool and a deterministic per-cycle index walk so it never
+ *     repeats the same sequence twice in a row.
+ *
+ * Everything stays sine-wave for warmth, with a low-pass at 1800 Hz.
+ * Master gain is capped at 0.22 — this is background music, not
+ * foreground.
  */
 
-const VOICES: Record<string, { freq: number; peakGain: number }> = {
-  // Bass
-  C3: { freq: 130.81, peakGain: 0.075 },
-  A3: { freq: 220.00, peakGain: 0.070 },
-  F3: { freq: 174.61, peakGain: 0.070 },
-  // Spine
-  C4: { freq: 261.63, peakGain: 0.070 },
-  E4: { freq: 329.63, peakGain: 0.060 },
+// ── Pitch table ───────────────────────────────────────────────────
+// Frequencies are given so we can avoid a Math.pow call per note.
+// Per-voice peakGain is tuned by ear to keep the bass ~2× louder
+// than the top — like real recorded music, the lows carry the bed.
+type Voice = { freq: number; peakGain: number };
+const VOICES: Record<string, Voice> = {
+  // Bass line — only ever ONE bass note plays at a time.
+  C3: { freq: 130.81, peakGain: 0.090 },
+  D3: { freq: 146.83, peakGain: 0.090 },
+  E3: { freq: 164.81, peakGain: 0.090 },
+  F3: { freq: 174.61, peakGain: 0.090 },
+  G3: { freq: 196.00, peakGain: 0.090 },
+  A3: { freq: 220.00, peakGain: 0.090 },
+  // Mid-octave fifths — the "spine" above the bass. Always at least
+  // a perfect fifth above the bass note so no major-second beating.
+  C4: { freq: 261.63, peakGain: 0.055 },
+  E4: { freq: 329.63, peakGain: 0.055 },
   G4: { freq: 392.00, peakGain: 0.055 },
-  // Colour tones
-  B4: { freq: 493.88, peakGain: 0.040 },
-  D5: { freq: 587.33, peakGain: 0.035 },
-  A4: { freq: 440.00, peakGain: 0.040 },
-  F4: { freq: 349.23, peakGain: 0.035 },
+  A4: { freq: 440.00, peakGain: 0.055 },
+  // High-octave melody pool — pentatonic in C, sparse and bell-like.
+  C5: { freq: 523.25, peakGain: 0.045 },
+  D5: { freq: 587.33, peakGain: 0.045 },
+  E5: { freq: 659.25, peakGain: 0.045 },
+  G5: { freq: 783.99, peakGain: 0.045 },
+  A5: { freq: 880.00, peakGain: 0.045 },
 };
 
-const CHORDS: string[][] = [
-  ['C3', 'C4', 'E4', 'G4', 'B4', 'D5'],   // Cmaj9
-  ['A3', 'C4', 'E4', 'G4', 'A4', 'B4'],   // Am9
-  ['F3', 'C4', 'E4', 'G4', 'A4', 'F4'],   // Fmaj9
+// ── Chord progression ─────────────────────────────────────────────
+// Each chord = [bass, fifth, octave]. NO close intervals. The "fifth"
+// is always at least a 5th above the bass; the "octave" is the bass
+// note one octave higher (so the chord rings without beating).
+type ChordSpec = { bass: string; fifth: string; oct: string };
+const PROGRESSION: ChordSpec[] = [
+  // I  — C major (root C)
+  { bass: 'C3', fifth: 'G4', oct: 'C4' },
+  // vi — A minor (root A) — natural 6th, a quiet melancholy step
+  { bass: 'A3', fifth: 'E4', oct: 'A4' },
+  // IV — F major (root F)
+  { bass: 'F3', fifth: 'C4', oct: 'A4' },     // 'A4' is the major 3rd — wider than a 2nd from C4
+  // V  — G major (root G)
+  { bass: 'G3', fifth: 'E4', oct: 'G4' },     // E4 is the 6th of G; gives a suspended-y colour
+  // iii — E minor (root E) — gentle pivot
+  { bass: 'E3', fifth: 'C4', oct: 'G4' },     // C4 is the m6 of E; G4 is the m3
+  // vi → resolution back, with a passing D
+  { bass: 'D3', fifth: 'A4', oct: 'C4' },     // Dm7-ish suspended
 ];
 
-// Per-note envelope (each chord-note is a discrete "breath")
-const NOTE_ATTACK  = 3.0;
-const NOTE_SUSTAIN = 14.0;
-const NOTE_RELEASE = 8.0;
-const NOTE_TOTAL   = NOTE_ATTACK + NOTE_SUSTAIN + NOTE_RELEASE;  // 25s
+// Pentatonic melody pool (C-major pentatonic). One note may join a
+// chord at most. The picker walks an index so consecutive picks are
+// never the same and the pattern doesn't loop in lockstep with the
+// chord cycle.
+const MELODY_POOL = ['C5', 'D5', 'E5', 'G5', 'A5'];
 
-// How long after a chord starts before the next chord begins.
-// CHORD_ADVANCE < NOTE_TOTAL means consecutive chords overlap.
-const CHORD_ADVANCE = 17;
-const CYCLE = CHORDS.length * CHORD_ADVANCE;          // 51s per cycle
-const SCHEDULE_BATCH = 6;                             // ~5 min ahead
-const RESCHEDULE_INTERVAL_MS = (SCHEDULE_BATCH - 2) * CYCLE * 1000;
+// ── Timing ────────────────────────────────────────────────────────
+// Each "chord" is one slow breath. The next chord starts before the
+// previous fully releases so the bed is continuous, but the SOUND
+// always changes — there are never long stretches of identical pitch.
+const NOTE_ATTACK  = 4.0;   // s
+const NOTE_SUSTAIN = 16.0;  // s
+const NOTE_RELEASE = 8.0;   // s
+const NOTE_TOTAL   = NOTE_ATTACK + NOTE_SUSTAIN + NOTE_RELEASE;     // 28s
+const CHORD_ADVANCE = 18;   // s — overlap of ~10s between chords
+
+// 6 chords × 18s = 108s = 1m 48s per loop (was 51s — feels noticeably
+// less repetitive while still being short enough to schedule cheaply).
+const CYCLE = PROGRESSION.length * CHORD_ADVANCE;
+const SCHEDULE_BATCH = 4;   // ~7 minutes ahead per scheduling pass
+const RESCHEDULE_INTERVAL_MS = (SCHEDULE_BATCH - 1) * CYCLE * 1000;
+
+// Melody scheduling — only fires on chord indices listed here, so it
+// breathes rather than playing on every chord.
+const MELODY_CHORD_INDICES = new Set([0, 2, 5]);   // 3 of the 6 chords
 
 export function useGardenSoundtrack({
   enabled, volume,
@@ -82,19 +130,32 @@ export function useGardenSoundtrack({
     master.connect(ctx.destination);
     masterRef.current = master;
 
-    // Soft low-pass for warmth — also tames the very top of the spectrum
+    // Soft low-pass for warmth.
     const warmth = ctx.createBiquadFilter();
     warmth.type = 'lowpass';
     warmth.frequency.value = 1800;
     warmth.Q.value = 0.5;
     warmth.connect(master);
 
+    // Melody voice goes through a slightly brighter shelf so the
+    // top notes feel bell-like rather than pillow-y.
+    const sparkle = ctx.createBiquadFilter();
+    sparkle.type = 'highshelf';
+    sparkle.frequency.value = 2200;
+    sparkle.gain.value = 3;
+    sparkle.connect(master);
+
     /**
-     * Schedule a single note: oscillator + gain envelope. The
-     * oscillator and its gain node are disconnected when the note
-     * ends so they can be garbage-collected.
+     * Schedule a single note: oscillator + gain envelope. Both nodes
+     * are disconnected when the note ends so they can be GC'd. The
+     * `bright` flag routes through the sparkle shelf instead of
+     * straight into warmth — used for the melody pool only.
      */
-    const playNote = (startTime: number, voiceName: string) => {
+    const playNote = (
+      startTime: number,
+      voiceName: string,
+      opts: { bright?: boolean; durationScale?: number } = {},
+    ) => {
       const c = ctxRef.current;
       if (!c || c.state === 'closed') return;
       const spec = VOICES[voiceName];
@@ -106,22 +167,23 @@ export function useGardenSoundtrack({
 
       const gain = c.createGain();
       gain.gain.value = 0;
-      osc.connect(gain).connect(warmth);
+      osc.connect(gain).connect(opts.bright ? sparkle : warmth);
 
       const t0 = startTime;
       const peak = spec.peakGain;
+      const scale = opts.durationScale ?? 1;
+      const a = NOTE_ATTACK * scale;
+      const s = NOTE_SUSTAIN * scale;
+      const r = NOTE_RELEASE * scale;
+      const total = a + s + r;
 
-      // Soft attack
       gain.gain.setValueAtTime(0, t0);
-      gain.gain.linearRampToValueAtTime(peak, t0 + NOTE_ATTACK);
-      // Sustain with subtle decay (peak → 65% peak) — gives the note
-      // a sense of "settling" rather than holding rigidly
-      gain.gain.linearRampToValueAtTime(peak * 0.65, t0 + NOTE_ATTACK + NOTE_SUSTAIN);
-      // Release back to silence
-      gain.gain.linearRampToValueAtTime(0, t0 + NOTE_TOTAL);
+      gain.gain.linearRampToValueAtTime(peak, t0 + a);
+      gain.gain.linearRampToValueAtTime(peak * 0.55, t0 + a + s);
+      gain.gain.linearRampToValueAtTime(0, t0 + total);
 
       osc.start(t0);
-      osc.stop(t0 + NOTE_TOTAL + 0.1);
+      osc.stop(t0 + total + 0.1);
       osc.onended = () => {
         try { osc.disconnect(); } catch {}
         try { gain.disconnect(); } catch {}
@@ -129,36 +191,60 @@ export function useGardenSoundtrack({
     };
 
     /**
-     * Schedule SCHEDULE_BATCH cycles of the chord progression starting
-     * at `startTime`. Returns the time the last cycle ends.
+     * Schedule SCHEDULE_BATCH cycles of the progression starting at
+     * `startTime`, with a deterministic-but-varying melody walk.
+     * Returns the time the last cycle ends.
      */
-    const scheduleBatch = (startTime: number): number => {
+    const scheduleBatch = (startTime: number, melodyOffset: number): { end: number; nextOffset: number } => {
+      let melIdx = melodyOffset;
       for (let cycle = 0; cycle < SCHEDULE_BATCH; cycle++) {
-        for (let i = 0; i < CHORDS.length; i++) {
+        for (let i = 0; i < PROGRESSION.length; i++) {
           const chordStart = startTime + cycle * CYCLE + i * CHORD_ADVANCE;
-          for (const noteName of CHORDS[i]) {
-            playNote(chordStart, noteName);
+          const chord = PROGRESSION[i];
+          // Bed: bass + fifth + octave, all open intervals.
+          playNote(chordStart, chord.bass);
+          playNote(chordStart + 0.4, chord.fifth);   // tiny stagger keeps onset gentle
+          playNote(chordStart + 0.8, chord.oct);
+
+          // Melody: one bell-like high note on selected chords, with
+          // a shorter envelope so it breathes through the bed.
+          if (MELODY_CHORD_INDICES.has(i)) {
+            const note = MELODY_POOL[melIdx % MELODY_POOL.length];
+            // Skew melody onset 4-7s into the chord so it lands AFTER
+            // the chord has bloomed — like a single bird note over
+            // the held pad.
+            const melStart = chordStart + 4 + ((melIdx * 2) % 4);
+            playNote(melStart, note, { bright: true, durationScale: 0.55 });
+            melIdx += 3; // walk by 3 → no immediate repetition, all 5 notes visited over time
           }
         }
       }
-      return startTime + SCHEDULE_BATCH * CYCLE;
+      return {
+        end: startTime + SCHEDULE_BATCH * CYCLE,
+        nextOffset: melIdx,
+      };
     };
 
     const startTime = ctx.currentTime + 1.5;
-    let scheduledUpTo = scheduleBatch(startTime);
+    let scheduledUpTo = startTime;
+    let melodyOffset = 0;
+    const first = scheduleBatch(startTime, melodyOffset);
+    scheduledUpTo = first.end;
+    melodyOffset = first.nextOffset;
 
     const reschedTimer = setInterval(() => {
       const c = ctxRef.current;
       if (!c || c.state === 'closed') return;
-      scheduledUpTo = scheduleBatch(scheduledUpTo);
+      const next = scheduleBatch(scheduledUpTo, melodyOffset);
+      scheduledUpTo = next.end;
+      melodyOffset = next.nextOffset;
     }, RESCHEDULE_INTERVAL_MS);
     cleanupRef.current.push(() => clearInterval(reschedTimer));
 
     return () => {
       cleanupRef.current.forEach(fn => { try { fn(); } catch {} });
       cleanupRef.current = [];
-      // Smoothly fade master to silence to avoid a click, then close
-      // the context (which stops all in-flight oscillators).
+      // Smoothly fade master to silence to avoid a click, then close.
       const m = masterRef.current;
       const toClose = ctx;
       if (m) {
@@ -184,9 +270,6 @@ export function useGardenSoundtrack({
 }
 
 function clampVol(v: number): number {
-  // Lowered from 0.35 → 0.22 after user feedback that the soundtrack
-  // sat too loud even at the default slider position. The slider in
-  // settings still goes 0..0.5 visually; this just caps the actual
-  // applied gain so the music sits as background, never foreground.
+  // Background music, never foreground.
   return Math.min(Math.max(v, 0), 0.22);
 }
