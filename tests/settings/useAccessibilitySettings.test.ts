@@ -16,6 +16,9 @@ describe('accessibility settings', () => {
       voiceName: null,
       voiceRate: 0.88,
       challengeLevel: 'normal',
+      soundEffects: true,
+      gardenSoundtrack: false,
+      soundtrackVolume: 0.18,
     });
   });
 
@@ -27,6 +30,9 @@ describe('accessibility settings', () => {
       voiceName: 'Moira',
       voiceRate: 0.95,
       challengeLevel: 'harder',
+      soundEffects: false,
+      gardenSoundtrack: true,
+      soundtrackVolume: 0.3,
     });
     expect(loadSettings()).toEqual({
       openDyslexic: true,
@@ -35,6 +41,9 @@ describe('accessibility settings', () => {
       voiceName: 'Moira',
       voiceRate: 0.95,
       challengeLevel: 'harder',
+      soundEffects: false,
+      gardenSoundtrack: true,
+      soundtrackVolume: 0.3,
     });
   });
 
@@ -56,6 +65,9 @@ describe('accessibility settings', () => {
       voiceName: null,
       voiceRate: 0.88,
       challengeLevel: 'normal',
+      soundEffects: true,
+      gardenSoundtrack: false,
+      soundtrackVolume: 0.18,
     });
     expect(document.body.classList.contains('dyslexic-font')).toBe(true);
     expect(document.body.classList.contains('reduced-motion')).toBe(true);

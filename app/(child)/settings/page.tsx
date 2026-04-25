@@ -105,6 +105,61 @@ export default function SettingsPage() {
       <section className="bg-white border-4 border-ochre rounded-2xl p-5 space-y-4">
         <div>
           <h2 className="font-display text-[20px] text-bark" style={{ fontWeight: 600 }}>
+            Sound <span className="font-display italic text-bark/60 text-[16px] font-normal">· little chimes &amp; ambience</span>
+          </h2>
+        </div>
+
+        <label className="flex items-center justify-between gap-3">
+          <span>
+            <span className="block text-kid-sm">Sound effects</span>
+            <span className="block font-display italic text-[12px] text-bark/55">soft chime on correct, gentle settle on moving on</span>
+          </span>
+          <input
+            type="checkbox"
+            checked={settings.soundEffects}
+            onChange={e => update({ soundEffects: e.target.checked })}
+            className="w-6 h-6 accent-forest"
+          />
+        </label>
+
+        <label className="flex items-center justify-between gap-3">
+          <span>
+            <span className="block text-kid-sm">Garden soundtrack</span>
+            <span className="block font-display italic text-[12px] text-bark/55">a soft, warm ambient pad with occasional wind-chime pings</span>
+          </span>
+          <input
+            type="checkbox"
+            checked={settings.gardenSoundtrack}
+            onChange={e => update({ gardenSoundtrack: e.target.checked })}
+            className="w-6 h-6 accent-forest"
+          />
+        </label>
+
+        {settings.gardenSoundtrack && (
+          <div>
+            <div className="flex justify-between items-baseline mb-1.5">
+              <div className="font-display italic text-[14px] text-bark/70">soundtrack volume</div>
+              <div className="text-xs text-bark/60 font-mono">{Math.round((settings.soundtrackVolume ?? 0.18) * 100)}%</div>
+            </div>
+            <input
+              type="range"
+              min={0} max={0.5} step={0.02}
+              value={settings.soundtrackVolume ?? 0.18}
+              onChange={e => update({ soundtrackVolume: parseFloat(e.target.value) })}
+              className="w-full accent-sage"
+              style={{ touchAction: 'manipulation' }}
+            />
+            <div className="flex justify-between text-[11px] text-bark/50 font-display italic mt-1">
+              <span>quieter</span>
+              <span>louder</span>
+            </div>
+          </div>
+        )}
+      </section>
+
+      <section className="bg-white border-4 border-ochre rounded-2xl p-5 space-y-4">
+        <div>
+          <h2 className="font-display text-[20px] text-bark" style={{ fontWeight: 600 }}>
             Narrator <span className="font-display italic text-bark/60 text-[16px] font-normal">· the voice that reads to you</span>
           </h2>
           <p className="text-xs text-bark/60 mt-1 font-display italic">

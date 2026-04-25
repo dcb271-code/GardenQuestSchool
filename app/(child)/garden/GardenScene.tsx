@@ -15,6 +15,8 @@ import AmbientLayer from '@/components/child/garden/AmbientLayer';
 import SisterWalkers, { SISTERS_HOME } from '@/components/child/garden/SisterWalkers';
 import WelcomeOverlay from '@/components/child/garden/WelcomeOverlay';
 import HabitatQuestModal from '@/components/child/garden/HabitatQuestModal';
+import { useGardenSoundtrack } from '@/lib/audio/useGardenSoundtrack';
+import { playSparkle } from '@/lib/audio/sfx';
 import { StructureIllustration, Tree, PineTree, Flower, GrassTuft, CozyHouse } from '@/components/child/garden/illustrations';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
 
@@ -40,8 +42,14 @@ export default function GardenScene({
   pendingArrival: SpeciesData | null;
 }) {
   const router = useRouter();
-  const { settings } = useAccessibilitySettings();
+  const { settings, update } = useAccessibilitySettings();
   const reducedMotion = settings.reducedMotion;
+
+  // Garden ambient soundtrack — opt-in via settings.gardenSoundtrack
+  useGardenSoundtrack({
+    enabled: !!settings.gardenSoundtrack,
+    volume: settings.soundtrackVolume ?? 0.18,
+  });
   const [arrival, setArrival] = useState<SpeciesData | null>(pendingArrival);
   const [selected, setSelected] = useState<MapStructure | null>(null);
   const [starting, setStarting] = useState(false);
@@ -138,6 +146,21 @@ export default function GardenScene({
           <span className="italic">my</span> garden
         </h1>
         <div className="flex gap-2">
+          {/* Soft music toggle — pen-down friendly, doubles as visual
+              indicator that the soundtrack is on. */}
+          <button
+            onClick={() => update({ gardenSoundtrack: !settings.gardenSoundtrack })}
+            className={`text-xl p-2 rounded-full border ${
+              settings.gardenSoundtrack
+                ? 'bg-sage/30 border-sage'
+                : 'bg-white border-ochre'
+            }`}
+            aria-label={settings.gardenSoundtrack ? 'turn off garden music' : 'turn on garden music'}
+            title={settings.gardenSoundtrack ? 'music on' : 'music off'}
+            style={{ minWidth: 44, minHeight: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', touchAction: 'manipulation' }}
+          >
+            {settings.gardenSoundtrack ? '♪' : '♫'}
+          </button>
           <Link
             href={`/explore?learner=${learnerId}`}
             className="text-xl p-2 rounded-full bg-white border border-ochre"
