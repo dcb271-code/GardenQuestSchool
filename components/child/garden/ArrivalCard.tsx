@@ -5,6 +5,7 @@ import { motion, AnimatePresence, type MotionProps } from 'framer-motion';
 import type { SpeciesData } from '@/lib/world/speciesCatalog';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
 import { SpeciesIllustration } from '@/components/child/garden/speciesIllustrations';
+import { playArrival } from '@/lib/audio/sfx';
 
 // Different species arrive differently: winged things fly in from the side,
 // pond dwellers hop in from below, ground things walk in.
@@ -31,6 +32,13 @@ export default function ArrivalCard({
   const [visible, setVisible] = useState(true);
 
   const arrival = getArrivalStyle(species);
+
+  // Play the arrival chord shortly after the modal opens (so it lines
+  // up with the species emerging into view).
+  useEffect(() => {
+    const t = setTimeout(() => playArrival(), 600);
+    return () => clearTimeout(t);
+  }, []);
 
   const welcome = async () => {
     setBusy(true);

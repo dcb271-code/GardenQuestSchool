@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
+import { playSparkle } from '@/lib/audio/sfx';
 
 interface VirtueStyle {
   label: string;
@@ -30,6 +31,13 @@ export default function VirtueGemMoment({
 
   const style = STYLES[virtue] ?? STYLES.persistence;
   const delay = index * 0.6;
+
+  // Sparkle SFX synced with the gem's drop+settle moment
+  useEffect(() => {
+    if (!mounted) return;
+    const t = setTimeout(() => playSparkle(), (delay + 1.2) * 1000);
+    return () => clearTimeout(t);
+  }, [mounted, delay]);
 
   if (reducedMotion) {
     return (

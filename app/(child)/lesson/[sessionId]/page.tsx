@@ -8,6 +8,7 @@ import SkillIntroOverlay from '@/components/child/SkillIntroOverlay';
 import { getItemHandler, getPromptText } from '@/lib/packs';
 import { useNarrator } from '@/lib/audio/useNarrator';
 import { useAccessibilitySettings, type ChallengeLevel } from '@/lib/settings/useAccessibilitySettings';
+import { playCorrectChime, playSettle, playSoftTap, playPageTurn } from '@/lib/audio/sfx';
 
 interface ItemPayload {
   itemId: string;
@@ -70,6 +71,8 @@ export default function LessonPage({ params }: { params: { sessionId: string } }
       setItem(data);
       startTime.current = Date.now();
       setStatus('ready');
+      // Soft page-turn sound on transition between items
+      playPageTurn();
     } catch (err) {
       console.error('Failed to load next item:', err);
       // Don't crash — push the user back to the garden gracefully.
@@ -95,14 +98,17 @@ export default function LessonPage({ params }: { params: { sessionId: string } }
     const data = await res.json();
     if (data.outcome === 'correct') {
       setStatus('correct');
+      playCorrectChime();
       setTimeout(loadNext, 1400);
     } else if (retries >= MAX_RETRIES) {
       setStatus('moving-on');
+      playSettle();
       setTimeout(loadNext, 1600);
     } else {
       setShakeToken(t => t + 1);
       setRetries(r => r + 1);
       setStatus('retry');
+      playSoftTap();
       setTimeout(() => setStatus('ready'), 650);
       // Re-narrate on retry so the child hears the prompt again.
       // Voice reps: 1 (initial), 2 (after 1st wrong), 3 (after 2nd wrong).

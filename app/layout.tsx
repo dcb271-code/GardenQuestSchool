@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Nunito, Fraunces } from 'next/font/google';
 import AccessibilityApplier from '@/components/shared/AccessibilityApplier';
 import AudioUnlocker from '@/components/shared/AudioUnlocker';
+import SfxBinder from '@/components/shared/SfxBinder';
 import './globals.css';
 
 const nunito = Nunito({
@@ -49,6 +50,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <AccessibilityApplier />
         <AudioUnlocker />
+        <SfxBinder />
         {children}
       </body>
     </html>

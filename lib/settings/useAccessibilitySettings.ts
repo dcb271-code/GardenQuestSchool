@@ -11,6 +11,9 @@ export interface AccessibilitySettings {
   voiceName: string | null;  // preferred Web Speech voice name (null = auto)
   voiceRate: number;          // speech rate (0.7..1.1), default 0.88
   challengeLevel: ChallengeLevel;  // bias item difficulty up or down
+  soundEffects: boolean;       // gentle UI sounds on correct/wrong/sparkle
+  gardenSoundtrack: boolean;   // ambient music in the garden
+  soundtrackVolume: number;    // 0.0..0.5
 }
 
 const DEFAULT_SETTINGS: AccessibilitySettings = {
@@ -20,6 +23,9 @@ const DEFAULT_SETTINGS: AccessibilitySettings = {
   voiceName: null,
   voiceRate: 0.88,
   challengeLevel: 'normal',
+  soundEffects: true,
+  gardenSoundtrack: false,
+  soundtrackVolume: 0.18,
 };
 
 // Elo offset applied to the learner's per-skill rating when picking
@@ -49,6 +55,11 @@ export function loadSettings(): AccessibilitySettings {
       challengeLevel: parsed.challengeLevel === 'easier' || parsed.challengeLevel === 'harder'
         ? parsed.challengeLevel
         : 'normal',
+      soundEffects: typeof parsed.soundEffects === 'boolean' ? parsed.soundEffects : true,
+      gardenSoundtrack: typeof parsed.gardenSoundtrack === 'boolean' ? parsed.gardenSoundtrack : false,
+      soundtrackVolume: typeof parsed.soundtrackVolume === 'number' && parsed.soundtrackVolume >= 0 && parsed.soundtrackVolume <= 0.5
+        ? parsed.soundtrackVolume
+        : 0.18,
     };
   } catch {
     return DEFAULT_SETTINGS;
