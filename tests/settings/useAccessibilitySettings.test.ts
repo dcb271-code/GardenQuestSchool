@@ -18,7 +18,7 @@ describe('accessibility settings', () => {
       challengeLevel: 'normal',
       soundEffects: true,
       gardenSoundtrack: false,
-      soundtrackVolume: 0.18,
+      soundtrackVolume: 0.10,
     });
   });
 
@@ -67,7 +67,7 @@ describe('accessibility settings', () => {
       challengeLevel: 'normal',
       soundEffects: true,
       gardenSoundtrack: false,
-      soundtrackVolume: 0.18,
+      soundtrackVolume: 0.10,
     });
     expect(document.body.classList.contains('dyslexic-font')).toBe(true);
     expect(document.body.classList.contains('reduced-motion')).toBe(true);

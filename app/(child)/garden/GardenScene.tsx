@@ -48,7 +48,7 @@ export default function GardenScene({
   // Garden ambient soundtrack — opt-in via settings.gardenSoundtrack
   useGardenSoundtrack({
     enabled: !!settings.gardenSoundtrack,
-    volume: settings.soundtrackVolume ?? 0.18,
+    volume: settings.soundtrackVolume ?? 0.10,
   });
   const [arrival, setArrival] = useState<SpeciesData | null>(pendingArrival);
   const [selected, setSelected] = useState<MapStructure | null>(null);

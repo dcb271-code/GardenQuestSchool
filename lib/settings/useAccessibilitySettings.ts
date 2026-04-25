@@ -13,7 +13,7 @@ export interface AccessibilitySettings {
   challengeLevel: ChallengeLevel;  // bias item difficulty up or down
   soundEffects: boolean;       // gentle UI sounds on correct/wrong/sparkle
   gardenSoundtrack: boolean;   // ambient music in the garden
-  soundtrackVolume: number;    // 0.0..0.5
+  soundtrackVolume: number;    // 0.0..0.5 (gain capped to ~0.22 in the audio layer)
 }
 
 const DEFAULT_SETTINGS: AccessibilitySettings = {
@@ -25,7 +25,7 @@ const DEFAULT_SETTINGS: AccessibilitySettings = {
   challengeLevel: 'normal',
   soundEffects: true,
   gardenSoundtrack: false,
-  soundtrackVolume: 0.18,
+  soundtrackVolume: 0.10,
 };
 
 // Elo offset applied to the learner's per-skill rating when picking
@@ -65,7 +65,7 @@ export function loadSettings(): AccessibilitySettings {
       gardenSoundtrack: typeof parsed.gardenSoundtrack === 'boolean' ? parsed.gardenSoundtrack : false,
       soundtrackVolume: typeof parsed.soundtrackVolume === 'number' && parsed.soundtrackVolume >= 0 && parsed.soundtrackVolume <= 0.5
         ? parsed.soundtrackVolume
-        : 0.18,
+        : 0.10,
     };
   } catch {
     return DEFAULT_SETTINGS;
