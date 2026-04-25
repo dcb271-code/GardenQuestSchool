@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ACTIVE_LEARNER_COOKIE } from '@/lib/learner/activeLearner';
+import { ACTIVE_LEARNER_COOKIE } from '@/lib/learner/activeLearnerKey';
 
 // Pull the learner id back out of `/garden?learner=…` so we can stash
 // it as the active-learner cookie when the tile is tapped. The cookie

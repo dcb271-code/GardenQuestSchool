@@ -17,8 +17,11 @@
  */
 import { cookies } from 'next/headers';
 import type { SupabaseClient } from '@supabase/supabase-js';
+import { ACTIVE_LEARNER_COOKIE } from './activeLearnerKey';
 
-export const ACTIVE_LEARNER_COOKIE = 'gqs-active-learner';
+// Re-export for backwards compatibility with any other server module
+// that was importing the constant from here.
+export { ACTIVE_LEARNER_COOKIE };
 
 export async function resolveLearnerId(
   db: SupabaseClient,
