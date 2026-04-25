@@ -16,6 +16,7 @@ export interface StructureState {
   correctCount: number;
   target: number;
   prereqDisplay: string;
+  built?: boolean;       // habitats only — true if ecology quest done
 }
 
 export default async function GardenPage({
@@ -84,7 +85,19 @@ export default async function GardenPage({
     prereqFallback,
   );
 
-  // Habitats: unlock by prereq_skill_codes (mastery), no x/n count
+  // Which habitats has the learner already BUILT (i.e. completed the
+  // ecology quest)? This drives the visual + arrival eligibility.
+  const { data: builtRows } = await db
+    .from('habitat')
+    .select('habitat_type:habitat_type_id(code)')
+    .eq('learner_id', learnerId);
+  const builtSet = new Set(
+    (builtRows ?? []).map((r: any) => r.habitat_type?.code).filter(Boolean),
+  );
+
+  // Habitat unlock: skill prereqs met → habitat is "available to build"
+  // (shown as a ghost on the map). Built = ecology quest done = full
+  // illustration + arrivals possible.
   const structureStates: Record<string, StructureState> = {};
   for (const s of GARDEN_STRUCTURES) {
     if (s.kind === 'skill') {
@@ -110,38 +123,13 @@ export default async function GardenPage({
         correctCount: 0,
         target: 0,
         prereqDisplay: prereqNames.length > 0 ? prereqNames.join(', ') : 'more practice',
+        built: builtSet.has(s.habitatCode),
       };
     }
   }
 
-  // Auto-place unlocked habitats (for arrival detection)
-  const placedCodesList: string[] = [];
-  {
-    const { data: existing } = await db
-      .from('habitat')
-      .select('habitat_type:habitat_type_id(code)')
-      .eq('learner_id', learnerId);
-    const existingSet = new Set((existing ?? []).map((r: any) => r.habitat_type?.code).filter(Boolean));
-    const toInsert: Array<{ learner_id: string; habitat_type_id: string; position: any }> = [];
-
-    for (const s of GARDEN_STRUCTURES) {
-      if (s.kind !== 'habitat' || !s.habitatCode) continue;
-      if (!structureStates[s.code]?.unlocked) continue;
-      placedCodesList.push(s.habitatCode);
-      if (existingSet.has(s.habitatCode)) continue;
-      const { data: ht } = await db.from('habitat_type').select('id').eq('code', s.habitatCode).single();
-      if (ht) {
-        toInsert.push({
-          learner_id: learnerId,
-          habitat_type_id: ht.id,
-          position: { x: s.x, y: s.y },
-        });
-      }
-    }
-    if (toInsert.length > 0) {
-      await db.from('habitat').insert(toInsert);
-    }
-  }
+  // For arrival eligibility we use the BUILT habitats (not just unlocked).
+  const placedCodesList: string[] = Array.from(builtSet);
 
   // Pending arrival is now session-earned, not auto-computed. The
   // session-end API writes a species code into world_state.garden when

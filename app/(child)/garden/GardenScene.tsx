@@ -14,6 +14,7 @@ import LunaWanderer from '@/components/child/garden/LunaWanderer';
 import AmbientLayer from '@/components/child/garden/AmbientLayer';
 import SisterWalkers, { SISTERS_HOME } from '@/components/child/garden/SisterWalkers';
 import WelcomeOverlay from '@/components/child/garden/WelcomeOverlay';
+import HabitatQuestModal from '@/components/child/garden/HabitatQuestModal';
 import { StructureIllustration, Tree, PineTree, Flower, GrassTuft, CozyHouse } from '@/components/child/garden/illustrations';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
 
@@ -24,6 +25,7 @@ interface StructureState {
   correctCount: number;
   target: number;
   prereqDisplay: string;
+  built?: boolean;       // habitats only
 }
 
 export default function GardenScene({
@@ -49,6 +51,11 @@ export default function GardenScene({
   // tapped structure before starting a session.
   const [sistersTarget, setSistersTarget] = useState(SISTERS_HOME);
   const [sistersWalking, setSistersWalking] = useState(false);
+
+  // Habitat ecology quest — opens when learner taps a not-yet-built habitat
+  const [questHabitat, setQuestHabitat] = useState<MapStructure | null>(null);
+  // Just-built habitat code, used to trigger a transformation animation
+  const [justBuiltCode, setJustBuiltCode] = useState<string | null>(null);
 
   // Time-of-day tint — initialised to "noon" (transparent) and updated
   // after mount so SSR + hydration always agree (no flash of darkness).
@@ -102,13 +109,19 @@ export default function GardenScene({
       }, walkMs);
       return;
     }
-    // Habitats: also walk over, then open the habitat modal
+    // Habitats:
     setSistersTarget(walkOffsetFor(s));
     setSistersWalking(true);
     const walkMs = reducedMotion ? 200 : 1200;
     window.setTimeout(() => {
       setSistersWalking(false);
-      setSelected(s);
+      // Available but NOT yet built → open ecology quest
+      // Built → open info modal
+      if (state.built) {
+        setSelected(s);
+      } else {
+        setQuestHabitat(s);
+      }
     }, walkMs);
   };
 
@@ -728,6 +741,7 @@ export default function GardenScene({
                 state={state}
                 onTap={() => onStructureTap(s)}
                 reducedMotion={reducedMotion}
+                justBuilt={justBuiltCode === s.code}
               />
             );
           })}
@@ -826,7 +840,10 @@ export default function GardenScene({
                   const possibleSpecies = habitat
                     ? SPECIES_CATALOG.filter(s => habitat.attractsSpeciesCodes.includes(s.code))
                     : [];
-                  const unlocked = structureStates[selected.code]?.unlocked;
+                  const habState = structureStates[selected.code];
+                  const isBuilt = !!habState?.built;
+                  const isReady = !!habState?.unlocked && !isBuilt;
+                  const isLocked = !habState?.unlocked;
                   return (
                     <>
                       {habitat && (
@@ -850,13 +867,19 @@ export default function GardenScene({
                               </div>
                             </div>
                           )}
-                          {unlocked ? (
+                          {isBuilt && (
                             <div className="mt-2.5 text-[12px] not-italic text-forest font-display" style={{ fontWeight: 600 }}>
                               ✓ built — keep practicing and a visitor may arrive
                             </div>
-                          ) : (
+                          )}
+                          {isReady && (
+                            <div className="mt-2.5 text-[12px] not-italic text-terracotta font-display" style={{ fontWeight: 600 }}>
+                              🌱 ready to build — tap it on the map to start
+                            </div>
+                          )}
+                          {isLocked && (
                             <div className="mt-2.5 text-[12px] not-italic text-bark/60 font-display italic">
-                              🔒 finish {structureStates[selected.code]?.prereqDisplay || 'an earlier stop'} to build this
+                              🔒 finish {habState?.prereqDisplay || 'an earlier stop'} to start building
                             </div>
                           )}
                         </div>
@@ -892,6 +915,27 @@ export default function GardenScene({
       {/* First-ever visit welcome overlay — auto-dismisses after tap,
           stored in localStorage so it only ever appears once per learner. */}
       <WelcomeOverlay learnerId={learnerId} firstName={firstName} />
+
+      {/* Habitat ecology quest — opens when an available habitat is tapped */}
+      <HabitatQuestModal
+        open={!!questHabitat}
+        habitat={
+          questHabitat?.habitatCode
+            ? HABITAT_CATALOG.find(h => h.code === questHabitat.habitatCode) ?? null
+            : null
+        }
+        learnerId={learnerId}
+        onClose={() => setQuestHabitat(null)}
+        onBuilt={() => {
+          if (questHabitat?.code) {
+            setJustBuiltCode(questHabitat.code);
+            window.setTimeout(() => setJustBuiltCode(null), 2200);
+          }
+          // Refresh the page so the new habitat row + arrival eligibility
+          // come through.
+          router.refresh();
+        }}
+      />
     </div>
   );
 }
@@ -903,18 +947,26 @@ interface StructureStateProp {
   correctCount: number;
   target: number;
   prereqDisplay: string;
+  built?: boolean;
 }
 
 function Structure({
-  struct, state, onTap, reducedMotion = false,
+  struct, state, onTap, reducedMotion = false, justBuilt = false,
 }: {
   struct: MapStructure;
   state: StructureStateProp;
   onTap: () => void;
   reducedMotion?: boolean;
+  justBuilt?: boolean;
 }) {
-  const { unlocked, completed, isNext, correctCount, target } = state;
+  const { unlocked, completed, isNext, correctCount, target, built } = state;
   const showProgressBadge = struct.kind === 'skill' && target > 0;
+  const isHabitat = struct.kind === 'habitat';
+  // Ghost state: skill prereqs met but ecology quest not done yet.
+  // The illustration is shown faded with a build-me indicator.
+  const isGhost = isHabitat && unlocked && !built;
+  // Locked habitats: skill prereqs not met → fully greyed out + lock.
+  const isLockedHabitat = isHabitat && !unlocked;
 
   return (
     <motion.g
@@ -966,17 +1018,57 @@ function Structure({
         <circle cx={struct.x} cy={struct.y} r={struct.size * 0.85}
                 fill={completed ? '#C8E4B0' : '#FFE89A'} opacity={0.25} />
       )}
-      <g
+      <motion.g
         style={{
-          filter: unlocked ? undefined : 'grayscale(1) brightness(0.85)',
-          opacity: unlocked ? 1 : 0.55,
+          filter: isLockedHabitat || (struct.kind === 'skill' && !unlocked)
+            ? 'grayscale(1) brightness(0.85)'
+            : isGhost
+              ? 'grayscale(0.6) brightness(1.05)'
+              : undefined,
+          opacity: isLockedHabitat || (struct.kind === 'skill' && !unlocked)
+            ? 0.55
+            : isGhost
+              ? 0.55
+              : 1,
         }}
+        // "Just built" — habitat fades from ghost into full color with a
+        // gentle pulse-up scale.
+        animate={justBuilt && !reducedMotion
+          ? { scale: [1, 1.15, 1], opacity: [0.55, 1, 1] }
+          : undefined}
+        transition={{ duration: 1.4, ease: [0.22, 0.9, 0.34, 1] }}
+        key={`illust-${justBuilt ? 'built' : built ? 'b' : 'g'}`}
       >
         <StructureIllustration code={struct.code} x={struct.x} y={struct.y} size={struct.size} />
-      </g>
+      </motion.g>
+
+      {/* GHOST overlay: dashed outline + small "build me" sapling for
+          available-but-not-yet-built habitats */}
+      {isGhost && (
+        <g pointerEvents="none">
+          <motion.circle
+            cx={struct.x} cy={struct.y} r={struct.size * 0.55}
+            fill="none" stroke="#6B8E5A" strokeWidth={2}
+            strokeDasharray="5 6"
+            animate={reducedMotion ? undefined : { rotate: 360 }}
+            transition={{ duration: 40, repeat: Infinity, ease: 'linear' }}
+            style={{ transformOrigin: `${struct.x}px ${struct.y}px` }}
+          />
+          {/* sapling "build me" indicator at top-right */}
+          <g transform={`translate(${struct.x + struct.size * 0.42}, ${struct.y - struct.size * 0.42})`}>
+            <circle r={12} fill="#FFFDF2" stroke="#6B8E5A" strokeWidth={1.5} />
+            <text
+              x={0} y={4} fontSize={14} textAnchor="middle"
+              style={{ userSelect: 'none' }}
+            >
+              🌱
+            </text>
+          </g>
+        </g>
+      )}
 
       {/* Lock icon overlay on locked structures */}
-      {!unlocked && (
+      {(struct.kind === 'skill' && !unlocked) || isLockedHabitat ? (
         <g pointerEvents="none">
           <circle
             cx={struct.x + struct.size * 0.38}
@@ -996,7 +1088,7 @@ function Structure({
             🔒
           </text>
         </g>
-      )}
+      ) : null}
 
       {/* Completed checkmark */}
       {completed && (
