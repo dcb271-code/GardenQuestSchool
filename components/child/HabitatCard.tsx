@@ -2,6 +2,19 @@
 
 import { motion } from 'framer-motion';
 import type { HabitatTypeData } from '@/lib/world/habitatCatalog';
+import { SPECIES_CATALOG } from '@/lib/world/speciesCatalog';
+
+// Slug → common name, e.g. 'leafcutter_ant' → 'Leafcutter Ant'.
+// Falls back to a title-cased version of the slug for any species
+// that doesn't appear in the catalog (so we never leak raw codes).
+function speciesLabel(code: string): string {
+  const sp = SPECIES_CATALOG.find(s => s.code === code);
+  if (sp) return sp.commonName;
+  return code
+    .split('_')
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+}
 
 export default function HabitatCard({
   habitat, unlocked, prereqDisplayNames, index = 0,
@@ -86,7 +99,7 @@ export default function HabitatCard({
                     : 'bg-gray-100 text-bark/50 border border-gray-200'
                 }`}
               >
-                {prettifyCode(code)}
+                {speciesLabel(code)}
               </span>
             ))}
           </div>
@@ -119,7 +132,3 @@ export default function HabitatCard({
   );
 }
 
-// "leafcutter_ant" → "leafcutter ant"
-function prettifyCode(code: string): string {
-  return code.replace(/_/g, ' ');
-}

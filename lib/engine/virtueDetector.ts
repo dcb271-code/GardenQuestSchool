@@ -73,10 +73,15 @@ export function detectVirtuesFromSession(input: DetectionInput): DetectedVirtue[
     });
   }
 
+  // Noticing — "spotted the pattern" gets detected when most of the
+  // session went without retries. Threshold is 3 because the session
+  // cap is 5 (see SESSION_ITEM_CAP); requiring 4/5 made noticing
+  // basically unreachable in practice. 3/5 first-try-correct is the
+  // genuine "this child sees the pattern" signal.
   const firstTryCorrect = attempts.filter(
     a => a.outcome === 'correct' && a.retryCount === 0
   );
-  if (firstTryCorrect.length >= 4) {
+  if (firstTryCorrect.length >= 3) {
     detected.push({
       virtue: 'noticing',
       evidence: {

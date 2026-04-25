@@ -138,12 +138,17 @@ export function buildMathItems(skillId: (code: string) => string | undefined): R
   }
 
   // skip 2s — 25 sequence items + 10 fast-recall
+  // Sentinel for the "missing" slot is `null`, NOT 0 — using 0 caused
+  // the leading slot (start - 2) to ALSO render as '?' on the very
+  // first iteration when start = 2, giving "?, 2, ?, 6" with two
+  // unknowns. Iteration also starts at start=4 so start-step is
+  // always a positive number we can show.
   {
     const r = rng(4);
-    for (let start = 2; start <= 30; start += 2) {
+    for (let start = 4; start <= 30; start += 2) {
       const answer = start + 2;
-      const seq = [start - 2, start, 0, start + 4];
-      const display = seq.map(x => (x === 0 ? '?' : x.toString())).join(', ');
+      const seq: (number | null)[] = [start - 2, start, null, start + 4];
+      const display = seq.map(x => (x === null ? '?' : x.toString())).join(', ');
       push('math.counting.skip_2s', 'EquationTap', {
         type: 'EquationTap',
         equation: display,
@@ -164,13 +169,15 @@ export function buildMathItems(skillId: (code: string) => string | undefined): R
   }
 
   // skip 5s — sequences + fluency (25 items)
+  // Same null-sentinel fix as skip_2s; iteration starts at 10 so the
+  // leading slot is always visible.
   {
     const r = rng(5);
-    for (let start = 5; start <= 100; start += 5) {
+    for (let start = 10; start <= 100; start += 5) {
       if (r() < 0.6) {
         const answer = start + 5;
-        const seq = [start - 5, start, 0, start + 10];
-        const display = seq.map(x => (x === 0 || x <= 0 ? '?' : x.toString())).join(', ');
+        const seq: (number | null)[] = [start - 5, start, null, start + 10];
+        const display = seq.map(x => (x === null ? '?' : x.toString())).join(', ');
         push('math.counting.skip_5s', 'EquationTap', {
           type: 'EquationTap',
           equation: display,
@@ -182,14 +189,17 @@ export function buildMathItems(skillId: (code: string) => string | undefined): R
   }
 
   // skip 10s — sequences + 10 more/less (20 items)
+  // Same null-sentinel fix as skip_2s; iteration starts at 20 so the
+  // leading slot is always visible.
   {
     const r = rng(6);
-    for (let start = 10; start <= 100; start += 10) {
+    for (let start = 20; start <= 100; start += 10) {
       const answer = start + 10;
-      const seq = [start - 10, start, 0, start + 20].map(x => x <= 0 ? '?' : x.toString());
+      const seq: (number | null)[] = [start - 10, start, null, start + 20];
+      const display = seq.map(x => (x === null ? '?' : x.toString())).join(', ');
       push('math.counting.skip_10s', 'EquationTap', {
         type: 'EquationTap',
-        equation: seq.join(', '),
+        equation: display,
         choices: mkChoices(answer, r, 10),
         promptText: 'Skip counting by 10s — what comes next?',
       }, { correct: answer }, 1050 + Math.floor(start / 10) * 3);
@@ -257,19 +267,34 @@ export function buildMathItems(skillId: (code: string) => string | undefined): R
   }
 
   // add within 20 (crossing ten) — MAKE-10 strategy items + standard + word problems
+  // The make-10 mental model is a TEACHING strategy ("decompose b
+  // to fill a to 10, then add the rest") — but the literal prompt
+  // must not say "make 10," because the *answer* isn't 10. Saying
+  // "Try making 10: 6 plus 8?" reads as if 10 is the target, when
+  // the sum is 14. Phrasings here vary the framing without ever
+  // naming a wrong target.
   {
     const r = rng(12);
+    // Pool of neutral prompt phrasings for the same "a + b = sum" item.
+    const promptPhrasings = [
+      (a: number, b: number) => `What is ${a} plus ${b}?`,
+      (a: number, b: number) => `${a} plus ${b} — what's the sum?`,
+      (a: number, b: number) => `Add it up: ${a} plus ${b}.`,
+      (a: number, b: number) => `${a} and ${b} together make…?`,
+      (a: number, b: number) => `Find the total of ${a} and ${b}.`,
+    ];
     // straightforward pairs where a + b > 10
     for (let a = 2; a <= 9; a++) {
       for (let b = 2; b <= 9; b++) {
         if (a + b <= 10) continue;
         if (a + b > 20) continue;
         const sum = a + b;
+        const phrase = promptPhrasings[(a * 7 + b) % promptPhrasings.length];
         push('math.add.within_20.crossing_ten', 'EquationTap', {
           type: 'EquationTap',
           equation: `${a} + ${b} = ?`,
           choices: mkChoices(sum, r, 6),
-          promptText: `Try making 10: ${a} plus ${b}?`,
+          promptText: phrase(a, b),
         }, { correct: sum }, 1100 + (sum - 10) * 5);
       }
     }

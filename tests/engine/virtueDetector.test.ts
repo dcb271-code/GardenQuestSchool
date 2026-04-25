@@ -45,8 +45,11 @@ describe('virtueDetector — rules', () => {
     expect(events.filter(e => e.virtue === 'curiosity').length).toBe(1);
   });
 
-  it('grants Noticing for 4+ first-try corrects (pattern signal)', () => {
-    const attempts: AttemptRow[] = Array.from({ length: 4 }, (_, i) => ({
+  it('grants Noticing for 3+ first-try corrects (pattern signal)', () => {
+    // Threshold is 3 (not 4): with a 5-item session cap, requiring 4
+    // first-try-correct made the gem nearly unreachable. 3/5 is the
+    // honest "this child sees the pattern" signal.
+    const attempts: AttemptRow[] = Array.from({ length: 3 }, (_, i) => ({
       itemId: `i${i}`, outcome: 'correct' as const, retryCount: 0, skillCode: 'math.counting.skip_2s',
     }));
     const events = detectVirtuesFromSession({
@@ -56,6 +59,17 @@ describe('virtueDetector — rules', () => {
     const noticing = events.filter(e => e.virtue === 'noticing');
     expect(noticing.length).toBe(1);
     expect(noticing[0].evidence.narrativeText).toMatch(/pattern|spotted|noticed|Naturalist/i);
+  });
+
+  it('does NOT grant Noticing for only 2 first-try corrects', () => {
+    const attempts: AttemptRow[] = Array.from({ length: 2 }, (_, i) => ({
+      itemId: `i${i}`, outcome: 'correct' as const, retryCount: 0, skillCode: 'math.counting.skip_2s',
+    }));
+    const events = detectVirtuesFromSession({
+      sessionId: 's1', learnerId: 'l1', attempts,
+      masteryTransitions: [], journalTaps: 0,
+    });
+    expect(events.filter(e => e.virtue === 'noticing').length).toBe(0);
   });
 
   it('caps gems at 3 per session to avoid dilution', () => {

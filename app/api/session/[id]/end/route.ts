@@ -77,13 +77,22 @@ export async function POST(
   });
 
   if (detectedGems.length > 0) {
-    await db.from('virtue_gem').insert(
+    const { error: gemErr } = await db.from('virtue_gem').insert(
       detectedGems.map(g => ({
         learner_id: session.learner_id,
         virtue: g.virtue,
         evidence: g.evidence,
       }))
     );
+    if (gemErr) {
+      // Don't crash the session-end flow over this — but surface so
+      // we can see the failure in Vercel logs. Silent failures are
+      // why noticing badges have been mysteriously not showing up.
+      console.error('virtue_gem insert failed:', gemErr.message, {
+        gems: detectedGems.map(g => g.virtue),
+        learnerId: session.learner_id,
+      });
+    }
   }
 
   const narratorMoments = computeNarratorMomentsFromSession({

@@ -2,7 +2,20 @@
 
 import { motion } from 'framer-motion';
 import type { SpeciesData } from '@/lib/world/speciesCatalog';
+import { HABITAT_CATALOG } from '@/lib/world/habitatCatalog';
 import { SpeciesIllustration } from '@/components/child/garden/speciesIllustrations';
+
+// Slug → human label, e.g. 'ant_hill' → 'Ant Hill'. Falls back to a
+// title-cased version of the slug if the catalog doesn't know it (so
+// we never show raw "ant_hill" text to the child).
+function habitatLabel(code: string): string {
+  const known = HABITAT_CATALOG.find(h => h.code === code);
+  if (known) return known.name;
+  return code
+    .split('_')
+    .map(w => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(' ');
+}
 
 export default function JournalSpeciesCard({
   species, unlocked, index = 0,
@@ -72,7 +85,11 @@ export default function JournalSpeciesCard({
         )}
         {!unlocked && (
           <div className="font-display italic text-xs mt-1 text-bark/55">
-            build a <span className="not-italic text-bark/70">{species.habitatReqCodes.join(' + ')}</span> to see this one
+            build a{' '}
+            <span className="not-italic text-bark/70">
+              {species.habitatReqCodes.map(habitatLabel).join(' + ')}
+            </span>{' '}
+            to see this one
           </div>
         )}
       </div>
