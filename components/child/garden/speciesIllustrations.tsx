@@ -316,6 +316,159 @@ export function Skipper({ size = 60 }: SpeciesProps) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────
+// BEE FAMILY
+// ─────────────────────────────────────────────────────────────────────────
+
+function BeeWings() {
+  return (
+    <g>
+      {/* upper wings — translucent with veining */}
+      <ellipse cx={-6} cy={-12} rx={10} ry={6} fill="#FFFFFF" opacity={0.7} stroke={STROKE_LIGHT} strokeWidth={1.2} transform="rotate(-20 -6 -12)" />
+      <ellipse cx={6} cy={-12} rx={10} ry={6} fill="#FFFFFF" opacity={0.7} stroke={STROKE_LIGHT} strokeWidth={1.2} transform="rotate(20 6 -12)" />
+      {/* lower wings (slightly behind) */}
+      <ellipse cx={-7} cy={-6} rx={7} ry={4} fill="#FFFFFF" opacity={0.55} stroke={STROKE_LIGHT} strokeWidth={1} transform="rotate(-15 -7 -6)" />
+      <ellipse cx={7} cy={-6} rx={7} ry={4} fill="#FFFFFF" opacity={0.55} stroke={STROKE_LIGHT} strokeWidth={1} transform="rotate(15 7 -6)" />
+      {/* vein hint */}
+      <path d="M -8 -14 Q -10 -10 -10 -6" stroke={STROKE_LIGHT} strokeWidth={0.6} fill="none" opacity={0.6} />
+      <path d="M 8 -14 Q 10 -10 10 -6" stroke={STROKE_LIGHT} strokeWidth={0.6} fill="none" opacity={0.6} />
+    </g>
+  );
+}
+
+export function HoneyBee({ size = 60 }: SpeciesProps) {
+  // Classic gold + black stripes, fuzzy body, simple but readable.
+  const GOLD = '#FFD166';
+  const GOLD_DARK = '#E8A82C';
+  const BLACK = '#2B1810';
+  return (
+    <Svg size={size}>
+      <ellipse cx={0} cy={22} rx={18} ry={2.5} fill="#000" opacity={0.2} />
+      <BeeWings />
+
+      {/* body — fuzzy outline (slightly bumpy edge implied via stroke weight) */}
+      <ellipse cx={0} cy={4} rx={12} ry={10} fill={GOLD} stroke={STROKE} strokeWidth={2.2} />
+      {/* fuzz texture along the top */}
+      <path d="M -10 -2 Q -6 -5 -2 -3 Q 2 -5 6 -3 Q 10 -5 10 -2" stroke={GOLD_DARK} strokeWidth={1} fill="none" opacity={0.7} />
+
+      {/* black stripes */}
+      <path d="M -10 1 Q 0 3 10 1 L 10 4 Q 0 6 -10 4 Z" fill={BLACK} />
+      <path d="M -8 8 Q 0 10 8 8 L 8 11 Q 0 13 -8 11 Z" fill={BLACK} />
+
+      {/* head */}
+      <circle cx={0} cy={-9} r={6} fill={BLACK} stroke={STROKE} strokeWidth={1.8} />
+      {/* big compound eyes */}
+      <ellipse cx={-3} cy={-10} rx={1.6} ry={2.2} fill={GOLD} />
+      <ellipse cx={3} cy={-10} rx={1.6} ry={2.2} fill={GOLD} />
+      {/* eye shine */}
+      <circle cx={-3} cy={-11} r={0.5} fill="#FFFFFF" />
+      <circle cx={3.2} cy={-11} r={0.5} fill="#FFFFFF" />
+      {/* antennae */}
+      <path d="M -2 -14 Q -5 -19 -7 -20" stroke={STROKE} strokeWidth={1.4} fill="none" strokeLinecap="round" />
+      <path d="M 2 -14 Q 5 -19 7 -20" stroke={STROKE} strokeWidth={1.4} fill="none" strokeLinecap="round" />
+      <circle cx={-7} cy={-20} r={1} fill={STROKE} />
+      <circle cx={7} cy={-20} r={1} fill={STROKE} />
+
+      {/* tiny smile suggestion */}
+      <path d="M -2 -7 Q 0 -6 2 -7" stroke={GOLD} strokeWidth={1} fill="none" strokeLinecap="round" />
+
+      {/* legs — small dangling */}
+      <path d="M -6 12 L -8 16" stroke={STROKE} strokeWidth={1.5} strokeLinecap="round" />
+      <path d="M 0 13 L 0 17" stroke={STROKE} strokeWidth={1.5} strokeLinecap="round" />
+      <path d="M 6 12 L 8 16" stroke={STROKE} strokeWidth={1.5} strokeLinecap="round" />
+    </Svg>
+  );
+}
+
+export function MasonBee({ size = 60 }: SpeciesProps) {
+  // Smaller, metallic-blue body (mason bees have an iridescent dark blue/green sheen).
+  const BLUE = '#3F5E78';
+  const BLUE_HI = '#7DA8D3';
+  const BLACK = '#1A1F28';
+  return (
+    <Svg size={size}>
+      <ellipse cx={0} cy={20} rx={14} ry={2} fill="#000" opacity={0.2} />
+      <BeeWings />
+
+      {/* body — smaller, more compact than honey bee */}
+      <ellipse cx={0} cy={4} rx={10} ry={8} fill={BLUE} stroke={STROKE} strokeWidth={2} />
+      {/* iridescent highlight stripe */}
+      <ellipse cx={-2} cy={1} rx={6} ry={3} fill={BLUE_HI} opacity={0.5} />
+      {/* segment lines */}
+      <path d="M -8 4 Q 0 6 8 4" stroke={BLACK} strokeWidth={1} fill="none" opacity={0.7} />
+      <path d="M -7 8 Q 0 10 7 8" stroke={BLACK} strokeWidth={1} fill="none" opacity={0.6} />
+
+      {/* head */}
+      <circle cx={0} cy={-8} r={5.5} fill={BLACK} stroke={STROKE} strokeWidth={1.8} />
+      {/* compound eyes (larger, mason bees have prominent eyes) */}
+      <ellipse cx={-2.5} cy={-9} rx={1.8} ry={2.5} fill={BLUE_HI} />
+      <ellipse cx={2.5} cy={-9} rx={1.8} ry={2.5} fill={BLUE_HI} />
+      <circle cx={-2.5} cy={-10} r={0.5} fill="#FFFFFF" />
+      <circle cx={2.7} cy={-10} r={0.5} fill="#FFFFFF" />
+      {/* antennae */}
+      <path d="M -2 -13 Q -4 -17 -6 -18" stroke={STROKE} strokeWidth={1.4} fill="none" strokeLinecap="round" />
+      <path d="M 2 -13 Q 4 -17 6 -18" stroke={STROKE} strokeWidth={1.4} fill="none" strokeLinecap="round" />
+      <circle cx={-6} cy={-18} r={0.9} fill={STROKE} />
+      <circle cx={6} cy={-18} r={0.9} fill={STROKE} />
+
+      {/* legs */}
+      <path d="M -5 11 L -7 14" stroke={STROKE} strokeWidth={1.4} strokeLinecap="round" />
+      <path d="M 0 12 L 0 15" stroke={STROKE} strokeWidth={1.4} strokeLinecap="round" />
+      <path d="M 5 11 L 7 14" stroke={STROKE} strokeWidth={1.4} strokeLinecap="round" />
+    </Svg>
+  );
+}
+
+export function BumbleBee({ size = 60 }: SpeciesProps) {
+  // Chubbier than honey bee, more obvious fuzz, alternating gold + black bands.
+  const GOLD = '#FFD166';
+  const FUZZ = '#FFE89A';
+  const BLACK = '#1F1209';
+  return (
+    <Svg size={size}>
+      <ellipse cx={0} cy={24} rx={20} ry={3} fill="#000" opacity={0.22} />
+      <BeeWings />
+
+      {/* body — fatter, rounder than honey bee */}
+      <ellipse cx={0} cy={5} rx={14} ry={12} fill={GOLD} stroke={STROKE} strokeWidth={2.4} />
+      {/* fuzzy halo (tiny "hairs" along the silhouette) */}
+      <g stroke={FUZZ} strokeWidth={1.5} fill="none" strokeLinecap="round" opacity={0.85}>
+        <path d="M -14 0 L -16 -1" />
+        <path d="M -14 5 L -16 5" />
+        <path d="M -14 10 L -16 11" />
+        <path d="M 14 0 L 16 -1" />
+        <path d="M 14 5 L 16 5" />
+        <path d="M 14 10 L 16 11" />
+        <path d="M -8 -7 L -9 -10" />
+        <path d="M 0 -8 L 0 -11" />
+        <path d="M 8 -7 L 9 -10" />
+      </g>
+
+      {/* black bands (bumble bees have wider, more contrasty bands) */}
+      <path d="M -13 -2 Q 0 0 13 -2 L 13 4 Q 0 6 -13 4 Z" fill={BLACK} />
+      <path d="M -10 9 Q 0 11 10 9 L 10 14 Q 0 16 -10 14 Z" fill={BLACK} />
+
+      {/* head */}
+      <circle cx={0} cy={-10} r={6.5} fill={BLACK} stroke={STROKE} strokeWidth={1.8} />
+      {/* eyes */}
+      <ellipse cx={-3} cy={-11} rx={1.7} ry={2.3} fill={GOLD} />
+      <ellipse cx={3} cy={-11} rx={1.7} ry={2.3} fill={GOLD} />
+      <circle cx={-3} cy={-12} r={0.5} fill="#FFFFFF" />
+      <circle cx={3.2} cy={-12} r={0.5} fill="#FFFFFF" />
+      {/* antennae */}
+      <path d="M -2 -16 Q -5 -21 -7 -22" stroke={STROKE} strokeWidth={1.5} fill="none" strokeLinecap="round" />
+      <path d="M 2 -16 Q 5 -21 7 -22" stroke={STROKE} strokeWidth={1.5} fill="none" strokeLinecap="round" />
+      <circle cx={-7} cy={-22} r={1.1} fill={STROKE} />
+      <circle cx={7} cy={-22} r={1.1} fill={STROKE} />
+
+      {/* legs */}
+      <path d="M -7 14 L -10 18" stroke={STROKE} strokeWidth={1.7} strokeLinecap="round" />
+      <path d="M 0 16 L 0 20" stroke={STROKE} strokeWidth={1.7} strokeLinecap="round" />
+      <path d="M 7 14 L 10 18" stroke={STROKE} strokeWidth={1.7} strokeLinecap="round" />
+    </Svg>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────
 // ROUTER
 // ─────────────────────────────────────────────────────────────────────────
 
@@ -328,6 +481,9 @@ export function SpeciesIllustration({
     case 'monarch':         return <Monarch size={size} />;
     case 'swallowtail':     return <Swallowtail size={size} />;
     case 'skipper':         return <Skipper size={size} />;
+    case 'honey_bee':       return <HoneyBee size={size} />;
+    case 'mason_bee':       return <MasonBee size={size} />;
+    case 'bumble_bee':      return <BumbleBee size={size} />;
     default:                return null;
   }
 }
