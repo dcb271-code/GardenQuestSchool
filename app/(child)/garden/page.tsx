@@ -2,7 +2,6 @@ import { createServiceClient } from '@/lib/supabase/server';
 import { GARDEN_STRUCTURES } from '@/lib/world/gardenMap';
 import { HABITAT_CATALOG } from '@/lib/world/habitatCatalog';
 import { SPECIES_CATALOG } from '@/lib/world/speciesCatalog';
-import { computeNewArrivals } from '@/lib/world/arrivals';
 import { MATH_SKILLS } from '@/lib/packs/math/skills';
 import { READING_SKILLS } from '@/lib/packs/reading/skills';
 import { computeStructureProgress, ZONE_COMPLETION_TARGET } from '@/lib/world/zoneProgress';
@@ -144,14 +143,20 @@ export default async function GardenPage({
     }
   }
 
-  const { data: journalRows } = await db
-    .from('journal_entry')
-    .select('species:species_id(code)')
-    .eq('learner_id', learnerId);
-  const unlockedCodes = (journalRows ?? []).map((r: any) => r.species?.code).filter(Boolean);
-
-  const newArrivals = computeNewArrivals(placedCodesList, unlockedCodes, SPECIES_CATALOG);
-  const pendingArrival = newArrivals.length > 0 ? newArrivals[0] : null;
+  // Pending arrival is now session-earned, not auto-computed. The
+  // session-end API writes a species code into world_state.garden when
+  // the learner completes ≥3 correct in a session. We just read it
+  // here; the welcome modal will clear it on dismiss.
+  const { data: worldStateRow } = await db
+    .from('world_state')
+    .select('garden')
+    .eq('learner_id', learnerId)
+    .maybeSingle();
+  const pendingCode = (worldStateRow?.garden as Record<string, any> | null)
+    ?.pendingArrivalSpeciesCode as string | undefined;
+  const pendingArrival = pendingCode
+    ? SPECIES_CATALOG.find(s => s.code === pendingCode) ?? null
+    : null;
 
   return (
     <GardenScene

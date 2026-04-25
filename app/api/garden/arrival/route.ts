@@ -38,6 +38,7 @@ export async function POST(req: Request) {
     .eq('species_id', species.id)
     .maybeSingle();
   if (existing) {
+    await clearPendingArrival(db, body.learnerId, body.speciesCode);
     return NextResponse.json({ arrived: target, journalEntryId: existing.id, alreadyUnlocked: true });
   }
 
@@ -47,5 +48,26 @@ export async function POST(req: Request) {
   }).select('id').single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
+  await clearPendingArrival(db, body.learnerId, body.speciesCode);
+
   return NextResponse.json({ arrived: target, journalEntryId: inserted.id });
+}
+
+// Helper: remove the queued arrival species from world_state so the
+// welcome modal doesn't fire again on the next garden visit.
+async function clearPendingArrival(db: any, learnerId: string, speciesCode: string) {
+  const { data: existingState } = await db
+    .from('world_state')
+    .select('garden')
+    .eq('learner_id', learnerId)
+    .maybeSingle();
+  if (existingState?.garden) {
+    const garden = { ...(existingState.garden as Record<string, any>) };
+    if (garden.pendingArrivalSpeciesCode === speciesCode) {
+      delete garden.pendingArrivalSpeciesCode;
+      await db.from('world_state')
+        .update({ garden, last_updated_at: new Date().toISOString() })
+        .eq('learner_id', learnerId);
+    }
+  }
 }
