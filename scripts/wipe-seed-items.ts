@@ -36,12 +36,21 @@ async function main() {
   console.log('🌱 Hard-wiping seed-generated items + their attempts');
   console.log(`   Connected to: ${SUPABASE_URL}\n`);
 
-  // Pull all seed item IDs
-  const { data: items, error: selErr } = await sb.from('item')
-    .select('id')
-    .eq('generated_by', 'seed');
-  if (selErr) throw selErr;
-  const ids = (items ?? []).map(r => r.id);
+  // Pull all seed item IDs. Paginate — Supabase / PostgREST caps
+  // SELECT at 1000 rows by default, and the previous bug left this
+  // table with thousands of duplicate seed items.
+  const PAGE = 1000;
+  const ids: string[] = [];
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await sb.from('item')
+      .select('id')
+      .eq('generated_by', 'seed')
+      .range(from, from + PAGE - 1);
+    if (error) throw error;
+    if (!data || data.length === 0) break;
+    for (const r of data) ids.push(r.id);
+    if (data.length < PAGE) break;
+  }
   console.log(`  found ${ids.length} seed items`);
   if (ids.length === 0) {
     console.log('  nothing to delete.');
