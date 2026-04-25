@@ -451,7 +451,10 @@ export async function seedReading(
       const distractors = [pool[(i * 3) % pool.length], pool[(i * 7 + 1) % pool.length]];
       push('reading.phonics.cvc_blend', 'PhonemeBlend', {
         type: 'PhonemeBlend', phonemes, word, distractors,
-        promptText: 'Blend the sounds and pick the word.',
+        // The renderer hides the answer choices and asks the child to
+        // SAY the word into the mic — picking from a list defeats the
+        // point of blending. Keep the spoken prompt in line with that.
+        promptText: 'Blend the sounds and say the word.',
       }, { word }, 950 + i * 3);
     }
   }
@@ -489,7 +492,8 @@ export async function seedReading(
       const distractors = [pool[(i * 3) % pool.length], pool[(i * 5 + 2) % pool.length]];
       push('reading.phonics.initial_blends', 'PhonemeBlend', {
         type: 'PhonemeBlend', phonemes, word, distractors,
-        promptText: 'Blend the sounds and pick the word.',
+        // Same speech-first rationale as cvc_blend.
+        promptText: 'Blend the sounds and say the word.',
       }, { word }, 1100 + i * 5);
     }
   }
@@ -504,7 +508,10 @@ export async function seedReading(
         type: 'PhonemeBlend',
         phonemes: long.split(''),
         word: long, distractors,
-        promptText: `The silent e makes the vowel say its name — which word is "${long}"?`,
+        // Speech-first: ask the child to read the word out loud; the
+        // PhonemeBlend renderer hides the tile choices unless the
+        // child needs them.
+        promptText: `Silent e makes the vowel say its name. Read this word out loud.`,
       }, { word: long }, 1200 + i * 5);
     }
     for (let i = 0; i < Math.min(10, SILENT_E_PAIRS.length); i++) {
