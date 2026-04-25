@@ -34,9 +34,9 @@ export default function SettingsPage() {
         </div>
         <div className="grid grid-cols-3 gap-2">
           {([
-            { key: 'easier' as const,  label: 'Easier',  emoji: '🌱', desc: 'gentler' },
-            { key: 'normal' as const,  label: 'Just right', emoji: '🍃', desc: 'normal' },
-            { key: 'harder' as const,  label: 'Harder', emoji: '🔥', desc: 'bring it' },
+            { key: 'easier' as const,  label: 'Easier',  emoji: '🌱', desc: 'K / early 1st' },
+            { key: 'normal' as const,  label: 'Just right', emoji: '🍃', desc: '1st – 2nd' },
+            { key: 'harder' as const,  label: 'Harder', emoji: '🔥', desc: '2nd grade +' },
           ]).map(opt => (
             <button
               key={opt.key}

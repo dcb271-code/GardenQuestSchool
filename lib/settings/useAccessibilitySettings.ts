@@ -30,10 +30,16 @@ const DEFAULT_SETTINGS: AccessibilitySettings = {
 
 // Elo offset applied to the learner's per-skill rating when picking
 // items. Higher offset → harder items served, lower → easier.
+//
+// Approximate grade-level mapping (combined with default student_elo
+// of 1000 and a ±150 selection band):
+//   easier  → ~700–1050   (kindergarten / very-early 1st grade)
+//   normal  → ~1000–1300  (1st grade through early 2nd grade)
+//   harder  → ~1150–1450  (mid-2nd grade and beyond)
 export const CHALLENGE_LEVEL_ELO_OFFSET: Record<ChallengeLevel, number> = {
-  easier: -120,
-  normal: 0,
-  harder: 150,
+  easier: -150,
+  normal: 150,
+  harder: 300,
 };
 
 const STORAGE_KEY = 'gqs:accessibility';

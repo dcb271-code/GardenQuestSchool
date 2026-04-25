@@ -16,10 +16,13 @@ function getThemeHeader(skillCode: string) {
 }
 
 // Elo offsets must mirror lib/settings/useAccessibilitySettings.ts.
+// Tuned so "normal" targets 1st-into-2nd grade material by default
+// (rather than kindergarten), since the typical user is a 1st-2nd
+// grader. "easier" stays in the K / early-1st range.
 const CHALLENGE_OFFSET: Record<string, number> = {
-  easier: -120,
-  normal: 0,
-  harder: 150,
+  easier: -150,
+  normal: 150,
+  harder: 300,
 };
 
 export async function GET(
