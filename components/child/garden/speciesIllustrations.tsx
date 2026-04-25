@@ -469,6 +469,322 @@ export function BumbleBee({ size = 60 }: SpeciesProps) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────
+// LOG-PILE CRITTERS
+// ─────────────────────────────────────────────────────────────────────────
+
+export function Ladybug({ size = 60 }: SpeciesProps) {
+  // Classic red dome with black spots, head, and 6 little legs.
+  const RED = '#D4453A';
+  const RED_DARK = '#9B2D26';
+  const BLACK = '#1A0F08';
+  return (
+    <Svg size={size}>
+      <ellipse cx={0} cy={20} rx={20} ry={3} fill="#000" opacity={0.22} />
+
+      {/* legs (6) */}
+      {[-1, 1].map(side => (
+        <g key={side} transform={`scale(${side}, 1)`}>
+          <path d="M 10 -8 L 18 -14" stroke={STROKE} strokeWidth={1.8} strokeLinecap="round" />
+          <path d="M 12 0 L 20 2" stroke={STROKE} strokeWidth={1.8} strokeLinecap="round" />
+          <path d="M 10 8 L 18 14" stroke={STROKE} strokeWidth={1.8} strokeLinecap="round" />
+        </g>
+      ))}
+
+      {/* head — small black bump at the front */}
+      <ellipse cx={-15} cy={0} rx={6} ry={5} fill={BLACK} stroke={STROKE} strokeWidth={1.8} />
+      {/* tiny eye dots */}
+      <circle cx={-17} cy={-2} r={1.2} fill="#FFFFFF" />
+      <circle cx={-17} cy={2} r={1.2} fill="#FFFFFF" />
+      {/* short antennae */}
+      <path d="M -19 -3 L -23 -6" stroke={STROKE} strokeWidth={1.4} strokeLinecap="round" />
+      <path d="M -19 3 L -23 6" stroke={STROKE} strokeWidth={1.4} strokeLinecap="round" />
+
+      {/* dome body — red elytra (wing covers) */}
+      <ellipse cx={3} cy={0} rx={18} ry={14} fill={RED} stroke={STROKE} strokeWidth={2.2} />
+      {/* center seam */}
+      <line x1={3} y1={-13} x2={3} y2={13} stroke={BLACK} strokeWidth={1.2} />
+
+      {/* SPOTS — 7 spots (classic seven-spotted ladybug) */}
+      <circle cx={-4} cy={-6} r={2.4} fill={BLACK} />
+      <circle cx={-4} cy={6} r={2.4} fill={BLACK} />
+      <circle cx={3} cy={-9} r={2} fill={BLACK} />
+      <circle cx={3} cy={9} r={2} fill={BLACK} />
+      <circle cx={10} cy={-5} r={2.4} fill={BLACK} />
+      <circle cx={10} cy={5} r={2.4} fill={BLACK} />
+      <circle cx={3} cy={0} r={2} fill={BLACK} />
+
+      {/* highlight sheen */}
+      <ellipse cx={-2} cy={-7} rx={5} ry={2} fill="#FFFFFF" opacity={0.3} />
+    </Svg>
+  );
+}
+
+export function Centipede({ size = 60 }: SpeciesProps) {
+  // Long segmented body with many legs, head with antennae.
+  const BODY = '#9B5538';
+  const BODY_DARK = '#5A3B1F';
+  const SEGMENTS = 8;
+  return (
+    <Svg size={size}>
+      <ellipse cx={0} cy={20} rx={28} ry={2.5} fill="#000" opacity={0.2} />
+
+      {/* legs — many tiny pairs along the body */}
+      {Array.from({ length: SEGMENTS }, (_, i) => {
+        const x = -28 + i * 8;
+        return (
+          <g key={i}>
+            <path d={`M ${x} -3 L ${x - 1} -10`} stroke={STROKE} strokeWidth={1.4} strokeLinecap="round" />
+            <path d={`M ${x} 3 L ${x - 1} 10`} stroke={STROKE} strokeWidth={1.4} strokeLinecap="round" />
+          </g>
+        );
+      })}
+
+      {/* segmented body — series of overlapping ovals */}
+      {Array.from({ length: SEGMENTS }, (_, i) => {
+        const x = -28 + i * 8;
+        const tone = i % 2 === 0 ? BODY : BODY_DARK;
+        return (
+          <ellipse key={i} cx={x} cy={0} rx={5.5} ry={4.5} fill={tone} stroke={STROKE} strokeWidth={1.5} />
+        );
+      })}
+
+      {/* head — at the right (leading) end */}
+      <ellipse cx={32} cy={0} rx={6} ry={5} fill={BODY_DARK} stroke={STROKE} strokeWidth={2} />
+      {/* eyes */}
+      <circle cx={34} cy={-2} r={1.2} fill="#FFFFFF" />
+      <circle cx={34} cy={2} r={1.2} fill="#FFFFFF" />
+      {/* antennae */}
+      <path d="M 36 -3 Q 40 -5 42 -8" stroke={STROKE} strokeWidth={1.5} fill="none" strokeLinecap="round" />
+      <path d="M 36 3 Q 40 5 42 8" stroke={STROKE} strokeWidth={1.5} fill="none" strokeLinecap="round" />
+    </Svg>
+  );
+}
+
+export function Firefly({ size = 60 }: SpeciesProps) {
+  // Dark beetle silhouette with a softly glowing yellow abdomen tip
+  // surrounded by a halo.
+  const BODY = '#3A2818';
+  const BODY_DARK = '#1F1209';
+  const GLOW = '#FFEF99';
+  const GLOW_OUTER = '#FFD166';
+  return (
+    <Svg size={size}>
+      <ellipse cx={0} cy={20} rx={16} ry={2.5} fill="#000" opacity={0.22} />
+
+      {/* GLOW halo around the abdomen tip — drawn FIRST so it's behind */}
+      <circle cx={14} cy={4} r={18} fill={GLOW_OUTER} opacity={0.35} />
+      <circle cx={14} cy={4} r={11} fill={GLOW} opacity={0.55} />
+
+      {/* wings (translucent, slightly raised) */}
+      <ellipse cx={-3} cy={-6} rx={9} ry={5} fill="#FFFFFF" opacity={0.5} stroke={STROKE_LIGHT} strokeWidth={1} transform="rotate(-15 -3 -6)" />
+      <ellipse cx={3} cy={-6} rx={9} ry={5} fill="#FFFFFF" opacity={0.5} stroke={STROKE_LIGHT} strokeWidth={1} transform="rotate(15 3 -6)" />
+
+      {/* body */}
+      <ellipse cx={0} cy={2} rx={11} ry={7} fill={BODY} stroke={STROKE} strokeWidth={2} />
+      {/* segment lines */}
+      <path d="M -6 0 Q 0 1 6 0" stroke={BODY_DARK} strokeWidth={1} fill="none" />
+      <path d="M -8 4 Q 0 5 8 4" stroke={BODY_DARK} strokeWidth={1} fill="none" />
+
+      {/* glowing abdomen tip — bright yellow with inner highlight */}
+      <ellipse cx={11} cy={4} rx={6} ry={4} fill={GLOW} stroke={GLOW_OUTER} strokeWidth={1.5} />
+      <ellipse cx={10} cy={3} rx={3} ry={2} fill="#FFFFFF" opacity={0.7} />
+
+      {/* head */}
+      <ellipse cx={-12} cy={0} rx={5} ry={4.5} fill={BODY} stroke={STROKE} strokeWidth={1.8} />
+      {/* eyes */}
+      <circle cx={-14} cy={-2} r={1.2} fill="#FFFFFF" />
+      <circle cx={-14} cy={2} r={1.2} fill="#FFFFFF" />
+      {/* antennae (long, feathery) */}
+      <path d="M -16 -3 Q -20 -7 -22 -10" stroke={STROKE} strokeWidth={1.4} fill="none" strokeLinecap="round" />
+      <path d="M -16 3 Q -20 7 -22 10" stroke={STROKE} strokeWidth={1.4} fill="none" strokeLinecap="round" />
+
+      {/* tiny legs */}
+      <path d="M -6 7 L -8 11" stroke={STROKE} strokeWidth={1.3} strokeLinecap="round" />
+      <path d="M 0 8 L 0 12" stroke={STROKE} strokeWidth={1.3} strokeLinecap="round" />
+      <path d="M 6 7 L 8 11" stroke={STROKE} strokeWidth={1.3} strokeLinecap="round" />
+    </Svg>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// FROG FAMILY
+// ─────────────────────────────────────────────────────────────────────────
+
+export function TreeFrog({ size = 60 }: SpeciesProps) {
+  // Bright green tree frog with sticky toe pads and big bulging eyes.
+  const GREEN = '#7BA46F';
+  const GREEN_DARK = '#5C7E4F';
+  const GREEN_HI = '#A8C99A';
+  const PINK = '#E8B0B0';
+  return (
+    <Svg size={size}>
+      <ellipse cx={0} cy={22} rx={20} ry={2.5} fill="#000" opacity={0.22} />
+
+      {/* hind legs (visible behind, big and folded) */}
+      <ellipse cx={-15} cy={6} rx={8} ry={5} fill={GREEN_DARK} stroke={STROKE} strokeWidth={1.8}
+               transform="rotate(20 -15 6)" />
+      <ellipse cx={15} cy={6} rx={8} ry={5} fill={GREEN_DARK} stroke={STROKE} strokeWidth={1.8}
+               transform="rotate(-20 15 6)" />
+
+      {/* body */}
+      <ellipse cx={0} cy={4} rx={14} ry={11} fill={GREEN} stroke={STROKE} strokeWidth={2.2} />
+      {/* belly highlight (lighter green) */}
+      <ellipse cx={0} cy={8} rx={9} ry={5} fill={GREEN_HI} opacity={0.85} />
+
+      {/* front legs with sticky toe pads */}
+      <path d="M -10 6 Q -14 12 -12 14" stroke={STROKE} strokeWidth={2} fill={GREEN} strokeLinecap="round" />
+      <path d="M 10 6 Q 14 12 12 14" stroke={STROKE} strokeWidth={2} fill={GREEN} strokeLinecap="round" />
+      {/* toe pads (round disks) */}
+      <circle cx={-12} cy={14} r={1.5} fill={GREEN_HI} stroke={STROKE} strokeWidth={1} />
+      <circle cx={-14} cy={13} r={1.3} fill={GREEN_HI} stroke={STROKE} strokeWidth={1} />
+      <circle cx={-10} cy={15} r={1.3} fill={GREEN_HI} stroke={STROKE} strokeWidth={1} />
+      <circle cx={12} cy={14} r={1.5} fill={GREEN_HI} stroke={STROKE} strokeWidth={1} />
+      <circle cx={14} cy={13} r={1.3} fill={GREEN_HI} stroke={STROKE} strokeWidth={1} />
+      <circle cx={10} cy={15} r={1.3} fill={GREEN_HI} stroke={STROKE} strokeWidth={1} />
+
+      {/* BIG bulging eyes on top of the head */}
+      <circle cx={-7} cy={-9} r={5.5} fill={GREEN} stroke={STROKE} strokeWidth={1.8} />
+      <circle cx={7} cy={-9} r={5.5} fill={GREEN} stroke={STROKE} strokeWidth={1.8} />
+      {/* eyeball with golden iris */}
+      <circle cx={-7} cy={-9} r={3.5} fill="#F4C430" />
+      <circle cx={7} cy={-9} r={3.5} fill="#F4C430" />
+      {/* vertical pupil */}
+      <ellipse cx={-7} cy={-9} rx={1} ry={3} fill="#1A1A1A" />
+      <ellipse cx={7} cy={-9} rx={1} ry={3} fill="#1A1A1A" />
+      {/* shine */}
+      <circle cx={-6} cy={-11} r={0.8} fill="#FFFFFF" />
+      <circle cx={8} cy={-11} r={0.8} fill="#FFFFFF" />
+
+      {/* nostrils */}
+      <circle cx={-1.5} cy={-3} r={0.6} fill={STROKE} />
+      <circle cx={1.5} cy={-3} r={0.6} fill={STROKE} />
+      {/* wide smile */}
+      <path d="M -5 0 Q 0 3 5 0" stroke={STROKE} strokeWidth={1.4} fill="none" strokeLinecap="round" />
+
+      {/* cheek blush */}
+      <ellipse cx={-9} cy={-2} rx={2} ry={1} fill={PINK} opacity={0.6} />
+      <ellipse cx={9} cy={-2} rx={2} ry={1} fill={PINK} opacity={0.6} />
+    </Svg>
+  );
+}
+
+export function SpringPeeper({ size = 60 }: SpeciesProps) {
+  // Tiny tan/brown frog with the signature X mark on its back.
+  const TAN = '#C8956A';
+  const TAN_DARK = '#8B5A2B';
+  const TAN_HI = '#E8C493';
+  return (
+    <Svg size={size}>
+      <ellipse cx={0} cy={20} rx={16} ry={2} fill="#000" opacity={0.22} />
+
+      {/* hind legs */}
+      <ellipse cx={-12} cy={6} rx={6} ry={4} fill={TAN_DARK} stroke={STROKE} strokeWidth={1.6}
+               transform="rotate(20 -12 6)" />
+      <ellipse cx={12} cy={6} rx={6} ry={4} fill={TAN_DARK} stroke={STROKE} strokeWidth={1.6}
+               transform="rotate(-20 12 6)" />
+
+      {/* body — smaller than tree frog */}
+      <ellipse cx={0} cy={3} rx={11} ry={9} fill={TAN} stroke={STROKE} strokeWidth={2} />
+      {/* belly highlight */}
+      <ellipse cx={0} cy={7} rx={7} ry={4} fill={TAN_HI} opacity={0.75} />
+
+      {/* THE X MARK on the back (signature) */}
+      <path d="M -5 -2 L 5 6 M 5 -2 L -5 6" stroke={TAN_DARK} strokeWidth={1.6} fill="none" strokeLinecap="round" />
+
+      {/* front legs */}
+      <path d="M -8 5 Q -11 10 -10 12" stroke={STROKE} strokeWidth={1.6} fill={TAN} strokeLinecap="round" />
+      <path d="M 8 5 Q 11 10 10 12" stroke={STROKE} strokeWidth={1.6} fill={TAN} strokeLinecap="round" />
+      {/* small toe pads (smaller than tree frog's) */}
+      <circle cx={-10} cy={12} r={1.1} fill={TAN_HI} stroke={STROKE} strokeWidth={0.9} />
+      <circle cx={10} cy={12} r={1.1} fill={TAN_HI} stroke={STROKE} strokeWidth={0.9} />
+
+      {/* eyes — smaller proportionally */}
+      <circle cx={-5} cy={-7} r={3.5} fill={TAN} stroke={STROKE} strokeWidth={1.5} />
+      <circle cx={5} cy={-7} r={3.5} fill={TAN} stroke={STROKE} strokeWidth={1.5} />
+      <circle cx={-5} cy={-7} r={2.2} fill="#1F1209" />
+      <circle cx={5} cy={-7} r={2.2} fill="#1F1209" />
+      <circle cx={-4.5} cy={-8} r={0.6} fill="#FFFFFF" />
+      <circle cx={5.5} cy={-8} r={0.6} fill="#FFFFFF" />
+
+      {/* nostrils */}
+      <circle cx={-1.2} cy={-1} r={0.5} fill={STROKE} />
+      <circle cx={1.2} cy={-1} r={0.5} fill={STROKE} />
+      {/* mouth (small, the peeper "peep") */}
+      <path d="M -3 2 Q 0 4 3 2" stroke={STROKE} strokeWidth={1.2} fill="none" strokeLinecap="round" />
+    </Svg>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// MAMMALS
+// ─────────────────────────────────────────────────────────────────────────
+
+export function CottontailRabbit({ size = 60 }: SpeciesProps) {
+  // Brown rabbit sitting in profile, ears up, signature white cotton tail.
+  const FUR = '#9B7352';
+  const FUR_HI = '#C8956A';
+  const FUR_DARK = '#5A3B1F';
+  const TAIL = '#FFFDF2';
+  const PINK = '#F8B4B4';
+  return (
+    <Svg size={size}>
+      <ellipse cx={0} cy={22} rx={22} ry={3} fill="#000" opacity={0.22} />
+
+      {/* COTTON TAIL — drawn first so body covers its inner edge */}
+      <circle cx={20} cy={5} r={6} fill={TAIL} stroke={STROKE} strokeWidth={1.5} />
+      <circle cx={18} cy={3} r={2} fill="#FFFFFF" opacity={0.7} />
+
+      {/* hind leg (folded under) */}
+      <ellipse cx={10} cy={12} rx={11} ry={7} fill={FUR_DARK} stroke={STROKE} strokeWidth={1.8} />
+      <ellipse cx={9} cy={11} rx={8} ry={5} fill={FUR} />
+
+      {/* body — sitting upright slightly */}
+      <ellipse cx={-1} cy={3} rx={13} ry={11} fill={FUR} stroke={STROKE} strokeWidth={2.2} />
+      {/* fur highlight */}
+      <ellipse cx={-3} cy={0} rx={7} ry={5} fill={FUR_HI} opacity={0.7} />
+
+      {/* front leg/paw */}
+      <ellipse cx={-7} cy={12} rx={3} ry={5} fill={FUR} stroke={STROKE} strokeWidth={1.5} />
+      {/* paw beans */}
+      <circle cx={-7} cy={15} r={0.8} fill={PINK} />
+
+      {/* head */}
+      <circle cx={-10} cy={-4} r={8} fill={FUR} stroke={STROKE} strokeWidth={2} />
+      <ellipse cx={-12} cy={-3} rx={4} ry={3} fill={FUR_HI} opacity={0.7} />
+
+      {/* EARS — long upright */}
+      <ellipse cx={-13} cy={-13} rx={2.5} ry={8} fill={FUR} stroke={STROKE} strokeWidth={1.6}
+               transform="rotate(-12 -13 -13)" />
+      <ellipse cx={-7} cy={-13} rx={2.5} ry={8} fill={FUR} stroke={STROKE} strokeWidth={1.6}
+               transform="rotate(8 -7 -13)" />
+      {/* inner ear (pink) */}
+      <ellipse cx={-13} cy={-12} rx={1} ry={5.5} fill={PINK}
+               transform="rotate(-12 -13 -12)" />
+      <ellipse cx={-7} cy={-12} rx={1} ry={5.5} fill={PINK}
+               transform="rotate(8 -7 -12)" />
+
+      {/* eye (single visible in profile) */}
+      <circle cx={-12} cy={-5} r={1.6} fill="#1F1209" />
+      <circle cx={-11.5} cy={-5.5} r={0.5} fill="#FFFFFF" />
+
+      {/* nose + mouth */}
+      <path d="M -17 -3 L -18 -3 L -17.5 -2 Z" fill={PINK} stroke={STROKE} strokeWidth={0.8} />
+      <path d="M -17.5 -2 L -17.5 -1" stroke={STROKE} strokeWidth={0.8} />
+      <path d="M -17.5 -1 Q -19 -0.5 -19.5 -1.5" stroke={STROKE} strokeWidth={0.8} fill="none" strokeLinecap="round" />
+      <path d="M -17.5 -1 Q -16 -0.5 -15.5 -1.5" stroke={STROKE} strokeWidth={0.8} fill="none" strokeLinecap="round" />
+
+      {/* whiskers */}
+      <path d="M -16 -2 L -22 -3" stroke={STROKE} strokeWidth={0.6} strokeLinecap="round" opacity={0.7} />
+      <path d="M -16 -1 L -22 -1" stroke={STROKE} strokeWidth={0.6} strokeLinecap="round" opacity={0.7} />
+      <path d="M -16 0 L -22 1" stroke={STROKE} strokeWidth={0.6} strokeLinecap="round" opacity={0.7} />
+
+      {/* cheek blush */}
+      <ellipse cx={-14} cy={-2} rx={1.5} ry={0.8} fill={PINK} opacity={0.5} />
+    </Svg>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────
 // ROUTER
 // ─────────────────────────────────────────────────────────────────────────
 
@@ -484,6 +800,12 @@ export function SpeciesIllustration({
     case 'honey_bee':       return <HoneyBee size={size} />;
     case 'mason_bee':       return <MasonBee size={size} />;
     case 'bumble_bee':      return <BumbleBee size={size} />;
+    case 'ladybug':         return <Ladybug size={size} />;
+    case 'centipede':       return <Centipede size={size} />;
+    case 'firefly':         return <Firefly size={size} />;
+    case 'tree_frog':       return <TreeFrog size={size} />;
+    case 'spring_peeper':   return <SpringPeeper size={size} />;
+    case 'cottontail_rabbit': return <CottontailRabbit size={size} />;
     default:                return null;
   }
 }

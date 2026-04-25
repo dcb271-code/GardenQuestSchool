@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { motion, AnimatePresence, type MotionProps } from 'framer-motion';
 import type { SpeciesData } from '@/lib/world/speciesCatalog';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
+import { SpeciesIllustration } from '@/components/child/garden/speciesIllustrations';
 
 // Different species arrive differently: winged things fly in from the side,
 // pond dwellers hop in from below, ground things walk in.
@@ -103,33 +104,42 @@ export default function ArrivalCard({
             exit={{ y: 20, scale: 0.95, opacity: 0 }}
             transition={{ duration: 0.6, ease: [0.22, 0.9, 0.34, 1] }}
           >
-            {/* Species entrance on top of the card */}
+            {/* Species entrance on top of the card — hand-drawn SVG with
+                emoji fallback for any species not yet illustrated. */}
             <div className="flex items-center justify-center h-28 relative">
               <motion.div
                 {...speciesMotion}
-                className="text-[88px] leading-none"
+                className="leading-none flex items-center justify-center"
                 style={{ filter: 'drop-shadow(0 4px 6px rgba(107, 68, 35, 0.25))' }}
               >
-                {/* Winged species also get a subtle hover after arrival */}
-                {arrival === 'fly' && !reducedMotion ? (
-                  <motion.span
-                    className="inline-block"
-                    animate={{ y: [0, -6, 0], rotate: [0, -3, 0] }}
-                    transition={{ duration: 3.2, repeat: Infinity, delay: 1.8, ease: 'easeInOut' }}
-                  >
-                    {species.emoji}
-                  </motion.span>
-                ) : arrival === 'hop' && !reducedMotion ? (
-                  <motion.span
-                    className="inline-block"
-                    animate={{ y: [0, -8, 0] }}
-                    transition={{ duration: 2.0, repeat: Infinity, delay: 1.6, ease: 'easeInOut' }}
-                  >
-                    {species.emoji}
-                  </motion.span>
-                ) : (
-                  <span>{species.emoji}</span>
-                )}
+                {(() => {
+                  const drawn = SpeciesIllustration({ code: species.code, size: 110 });
+                  const visual = drawn ?? <span className="text-[88px]">{species.emoji}</span>;
+                  // Winged species hover after arrival; hopping species bob.
+                  if (arrival === 'fly' && !reducedMotion) {
+                    return (
+                      <motion.div
+                        className="inline-flex"
+                        animate={{ y: [0, -6, 0], rotate: [0, -3, 0] }}
+                        transition={{ duration: 3.2, repeat: Infinity, delay: 1.8, ease: 'easeInOut' }}
+                      >
+                        {visual}
+                      </motion.div>
+                    );
+                  }
+                  if (arrival === 'hop' && !reducedMotion) {
+                    return (
+                      <motion.div
+                        className="inline-flex"
+                        animate={{ y: [0, -8, 0] }}
+                        transition={{ duration: 2.0, repeat: Infinity, delay: 1.6, ease: 'easeInOut' }}
+                      >
+                        {visual}
+                      </motion.div>
+                    );
+                  }
+                  return visual;
+                })()}
               </motion.div>
 
               {/* Arrival dust/petals at landing */}

@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { SpeciesData } from '@/lib/world/speciesCatalog';
 import { HABITAT_CATALOG } from '@/lib/world/habitatCatalog';
+import { SpeciesIllustration } from '@/components/child/garden/speciesIllustrations';
 
 /**
  * Tap-to-wonder detail modal for a discovered species. Shows the
@@ -70,15 +71,18 @@ export default function SpeciesDetailModal({
               transition={{ duration: 1, delay: 0.2 }}
             />
 
-            {/* Big emoji with subtle floating */}
-            <div className="flex justify-center relative">
+            {/* Big illustration with subtle floating */}
+            <div className="flex justify-center relative h-32">
               <motion.div
-                className="text-8xl"
                 style={{ filter: 'drop-shadow(0 6px 8px rgba(107, 68, 35, 0.25))' }}
                 animate={{ y: [0, -4, 0] }}
                 transition={{ duration: 3.5, repeat: Infinity, ease: 'easeInOut' }}
+                className="flex items-center justify-center"
               >
-                {species.emoji}
+                {(() => {
+                  const drawn = SpeciesIllustration({ code: species.code, size: 130 });
+                  return drawn ?? <span className="text-8xl">{species.emoji}</span>;
+                })()}
               </motion.div>
               {/* sparkle accent */}
               <div className="absolute top-0 right-1/4 text-xl text-sun">✦</div>
