@@ -528,7 +528,7 @@ export function buildMathItems(skillId: (code: string) => string | undefined): R
       push('math.placevalue.compare_2digit', 'NumberCompare', {
         type: 'NumberCompare', left, right,
         promptText: `Compare ${left} and ${right}.`,
-      }, { symbol }, 1150 + Math.abs(left - right) < 5 ? 1200 : 1150);
+      }, { symbol }, Math.abs(left - right) < 5 ? 1200 : 1150);
     }
     // ensure at least a couple equals
     for (const n of [42, 57, 73]) {

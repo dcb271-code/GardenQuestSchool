@@ -35,6 +35,13 @@ export default async function GardenPage({
     return <div className="p-6">No learner found.</div>;
   }
 
+  const { data: learner } = await db
+    .from('learner')
+    .select('first_name')
+    .eq('id', learnerId)
+    .single();
+  const firstName = learner?.first_name ?? null;
+
   // Existing skill-progress query (we still use mastery for habitat gating)
   const { data: progress } = await db
     .from('skill_progress')
@@ -149,6 +156,7 @@ export default async function GardenPage({
   return (
     <GardenScene
       learnerId={learnerId}
+      firstName={firstName}
       structureStates={structureStates}
       pendingArrival={pendingArrival}
     />

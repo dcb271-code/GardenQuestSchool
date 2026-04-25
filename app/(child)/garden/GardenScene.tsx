@@ -11,6 +11,7 @@ import ArrivalCard from '@/components/child/garden/ArrivalCard';
 import LunaWanderer from '@/components/child/garden/LunaWanderer';
 import AmbientLayer from '@/components/child/garden/AmbientLayer';
 import SisterWalkers, { SISTERS_HOME } from '@/components/child/garden/SisterWalkers';
+import WelcomeOverlay from '@/components/child/garden/WelcomeOverlay';
 import { StructureIllustration, Tree, PineTree, Flower, GrassTuft, CozyHouse } from '@/components/child/garden/illustrations';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
 
@@ -25,10 +26,12 @@ interface StructureState {
 
 export default function GardenScene({
   learnerId,
+  firstName = null,
   structureStates,
   pendingArrival,
 }: {
   learnerId: string;
+  firstName?: string | null;
   structureStates: Record<string, StructureState>;
   pendingArrival: SpeciesData | null;
 }) {
@@ -814,6 +817,10 @@ export default function GardenScene({
           }}
         />
       )}
+
+      {/* First-ever visit welcome overlay — auto-dismisses after tap,
+          stored in localStorage so it only ever appears once per learner. */}
+      <WelcomeOverlay learnerId={learnerId} firstName={firstName} />
     </div>
   );
 }
