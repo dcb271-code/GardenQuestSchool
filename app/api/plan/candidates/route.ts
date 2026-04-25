@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
 import { generateExpeditionCandidates } from '@/lib/engine';
+import { GARDEN_STRUCTURES } from '@/lib/world/gardenMap';
+import { ZONE_COMPLETION_TARGET } from '@/lib/world/zoneProgress';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -63,5 +65,35 @@ export async function GET(req: Request) {
     interestTagDecay: [],
   });
 
-  return NextResponse.json({ candidates });
+  // Cumulative correct attempts per skill — drives the x/n badge so the
+  // compass cards show the SAME progress as their twin garden structures.
+  const { data: attemptRows } = await db
+    .from('attempt')
+    .select('outcome, item:item_id(skill:skill_id(code))')
+    .eq('learner_id', learnerId)
+    .eq('outcome', 'correct');
+  const correctByCode = new Map<string, number>();
+  for (const row of attemptRows ?? []) {
+    const code = (row as any).item?.skill?.code;
+    if (!code) continue;
+    correctByCode.set(code, (correctByCode.get(code) ?? 0) + 1);
+  }
+
+  // Enrich each candidate with its garden structure (label, zone) and
+  // its real progress so the compass and the garden agree.
+  const enriched = candidates.map(c => {
+    const struct = GARDEN_STRUCTURES.find(s => s.kind === 'skill' && s.skillCode === c.skillCode);
+    const correctCount = correctByCode.get(c.skillCode) ?? 0;
+    return {
+      ...c,
+      structureCode: struct?.code ?? null,
+      structureLabel: struct?.label ?? c.skillName,
+      zone: struct?.zone ?? 'meadow',
+      correctCount,
+      target: ZONE_COMPLETION_TARGET,
+      completed: correctCount >= ZONE_COMPLETION_TARGET,
+    };
+  });
+
+  return NextResponse.json({ candidates: enriched });
 }
