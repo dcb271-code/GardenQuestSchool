@@ -5,6 +5,7 @@ import { SPECIES_CATALOG } from '@/lib/world/speciesCatalog';
 import { MATH_SKILLS } from '@/lib/packs/math/skills';
 import { READING_SKILLS } from '@/lib/packs/reading/skills';
 import { computeStructureProgress, ZONE_COMPLETION_TARGET } from '@/lib/world/zoneProgress';
+import { resolveLearnerId } from '@/lib/learner/activeLearner';
 import GardenScene from './GardenScene';
 
 export const dynamic = 'force-dynamic';
@@ -27,11 +28,7 @@ export default async function GardenPage({
 }) {
   const db = createServiceClient();
 
-  let learnerId = searchParams.learner;
-  if (!learnerId) {
-    const { data: first } = await db.from('learner').select('id').limit(1).single();
-    learnerId = first?.id;
-  }
+  const learnerId = await resolveLearnerId(db, searchParams.learner);
   if (!learnerId) {
     return <div className="p-6">No learner found.</div>;
   }

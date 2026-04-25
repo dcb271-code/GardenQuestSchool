@@ -1,13 +1,36 @@
 'use client';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
+import { ACTIVE_LEARNER_COOKIE } from '@/lib/learner/activeLearner';
+
+// Pull the learner id back out of `/garden?learner=…` so we can stash
+// it as the active-learner cookie when the tile is tapped. The cookie
+// then survives subsequent navigations to /garden, /journal, etc.
+// without query params (e.g. footer links, manual URL entry).
+function extractLearnerId(href: string): string | null {
+  try {
+    // Use a dummy origin so URL() works on relative paths.
+    const u = new URL(href, 'https://x.invalid');
+    return u.searchParams.get('learner');
+  } catch {
+    return null;
+  }
+}
 
 export default function ProfileTile({
   name, avatarEmoji, href,
 }: { name: string; avatarEmoji: string; href: string }) {
+  const onTap = () => {
+    const id = extractLearnerId(href);
+    if (id && typeof document !== 'undefined') {
+      // 1 year — pure UX preference, no auth implication.
+      document.cookie = `${ACTIVE_LEARNER_COOKIE}=${id}; path=/; max-age=31536000; SameSite=Lax`;
+    }
+  };
   return (
     <Link
       href={href}
+      onClick={onTap}
       className="group flex flex-col items-center justify-center w-40 h-40 bg-white rounded-3xl border-4 border-ochre shadow-md hover:shadow-lg transition-shadow relative overflow-hidden"
       style={{ touchAction: 'manipulation' }}
     >

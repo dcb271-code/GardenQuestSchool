@@ -2,6 +2,7 @@ import Link from 'next/link';
 import VirtueGemMoment from '@/components/child/VirtueGemMoment';
 import { createServiceClient } from '@/lib/supabase/server';
 import { SPECIES_CATALOG } from '@/lib/world/speciesCatalog';
+import { resolveLearnerId } from '@/lib/learner/activeLearner';
 import SpeciesGrid from './SpeciesGrid';
 
 export const dynamic = 'force-dynamic';
@@ -18,10 +19,9 @@ export default async function JournalPage({
 }) {
   const db = createServiceClient();
 
-  let learnerId = searchParams.learner;
+  const learnerId = await resolveLearnerId(db, searchParams.learner);
   if (!learnerId) {
-    const { data: firstLearner } = await db.from('learner').select('id').limit(1).single();
-    learnerId = firstLearner?.id;
+    return <div className="p-6">No learner found.</div>;
   }
 
   const { data: gemRows } = await db

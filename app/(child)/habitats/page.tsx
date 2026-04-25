@@ -4,6 +4,7 @@ import { HABITAT_CATALOG } from '@/lib/world/habitatCatalog';
 import { MATH_SKILLS } from '@/lib/packs/math/skills';
 import { READING_SKILLS } from '@/lib/packs/reading/skills';
 import { createServiceClient } from '@/lib/supabase/server';
+import { resolveLearnerId } from '@/lib/learner/activeLearner';
 
 export const dynamic = 'force-dynamic';
 
@@ -14,10 +15,9 @@ export default async function HabitatsPage({
 }) {
   const db = createServiceClient();
 
-  let learnerId = searchParams.learner;
+  const learnerId = await resolveLearnerId(db, searchParams.learner);
   if (!learnerId) {
-    const { data: firstLearner } = await db.from('learner').select('id').limit(1).single();
-    learnerId = firstLearner?.id;
+    return <div className="p-6">No learner found.</div>;
   }
 
   const { data: progress } = await db

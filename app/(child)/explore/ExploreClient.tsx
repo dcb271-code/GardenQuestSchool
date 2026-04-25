@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import ExpeditionCard from '@/components/child/ExpeditionCard';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
@@ -20,10 +20,8 @@ interface Candidate {
   unlocksLabel?: string | null;
 }
 
-export default function ExploreClient() {
+export default function ExploreClient({ learnerId }: { learnerId: string | null }) {
   const router = useRouter();
-  const sp = useSearchParams();
-  const learnerId = sp.get('learner');
   const { settings } = useAccessibilitySettings();
   const reducedMotion = settings.reducedMotion;
   const [candidates, setCandidates] = useState<Candidate[]>([]);

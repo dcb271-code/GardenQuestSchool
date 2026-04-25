@@ -2,12 +2,8 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { useSearchParams } from 'next/navigation';
-import { Suspense } from 'react';
 
-function ExploreHeaderInner() {
-  const sp = useSearchParams();
-  const learnerId = sp.get('learner');
+function ExploreHeaderInner({ learnerId }: { learnerId: string | null }) {
   const backHref = learnerId ? `/garden?learner=${learnerId}` : '/picker';
 
   return (
@@ -84,10 +80,6 @@ function SpinningCompass() {
   );
 }
 
-export default function ExploreHeader() {
-  return (
-    <Suspense fallback={<div style={{ height: 120 }} />}>
-      <ExploreHeaderInner />
-    </Suspense>
-  );
+export default function ExploreHeader({ learnerId }: { learnerId: string | null }) {
+  return <ExploreHeaderInner learnerId={learnerId} />;
 }
