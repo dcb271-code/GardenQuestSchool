@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { speak } from '@/lib/audio/tts';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
-import { GOOGLE_VOICE_PREFIX } from '@/lib/audio/useNarrator';
+import { GOOGLE_VOICE_PREFIX, buildTtsUrl } from '@/lib/audio/useNarrator';
 import type { ReadAloudSimpleContent, ReadAloudSimpleResponse } from '@/lib/packs/reading/types';
 
 /**
@@ -28,22 +28,17 @@ export default function ReadAloudSimple({
     const voiceName = settings.voiceName;
     try {
       if (voiceName?.startsWith(GOOGLE_VOICE_PREFIX)) {
-        // Use Google TTS via our API route for high-quality pronunciation
-        const res = await fetch('/api/tts', {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({
-            text: content.word,
-            voice: voiceName.slice(GOOGLE_VOICE_PREFIX.length),
-            rate: Math.max(0.75, settings.voiceRate - 0.05),  // a touch slower for clarity
-          }),
-        });
-        if (!res.ok) throw new Error('tts failed');
-        const blob = await res.blob();
-        const url = URL.createObjectURL(blob);
+        // Use Google TTS via our cacheable GET endpoint for instant
+        // playback after first hear.
+        const url = buildTtsUrl(
+          content.word,
+          voiceName.slice(GOOGLE_VOICE_PREFIX.length),
+          Math.max(0.75, settings.voiceRate - 0.05),
+        );
         const audio = new Audio(url);
-        audio.onended = () => { URL.revokeObjectURL(url); setSpeaking(false); };
-        audio.onerror = () => { URL.revokeObjectURL(url); setSpeaking(false); };
+        audio.preload = 'auto';
+        audio.onended = () => setSpeaking(false);
+        audio.onerror = () => setSpeaking(false);
         await audio.play();
       } else {
         await speak(content.word, {

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { getAvailableVoices, speak, isSpeechAvailable } from '@/lib/audio/tts';
-import { GOOGLE_VOICE_PREFIX } from '@/lib/audio/useNarrator';
+import { GOOGLE_VOICE_PREFIX, buildTtsUrl } from '@/lib/audio/useNarrator';
 
 interface VoicePickerProps {
   selected: string | null;
@@ -82,17 +82,11 @@ export default function VoicePicker({ selected, rate, onSelect, onRateChange }: 
       setPreviewing(voiceName);
       try {
         const googleVoice = voiceName.slice(GOOGLE_VOICE_PREFIX.length);
-        const res = await fetch('/api/tts', {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify({ text: sample, voice: googleVoice, rate }),
-        });
-        if (!res.ok) throw new Error(`TTS HTTP ${res.status}`);
-        const blob = await res.blob();
-        const url = URL.createObjectURL(blob);
+        const url = buildTtsUrl(sample, googleVoice, rate);
         const audio = new Audio(url);
-        audio.onended = () => { URL.revokeObjectURL(url); setPreviewing(null); };
-        audio.onerror = () => { URL.revokeObjectURL(url); setPreviewing(null); };
+        audio.preload = 'auto';
+        audio.onended = () => setPreviewing(null);
+        audio.onerror = () => setPreviewing(null);
         await audio.play();
       } catch (err) {
         console.warn('Preview failed:', err);

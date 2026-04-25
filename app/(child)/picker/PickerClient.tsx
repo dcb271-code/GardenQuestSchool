@@ -1,8 +1,10 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import ProfileTile from '@/components/child/ProfileTile';
+import AddLearnerModal from '@/components/child/AddLearnerModal';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
 
 const avatarMap: Record<string, string> = {
@@ -15,9 +17,11 @@ interface Learner {
   avatar_key: string | null;
 }
 
-export default function PickerClient({ learners }: { learners: Learner[] }) {
+export default function PickerClient({ learners: initial }: { learners: Learner[] }) {
   const { settings } = useAccessibilitySettings();
   const reducedMotion = settings.reducedMotion;
+  const [learners, setLearners] = useState<Learner[]>(initial);
+  const [addOpen, setAddOpen] = useState(false);
 
   return (
     <main className="min-h-screen flex items-center justify-center p-8 relative overflow-hidden bg-cream">
@@ -81,16 +85,26 @@ export default function PickerClient({ learners }: { learners: Learner[] }) {
             }}
             transition={{ duration: 0.55, ease: [0.22, 0.9, 0.34, 1] }}
           >
-            <Link
-              href="/parent/family"
+            <button
+              type="button"
+              onClick={() => setAddOpen(true)}
               className="flex flex-col items-center justify-center w-40 h-40 bg-white/70 rounded-3xl border-4 border-dashed border-ochre/70 hover:scale-105 active:scale-95 transition-transform shadow-md opacity-75 hover:opacity-95"
               style={{ touchAction: 'manipulation' }}
+              aria-label="add a new explorer"
             >
               <div className="text-6xl text-bark/60">+</div>
               <div className="mt-2 font-display italic text-[18px] text-bark/70">add</div>
-            </Link>
+            </button>
           </motion.div>
         </motion.div>
+
+        <AddLearnerModal
+          open={addOpen}
+          onClose={() => setAddOpen(false)}
+          onCreated={(l) => {
+            setLearners(prev => [...prev, l]);
+          }}
+        />
 
         <motion.div
           className="flex gap-5 justify-center pt-6 flex-wrap font-display italic text-[15px] text-bark/50"
