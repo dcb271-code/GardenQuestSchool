@@ -37,19 +37,39 @@ export function prefetchTts(text: string, voice: string, rate: number): void {
 }
 
 /**
- * Auto-narrates `text` once when it changes. If the selected voice is a
- * Google voice, plays the cached audio via an HTMLAudioElement (browser
- * HTTP cache makes repeat plays instant). Falls back to Web Speech.
+ * Auto-narrates `text` once when it changes.
  *
- * `paused`: when true, suppresses auto-narration AND silences anything
- * already speaking. Used by the lesson page to hold the narrator silent
- * until the SkillIntroOverlay is dismissed — otherwise the first item's
- * prompt was talking over the explainer card.
+ * Voice selection:
+ *   - If a Google voice is configured, we play through the /api/tts proxy
+ *     so the child hears the warm AI voice. We do NOT fall back to Web
+ *     Speech on failure — the previous fallback caused a "mechanical
+ *     voice on first load, then good voice takes over" race when the
+ *     Google audio took longer than expected to start. If Google fails,
+ *     we just stay quiet; the speaker button can replay manually.
+ *   - If no Google voice is configured, Web Speech is the only option.
+ *
+ * Timing:
+ *   - First narration of a session waits FIRST_PROMPT_DELAY_MS (~4.5s)
+ *     so a child who's reading along has time to take in the prompt
+ *     visually before audio starts. Subsequent items use a tiny 80ms
+ *     settle delay.
+ *   - `paused`: when true, suppresses auto-narration AND silences
+ *     anything currently speaking. The lesson page lifts this from the
+ *     SkillIntroOverlay so the narrator doesn't talk under the card.
  */
+
+const FIRST_PROMPT_DELAY_MS = 4500;
+const SUBSEQUENT_PROMPT_DELAY_MS = 80;
+
 export function useNarrator(text: string, paused: boolean = false): { replay: () => void } {
   const { settings } = useAccessibilitySettings();
   const lastSpokenRef = useRef<string>('');
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  // True only for the very first auto-narration in this hook's
+  // lifetime. Used to apply a longer delay so the child has time to
+  // read the prompt before the voice starts. Subsequent items drop
+  // back to the tiny settle delay.
+  const isFirstNarrationRef = useRef(true);
 
   const stopAll = useCallback(() => {
     stopSpeaking();
@@ -63,6 +83,9 @@ export function useNarrator(text: string, paused: boolean = false): { replay: ()
   const playText = useCallback(async (textToSpeak: string) => {
     const voiceName = settings.voiceName;
     if (voiceName && voiceName.startsWith(GOOGLE_VOICE_PREFIX)) {
+      // Google-only path: no Web Speech fallback, ever. A silent
+      // failure is much better than getting talked-over by a
+      // mechanical voice while Google is still warming up.
       const googleVoice = voiceName.slice(GOOGLE_VOICE_PREFIX.length);
       try {
         stopAll();
@@ -71,11 +94,12 @@ export function useNarrator(text: string, paused: boolean = false): { replay: ()
         audio.preload = 'auto';
         audioRef.current = audio;
         await audio.play();
-        return;
       } catch (err) {
-        console.warn('Google TTS failed, falling back to Web Speech:', err);
+        console.warn('Google TTS failed (silent — speaker button can retry):', err);
       }
+      return;
     }
+    // No Google voice configured — Web Speech is the only choice.
     void webSpeak(textToSpeak, {
       voice: voiceName && !voiceName.startsWith(GOOGLE_VOICE_PREFIX) ? voiceName : undefined,
       rate: settings.voiceRate,
@@ -91,7 +115,9 @@ export function useNarrator(text: string, paused: boolean = false): { replay: ()
     if (paused) return;
     if (!text || text === lastSpokenRef.current) return;
     lastSpokenRef.current = text;
-    const timer = setTimeout(() => { void playText(text); }, 80);
+    const delay = isFirstNarrationRef.current ? FIRST_PROMPT_DELAY_MS : SUBSEQUENT_PROMPT_DELAY_MS;
+    isFirstNarrationRef.current = false;
+    const timer = setTimeout(() => { void playText(text); }, delay);
     return () => {
       clearTimeout(timer);
       stopAll();
@@ -101,6 +127,8 @@ export function useNarrator(text: string, paused: boolean = false): { replay: ()
 
   const replay = useCallback(() => {
     if (!text) return;
+    // Replay button bypasses the first-prompt delay — explicit user
+    // request, no warm-up beat needed.
     void playText(text);
   }, [text, playText]);
 

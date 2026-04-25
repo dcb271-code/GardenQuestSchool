@@ -294,9 +294,10 @@ function ChallengeChip({
 
 // Pool of effort-/learning-oriented phrases. Carol-Dweck-leaning,
 // not generic praise — focuses on the work itself or the climb.
-// Pulled at random by the CorrectFeedback component.
+// Surfaced underneath the standard "yes" so the child sees both the
+// quick confirmation AND a sentence of recognition.
 const ENCOURAGEMENT_PHRASES = [
-  'good effort',
+  'good effort!',
   'you are learning',
   'well thought',
   'you stuck with it',
@@ -304,6 +305,9 @@ const ENCOURAGEMENT_PHRASES = [
   'that took thinking',
   'your brain is growing',
   'nice work, scientist',
+  'reading well',
+  'you noticed something',
+  'that one is tricky — and you got it',
 ];
 
 function CorrectFeedback({
@@ -323,13 +327,12 @@ function CorrectFeedback({
     };
   });
 
-  // Show an encouragement phrase ~40% of the time, with a guaranteed
-  // showing whenever the child got it right after a retry (that's the
-  // moment that most deserves "you stuck with it"). The randomness
-  // is seeded by attemptIndex so the same item doesn't flip phrases
-  // mid-render.
+  // Show an encouragement sentence on roughly 2 of every 3 items, with
+  // a guaranteed showing whenever the child got it right after a retry
+  // (that's the moment that most deserves "you stuck with it"). Seeded
+  // by attemptIndex so the same item doesn't flip phrases mid-render.
   const seed = (attemptIndex * 9301 + 49297) % 233280;
-  const showEncouragement = retries > 0 || (seed / 233280) < 0.4;
+  const showEncouragement = retries > 0 || (seed / 233280) < 0.66;
   const phrase = showEncouragement
     ? ENCOURAGEMENT_PHRASES[Math.floor((seed / 233280) * ENCOURAGEMENT_PHRASES.length)]
     : null;
@@ -399,14 +402,30 @@ function CorrectFeedback({
         />
       </motion.svg>
 
+      {/* Standard "yes" stays as the primary glyph next to the check.
+          The encouragement sentence appears UNDER it as a softer
+          second beat — same moment, two layers, so a child who's
+          learning to read the longer sentences sees them every time
+          we earn the right to show them. */}
       <motion.div
-        className="font-display italic text-[22px] text-forest mt-4"
+        className="font-display italic text-[24px] text-forest mt-4"
+        style={{ fontWeight: 600 }}
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.7, duration: 0.4 }}
       >
-        {phrase ?? 'yes'}
+        yes
       </motion.div>
+      {phrase && (
+        <motion.div
+          className="font-display italic text-[18px] text-bark/80 mt-1.5 text-center px-6 max-w-xs"
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.0, duration: 0.45 }}
+        >
+          {phrase}
+        </motion.div>
+      )}
     </motion.div>
   );
 }

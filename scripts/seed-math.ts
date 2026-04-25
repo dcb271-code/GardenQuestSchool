@@ -101,13 +101,18 @@ export function buildMathItems(skillId: (code: string) => string | undefined): R
         const theme = themeList[Math.floor(r() * themeList.length)];
         push('math.counting.to_20', 'CountingTiles', {
           type: 'CountingTiles', emoji: THEMES[theme].emoji, count: n,
+          // Re-priced to sit in the K range (was 950-1030 which made
+          // counting-to-20 land in a Grade-1's working band). Grade-2+
+          // shouldn't see these unless they bumped to "easier".
           promptText: pass === 0 ? 'How many do you see?' : `Count the ${THEMES[theme].noun}.`,
-        }, { count: n }, 950 + (n - 10) * 8);   // 950..1030
+        }, { count: n }, 800 + (n - 10) * 6);   // 800..860, K range
       }
     }
   }
 
   // count to 50 — CountingTiles, n = 21..50 stride 2 + stride 3 (~30 items)
+  // Re-priced down to K/early-Grade-1 (was 1000-1150 which made it a
+  // Grade-2 working-band item).
   {
     const r = rng(2);
     const pool: number[] = [];
@@ -118,31 +123,29 @@ export function buildMathItems(skillId: (code: string) => string | undefined): R
       push('math.counting.to_50', 'CountingTiles', {
         type: 'CountingTiles', emoji: THEMES[theme].emoji, count: n,
         promptText: r() < 0.5 ? 'How many are there?' : `Count the ${THEMES[theme].noun}.`,
-      }, { count: n }, 1000 + n * 3);
+      }, { count: n }, 870 + n);   // 891..920, late K / early 1st
     }
   }
 
-  // count to 120 — EquationTap "What number comes next?" 25 items across 60..120
+  // count to 120 — sequence-completion items.
+  // Re-priced down to late Grade 1 (was 1100-1135).
   {
     const r = rng(3);
     for (let n = 51; n <= 119; n += Math.max(1, Math.floor(r() * 5))) {
-      const seq = [n - 2, n - 1, 0, n + 1];
-      const display = seq.map(x => (x === 0 ? '?' : x.toString())).join(', ');
+      const seq: (number | null)[] = [n - 2, n - 1, null, n + 1];
+      const display = seq.map(x => (x === null ? '?' : x.toString())).join(', ');
       push('math.counting.to_120', 'EquationTap', {
         type: 'EquationTap',
         equation: display,
         choices: mkChoices(n, r, 6),
         promptText: 'What number comes next?',
-      }, { correct: n }, 1100 + Math.floor(n / 10) * 3);
+      }, { correct: n }, 950 + Math.floor(n / 15) * 4);   // 950..980
     }
   }
 
-  // skip 2s — 25 sequence items + 10 fast-recall
-  // Sentinel for the "missing" slot is `null`, NOT 0 — using 0 caused
-  // the leading slot (start - 2) to ALSO render as '?' on the very
-  // first iteration when start = 2, giving "?, 2, ?, 6" with two
-  // unknowns. Iteration also starts at start=4 so start-step is
-  // always a positive number we can show.
+  // skip 2s — re-priced to late Grade 1 (was 1000-1110, making it a
+  // Grade 2 working-band item which made testdad's first sessions
+  // feel kindergarten-easy).
   {
     const r = rng(4);
     for (let start = 4; start <= 30; start += 2) {
@@ -154,9 +157,10 @@ export function buildMathItems(skillId: (code: string) => string | undefined): R
         equation: display,
         choices: mkChoices(answer, r, 4),
         promptText: 'What comes next, counting by 2s?',
-      }, { correct: answer }, 1000 + start * 2);
+      }, { correct: answer }, 940 + start);   // 944..970
     }
-    // "What's next after" prompts
+    // "What's next after" prompts — slightly harder than the sequence
+    // version because there's no visual scaffold.
     const starts = [10, 14, 18, 22, 26, 30, 34, 38, 42, 46];
     for (const s of starts) {
       push('math.counting.skip_2s', 'EquationTap', {
@@ -164,7 +168,7 @@ export function buildMathItems(skillId: (code: string) => string | undefined): R
         equation: `${s} + 2 = ?`,
         choices: mkChoices(s + 2, r, 4),
         promptText: `What's 2 more than ${s}?`,
-      }, { correct: s + 2 }, 1050 + s);
+      }, { correct: s + 2 }, 980 + Math.floor(s / 4));
     }
   }
 

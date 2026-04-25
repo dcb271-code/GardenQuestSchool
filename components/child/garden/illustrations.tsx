@@ -486,9 +486,13 @@ export function FrogPondHabitat({ x, y, size = 80 }: IllustrationProps) {
       {reed(r * 0.85, r * 0.5, 2)}
       {reed(r * 1.05, r * 0.6, -1)}
 
-      {/* Two background pads (with the V-notch, darker greens) */}
-      {lilyPad(-r * 1.15, -r * 0.15, r * 0.28, -25, '#6B8E5A')}   // upper-left
-      {lilyPad( r * 1.0,  -r * 0.35, r * 0.24, 165, '#5C7E4F')}   // upper-right
+      {/* Two background pads — angled close to the front pad's slight
+          top-down tilt (-8°) instead of the previous -25° / 165° which
+          made one read as upside-down. Subtle variation so they don't
+          look like clones, but all three now read as the same kind of
+          pad seen from above. */}
+      {lilyPad(-r * 1.15, -r * 0.15, r * 0.28, -12, '#6B8E5A')}   // upper-left
+      {lilyPad( r * 1.0,  -r * 0.35, r * 0.24,   6, '#5C7E4F')}   // upper-right
 
       {/* FRONT pad — a clean disc (no V-notch) under the frog. Lighter
           sage, tilted 8° so it looks like a top-down lily pad, with

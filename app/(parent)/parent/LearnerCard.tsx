@@ -314,13 +314,39 @@ export default function LearnerCard({ summary }: { summary: LearnerSummary }) {
         <div className="text-xs text-gray-500">
           {summary.gemsTotal} gem{summary.gemsTotal === 1 ? '' : 's'} earned
         </div>
-        <button
-          type="button"
-          onClick={() => setResetOpen(true)}
-          className="text-xs text-red-700 hover:text-red-900 hover:underline font-semibold"
-        >
-          Reset progress…
-        </button>
+        <div className="flex items-center gap-3">
+          {/* Re-baseline only makes sense when the learner hasn't
+              practiced yet — otherwise we'd clobber real progress.
+              The endpoint refuses if there are attempts, but hide
+              the button anyway so the parent isn't tempted. */}
+          {summary.sessionsAll === 0 && summary.gradeLevel != null && (
+            <button
+              type="button"
+              onClick={async () => {
+                const res = await fetch(`/api/learner/${summary.id}/apply-baseline`, {
+                  method: 'POST',
+                });
+                if (!res.ok) {
+                  const j = await res.json().catch(() => ({}));
+                  alert(`Could not apply baseline: ${j.error ?? res.statusText}`);
+                  return;
+                }
+                router.refresh();
+              }}
+              className="text-xs text-blue-700 hover:text-blue-900 hover:underline font-semibold"
+              title="Seed grade-appropriate starting skills so this learner doesn't begin with kindergarten content"
+            >
+              Apply Grade {summary.gradeLevel} baseline
+            </button>
+          )}
+          <button
+            type="button"
+            onClick={() => setResetOpen(true)}
+            className="text-xs text-red-700 hover:text-red-900 hover:underline font-semibold"
+          >
+            Reset progress…
+          </button>
+        </div>
       </div>
 
       <ResetConfirmModal

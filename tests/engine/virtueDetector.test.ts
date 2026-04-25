@@ -14,7 +14,11 @@ describe('virtueDetector — rules', () => {
     });
     expect(events.length).toBe(1);
     expect(events[0].virtue).toBe('persistence');
-    expect(events[0].evidence.narrativeText).toContain('came back');
+    // Narrative is picked from a pool now, so just assert it's non-empty
+    // and reasonably "persistence-shaped" — it should mention sticking
+    // with it or trying again, in some form.
+    expect(events[0].evidence.narrativeText.length).toBeGreaterThan(0);
+    expect(events[0].evidence.narrativeText).toMatch(/came back|stuck|tries|grow|hard|second look/i);
   });
 
   it('does NOT grant Persistence for a first-try correct', () => {
@@ -58,7 +62,9 @@ describe('virtueDetector — rules', () => {
     });
     const noticing = events.filter(e => e.virtue === 'noticing');
     expect(noticing.length).toBe(1);
-    expect(noticing[0].evidence.narrativeText).toMatch(/pattern|spotted|noticed|Naturalist/i);
+    // Pool-based narrative — match any of the recurring themes across
+    // the noticing line variants.
+    expect(noticing[0].evidence.narrativeText).toMatch(/pattern|spotted|noticed|naturalist|recognised|fast|catch/i);
   });
 
   it('does NOT grant Noticing for only 2 first-try corrects', () => {

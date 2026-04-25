@@ -5,6 +5,42 @@ export interface DetectedVirtue {
   evidence: VirtueEvidence;
 }
 
+// Per-virtue narrative pools — picked deterministically by sessionId
+// so the SAME session always gets the same line, but consecutive
+// sessions cycle through. Without this, a child who triggers the
+// same virtue ten sessions in a row sees the identical sentence
+// every time, which made the gem feel mechanical.
+const NOTICING_LINES = [
+  'You spotted the pattern quickly on several questions — Naturalist Eyes.',
+  'You read this set fast — your eyes are catching things that used to take longer.',
+  'You found the right answer on the first try most of the way through. Patterns are starting to feel obvious.',
+  'A naturalist notices what others miss. That\'s what just happened here.',
+  'You recognised the shape of the question and went straight for it.',
+];
+const PERSISTENCE_LINES = [
+  'You came back to a tricky one a few times — then it clicked.',
+  'You didn\'t give up on the hard one. That\'s how brains grow.',
+  'It took a few tries, and you found it anyway. That counts double.',
+  'Some questions need a second look — and you gave one.',
+];
+const CURIOSITY_LINES = [
+  'You went exploring the journal — curiosity is how naturalists find new things.',
+  'You wandered the journal looking at creatures. That\'s exactly what naturalists do.',
+  'A few quiet taps in the journal. The garden notices.',
+];
+const PRACTICE_LINES_PREFIX = [
+  'Remember how',
+  'It feels like ages ago, but',
+  'You used to think about',
+];
+
+function pickLine(pool: string[], sessionId: string): string {
+  // Tiny deterministic hash so the line is stable per session.
+  let h = 0;
+  for (let i = 0; i < sessionId.length; i++) h = (h * 31 + sessionId.charCodeAt(i)) | 0;
+  return pool[Math.abs(h) % pool.length];
+}
+
 interface SessionAttempt {
   itemId: string;
   outcome: 'correct' | 'incorrect' | 'skipped';
@@ -42,7 +78,7 @@ export function detectVirtuesFromSession(input: DetectionInput): DetectedVirtue[
       evidence: {
         itemId: persistenceAttempt.itemId,
         sessionId,
-        narrativeText: 'You came back to a tricky one a few times — then it clicked.',
+        narrativeText: pickLine(PERSISTENCE_LINES, sessionId),
         observedAt: now,
       },
     });
@@ -52,11 +88,13 @@ export function detectVirtuesFromSession(input: DetectionInput): DetectedVirtue[
     t => t.from === 'review' && t.to === 'mastered'
   );
   if (practiceTransition) {
+    const skillName = friendlySkillName(practiceTransition.skillCode);
+    const prefix = pickLine(PRACTICE_LINES_PREFIX, sessionId);
     detected.push({
       virtue: 'practice',
       evidence: {
         sessionId,
-        narrativeText: `Remember how ${friendlySkillName(practiceTransition.skillCode)} felt new? Now it feels quicker. That's how practice works.`,
+        narrativeText: `${prefix} ${skillName} felt new? Now it feels quicker. That's how practice works.`,
         observedAt: now,
       },
     });
@@ -67,7 +105,7 @@ export function detectVirtuesFromSession(input: DetectionInput): DetectedVirtue[
       virtue: 'curiosity',
       evidence: {
         sessionId,
-        narrativeText: 'You went exploring the journal — curiosity is how naturalists find new things.',
+        narrativeText: pickLine(CURIOSITY_LINES, sessionId),
         observedAt: now,
       },
     });
@@ -86,7 +124,7 @@ export function detectVirtuesFromSession(input: DetectionInput): DetectedVirtue[
       virtue: 'noticing',
       evidence: {
         sessionId,
-        narrativeText: 'You spotted the pattern quickly on several questions — Naturalist Eyes.',
+        narrativeText: pickLine(NOTICING_LINES, sessionId),
         observedAt: now,
       },
     });
