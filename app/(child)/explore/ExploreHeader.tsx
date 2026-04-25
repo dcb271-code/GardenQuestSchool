@@ -34,10 +34,10 @@ function ExploreHeaderInner() {
           className="font-display text-[26px] text-bark text-center"
           style={{ fontWeight: 600, letterSpacing: '-0.015em', marginTop: 4 }}
         >
-          <span className="italic text-forest">choose</span> a quest
+          <span className="italic text-forest">three stops</span> in your garden
         </h1>
-        <div className="font-display italic text-[13px] text-bark/55 tracking-[0.15em] uppercase mt-1">
-          the compass points three ways
+        <div className="font-display italic text-[13px] text-bark/55 tracking-[0.15em] uppercase mt-1 text-center px-4">
+          the compass picks places you&apos;re ready to visit
         </div>
       </div>
 

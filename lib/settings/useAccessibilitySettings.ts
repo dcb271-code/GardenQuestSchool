@@ -2,12 +2,15 @@
 
 import { useEffect, useState } from 'react';
 
+export type ChallengeLevel = 'easier' | 'normal' | 'harder';
+
 export interface AccessibilitySettings {
   openDyslexic: boolean;
   reducedMotion: boolean;
   textSize: 1 | 1.25 | 1.5;
   voiceName: string | null;  // preferred Web Speech voice name (null = auto)
   voiceRate: number;          // speech rate (0.7..1.1), default 0.88
+  challengeLevel: ChallengeLevel;  // bias item difficulty up or down
 }
 
 const DEFAULT_SETTINGS: AccessibilitySettings = {
@@ -16,6 +19,15 @@ const DEFAULT_SETTINGS: AccessibilitySettings = {
   textSize: 1,
   voiceName: null,
   voiceRate: 0.88,
+  challengeLevel: 'normal',
+};
+
+// Elo offset applied to the learner's per-skill rating when picking
+// items. Higher offset → harder items served, lower → easier.
+export const CHALLENGE_LEVEL_ELO_OFFSET: Record<ChallengeLevel, number> = {
+  easier: -120,
+  normal: 0,
+  harder: 150,
 };
 
 const STORAGE_KEY = 'gqs:accessibility';
@@ -34,6 +46,9 @@ export function loadSettings(): AccessibilitySettings {
       voiceRate: typeof parsed.voiceRate === 'number' && parsed.voiceRate >= 0.5 && parsed.voiceRate <= 1.5
         ? parsed.voiceRate
         : 0.88,
+      challengeLevel: parsed.challengeLevel === 'easier' || parsed.challengeLevel === 'harder'
+        ? parsed.challengeLevel
+        : 'normal',
     };
   } catch {
     return DEFAULT_SETTINGS;

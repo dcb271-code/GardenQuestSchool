@@ -15,6 +15,7 @@ describe('accessibility settings', () => {
       textSize: 1,
       voiceName: null,
       voiceRate: 0.88,
+      challengeLevel: 'normal',
     });
   });
 
@@ -25,6 +26,7 @@ describe('accessibility settings', () => {
       textSize: 1.5,
       voiceName: 'Moira',
       voiceRate: 0.95,
+      challengeLevel: 'harder',
     });
     expect(loadSettings()).toEqual({
       openDyslexic: true,
@@ -32,6 +34,7 @@ describe('accessibility settings', () => {
       textSize: 1.5,
       voiceName: 'Moira',
       voiceRate: 0.95,
+      challengeLevel: 'harder',
     });
   });
 
@@ -52,6 +55,7 @@ describe('accessibility settings', () => {
       textSize: 1.25,
       voiceName: null,
       voiceRate: 0.88,
+      challengeLevel: 'normal',
     });
     expect(document.body.classList.contains('dyslexic-font')).toBe(true);
     expect(document.body.classList.contains('reduced-motion')).toBe(true);

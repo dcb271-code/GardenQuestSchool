@@ -11,6 +11,12 @@ interface Candidate {
   title: string;
   themeEmoji: string;
   skillHint: string;
+  structureCode?: string | null;
+  structureLabel?: string;
+  zone?: string;
+  correctCount?: number;
+  target?: number;
+  completed?: boolean;
 }
 
 export default function ExploreClient() {
@@ -74,6 +80,11 @@ export default function ExploreClient() {
             emoji={c.themeEmoji}
             title={c.title}
             hint={c.skillHint}
+            structureLabel={c.structureLabel}
+            zone={c.zone}
+            correctCount={c.correctCount}
+            target={c.target}
+            completed={c.completed}
             onSelect={() => start(c.skillCode)}
             index={i}
           />
