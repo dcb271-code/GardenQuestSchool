@@ -20,7 +20,7 @@ export default async function ParentDashboardPage() {
 
   const { data: learners } = await db
     .from('learner')
-    .select('id, first_name, avatar_key, created_at')
+    .select('id, first_name, avatar_key, grade_level, default_challenge, created_at')
     .order('created_at', { ascending: true });
 
   const summaries: LearnerSummary[] = [];
@@ -108,6 +108,8 @@ export default async function ParentDashboardPage() {
       id: l.id,
       firstName: l.first_name,
       avatarKey: l.avatar_key ?? 'fox',
+      gradeLevel: (l as any).grade_level ?? null,
+      defaultChallenge: (l as any).default_challenge ?? null,
       sessionsAll,
       sessionsThisWeek,
       correctTotal: correctCount ?? 0,

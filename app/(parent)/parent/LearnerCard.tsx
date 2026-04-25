@@ -18,6 +18,8 @@ export interface LearnerSummary {
   id: string;
   firstName: string;
   avatarKey: string;
+  gradeLevel: number | null;
+  defaultChallenge: 'easier' | 'normal' | 'harder' | null;
   sessionsAll: number;
   sessionsThisWeek: number;
   correctTotal: number;
@@ -39,12 +41,45 @@ export interface LearnerSummary {
   }>;
 }
 
+const CHALLENGE_LABEL: Record<string, { emoji: string; label: string }> = {
+  easier: { emoji: '🌱', label: 'easier' },
+  normal: { emoji: '🍃', label: 'just right' },
+  harder: { emoji: '🔥', label: 'harder' },
+};
+
 export default function LearnerCard({ summary }: { summary: LearnerSummary }) {
   const router = useRouter();
   const [resetOpen, setResetOpen] = useState(false);
+  const [editingGrade, setEditingGrade] = useState(false);
+  const [editingChallenge, setEditingChallenge] = useState(false);
+  const [savingField, setSavingField] = useState<'grade' | 'challenge' | null>(null);
 
   const avatar = AVATAR_EMOJI[summary.avatarKey] ?? '🦊';
   const lastActive = summary.recentSessions[0]?.startedAt;
+
+  const updateLearner = async (
+    patch: { gradeLevel?: 1 | 2 | 3; defaultChallenge?: 'easier' | 'normal' | 'harder' },
+    field: 'grade' | 'challenge',
+  ) => {
+    setSavingField(field);
+    try {
+      const res = await fetch(`/api/learner/${summary.id}`, {
+        method: 'PATCH',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(patch),
+      });
+      if (!res.ok) {
+        const j = await res.json().catch(() => ({}));
+        alert(`Could not save: ${j.error ?? res.statusText}`);
+        return;
+      }
+      if (field === 'grade') setEditingGrade(false);
+      if (field === 'challenge') setEditingChallenge(false);
+      router.refresh();
+    } finally {
+      setSavingField(null);
+    }
+  };
 
   const onReset = async (scope: 'habitats' | 'journal' | 'sessions' | 'all') => {
     const res = await fetch(`/api/learner/${summary.id}/reset`, {
@@ -68,6 +103,94 @@ export default function LearnerCard({ summary }: { summary: LearnerSummary }) {
             {lastActive
               ? `Last session ${formatRelative(lastActive)}`
               : 'No sessions yet'}
+          </div>
+
+          {/* Editable grade + starting challenge — click a chip to
+              swap to a 3-button picker, click outside (or pick) to
+              commit. No save button needed; the PATCH fires on
+              selection. */}
+          <div className="flex items-center gap-2 mt-2 flex-wrap">
+            {editingGrade ? (
+              <div className="inline-flex items-center gap-1 bg-white border border-blue-300 rounded-lg p-1">
+                {([1, 2, 3] as const).map(g => (
+                  <button
+                    key={g}
+                    type="button"
+                    disabled={savingField === 'grade'}
+                    onClick={() => updateLearner({ gradeLevel: g }, 'grade')}
+                    className={`text-xs px-2 py-1 rounded font-semibold ${
+                      summary.gradeLevel === g
+                        ? 'bg-blue-600 text-white'
+                        : 'text-gray-700 hover:bg-blue-50'
+                    } disabled:opacity-50`}
+                  >
+                    Grade {g}
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setEditingGrade(false)}
+                  className="text-xs text-gray-500 hover:text-gray-700 px-1.5"
+                  aria-label="cancel"
+                >
+                  ✕
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setEditingGrade(true)}
+                className="inline-flex items-center gap-1 text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full px-2.5 py-1 font-semibold"
+                title="Change grade level"
+              >
+                Grade {summary.gradeLevel ?? '?'}
+                <span className="text-gray-400">✎</span>
+              </button>
+            )}
+
+            {editingChallenge ? (
+              <div className="inline-flex items-center gap-1 bg-white border border-amber-300 rounded-lg p-1">
+                {(['easier', 'normal', 'harder'] as const).map(c => {
+                  const meta = CHALLENGE_LABEL[c];
+                  return (
+                    <button
+                      key={c}
+                      type="button"
+                      disabled={savingField === 'challenge'}
+                      onClick={() => updateLearner({ defaultChallenge: c }, 'challenge')}
+                      className={`text-xs px-2 py-1 rounded font-semibold flex items-center gap-1 ${
+                        summary.defaultChallenge === c
+                          ? 'bg-amber-500 text-white'
+                          : 'text-gray-700 hover:bg-amber-50'
+                      } disabled:opacity-50`}
+                    >
+                      <span>{meta.emoji}</span>
+                      {meta.label}
+                    </button>
+                  );
+                })}
+                <button
+                  type="button"
+                  onClick={() => setEditingChallenge(false)}
+                  className="text-xs text-gray-500 hover:text-gray-700 px-1.5"
+                  aria-label="cancel"
+                >
+                  ✕
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setEditingChallenge(true)}
+                className="inline-flex items-center gap-1 text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full px-2.5 py-1 font-semibold"
+                title="Change starting challenge"
+              >
+                {summary.defaultChallenge
+                  ? <>{CHALLENGE_LABEL[summary.defaultChallenge].emoji} {CHALLENGE_LABEL[summary.defaultChallenge].label}</>
+                  : 'set challenge'}
+                <span className="text-gray-400">✎</span>
+              </button>
+            )}
           </div>
         </div>
         <div className="flex gap-2">
