@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import type { SpeciesData } from '@/lib/world/speciesCatalog';
+import { SpeciesIllustration } from '@/components/child/garden/speciesIllustrations';
 
 export default function JournalSpeciesCard({
   species, unlocked, index = 0,
@@ -33,9 +34,10 @@ export default function JournalSpeciesCard({
         />
       )}
 
-      {/* Emoji — for unlocked, rise + slight settle */}
+      {/* Hand-drawn illustration if available, emoji fallback. Locked
+          species always show a ❓ silhouette. */}
       <motion.div
-        className="text-5xl relative z-10"
+        className="relative z-10 shrink-0 w-14 h-14 flex items-center justify-center"
         initial={unlocked ? { scale: 0.4, opacity: 0, rotate: -12 } : { scale: 0.9, opacity: 0.5 }}
         whileInView={unlocked
           ? { scale: [0.4, 1.15, 0.95, 1], opacity: 1, rotate: [-12, 6, -3, 0] }
@@ -44,7 +46,11 @@ export default function JournalSpeciesCard({
         transition={{ duration: 0.9, delay: 0.1 + Math.min(index * 0.04, 0.4), ease: [0.22, 0.9, 0.34, 1] }}
         style={{ filter: unlocked ? undefined : 'grayscale(1)' }}
       >
-        {unlocked ? species.emoji : '❓'}
+        {unlocked ? (
+          <SpeciesIllustrationOrEmoji species={species} size={56} />
+        ) : (
+          <span className="text-5xl">❓</span>
+        )}
       </motion.div>
 
       <div className="flex-1 relative z-10">
@@ -85,4 +91,12 @@ export default function JournalSpeciesCard({
       )}
     </motion.div>
   );
+}
+
+// Render the hand-drawn SVG if it exists, otherwise fall back to the
+// species' emoji at a compatible size.
+function SpeciesIllustrationOrEmoji({ species, size }: { species: SpeciesData; size: number }) {
+  const drawn = SpeciesIllustration({ code: species.code, size });
+  if (drawn) return drawn;
+  return <span className="text-5xl">{species.emoji}</span>;
 }
