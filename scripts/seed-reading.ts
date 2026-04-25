@@ -341,15 +341,73 @@ export async function seedReading(
     (w: string) => `Show me "${w}".`,
   ];
 
+  // Articles, prepositions, conjunctions, and other functional glue
+  // words that don't belong in a sight-word recognition exercise — at
+  // 1st/2nd-grade level a child either knows these from sheer
+  // frequency or would never see them in isolation. Combined with the
+  // 3-letter minimum below, this catches all the "too simple" forms.
+  const FUNCTION_WORD_DENYLIST = new Set<string>([
+    // articles
+    'a', 'an', 'the',
+    // prepositions
+    'at', 'by', 'for', 'from', 'in', 'into', 'of', 'off', 'on', 'onto',
+    'out', 'over', 'past', 'to', 'under', 'up', 'upon', 'with',
+    'about', 'after', 'around', 'before', 'between', 'down',
+    // conjunctions
+    'and', 'as', 'but', 'if', 'or', 'so',
+    // tiny pronouns / copulas (also 1-2 letter, but listed for clarity)
+    'i', 'me', 'my', 'we', 'us', 'it', 'he', 'is', 'am',
+  ]);
+
+  /** A word is teachable as a sight-word target if it's at least
+   *  three letters and isn't a function word. */
+  function isTeachableSightWord(w: string): boolean {
+    if (w.length < 3) return false;
+    if (FUNCTION_WORD_DENYLIST.has(w.toLowerCase())) return false;
+    return true;
+  }
+
+  /** Deterministic mulberry32 RNG seeded from a string. */
+  function seededRng(seed: string): () => number {
+    let h = 0;
+    for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) | 0;
+    let s = (h >>> 0) || 1;
+    return () => {
+      s |= 0; s = (s + 0x6D2B79F5) | 0;
+      let t = Math.imul(s ^ (s >>> 15), 1 | s);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  /** Pick `n` distinct distractor words from `pool`, never the
+   *  target itself, and never two of the same word. */
+  function pickUniqueDistractors(target: string, pool: string[], n: number, rand: () => number): string[] {
+    const seen = new Set<string>([target.toLowerCase()]);
+    const out: string[] = [];
+    // Fisher–Yates shuffle of a defensive copy
+    const shuffled = pool.slice();
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(rand() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    for (const w of shuffled) {
+      const key = w.toLowerCase();
+      if (seen.has(key)) continue;
+      out.push(w);
+      seen.add(key);
+      if (out.length >= n) break;
+    }
+    return out;
+  }
+
   function sightWordItems(skillCode: string, words: string[], startElo: number) {
-    for (let i = 0; i < words.length; i++) {
-      const word = words[i];
-      const pool = words.filter(w => w !== word);
-      const distractors = [
-        pool[(i * 3) % pool.length],
-        pool[(i * 7 + 1) % pool.length],
-        pool[(i * 11 + 2) % pool.length],
-      ];
+    const teachable = words.filter(isTeachableSightWord);
+    const rand = seededRng(skillCode);
+    for (let i = 0; i < teachable.length; i++) {
+      const word = teachable[i];
+      const distractors = pickUniqueDistractors(word, teachable, 3, rand);
+      if (distractors.length < 3) continue;  // not enough teachable pool
       push(skillCode, 'SightWordTap', {
         type: 'SightWordTap', word, distractors,
         promptText: SIGHT_PROMPTS[i % SIGHT_PROMPTS.length](word),
