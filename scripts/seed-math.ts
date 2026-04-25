@@ -755,9 +755,18 @@ export async function seedMath(
     .filter(([c]) => c.startsWith('math.'))
     .map(([, id]) => id);
   if (mathSkillIds.length > 0) {
-    const { data: prior } = await sb.from('item')
-      .select('id').eq('generated_by', 'seed').in('skill_id', mathSkillIds);
-    const priorIds = (prior ?? []).map(r => r.id);
+    // Paginate — Supabase caps SELECT at 1000 rows by default.
+    const PAGE = 1000;
+    const priorIds: string[] = [];
+    for (let from = 0; ; from += PAGE) {
+      const { data, error } = await sb.from('item')
+        .select('id').eq('generated_by', 'seed').in('skill_id', mathSkillIds)
+        .range(from, from + PAGE - 1);
+      if (error) throw error;
+      if (!data || data.length === 0) break;
+      for (const r of data) priorIds.push(r.id);
+      if (data.length < PAGE) break;
+    }
     if (priorIds.length > 0) {
       // PostgREST has a URL-length limit (~8KB). With ~1000 UUIDs of
       // 37 chars each, a single .in('id', priorIds) blows the URL,
