@@ -15,6 +15,8 @@ interface Learner {
   id: string;
   first_name: string;
   avatar_key: string | null;
+  grade_level?: number | null;
+  default_challenge?: 'easier' | 'normal' | 'harder' | null;
 }
 
 export default function PickerClient({ learners: initial }: { learners: Learner[] }) {
@@ -73,6 +75,8 @@ export default function PickerClient({ learners: initial }: { learners: Learner[
               <ProfileTile
                 name={l.first_name}
                 avatarEmoji={avatarMap[l.avatar_key ?? 'fox'] ?? '🦊'}
+                gradeLevel={l.grade_level ?? null}
+                defaultChallenge={l.default_challenge ?? null}
                 href={`/garden?learner=${l.id}`}
               />
             </motion.div>

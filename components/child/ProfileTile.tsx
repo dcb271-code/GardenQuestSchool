@@ -17,9 +17,23 @@ function extractLearnerId(href: string): string | null {
   }
 }
 
+const CHALLENGE_EMOJI: Record<string, string> = {
+  easier: '🌱',
+  normal: '🍃',
+  harder: '🔥',
+};
+
 export default function ProfileTile({
   name, avatarEmoji, href,
-}: { name: string; avatarEmoji: string; href: string }) {
+  gradeLevel = null,
+  defaultChallenge = null,
+}: {
+  name: string;
+  avatarEmoji: string;
+  href: string;
+  gradeLevel?: number | null;
+  defaultChallenge?: 'easier' | 'normal' | 'harder' | null;
+}) {
   const onTap = () => {
     const id = extractLearnerId(href);
     if (id && typeof document !== 'undefined') {
@@ -31,7 +45,7 @@ export default function ProfileTile({
     <Link
       href={href}
       onClick={onTap}
-      className="group flex flex-col items-center justify-center w-40 h-40 bg-white rounded-3xl border-4 border-ochre shadow-md hover:shadow-lg transition-shadow relative overflow-hidden"
+      className="group flex flex-col items-center justify-center w-40 h-44 bg-white rounded-3xl border-4 border-ochre shadow-md hover:shadow-lg transition-shadow relative overflow-hidden"
       style={{ touchAction: 'manipulation' }}
     >
       {/* soft warm inner glow on hover */}
@@ -52,11 +66,36 @@ export default function ProfileTile({
         {avatarEmoji}
       </motion.div>
       <div
-        className="mt-2 font-display text-[22px] text-bark relative z-10"
+        className="mt-2 font-display text-[22px] text-bark relative z-10 leading-none"
         style={{ fontWeight: 600, letterSpacing: '-0.01em' }}
       >
         {name}
       </div>
+      {/* Grade + challenge badge — sits under the name so the parent
+          (and the child) sees at a glance who's calibrated to what.
+          Hidden when both fields are absent so older learners that
+          predate the migration don't render an ugly empty pill. */}
+      {(gradeLevel || defaultChallenge) && (
+        <div className="mt-1.5 flex items-center gap-1 relative z-10">
+          {gradeLevel && (
+            <span
+              className="font-display italic text-[11px] tracking-[0.1em] uppercase text-bark/70 bg-cream/80 border border-ochre/50 rounded-full px-2 py-0.5"
+              style={{ fontWeight: 600 }}
+            >
+              Grade {gradeLevel}
+            </span>
+          )}
+          {defaultChallenge && (
+            <span
+              className="text-[12px]"
+              title={defaultChallenge}
+              aria-label={`${defaultChallenge} challenge`}
+            >
+              {CHALLENGE_EMOJI[defaultChallenge] ?? '🍃'}
+            </span>
+          )}
+        </div>
+      )}
     </Link>
   );
 }

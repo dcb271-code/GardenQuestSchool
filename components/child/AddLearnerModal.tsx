@@ -12,21 +12,45 @@ const AVATARS: Array<{ key: string; emoji: string; label: string }> = [
   { key: 'bee', emoji: '🐝', label: 'Bee' },
 ];
 
+const GRADES: Array<{ value: 1 | 2 | 3; label: string; hint: string }> = [
+  { value: 1, label: 'Grade 1', hint: 'reading short words, adding within 10' },
+  { value: 2, label: 'Grade 2', hint: 'crossing-ten addition, longer reading' },
+  { value: 3, label: 'Grade 3', hint: 'place value, multi-digit, multiplication' },
+];
+
+const CHALLENGES: Array<{ value: 'easier' | 'normal' | 'harder'; label: string; hint: string; emoji: string }> = [
+  { value: 'easier', emoji: '🌱', label: 'easier', hint: 'lots of warm-up' },
+  { value: 'normal', emoji: '🍃', label: 'just right', hint: 'on-grade' },
+  { value: 'harder', emoji: '🔥', label: 'harder', hint: 'a real stretch' },
+];
+
+export type NewLearner = {
+  id: string;
+  first_name: string;
+  avatar_key: string;
+  grade_level: 1 | 2 | 3;
+  default_challenge: 'easier' | 'normal' | 'harder';
+};
+
 export default function AddLearnerModal({
   open, onClose, onCreated,
 }: {
   open: boolean;
   onClose: () => void;
-  onCreated: (learner: { id: string; first_name: string; avatar_key: string }) => void;
+  onCreated: (learner: NewLearner) => void;
 }) {
   const [name, setName] = useState('');
   const [avatarKey, setAvatarKey] = useState('fox');
+  const [gradeLevel, setGradeLevel] = useState<1 | 2 | 3>(2);
+  const [defaultChallenge, setDefaultChallenge] = useState<'easier' | 'normal' | 'harder'>('normal');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const reset = () => {
     setName('');
     setAvatarKey('fox');
+    setGradeLevel(2);
+    setDefaultChallenge('normal');
     setError(null);
     setBusy(false);
   };
@@ -45,7 +69,12 @@ export default function AddLearnerModal({
       const res = await fetch('/api/learner', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ firstName: name.trim(), avatarKey }),
+        body: JSON.stringify({
+          firstName: name.trim(),
+          avatarKey,
+          gradeLevel,
+          defaultChallenge,
+        }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -57,6 +86,8 @@ export default function AddLearnerModal({
         id: data.learnerId,
         first_name: name.trim(),
         avatar_key: avatarKey,
+        grade_level: gradeLevel,
+        default_challenge: defaultChallenge,
       });
       reset();
       onClose();
@@ -82,7 +113,7 @@ export default function AddLearnerModal({
           onClick={close}
         >
           <motion.div
-            className="relative bg-cream border-4 border-terracotta rounded-3xl max-w-md w-full p-6 shadow-2xl"
+            className="relative bg-cream border-4 border-terracotta rounded-3xl max-w-md w-full p-6 shadow-2xl max-h-[90vh] overflow-y-auto"
             initial={{ scale: 0.9, y: 12, opacity: 0 }}
             animate={{ scale: 1, y: 0, opacity: 1 }}
             exit={{ scale: 0.95, y: 8, opacity: 0 }}
@@ -142,6 +173,67 @@ export default function AddLearnerModal({
                       {a.emoji}
                     </motion.button>
                   ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-display italic text-[14px] text-bark/65 mb-2">
+                  what grade are they in?
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {GRADES.map(g => (
+                    <motion.button
+                      type="button"
+                      key={g.value}
+                      onClick={() => setGradeLevel(g.value)}
+                      className={`p-3 rounded-xl border-4 text-center ${
+                        gradeLevel === g.value
+                          ? 'border-forest bg-forest/10'
+                          : 'border-ochre/50 bg-white hover:border-ochre'
+                      }`}
+                      style={{ touchAction: 'manipulation' }}
+                      whileTap={{ scale: 0.95 }}
+                      whileHover={{ scale: 1.03 }}
+                    >
+                      <div className="font-display text-[18px] text-bark" style={{ fontWeight: 600 }}>
+                        {g.label}
+                      </div>
+                    </motion.button>
+                  ))}
+                </div>
+                <div className="font-display italic text-[12px] text-bark/55 mt-2 text-center">
+                  {GRADES.find(g => g.value === gradeLevel)?.hint}
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-display italic text-[14px] text-bark/65 mb-2">
+                  starting challenge — within {GRADES.find(g => g.value === gradeLevel)?.label}
+                </label>
+                <div className="grid grid-cols-3 gap-2">
+                  {CHALLENGES.map(c => (
+                    <motion.button
+                      type="button"
+                      key={c.value}
+                      onClick={() => setDefaultChallenge(c.value)}
+                      className={`p-3 rounded-xl border-4 text-center ${
+                        defaultChallenge === c.value
+                          ? 'border-terracotta bg-terracotta/10'
+                          : 'border-ochre/50 bg-white hover:border-ochre'
+                      }`}
+                      style={{ touchAction: 'manipulation' }}
+                      whileTap={{ scale: 0.95 }}
+                      whileHover={{ scale: 1.03 }}
+                    >
+                      <div className="text-2xl">{c.emoji}</div>
+                      <div className="font-display text-[14px] text-bark mt-0.5" style={{ fontWeight: 600 }}>
+                        {c.label}
+                      </div>
+                    </motion.button>
+                  ))}
+                </div>
+                <div className="font-display italic text-[12px] text-bark/55 mt-2 text-center">
+                  {CHALLENGES.find(c => c.value === defaultChallenge)?.hint} — they can change this any time
                 </div>
               </div>
 
