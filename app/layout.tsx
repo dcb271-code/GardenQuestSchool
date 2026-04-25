@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import { Nunito, Fraunces } from 'next/font/google';
 import AccessibilityApplier from '@/components/shared/AccessibilityApplier';
+import AudioUnlocker from '@/components/shared/AudioUnlocker';
 import './globals.css';
 
 const nunito = Nunito({
@@ -17,8 +18,17 @@ const fraunces = Fraunces({
 });
 
 export const metadata: Metadata = {
-  title: 'GardenQuestSchool',
-  description: 'A naturalist learning world.',
+  title: 'Garden Quest School',
+  description: 'A naturalist learning world for curious children.',
+  applicationName: 'Garden Quest',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'Garden Quest',
+  },
+  formatDetection: {
+    telephone: false,
+  },
 };
 
 export const viewport: Viewport = {
@@ -26,7 +36,11 @@ export const viewport: Viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
-  themeColor: '#F5EBDC',
+  viewportFit: 'cover',
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#F5EBDC' },
+    { media: '(prefers-color-scheme: dark)',  color: '#6B8E5A' },
+  ],
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -34,6 +48,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${nunito.variable} ${fraunces.variable}`}>
       <body>
         <AccessibilityApplier />
+        <AudioUnlocker />
         {children}
       </body>
     </html>

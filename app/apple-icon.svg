@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" width="180" height="180">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F6EAD4"/>
+      <stop offset="55%" stop-color="#AED29A"/>
+      <stop offset="100%" stop-color="#6B8E5A"/>
+    </linearGradient>
+  </defs>
+  <rect width="180" height="180" fill="url(#sky)"/>
+
+  <!-- distant fuji -->
+  <path d="M 50 100 Q 70 60 90 30 Q 110 60 130 100 Z" fill="#B5BED4" opacity="0.85"/>
+  <path d="M 80 50 Q 90 35 100 50 Q 95 47 92 52 Q 88 47 84 53 Q 82 50 80 50 Z" fill="#F8F4E8"/>
+
+  <!-- hills -->
+  <path d="M 0 130 Q 45 110 90 122 Q 135 134 180 118 L 180 180 L 0 180 Z" fill="#8AAF84"/>
+
+  <!-- house -->
+  <rect x="48" y="118" width="36" height="32" fill="#C9A880" stroke="#6B4423" stroke-width="2"/>
+  <path d="M 44 120 L 66 100 L 88 120 Z" fill="#5D5A54" stroke="#6B4423" stroke-width="2" stroke-linejoin="round"/>
+  <rect x="62" y="130" width="8" height="20" fill="#C94C3E"/>
+
+  <!-- tree -->
+  <ellipse cx="125" cy="115" rx="22" ry="22" fill="#6B8E5A" stroke="#5C7E4F" stroke-width="1.5"/>
+  <rect x="123" y="130" width="4" height="14" fill="#6B4423"/>
+
+  <!-- sun -->
+  <circle cx="138" cy="42" r="14" fill="#FFE89A" opacity="0.9"/>
+</svg>

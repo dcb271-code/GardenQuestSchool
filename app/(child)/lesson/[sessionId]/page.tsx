@@ -4,6 +4,7 @@ import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import LessonHeader from '@/components/child/LessonHeader';
+import SkillIntroOverlay from '@/components/child/SkillIntroOverlay';
 import { getItemHandler, getPromptText } from '@/lib/packs';
 import { useNarrator } from '@/lib/audio/useNarrator';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
@@ -54,17 +55,26 @@ export default function LessonPage({ params }: { params: { sessionId: string } }
   const loadNext = useCallback(async () => {
     setStatus('loading');
     setRetries(0);
-    const res = await fetch(`/api/session/${params.sessionId}/item`);
-    const data = await res.json();
-    if (data.learnerId) setLearnerId(data.learnerId);
-    if (data.ended) {
-      endSession();
-      return;
+    try {
+      const res = await fetch(`/api/session/${params.sessionId}/item`);
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status}`);
+      }
+      const data = await res.json();
+      if (data.learnerId) setLearnerId(data.learnerId);
+      if (data.ended) {
+        endSession();
+        return;
+      }
+      setItem(data);
+      startTime.current = Date.now();
+      setStatus('ready');
+    } catch (err) {
+      console.error('Failed to load next item:', err);
+      // Don't crash — push the user back to the garden gracefully.
+      router.push('/picker');
     }
-    setItem(data);
-    startTime.current = Date.now();
-    setStatus('ready');
-  }, [params.sessionId, endSession]);
+  }, [params.sessionId, endSession, router]);
 
   const MAX_RETRIES = 2;
 
@@ -127,6 +137,13 @@ export default function LessonPage({ params }: { params: { sessionId: string } }
         onReplayAudio={() => replay()}
         onWonder={() => {/* Plan 3 virtue detector */}}
         onSkip={item ? skip : undefined}
+      />
+
+      <SkillIntroOverlay
+        learnerId={learnerId}
+        skillCode={item?.skillCode ?? null}
+        themeTitle={item?.themeTitle}
+        themeEmoji={item?.themeEmoji}
       />
 
       <div className="flex-1 relative">

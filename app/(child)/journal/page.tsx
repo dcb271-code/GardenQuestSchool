@@ -1,8 +1,8 @@
 import Link from 'next/link';
-import JournalSpeciesCard from '@/components/child/JournalSpeciesCard';
 import VirtueGemMoment from '@/components/child/VirtueGemMoment';
 import { createServiceClient } from '@/lib/supabase/server';
 import { SPECIES_CATALOG } from '@/lib/world/speciesCatalog';
+import SpeciesGrid from './SpeciesGrid';
 
 export const dynamic = 'force-dynamic';
 
@@ -134,11 +134,13 @@ export default async function JournalPage({
           </div>
         )}
 
-        <div className="space-y-3">
-          {SPECIES_CATALOG.map((s, i) => (
-            <JournalSpeciesCard key={s.code} species={s} unlocked={unlocked.has(s.code)} index={i} />
-          ))}
-        </div>
+        <SpeciesGrid unlockedCodes={Array.from(unlocked)} />
+
+        {unlocked.size > 0 && (
+          <div className="mt-4 text-center font-display italic text-[13px] text-bark/55">
+            tap a creature you&apos;ve discovered to learn more about it
+          </div>
+        )}
       </section>
     </main>
   );
