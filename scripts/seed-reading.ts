@@ -409,6 +409,194 @@ const COMPREHENSION_ITEMS: Comprehension[] = [
     correct: 'when the moon rose', distractors: ['at sunrise', 'after lunch', 'during the storm'], difficulty: 'stretch' },
 ];
 
+/**
+ * Grade-3 paragraph comprehension. Each entry is one paragraph
+ * (~3-5 sentences, 40-90 words) with multiple linked questions of
+ * different kinds. The seed loop fans out one item per question.
+ *
+ * Vocab is a Grade-2-friendly base + a few stretch words per
+ * passage so the child encounters new words in context. Content
+ * is naturalist (the same world the garden lives in) so a child
+ * who's been playing for a while recognises the cast.
+ */
+type Paragraph = {
+  paragraph: string;
+  questions: Array<{
+    q: string;
+    correct: string;
+    distractors: string[];
+    kind: 'recall' | 'sequence' | 'inference' | 'main_idea' | 'vocab';
+  }>;
+};
+
+const PARAGRAPHS: Paragraph[] = [
+  {
+    paragraph:
+      "Cecily and her sister Esme found a small pond at the edge of the meadow. " +
+      "A green frog sat very still on a flat lily pad, watching them. " +
+      "When Esme stepped closer, the frog leapt with a quick splash and disappeared under the water. " +
+      "The two girls sat down on the grass to wait for the frog to come back.",
+    questions: [
+      { q: 'Where did the girls find the pond?',
+        correct: 'at the edge of the meadow',
+        distractors: ['behind their house', 'in the forest', 'next to the road'],
+        kind: 'recall' },
+      { q: 'Why do you think the frog jumped?',
+        correct: 'Esme stepped close and surprised it',
+        distractors: ['it was hungry', 'a fish came near', 'the sun was too hot'],
+        kind: 'inference' },
+      { q: 'What did the girls do after the frog disappeared?',
+        correct: 'they sat down to wait for it',
+        distractors: ['they ran home', 'they tried to catch it', 'they threw food in the water'],
+        kind: 'sequence' },
+    ],
+  },
+  {
+    paragraph:
+      "A row of busy ants marched along the garden path. " +
+      "Each ant carried a tiny piece of leaf back to the ant hill. " +
+      "Inside the hill, the worker ants chew the leaves into a soft mush, and the mush helps grow a special fungus. " +
+      "The ants don't actually eat the leaves — they eat the fungus that grows on them.",
+    questions: [
+      { q: 'What were the ants carrying?',
+        correct: 'tiny pieces of leaf',
+        distractors: ['drops of water', 'small seeds', 'crumbs of bread'],
+        kind: 'recall' },
+      { q: 'What do the ants actually eat?',
+        correct: 'the fungus that grows on the leaves',
+        distractors: ['the leaves', 'other ants', 'tiny bugs'],
+        kind: 'recall' },
+      { q: 'What is this passage mostly about?',
+        correct: 'how ants use leaves to grow their food',
+        distractors: ['the path through a garden', 'why ants march in a row', 'the size of an ant hill'],
+        kind: 'main_idea' },
+    ],
+  },
+  {
+    paragraph:
+      "The little firefly hovered above the dark meadow. " +
+      "She blinked her tiny green-yellow light on and off, on and off. " +
+      "Far across the field, another firefly began to flash back, and then another. " +
+      "Soon the whole meadow was twinkling, like a quiet party of stars that had come down to the grass.",
+    questions: [
+      { q: 'What color was the firefly\'s light?',
+        correct: 'green-yellow',
+        distractors: ['bright red', 'pure white', 'pale blue'],
+        kind: 'recall' },
+      { q: 'What happened in the meadow at the end?',
+        correct: 'many fireflies were flashing together',
+        distractors: ['a storm rolled in', 'the moon rose over the trees', 'the firefly flew away'],
+        kind: 'sequence' },
+      { q: 'In this passage, the word "twinkling" most likely means…',
+        correct: 'flashing softly with light',
+        distractors: ['making a quiet sound', 'moving in slow circles', 'falling from the sky'],
+        kind: 'vocab' },
+    ],
+  },
+  {
+    paragraph:
+      "Late in the afternoon, the wind began to grow stronger. " +
+      "The clouds turned grey and then nearly black. " +
+      "Cecily ran out to the garden and quickly tied a thin sapling to a wooden stake so the wind couldn't bend it too far. " +
+      "Just as she finished, the first big drops of rain began to fall.",
+    questions: [
+      { q: 'Why did Cecily tie up the sapling?',
+        correct: 'so the strong wind would not bend it too far',
+        distractors: ['so it would grow taller', 'so animals would not eat it', 'so it would get more sun'],
+        kind: 'inference' },
+      { q: 'What happened just after Cecily finished tying the sapling?',
+        correct: 'big raindrops started to fall',
+        distractors: ['the wind stopped', 'the sun came out', 'thunder cracked'],
+        kind: 'sequence' },
+    ],
+  },
+  {
+    paragraph:
+      "A small brown rabbit nibbled the soft clover at the edge of the lawn. " +
+      "Suddenly her ears perked up — she had heard something. " +
+      "Without a sound, she froze, becoming as still as a stone. " +
+      "After a long moment, she decided the danger had passed and went back to her quiet meal.",
+    questions: [
+      { q: 'What was the rabbit eating?',
+        correct: 'clover',
+        distractors: ['carrots', 'grass seeds', 'lettuce leaves'],
+        kind: 'recall' },
+      { q: 'Why did the rabbit freeze?',
+        correct: 'she heard something that might be danger',
+        distractors: ['she was tired', 'she saw another rabbit', 'she lost her balance'],
+        kind: 'inference' },
+      { q: 'In this passage, "froze" means…',
+        correct: 'stayed perfectly still',
+        distractors: ['turned to ice', 'felt very cold', 'started shaking'],
+        kind: 'vocab' },
+    ],
+  },
+  {
+    paragraph:
+      "Bees are the gardeners of the meadow. " +
+      "When a honey bee lands on a flower to drink the nectar, tiny grains of yellow pollen stick to her fuzzy body. " +
+      "When she flies to the next flower, some of that pollen rubs off. " +
+      "Without bees moving pollen from blossom to blossom, many of the plants we love could not make seeds at all.",
+    questions: [
+      { q: 'What is this passage mostly about?',
+        correct: 'how bees help flowers make seeds',
+        distractors: ['how bees make honey', 'why bees live in a hive', 'how bees defend themselves'],
+        kind: 'main_idea' },
+      { q: 'What sticks to a bee while she drinks nectar?',
+        correct: 'pollen',
+        distractors: ['raindrops', 'sap', 'leaves'],
+        kind: 'recall' },
+      { q: 'In this passage, the word "blossom" means…',
+        correct: 'a flower',
+        distractors: ['a kind of bee', 'a stem', 'a small fruit'],
+        kind: 'vocab' },
+    ],
+  },
+  {
+    paragraph:
+      "Esme planted ten sunflower seeds in a tidy row in the spring. " +
+      "She watered the soil every morning before school. " +
+      "Slowly, the green sprouts pushed up out of the ground. " +
+      "By the middle of summer, eight of the seeds had grown into tall yellow flowers — though the other two never came up at all.",
+    questions: [
+      { q: 'How many seeds did Esme plant?',
+        correct: 'ten',
+        distractors: ['eight', 'six', 'twelve'],
+        kind: 'recall' },
+      { q: 'How many seeds turned into flowers?',
+        correct: 'eight',
+        distractors: ['ten', 'all of them', 'two'],
+        kind: 'recall' },
+      { q: 'What did Esme do every morning?',
+        correct: 'she watered the soil',
+        distractors: ['she counted the sprouts', 'she pulled weeds', 'she picked sunflowers'],
+        kind: 'recall' },
+    ],
+  },
+  {
+    paragraph:
+      "Spiders may look spooky, but they are very helpful to the garden. " +
+      "Most spiders eat insects that would otherwise nibble on plants. " +
+      "Some spiders spin big webs to catch flying bugs. " +
+      "Others wait quietly under leaves and pounce on insects that crawl by. " +
+      "Without spiders, our gardens would lose far more leaves to hungry bugs.",
+    questions: [
+      { q: 'How do most spiders help a garden?',
+        correct: 'they eat insects that would damage plants',
+        distractors: ['they pollinate the flowers', 'they make the soil softer', 'they scare away birds'],
+        kind: 'main_idea' },
+      { q: 'How do some spiders catch flying bugs?',
+        correct: 'they spin webs',
+        distractors: ['they jump high in the air', 'they hide inside flowers', 'they dig small traps'],
+        kind: 'recall' },
+      { q: 'What would happen without spiders in the garden?',
+        correct: 'more leaves would be eaten by bugs',
+        distractors: ['the flowers would not grow', 'the rain would stop', 'the bees would leave'],
+        kind: 'inference' },
+    ],
+  },
+];
+
 export async function seedReading(
   sb: SupabaseClient,
   subjectId: string,
@@ -888,6 +1076,35 @@ export async function seedReading(
         choices: [it.correct, ...it.distractors],
         promptText: it.question,
       }, { correct: it.correct }, elo);
+    }
+  }
+
+  // Paragraph comprehension (Grade 3) — fan one item out per
+  // question on each paragraph, with Elo varying by question kind:
+  // recall is the easiest cognitive load, then sequence, then
+  // inference, then vocab-from-context, then main_idea (the highest).
+  {
+    const KIND_ELO: Record<string, number> = {
+      recall:    1450,
+      sequence:  1500,
+      inference: 1550,
+      vocab:     1580,
+      main_idea: 1600,
+    };
+    for (let p = 0; p < PARAGRAPHS.length; p++) {
+      const para = PARAGRAPHS[p];
+      for (let q = 0; q < para.questions.length; q++) {
+        const qa = para.questions[q];
+        const elo = (KIND_ELO[qa.kind] ?? 1500) + p * 4;   // gentle drift across paragraphs
+        push('reading.comprehension.paragraph', 'ParagraphComprehension', {
+          type: 'ParagraphComprehension',
+          paragraph: para.paragraph,
+          question: qa.q,
+          choices: [qa.correct, ...qa.distractors],
+          questionKind: qa.kind,
+          promptText: qa.q,
+        }, { correct: qa.correct }, elo);
+      }
     }
   }
 

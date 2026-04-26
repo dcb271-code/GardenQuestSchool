@@ -125,14 +125,24 @@ export function reviewingSkillsForGrade(grade: GradeLevel): string[] {
     ];
   }
   return [
-    // Grade 3 stretch
+    // Grade 3 — first push includes paragraph comprehension and the
+    // first fractions skills. The rest of Grade 3 (multiplication
+    // tables, division, place value to 1000, multi-step word
+    // problems) lives in the spec at
+    // docs/superpowers/specs/2026-04-25-grade3-expansion-plan.md
+    // and lands in subsequent pushes.
     'math.add.within_100.with_regrouping',
     'math.subtract.within_100.with_regrouping',
     'math.placevalue.hundreds_tens_ones',
     'math.placevalue.compare_3digit',
     'math.multiply.equal_groups',
+    'math.multiply.arrays',
+    'math.fractions.identify',
+    'math.fractions.compare_visual',
     'reading.phonics.r_controlled',
     'reading.morphology.inflectional_ed_ing',
+    'reading.morphology.compound_words',
     'reading.comprehension.short_sentence',
+    'reading.comprehension.paragraph',
   ];
 }

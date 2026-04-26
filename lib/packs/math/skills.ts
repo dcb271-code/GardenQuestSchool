@@ -152,6 +152,18 @@ export const MATH_SKILLS: SkillDefinition[] = [
   // (No new skill rows here; the visual items reuse the existing
   // multiplication skills.)
 
+  // ─── FRACTIONS (Grade 3 — first push) ──────────────────────────────
+  { code: 'math.fractions.identify', name: 'Name the fraction shaded',
+    strandCode: 'measurement', level: 0.7,
+    prereqSkillCodes: ['math.multiply.equal_groups'],
+    curriculumRefs: { ccss: '3.NF.A.1' },
+    themeTags: ['fractions', 'parts_whole', 'visual'], sortOrder: 80 },
+  { code: 'math.fractions.compare_visual', name: 'Compare fractions (visual)',
+    strandCode: 'measurement', level: 0.78,
+    prereqSkillCodes: ['math.fractions.identify'],
+    curriculumRefs: { ccss: '3.NF.A.3.d' },
+    themeTags: ['fractions', 'compare', 'visual'], sortOrder: 81 },
+
   // ─── WORD PROBLEMS (contextual practice) ───────────────────────────
   { code: 'math.word_problem.add_within_20', name: 'Word problems (+ within 20)',
     strandCode: 'operations', level: 0.4,

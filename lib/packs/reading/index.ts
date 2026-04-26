@@ -3,13 +3,14 @@ import { READING_STRANDS } from './strands';
 import { READING_THEMES, getReadingThemeHeader } from './themes';
 import {
   scoreSightWordTap, scorePhonemeBlend, scoreDigraphSort, scoreReadAloudSimple,
-  scoreSentenceComprehension,
+  scoreSentenceComprehension, scoreParagraphComprehension,
 } from './scoring';
 import SightWordTap from './rendering/SightWordTap';
 import PhonemeBlend from './rendering/PhonemeBlend';
 import DigraphSort from './rendering/DigraphSort';
 import ReadAloudSimple from './rendering/ReadAloudSimple';
 import SentenceComprehension from './rendering/SentenceComprehension';
+import ParagraphComprehension from './rendering/ParagraphComprehension';
 import type { ItemTypeMap } from '@/lib/packs/registry';
 
 export const ReadingPack = {
@@ -57,6 +58,14 @@ export const readingItemTypes: ItemTypeMap = {
     // Narrate the QUESTION, not the sentence — the sentence is the
     // exercise the child is reading. Hearing it read aloud first
     // would defeat the comprehension test.
+    getPromptText: (item) => item.content?.question ?? item.content?.promptText ?? '',
+  },
+  ParagraphComprehension: {
+    renderer: ParagraphComprehension,
+    score: scoreParagraphComprehension,
+    // Same rule as SentenceComprehension: read the question aloud
+    // (so a struggling reader can still attempt) but never the
+    // paragraph itself.
     getPromptText: (item) => item.content?.question ?? item.content?.promptText ?? '',
   },
 };

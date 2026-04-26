@@ -30,3 +30,9 @@ export function scoreSentenceComprehension(item: Item, response: any): ScoreOutc
   const given = (response as { chosen: string })?.chosen;
   return { outcome: given === expected ? 'correct' : 'incorrect' };
 }
+
+export function scoreParagraphComprehension(item: Item, response: any): ScoreOutcome {
+  const expected = (item.answer as { correct: string }).correct;
+  const given = (response as { chosen: string })?.chosen;
+  return { outcome: given === expected ? 'correct' : 'incorrect' };
+}

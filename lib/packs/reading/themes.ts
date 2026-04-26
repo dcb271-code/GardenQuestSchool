@@ -27,6 +27,10 @@ export const READING_THEMES: Record<string, ThemeHeader> = {
   // Oral reading
   'reading.read_aloud.simple': { title: 'Read It Aloud', themeEmoji: '📖', skillHint: 'practice reading' },
   'reading.read_aloud.longer_words': { title: 'Longer Words', themeEmoji: '📚', skillHint: 'multi-syllable' },
+
+  // Comprehension
+  'reading.comprehension.short_sentence': { title: 'Sentence Snippets', themeEmoji: '📜', skillHint: 'read & answer' },
+  'reading.comprehension.paragraph': { title: 'Story Glade', themeEmoji: '📔', skillHint: 'read a paragraph' },
 };
 
 export function getReadingThemeHeader(skillCode: string): ThemeHeader {

@@ -7,7 +7,9 @@ export type MathItemType =
   | 'ClockRead'
   | 'CoinSum'
   | 'EqualGroupsVisual'
-  | 'ArrayGridVisual';
+  | 'ArrayGridVisual'
+  | 'FractionIdentify'
+  | 'FractionCompareVisual';
 
 export interface NumberBondsContent {
   type: 'NumberBonds';
@@ -112,3 +114,32 @@ export interface ArrayGridVisualContent {
 }
 export interface ArrayGridVisualAnswer { total: number }
 export interface ArrayGridVisualResponse { chosen: number }
+
+// ── Fractions: identify (CCSS 3.NF.A.1) ─────────────────────────────
+// Show a pie or bar split into `denominator` equal parts with
+// `numerator` of them shaded; child picks the matching fraction.
+export interface FractionIdentifyContent {
+  type: 'FractionIdentify';
+  numerator: number;       // 1..(denominator-1) for "true" fractions
+  denominator: number;     // 2..8
+  shape: 'pie' | 'bar';    // visualisation style
+  // Choices are formatted strings like "1/2", "3/4". Includes the
+  // correct one.
+  choices: string[];
+  promptText: string;
+}
+export interface FractionIdentifyAnswer { fraction: string }   // "n/d"
+export interface FractionIdentifyResponse { chosen: string }
+
+// ── Fractions: compare two fractions visually (CCSS 3.NF.A.3.d) ─────
+// Show two fractions side by side (each with its own pie/bar). Child
+// picks <, >, or =.
+export interface FractionCompareVisualContent {
+  type: 'FractionCompareVisual';
+  left: { numerator: number; denominator: number };
+  right: { numerator: number; denominator: number };
+  shape: 'pie' | 'bar';
+  promptText: string;
+}
+export interface FractionCompareVisualAnswer { symbol: '<' | '>' | '=' }
+export interface FractionCompareVisualResponse { symbol: '<' | '>' | '=' }

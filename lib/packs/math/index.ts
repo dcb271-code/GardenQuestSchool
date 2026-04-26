@@ -5,6 +5,7 @@ import {
   scoreNumberBonds, scoreCountingTiles, scoreEquationTap,
   scoreNumberCompare, scorePlaceValueSplit, scoreMathResponse,
   scoreClockRead, scoreCoinSum, scoreEqualGroupsVisual, scoreArrayGridVisual,
+  scoreFractionIdentify, scoreFractionCompareVisual,
 } from './scoring';
 import NumberBonds from './rendering/NumberBonds';
 import CountingTiles from './rendering/CountingTiles';
@@ -15,6 +16,8 @@ import ClockRead from './rendering/ClockRead';
 import CoinSum from './rendering/CoinSum';
 import EqualGroupsVisual from './rendering/EqualGroupsVisual';
 import ArrayGridVisual from './rendering/ArrayGridVisual';
+import FractionIdentify from './rendering/FractionIdentify';
+import FractionCompare from './rendering/FractionCompare';
 import type { ItemTypeMap } from '@/lib/packs/registry';
 
 export const MathPack = {
@@ -86,5 +89,17 @@ export const mathItemTypes: ItemTypeMap = {
     getPromptText: (item) =>
       item.content?.promptText
         ?? `An array with ${item.content?.rows} rows and ${item.content?.cols} in each — how many?`,
+  },
+  FractionIdentify: {
+    renderer: FractionIdentify,
+    score: scoreFractionIdentify,
+    getPromptText: (item) =>
+      item.content?.promptText ?? 'What fraction is shaded?',
+  },
+  FractionCompareVisual: {
+    renderer: FractionCompare,
+    score: scoreFractionCompareVisual,
+    getPromptText: (item) =>
+      item.content?.promptText ?? 'Which fraction is bigger?',
   },
 };

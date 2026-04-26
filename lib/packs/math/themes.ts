@@ -58,6 +58,10 @@ export const MATH_THEMES: Record<string, ThemeHeader> = {
 
   // Money
   'math.money.coin_count': { title: 'Pebble Coins', themeEmoji: '🪙', skillHint: 'count coins (¢)' },
+
+  // Fractions (Grade 3)
+  'math.fractions.identify': { title: 'Pie Slices', themeEmoji: '🥧', skillHint: 'name the fraction' },
+  'math.fractions.compare_visual': { title: 'Bigger Slice', themeEmoji: '🍰', skillHint: 'which fraction is bigger' },
 };
 
 export function getThemeHeader(skillCode: string): ThemeHeader {

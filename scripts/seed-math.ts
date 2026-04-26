@@ -1002,6 +1002,126 @@ export function buildMathItems(skillId: (code: string) => string | undefined): R
       ['quarter', 'dime', 'penny'], 1370, 'A pencil costs 36¢. Do you have enough? Count up.');        // 36
   }
 
+  // ═══════════ FRACTIONS (Grade 3, first push) ═══════════
+  // Two related skills: identify (pick the matching n/d for the
+  // shaded picture) and compare_visual (which of two fractions is
+  // bigger). Items use both 'pie' and 'bar' shapes — same skill,
+  // different visualisations, so the picker can rotate.
+  {
+    const r = rng(80);
+    type Pair = { num: number; den: number };
+    const fmt = (p: Pair) => `${p.num}/${p.den}`;
+    const sameFamily = (p: Pair, others: Pair[]) =>
+      others.filter(o => o.den === p.den).map(fmt);
+    // Build a pool of "true" fractions n/d where 1<=n<=d-1 and 2<=d<=8.
+    const pool: Pair[] = [];
+    for (let d = 2; d <= 8; d++) {
+      for (let n = 1; n < d; n++) pool.push({ num: n, den: d });
+    }
+
+    // ── identify ──
+    // Distractors (in order of preference):
+    //   1. swap num/den  (3/4 → 4/3) — common confusion
+    //   2. neighbour numerator (3/4 → 2/4)  — off-by-one
+    //   3. same numerator different denominator (3/4 → 3/8)
+    //   4. plausible random fraction
+    for (const target of pool) {
+      const correct = fmt(target);
+      const distractors: string[] = [];
+      const swap = `${target.den}/${target.num + target.den}`;   // never duplicates correct
+      // swapped (only sometimes makes sense — only if num<den-1)
+      if (target.num !== target.den - 1) distractors.push(`${target.den}/${target.num}`);
+      // off-by-one numerator
+      const nbr = target.num === 1 ? target.num + 1 : target.num - 1;
+      if (nbr >= 1 && nbr <= target.den - 1) distractors.push(`${nbr}/${target.den}`);
+      // same numerator, different denominator
+      const altDen = target.den === 8 ? 4 : target.den + 1;
+      if (target.num <= altDen - 1) distractors.push(`${target.num}/${altDen}`);
+      // unique top-3
+      const distArr = Array.from(new Set(distractors.filter(d => d !== correct))).slice(0, 3);
+      // Pad with a generic if we ran short
+      while (distArr.length < 3) {
+        const p = pool[Math.floor(r() * pool.length)];
+        const f = fmt(p);
+        if (f !== correct && !distArr.includes(f)) distArr.push(f);
+      }
+      // BOTH pie + bar versions — pie at slightly easier Elo, bar a touch harder
+      const baseElo = 1450 + target.den * 8 + target.num * 2;
+      push('math.fractions.identify', 'FractionIdentify', {
+        type: 'FractionIdentify',
+        numerator: target.num, denominator: target.den, shape: 'pie',
+        choices: [correct, ...distArr],
+        promptText: 'What fraction is shaded?',
+      }, { fraction: correct }, baseElo);
+      push('math.fractions.identify', 'FractionIdentify', {
+        type: 'FractionIdentify',
+        numerator: target.num, denominator: target.den, shape: 'bar',
+        choices: [correct, ...distArr],
+        promptText: 'What fraction of the bar is shaded?',
+      }, { fraction: correct }, baseElo + 20);
+    }
+
+    // ── compare visual ──
+    // Curated comparison pairs: same-denominator (easier — just
+    // compare numerators), then same-numerator different-denominator
+    // (harder — bigger denominator means smaller fraction!), then
+    // mixed.
+    const cmp = (l: Pair, r: Pair): '<' | '>' | '=' => {
+      const a = l.num / l.den; const b = r.num / r.den;
+      if (Math.abs(a - b) < 1e-9) return '=';
+      return a < b ? '<' : '>';
+    };
+    const pushCompare = (l: Pair, right: Pair, shape: 'pie' | 'bar', elo: number, prompt = 'Which fraction is bigger?') => {
+      push('math.fractions.compare_visual', 'FractionCompareVisual', {
+        type: 'FractionCompareVisual',
+        left: { numerator: l.num, denominator: l.den },
+        right: { numerator: right.num, denominator: right.den },
+        shape,
+        promptText: prompt,
+      }, { symbol: cmp(l, right) }, elo);
+    };
+
+    // Same denominator (easier — purely numerator comparison)
+    const sameDenSet: Array<[Pair, Pair]> = [
+      [{ num: 1, den: 4 }, { num: 3, den: 4 }],
+      [{ num: 2, den: 4 }, { num: 3, den: 4 }],
+      [{ num: 1, den: 6 }, { num: 4, den: 6 }],
+      [{ num: 2, den: 8 }, { num: 5, den: 8 }],
+      [{ num: 3, den: 6 }, { num: 5, den: 6 }],
+      [{ num: 1, den: 3 }, { num: 2, den: 3 }],
+      [{ num: 4, den: 8 }, { num: 7, den: 8 }],
+    ];
+    for (const [l, right] of sameDenSet) {
+      pushCompare(l, right, 'pie', 1500);
+      pushCompare(l, right, 'bar', 1510);
+    }
+    // Same numerator (counter-intuitive — bigger denominator = smaller piece)
+    const sameNumSet: Array<[Pair, Pair]> = [
+      [{ num: 1, den: 2 }, { num: 1, den: 4 }],
+      [{ num: 1, den: 3 }, { num: 1, den: 6 }],
+      [{ num: 1, den: 4 }, { num: 1, den: 8 }],
+      [{ num: 2, den: 3 }, { num: 2, den: 6 }],
+      [{ num: 3, den: 4 }, { num: 3, den: 8 }],
+      [{ num: 1, den: 2 }, { num: 1, den: 8 }],
+    ];
+    for (const [l, right] of sameNumSet) {
+      pushCompare(l, right, 'pie', 1580, 'Look carefully — bigger or smaller?');
+      pushCompare(l, right, 'bar', 1590, 'Look carefully — bigger or smaller?');
+    }
+    // Equivalent fractions (= sign — visually obvious, conceptually rich)
+    const equivSet: Array<[Pair, Pair]> = [
+      [{ num: 1, den: 2 }, { num: 2, den: 4 }],
+      [{ num: 1, den: 2 }, { num: 4, den: 8 }],
+      [{ num: 1, den: 3 }, { num: 2, den: 6 }],
+      [{ num: 2, den: 4 }, { num: 4, den: 8 }],
+      [{ num: 3, den: 4 }, { num: 6, den: 8 }],
+    ];
+    for (const [l, right] of equivSet) {
+      pushCompare(l, right, 'pie', 1620, 'Are these the same, or is one bigger?');
+      pushCompare(l, right, 'bar', 1630, 'Are these the same, or is one bigger?');
+    }
+  }
+
   // skip count → multiplication — "2+2+2 = 2 x ? " bridge
   {
     const r = rng(52);

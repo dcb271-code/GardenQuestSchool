@@ -154,4 +154,17 @@ export const READING_SKILLS: SkillDefinition[] = [
     curriculumRefs: { ccss: 'RL.2.1' },
     themeTags: ['comprehension', 'sentence', 'reading'], sortOrder: 40,
   },
+
+  // ─── COMPREHENSION (Grade 3) ───────────────────────────────────────
+  {
+    code: 'reading.comprehension.paragraph',
+    name: 'Read a paragraph and answer',
+    strandCode: 'phonics', level: 0.7,
+    prereqSkillCodes: [
+      'reading.comprehension.short_sentence',
+      'reading.read_aloud.longer_words',
+    ],
+    curriculumRefs: { ccss: 'RL.3.1, RI.3.1' },
+    themeTags: ['comprehension', 'paragraph', 'reading'], sortOrder: 41,
+  },
 ];
