@@ -23,14 +23,19 @@ export interface CountingTilesContent {
 export interface CountingTilesAnswer { count: number }
 export interface CountingTilesResponse { count: number }
 
+// EquationTap is a generic "show this prompt + 4 tappable answers"
+// item. Most uses are numeric, but it's also the renderer for binary
+// even/odd choices ("even" / "odd"), so the choice/answer/response
+// shapes are widened to accept strings as well as numbers. Scoring
+// uses strict equality so mixing types in a single item is fine.
 export interface EquationTapContent {
   type: 'EquationTap';
   equation: string;
-  choices: number[];
+  choices: Array<number | string>;
   promptText: string;
 }
-export interface EquationTapAnswer { correct: number }
-export interface EquationTapResponse { chosen: number }
+export interface EquationTapAnswer { correct: number | string }
+export interface EquationTapResponse { chosen: number | string }
 
 export type CompareSymbol = '<' | '>' | '=';
 export interface NumberCompareContent {

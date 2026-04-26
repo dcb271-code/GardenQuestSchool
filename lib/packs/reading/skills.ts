@@ -141,4 +141,17 @@ export const READING_SKILLS: SkillDefinition[] = [
     prereqSkillCodes: ['reading.phonics.silent_e'], curriculumRefs: { og: 'oral_reading' },
     themeTags: ['read_aloud', 'multi_syllable'], sortOrder: 31,
   },
+
+  // ─── COMPREHENSION (Grade 2) ───────────────────────────────────────
+  {
+    code: 'reading.comprehension.short_sentence',
+    name: 'Read a sentence and answer',
+    strandCode: 'phonics', level: 0.55,
+    prereqSkillCodes: [
+      'reading.sight_words.dolch_first_grade',
+      'reading.phonics.silent_e',
+    ],
+    curriculumRefs: { ccss: 'RL.2.1' },
+    themeTags: ['comprehension', 'sentence', 'reading'], sortOrder: 40,
+  },
 ];

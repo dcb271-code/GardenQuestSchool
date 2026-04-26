@@ -270,6 +270,42 @@ export function buildMathItems(skillId: (code: string) => string | undefined): R
     }
   }
 
+  // doubles + near-doubles drilled into add.within_20.no_crossing
+  // (1+1, 2+2, ... 5+5 are easy; 5+6, 6+7 are "near doubles" and a
+  // separate cognitive strategy worth practicing on its own).
+  {
+    const r = rng(11.5);
+    // Doubles 1+1 .. 9+9 (the 5+5 .. 9+9 ones cross 10 so they live
+    // in the crossing_ten skill instead — only push the no-crossing
+    // doubles here).
+    for (let n = 1; n <= 4; n++) {
+      push('math.add.within_20.no_crossing', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${n} + ${n} = ?`,
+        choices: mkChoices(n + n, r, 5),
+        promptText: `${n} doubled is…?`,
+      }, { correct: n + n }, 990 + n * 8);
+    }
+    // Near-doubles n + (n+1) where the sum still doesn't cross 10
+    for (let n = 1; n <= 4; n++) {
+      push('math.add.within_20.no_crossing', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${n} + ${n + 1} = ?`,
+        choices: mkChoices(n + n + 1, r, 5),
+        promptText: `${n} plus one more than ${n}?`,
+      }, { correct: n + n + 1 }, 1010 + n * 8);
+    }
+    // "+10" and "+9" mental moves — anchor sums for Grade-2 fluency
+    for (let a = 1; a <= 9; a++) {
+      push('math.add.within_20.no_crossing', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${a} + 10 = ?`,
+        choices: mkChoices(a + 10, r, 6),
+        promptText: `${a} plus a ten — what's the total?`,
+      }, { correct: a + 10 }, 1050 + a * 3);
+    }
+  }
+
   // add within 20 (crossing ten) — MAKE-10 strategy items + standard + word problems
   // The make-10 mental model is a TEACHING strategy ("decompose b
   // to fill a to 10, then add the rest") — but the literal prompt
@@ -344,33 +380,66 @@ export function buildMathItems(skillId: (code: string) => string | undefined): R
     }
   }
 
-  // add within 100 (no regrouping) — 40 items
+  // add within 100 (no regrouping) — 80 items at varied Elo so the
+  // skill spans an actual band, not a single price. Two-digit + 1
+  // sits at the bottom of the band (Grade-1.5), two-digit + two-digit
+  // sits at the top (Grade-2 working band).
   {
     const r = rng(14);
+    // Subset 1: 2-digit + 1-digit (easier of the no-regrouping items)
+    for (let a = 11; a <= 90; a += 4) {
+      for (let b = 1; b <= 8; b += 2) {
+        if ((a % 10) + b >= 10) continue;
+        push('math.add.within_100.no_regrouping', 'EquationTap', {
+          type: 'EquationTap',
+          equation: `${a} + ${b} = ?`,
+          choices: mkChoices(a + b, r, 8),
+          promptText: `${a} plus ${b}.`,
+        }, { correct: a + b }, 1090 + Math.floor(a / 20) * 4);   // 1090..1110
+      }
+    }
+    // Subset 2: 2-digit + 2-digit, no regrouping (proper Grade-2)
     const pairs: Array<[number, number]> = [];
-    for (let a = 10; a <= 89; a += 3) {
-      for (let b = 10; b <= 89; b += 7) {
+    for (let a = 12; a <= 80; a += 4) {
+      for (let b = 11; b <= 80; b += 6) {
         if ((a % 10) + (b % 10) >= 10) continue;
         if (a + b > 99) continue;
         pairs.push([a, b]);
       }
     }
-    for (const [a, b] of shuffle(pairs, r).slice(0, 40)) {
+    for (const [a, b] of shuffle(pairs, r).slice(0, 50)) {
       push('math.add.within_100.no_regrouping', 'EquationTap', {
         type: 'EquationTap',
         equation: `${a} + ${b} = ?`,
         choices: mkChoices(a + b, r, 10),
         promptText: `${a} plus ${b} — stack the tens and ones.`,
-      }, { correct: a + b }, 1200 + Math.floor((a + b) / 10) * 2);
+      }, { correct: a + b }, 1200 + Math.floor((a + b) / 10) * 3);   // 1230..1260
     }
   }
 
-  // add within 100 (with regrouping) — 40 items
+  // add within 100 (with regrouping) — 50 items at Grade-2 working
+  // band. Spread by sum size so smaller sums (~30) sit lower than
+  // larger ones (~90). Includes some 2-digit-plus-1-digit borrowing
+  // which is genuine Grade-2 mental work.
   {
     const r = rng(15);
+    // 2-digit + 1-digit, ones cross 10 (e.g. 27+5)
+    for (let a = 12; a <= 90; a += 3) {
+      for (let b = 4; b <= 9; b += 2) {
+        if ((a % 10) + b < 10) continue;
+        if (a + b > 99) continue;
+        push('math.add.within_100.with_regrouping', 'EquationTap', {
+          type: 'EquationTap',
+          equation: `${a} + ${b} = ?`,
+          choices: mkChoices(a + b, r, 8),
+          promptText: `${a} plus ${b} — the ones spill over the ten.`,
+        }, { correct: a + b }, 1240 + Math.floor((a + b) / 20) * 5);
+      }
+    }
+    // 2-digit + 2-digit with carry
     const pairs: Array<[number, number]> = [];
-    for (let a = 10; a <= 89; a += 3) {
-      for (let b = 10; b <= 89; b += 5) {
+    for (let a = 12; a <= 80; a += 3) {
+      for (let b = 11; b <= 80; b += 5) {
         if ((a % 10) + (b % 10) < 10) continue;
         if (a + b > 99) continue;
         pairs.push([a, b]);
@@ -382,7 +451,25 @@ export function buildMathItems(skillId: (code: string) => string | undefined): R
         equation: `${a} + ${b} = ?`,
         choices: mkChoices(a + b, r, 10),
         promptText: `${a} + ${b} — ones need to carry over.`,
-      }, { correct: a + b }, 1300 + Math.floor((a + b) / 10) * 2);
+      }, { correct: a + b }, 1330 + Math.floor((a + b) / 10) * 3);
+    }
+    // Story-flavoured 2-digit add-with-carry (5 word problems)
+    const stories = [
+      (a: number, b: number) => `Cecily collected ${a} acorns. Esme found ${b} more. How many acorns altogether?`,
+      (a: number, b: number) => `${a} bees were in the hive. ${b} more flew home. How many bees in all?`,
+      (a: number, b: number) => `A garden has ${a} red tulips and ${b} yellow ones. How many tulips total?`,
+      (a: number, b: number) => `The ant hill had ${a} ants on Sunday and ${b} new ones on Monday. Total ants?`,
+      (a: number, b: number) => `Sam read ${a} pages this week and ${b} pages last week. How many pages so far?`,
+    ];
+    for (let i = 0; i < stories.length; i++) {
+      const a = 18 + i * 7;
+      const b = 14 + i * 5;
+      push('math.add.within_100.with_regrouping', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${a} + ${b} = ?`,
+        choices: mkChoices(a + b, r, 8),
+        promptText: stories[i](a, b),
+      }, { correct: a + b }, 1380 + i * 5);
     }
   }
 
@@ -455,43 +542,121 @@ export function buildMathItems(skillId: (code: string) => string | undefined): R
     }
   }
 
-  // subtract within 100 (no regrouping) — 35 items
+  // subtract within 100 (no regrouping) — 70 items.
+  // Lower band: 2-digit minus 1-digit. Upper band: 2-digit minus 2-digit.
   {
     const r = rng(23);
+    // 2-digit minus 1-digit (no regrouping)
+    for (let a = 13; a <= 99; a += 3) {
+      for (let b = 1; b <= 8; b += 2) {
+        if ((a % 10) < b) continue;
+        push('math.subtract.within_100.no_regrouping', 'EquationTap', {
+          type: 'EquationTap',
+          equation: `${a} − ${b} = ?`,
+          choices: mkChoices(a - b, r, 8),
+          promptText: `${a} take away ${b}.`,
+        }, { correct: a - b }, 1100 + Math.floor(a / 25) * 4);
+      }
+    }
+    // 2-digit minus 2-digit
     const pairs: Array<[number, number]> = [];
-    for (let a = 20; a <= 99; a += 3) {
-      for (let b = 10; b <= a - 10; b += 7) {
+    for (let a = 22; a <= 99; a += 3) {
+      for (let b = 11; b <= a - 10; b += 6) {
         if ((a % 10) < (b % 10)) continue;
         pairs.push([a, b]);
       }
     }
-    for (const [a, b] of shuffle(pairs, r).slice(0, 35)) {
+    for (const [a, b] of shuffle(pairs, r).slice(0, 50)) {
       push('math.subtract.within_100.no_regrouping', 'EquationTap', {
         type: 'EquationTap',
         equation: `${a} − ${b} = ?`,
         choices: mkChoices(a - b, r, 10),
-        promptText: `${a} minus ${b}.`,
-      }, { correct: a - b }, 1250 + Math.floor((a - b) / 10) * 2);
+        promptText: `${a} minus ${b} — line up the tens and ones.`,
+      }, { correct: a - b }, 1250 + Math.floor((a - b) / 10) * 3);
     }
   }
 
-  // subtract within 100 (with regrouping) — 35 items
+  // subtract within 100 (with regrouping) — 50 items + word problems.
   {
     const r = rng(24);
+    // 2-digit minus 1-digit, ones cross 10 (need to borrow, e.g. 32-5)
+    for (let a = 12; a <= 99; a += 3) {
+      for (let b = 4; b <= 9; b += 2) {
+        if ((a % 10) >= b) continue;
+        if (a - b < 0) continue;
+        push('math.subtract.within_100.with_regrouping', 'EquationTap', {
+          type: 'EquationTap',
+          equation: `${a} − ${b} = ?`,
+          choices: mkChoices(a - b, r, 8),
+          promptText: `${a} minus ${b} — borrow from the tens.`,
+        }, { correct: a - b }, 1310 + Math.floor((a - b) / 20) * 4);
+      }
+    }
+    // 2-digit minus 2-digit with borrowing
     const pairs: Array<[number, number]> = [];
-    for (let a = 20; a <= 99; a += 3) {
-      for (let b = 10; b <= a - 5; b += 7) {
+    for (let a = 22; a <= 99; a += 3) {
+      for (let b = 13; b <= a - 5; b += 5) {
         if ((a % 10) >= (b % 10)) continue;
         pairs.push([a, b]);
       }
     }
-    for (const [a, b] of shuffle(pairs, r).slice(0, 35)) {
+    for (const [a, b] of shuffle(pairs, r).slice(0, 40)) {
       push('math.subtract.within_100.with_regrouping', 'EquationTap', {
         type: 'EquationTap',
         equation: `${a} − ${b} = ?`,
         choices: mkChoices(a - b, r, 10),
         promptText: `${a} − ${b} — you'll need to borrow from the tens.`,
-      }, { correct: a - b }, 1350 + Math.floor((a - b) / 10) * 2);
+      }, { correct: a - b }, 1390 + Math.floor((a - b) / 10) * 3);
+    }
+    // Story-flavoured 2-digit subtract with borrow (5 items)
+    const stories = [
+      (a: number, b: number) => `There were ${a} berries on the bush. The birds ate ${b}. How many berries left?`,
+      (a: number, b: number) => `Cecily had ${a} stickers. She gave ${b} to her sister. How many does Cecily have now?`,
+      (a: number, b: number) => `The pond had ${a} tadpoles in spring. By summer, ${b} had become frogs. How many tadpoles left?`,
+      (a: number, b: number) => `${a} ants started marching. ${b} stopped at a leaf. How many kept going?`,
+      (a: number, b: number) => `A book has ${a} pages. Sam has read ${b}. How many pages left to read?`,
+    ];
+    for (let i = 0; i < stories.length; i++) {
+      const a = 30 + i * 8;
+      const b = 12 + i * 3;
+      push('math.subtract.within_100.with_regrouping', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${a} − ${b} = ?`,
+        choices: mkChoices(a - b, r, 8),
+        promptText: stories[i](a, b),
+      }, { correct: a - b }, 1430 + i * 5);
+    }
+  }
+
+  // ═══════════ EVEN / ODD ═══════════
+  // 2.OA.C.3 — recognize even or odd numbers up to 20.
+  // Uses EquationTap as a binary choice between the two strings, and
+  // a complementary CountingTiles-friendly format.
+  {
+    const r = rng(46);
+    for (let n = 2; n <= 20; n++) {
+      const correct = n % 2 === 0 ? 'even' : 'odd';
+      const distractor = n % 2 === 0 ? 'odd' : 'even';
+      push('math.even_odd.recognize', 'EquationTap', {
+        type: 'EquationTap',
+        equation: String(n),
+        // Strings instead of numbers — EquationTap will show them as
+        // tiles. The score check is by `correct` value, which uses
+        // strict equality, so this works as long as the renderer
+        // doesn't number-coerce.
+        choices: [correct, distractor],
+        promptText: `Is ${n} even or odd?`,
+      }, { correct }, 1080 + (n - 2) * 4);
+    }
+    // a few "what's the next even number after N?" items at higher Elo
+    for (const n of [11, 17, 23, 29, 35, 41, 49, 57]) {
+      const next = n + (n % 2 === 0 ? 2 : 1);
+      push('math.even_odd.recognize', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `next even after ${n}?`,
+        choices: mkChoices(next, r, 4),
+        promptText: `What's the next even number after ${n}?`,
+      }, { correct: next }, 1180 + Math.floor(n / 5));
     }
   }
 

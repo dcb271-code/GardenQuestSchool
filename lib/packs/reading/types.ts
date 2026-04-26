@@ -1,4 +1,9 @@
-export type ReadingItemType = 'SightWordTap' | 'PhonemeBlend' | 'DigraphSort' | 'ReadAloudSimple';
+export type ReadingItemType =
+  | 'SightWordTap'
+  | 'PhonemeBlend'
+  | 'DigraphSort'
+  | 'ReadAloudSimple'
+  | 'SentenceComprehension';
 
 export interface SightWordTapContent {
   type: 'SightWordTap';
@@ -39,3 +44,17 @@ export interface ReadAloudSimpleContent {
 }
 export interface ReadAloudSimpleAnswer { skipped?: boolean }
 export interface ReadAloudSimpleResponse { claimed: boolean }
+
+export interface SentenceComprehensionContent {
+  type: 'SentenceComprehension';
+  // Short sentence the child reads (one or two clauses, ~6–14 words).
+  sentence: string;
+  // The question we ask after they read the sentence.
+  question: string;
+  // The set of multiple-choice options to pick from.
+  choices: string[];
+  // The correct answer text — must appear in `choices` exactly.
+  promptText: string;
+}
+export interface SentenceComprehensionAnswer { correct: string }
+export interface SentenceComprehensionResponse { chosen: string }

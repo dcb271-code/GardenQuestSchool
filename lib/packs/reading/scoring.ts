@@ -24,3 +24,9 @@ export function scoreDigraphSort(item: Item, response: any): ScoreOutcome {
 export function scoreReadAloudSimple(item: Item, response: any): ScoreOutcome {
   return { outcome: (response as { claimed: boolean })?.claimed ? 'correct' : 'incorrect' };
 }
+
+export function scoreSentenceComprehension(item: Item, response: any): ScoreOutcome {
+  const expected = (item.answer as { correct: string }).correct;
+  const given = (response as { chosen: string })?.chosen;
+  return { outcome: given === expected ? 'correct' : 'incorrect' };
+}

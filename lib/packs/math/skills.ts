@@ -119,6 +119,12 @@ export const MATH_SKILLS: SkillDefinition[] = [
     curriculumRefs: { ccss: '3.OA.A.1' },
     themeTags: ['multiply', 'patterns'], sortOrder: 52 },
 
+  // ─── EVEN / ODD ────────────────────────────────────────────────────
+  { code: 'math.even_odd.recognize', name: 'Even and odd numbers',
+    strandCode: 'place_value', level: 0.45,
+    prereqSkillCodes: ['math.counting.skip_2s'], curriculumRefs: { ccss: '2.OA.C.3' },
+    themeTags: ['even_odd', 'patterns'], sortOrder: 45 },
+
   // ─── WORD PROBLEMS (contextual practice) ───────────────────────────
   { code: 'math.word_problem.add_within_20', name: 'Word problems (+ within 20)',
     strandCode: 'operations', level: 0.4,

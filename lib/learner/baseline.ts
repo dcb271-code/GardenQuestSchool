@@ -86,22 +86,49 @@ export function masteredSkillsForGrade(grade: GradeLevel): string[] {
  * created — they're at the edge of the learner's comfort zone:
  * recently encountered, due for revisit. The planner uses these to
  * surface mixed-difficulty sessions on day one.
+ *
+ * Important: these are also the FIRST skills the planner will pick
+ * for a fresh learner, so the list should reflect what the parent
+ * set as the grade level. Grade-2 here pulls genuinely-Grade-2
+ * content (2-digit add/subtract, multi-syllable reading, short
+ * sentence comprehension) so a brand-new Cecily-equivalent doesn't
+ * spend her first sessions on K material.
  */
 export function reviewingSkillsForGrade(grade: GradeLevel): string[] {
   if (grade <= 1) {
-    return ['math.add.within_10', 'reading.phonics.cvc_blend'];
+    return [
+      'math.add.within_10',
+      'math.subtract.within_10',
+      'reading.phonics.cvc_blend',
+      'reading.sight_words.dolch_first_grade',
+    ];
   }
   if (grade === 2) {
     return [
+      // Math — proper Grade-2 working band
       'math.add.within_20.crossing_ten',
-      'math.subtract.within_20.no_crossing',
+      'math.subtract.within_20.crossing_ten',
+      'math.add.within_100.no_regrouping',
+      'math.subtract.within_100.no_regrouping',
+      'math.even_odd.recognize',
+      'math.placevalue.tens_ones',
+      // Reading — multi-syllabic + sentence comprehension is the
+      // gap a Grade-2 learner most acutely felt
       'reading.phonics.silent_e',
-      'reading.phonics.initial_blends',
+      'reading.read_aloud.longer_words',
+      'reading.comprehension.short_sentence',
+      'reading.morphology.compound_words',
     ];
   }
   return [
-    'math.add.within_100.no_regrouping',
-    'math.placevalue.tens_ones',
+    // Grade 3 stretch
+    'math.add.within_100.with_regrouping',
+    'math.subtract.within_100.with_regrouping',
+    'math.placevalue.hundreds_tens_ones',
+    'math.placevalue.compare_3digit',
+    'math.multiply.equal_groups',
     'reading.phonics.r_controlled',
+    'reading.morphology.inflectional_ed_ing',
+    'reading.comprehension.short_sentence',
   ];
 }

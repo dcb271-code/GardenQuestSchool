@@ -271,10 +271,142 @@ const READ_ALOUD_SHORT = [
 ];
 
 const READ_ALOUD_LONGER = [
-  'butter', 'flower', 'rabbit', 'garden', 'butterfly', 'sunshine',
-  'careful', 'mitten', 'kitten', 'picnic', 'paper', 'puddle',
-  'window', 'yellow', 'pillow', 'apple', 'little', 'lovely',
-  'morning', 'number', 'summer', 'winter', 'fifteen', 'twenty',
+  // 2-syllable
+  'butter', 'flower', 'rabbit', 'garden', 'sunshine', 'careful',
+  'mitten', 'kitten', 'picnic', 'paper', 'puddle', 'window',
+  'yellow', 'pillow', 'apple', 'little', 'lovely', 'morning',
+  'number', 'summer', 'winter', 'fifteen', 'twenty', 'meadow',
+  'spider', 'thunder', 'silver', 'autumn', 'bottle', 'middle',
+  'pebble', 'splendid', 'dragon', 'pumpkin', 'bonnet', 'forest',
+  // 3-syllable
+  'butterfly', 'bumblebee', 'cinnamon', 'beautiful', 'remember',
+  'hamburger', 'elephant', 'pineapple', 'umbrella', 'kangaroo',
+  'banana', 'animal', 'family', 'history', 'carnival', 'wonderful',
+  'instrument', 'adventure',
+  // 4-syllable (challenge stretch)
+  'caterpillar', 'watermelon', 'alligator', 'hippopotamus', 'dictionary',
+  'macaroni', 'cafeteria', 'binoculars',
+];
+
+/**
+ * Short-sentence comprehension items. Each item is a sentence the
+ * child reads, a question about it, the right answer, and 2-3
+ * distractors that look plausible without giving the answer away.
+ *
+ * Sentences are written with a Grade-2-friendly vocabulary (mostly
+ * Dolch + decodable phonics + a few naturalist nouns), 6-14 words,
+ * one or two clauses. Half are "literal" (find a fact in the
+ * sentence), half are "inference" (which feeling? what comes next?).
+ */
+type Comprehension = {
+  sentence: string;
+  question: string;
+  correct: string;
+  distractors: string[];
+  difficulty: 'easy' | 'mid' | 'stretch';
+};
+
+const COMPREHENSION_ITEMS: Comprehension[] = [
+  // ── easy: literal recall, very short sentence ──
+  { sentence: 'The frog jumped onto the green lily pad.', question: 'What did the frog jump onto?',
+    correct: 'a lily pad', distractors: ['a rock', 'the grass', 'the path'], difficulty: 'easy' },
+  { sentence: 'Mia found a red bug in the garden.', question: 'What color was the bug?',
+    correct: 'red', distractors: ['green', 'yellow', 'blue'], difficulty: 'easy' },
+  { sentence: 'The cat sat on the soft pillow.', question: 'Where did the cat sit?',
+    correct: 'on the pillow', distractors: ['on the mat', 'on the chair', 'on the floor'], difficulty: 'easy' },
+  { sentence: 'A small bird made a nest in the tree.', question: 'Who made the nest?',
+    correct: 'a bird', distractors: ['a squirrel', 'a frog', 'a bee'], difficulty: 'easy' },
+  { sentence: 'Sam ate three apples for lunch.', question: 'How many apples did Sam eat?',
+    correct: 'three', distractors: ['two', 'four', 'one'], difficulty: 'easy' },
+  { sentence: 'The bee landed on the yellow flower.', question: 'What color was the flower?',
+    correct: 'yellow', distractors: ['pink', 'orange', 'white'], difficulty: 'easy' },
+  { sentence: 'Luna ran fast across the meadow.', question: 'Who ran across the meadow?',
+    correct: 'Luna', distractors: ['Sam', 'the cat', 'the dog'], difficulty: 'easy' },
+  { sentence: 'It was raining hard outside.', question: 'What was the weather doing?',
+    correct: 'raining', distractors: ['snowing', 'sunny', 'windy'], difficulty: 'easy' },
+  { sentence: 'The puppy chewed on a soft slipper.', question: 'What did the puppy chew on?',
+    correct: 'a slipper', distractors: ['a bone', 'a stick', 'a ball'], difficulty: 'easy' },
+  { sentence: 'There were five frogs in the pond.', question: 'How many frogs were in the pond?',
+    correct: 'five', distractors: ['three', 'six', 'two'], difficulty: 'easy' },
+
+  // ── mid: two clauses, named characters, simple inference ──
+  { sentence: 'Cecily picked a bunch of flowers and gave them to her mom.',
+    question: 'Who got the flowers?',
+    correct: 'her mom', distractors: ['her sister', 'Cecily', 'her dad'], difficulty: 'mid' },
+  { sentence: 'The little fox saw the rabbit and quickly hid behind a tree.',
+    question: 'Why did the fox hide?',
+    correct: 'because she saw the rabbit', distractors: ['because it was raining', 'because she was sleepy', 'because she lost her tail'], difficulty: 'mid' },
+  { sentence: 'After the storm, a bright rainbow stretched across the sky.',
+    question: 'When did the rainbow appear?',
+    correct: 'after the storm', distractors: ['before the storm', 'at night', 'while it rained'], difficulty: 'mid' },
+  { sentence: 'The honey bees buzzed around the lavender bushes all morning.',
+    question: 'What were the bees doing?',
+    correct: 'buzzing around the lavender', distractors: ['sleeping in the hive', 'flying away from the garden', 'building a new nest'], difficulty: 'mid' },
+  { sentence: 'When the snow began to melt, the green grass started to show.',
+    question: 'What happened first?',
+    correct: 'the snow melted', distractors: ['the grass grew', 'the snow fell', 'the flowers bloomed'], difficulty: 'mid' },
+  { sentence: 'Esme planted ten seeds in a tidy little row.',
+    question: 'How many seeds did Esme plant?',
+    correct: 'ten', distractors: ['nine', 'twelve', 'a hundred'], difficulty: 'mid' },
+  { sentence: 'The kitten was tiny and shy, so she hid under the bed.',
+    question: 'How did the kitten feel?',
+    correct: 'shy', distractors: ['happy', 'angry', 'silly'], difficulty: 'mid' },
+  { sentence: 'A long line of ants carried crumbs back to the ant hill.',
+    question: 'Where were the ants going?',
+    correct: 'to the ant hill', distractors: ['to the picnic', 'to the river', 'to the tree'], difficulty: 'mid' },
+  { sentence: 'Dad opened the picnic basket and pulled out two sandwiches.',
+    question: 'What was in the basket?',
+    correct: 'sandwiches', distractors: ['flowers', 'bugs', 'books'], difficulty: 'mid' },
+  { sentence: 'The big spider spun her web between two thin branches.',
+    question: 'Where did the spider spin her web?',
+    correct: 'between two branches', distractors: ['on the ground', 'inside a flower', 'under a leaf'], difficulty: 'mid' },
+  { sentence: 'Cecily gave half of her berries to Esme so they could share.',
+    question: 'Why did Cecily give Esme some berries?',
+    correct: 'so they could share', distractors: ['because she did not like them', 'because Esme asked', 'because they were old'], difficulty: 'mid' },
+  { sentence: 'The little turtle pulled its head into its hard shell.',
+    question: 'What did the turtle pull into its shell?',
+    correct: 'its head', distractors: ['its tail', 'a leaf', 'a fish'], difficulty: 'mid' },
+  { sentence: 'In the spring, the apple tree grew tiny pink blossoms.',
+    question: 'What season was it?',
+    correct: 'spring', distractors: ['fall', 'winter', 'summer'], difficulty: 'mid' },
+  { sentence: 'The brave little frog leapt across the stream to catch a fly.',
+    question: 'What did the frog catch?',
+    correct: 'a fly', distractors: ['a bee', 'a fish', 'a leaf'], difficulty: 'mid' },
+  { sentence: 'Mom said the soup was too hot, so we waited a little while.',
+    question: 'Why did they wait?',
+    correct: 'the soup was too hot', distractors: ['Mom was busy', 'the bowls were dirty', 'they were not hungry'], difficulty: 'mid' },
+
+  // ── stretch: longer sentences, vocabulary stretch, harder inference ──
+  { sentence: 'The small caterpillar wiggled along the leaf, leaving a tiny silver trail behind.',
+    question: 'What did the caterpillar leave behind?',
+    correct: 'a silver trail', distractors: ['a green leaf', 'an empty cocoon', 'a tiny shell'], difficulty: 'stretch' },
+  { sentence: 'When she opened the curtain, sunlight poured into the room and woke the cat.',
+    question: 'What woke the cat?',
+    correct: 'the sunlight', distractors: ['the curtain', 'the noise', 'the breakfast smell'], difficulty: 'stretch' },
+  { sentence: 'The bumblebee searched every blossom looking for the sweetest nectar.',
+    question: 'What was the bumblebee searching for?',
+    correct: 'sweet nectar', distractors: ['a place to sleep', 'her hive', 'another bee'], difficulty: 'stretch' },
+  { sentence: 'Although the path was muddy, the children kept walking toward the pond.',
+    question: 'Why was the path tricky?',
+    correct: 'it was muddy', distractors: ['it was uphill', 'it was rocky', 'it was windy'], difficulty: 'stretch' },
+  { sentence: 'A family of deer stepped quietly into the clearing and began to eat the grass.',
+    question: 'What did the deer do in the clearing?',
+    correct: 'eat the grass', distractors: ['drink from the pond', 'run away', 'lie down'], difficulty: 'stretch' },
+  { sentence: 'The brave little firefly flickered her tiny light to find her way home.',
+    question: 'How did the firefly find her way?',
+    correct: 'with her light', distractors: ['by following another firefly', 'by smelling flowers', 'by listening for friends'], difficulty: 'stretch' },
+  { sentence: 'Even though the puppy was tired, he wagged his tail when he saw his sister.',
+    question: 'Why did the puppy wag his tail?',
+    correct: 'he saw his sister', distractors: ['he was tired', 'he was hungry', 'he heard a noise'], difficulty: 'stretch' },
+  { sentence: 'After watching the rabbits all morning, Cecily wrote down every detail in her journal.',
+    question: 'Where did Cecily write down what she saw?',
+    correct: 'in her journal', distractors: ['on a piece of paper', 'on the wall', 'in a book at the library'], difficulty: 'stretch' },
+  { sentence: 'The wind grew stronger, so the gardener tied the young sapling to a sturdy stake.',
+    question: 'Why did the gardener tie the sapling?',
+    correct: 'the wind was getting strong', distractors: ['the rain was coming', 'the leaves were falling', 'the sun was hot'], difficulty: 'stretch' },
+  { sentence: 'Once the moon rose, the meadow was filled with the soft chirping of crickets.',
+    question: 'When did the crickets start chirping?',
+    correct: 'when the moon rose', distractors: ['at sunrise', 'after lunch', 'during the storm'], difficulty: 'stretch' },
 ];
 
 export async function seedReading(
@@ -729,9 +861,34 @@ export async function seedReading(
   }
   for (let i = 0; i < READ_ALOUD_LONGER.length; i++) {
     const word = READ_ALOUD_LONGER[i];
+    // Syllable count is the cognitive load proxy: a 2-syllable word is
+    // a true Grade-1.5 stretch (~1100), a 4-syllable word is a Grade-3
+    // stretch (~1450). Approximation: count vowel groups.
+    const syllables = Math.max(2, (word.match(/[aeiouy]+/g) || []).length);
+    const elo = 1000 + syllables * 110;  // 1220 / 1330 / 1440 / 1550
     push('reading.read_aloud.longer_words', 'ReadAloudSimple', {
       type: 'ReadAloudSimple', word, promptText: 'Say this longer word aloud.',
-    }, {}, 1200 + word.length * 8);
+    }, {}, elo);
+  }
+
+  // Short-sentence comprehension — 35 items spread across three
+  // difficulty tiers (easy/mid/stretch), Elo 1100 → 1450 so the
+  // adaptive picker walks through them as the child grows.
+  {
+    for (let i = 0; i < COMPREHENSION_ITEMS.length; i++) {
+      const it = COMPREHENSION_ITEMS[i];
+      const elo =
+        it.difficulty === 'easy'    ? 1100 + (i % 6) * 6 :
+        it.difficulty === 'mid'     ? 1250 + (i % 6) * 8 :
+                                      1400 + (i % 6) * 10;
+      push('reading.comprehension.short_sentence', 'SentenceComprehension', {
+        type: 'SentenceComprehension',
+        sentence: it.sentence,
+        question: it.question,
+        choices: [it.correct, ...it.distractors],
+        promptText: it.question,
+      }, { correct: it.correct }, elo);
+    }
   }
 
   if (items.length > 0) {

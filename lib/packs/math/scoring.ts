@@ -13,8 +13,11 @@ export function scoreCountingTiles(item: Item, response: any): ScoreOutcome {
 }
 
 export function scoreEquationTap(item: Item, response: any): ScoreOutcome {
-  const expected = (item.answer as { correct: number }).correct;
-  const given = (response as { chosen: number })?.chosen;
+  // Choices may be numeric (most items) or strings (e.g. "even"/"odd").
+  // Strict equality handles both — a string-typed answer won't match a
+  // number-typed response and vice versa.
+  const expected = (item.answer as { correct: number | string }).correct;
+  const given = (response as { chosen: number | string })?.chosen;
   return { outcome: given === expected ? 'correct' : 'incorrect' };
 }
 
