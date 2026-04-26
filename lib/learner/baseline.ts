@@ -125,20 +125,30 @@ export function reviewingSkillsForGrade(grade: GradeLevel): string[] {
     ];
   }
   return [
-    // Grade 3 — first push includes paragraph comprehension and the
-    // first fractions skills. The rest of Grade 3 (multiplication
-    // tables, division, place value to 1000, multi-step word
-    // problems) lives in the spec at
-    // docs/superpowers/specs/2026-04-25-grade3-expansion-plan.md
-    // and lands in subsequent pushes.
+    // Grade 3 — substantial backbone now in place: paragraph
+    // comprehension, first fractions, multiplication facts, division,
+    // 3-digit add/subtract, rounding, elapsed time. Still pending
+    // (per the spec at
+    //  docs/superpowers/specs/2026-04-25-grade3-expansion-plan.md):
+    // multi-step word problems, area/perimeter, fluency speech-recog
+    // for sentences/passages, more fraction skills (equivalent /
+    // number line).
     'math.add.within_100.with_regrouping',
     'math.subtract.within_100.with_regrouping',
+    'math.add.within_1000',
+    'math.subtract.within_1000',
     'math.placevalue.hundreds_tens_ones',
     'math.placevalue.compare_3digit',
-    'math.multiply.equal_groups',
-    'math.multiply.arrays',
+    'math.placevalue.round_nearest_10',
+    'math.placevalue.round_nearest_100',
+    'math.multiply.facts_to_5',
+    'math.multiply.facts_to_10',
+    'math.divide.equal_share',
+    'math.divide.facts_to_10',
+    'math.divide.unknown_factor',
     'math.fractions.identify',
     'math.fractions.compare_visual',
+    'math.time.elapsed_intervals',
     'reading.phonics.r_controlled',
     'reading.morphology.inflectional_ed_ing',
     'reading.morphology.compound_words',

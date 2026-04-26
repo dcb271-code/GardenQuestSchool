@@ -6,6 +6,7 @@ import {
   scoreNumberCompare, scorePlaceValueSplit, scoreMathResponse,
   scoreClockRead, scoreCoinSum, scoreEqualGroupsVisual, scoreArrayGridVisual,
   scoreFractionIdentify, scoreFractionCompareVisual,
+  scoreClockInterval, scoreEqualShareVisual,
 } from './scoring';
 import NumberBonds from './rendering/NumberBonds';
 import CountingTiles from './rendering/CountingTiles';
@@ -18,6 +19,8 @@ import EqualGroupsVisual from './rendering/EqualGroupsVisual';
 import ArrayGridVisual from './rendering/ArrayGridVisual';
 import FractionIdentify from './rendering/FractionIdentify';
 import FractionCompare from './rendering/FractionCompare';
+import ClockInterval from './rendering/ClockInterval';
+import EqualShareVisual from './rendering/EqualShareVisual';
 import type { ItemTypeMap } from '@/lib/packs/registry';
 
 export const MathPack = {
@@ -101,5 +104,18 @@ export const mathItemTypes: ItemTypeMap = {
     score: scoreFractionCompareVisual,
     getPromptText: (item) =>
       item.content?.promptText ?? 'Which fraction is bigger?',
+  },
+  ClockInterval: {
+    renderer: ClockInterval,
+    score: scoreClockInterval,
+    getPromptText: (item) =>
+      item.content?.promptText ?? 'How much time has passed?',
+  },
+  EqualShareVisual: {
+    renderer: EqualShareVisual,
+    score: scoreEqualShareVisual,
+    getPromptText: (item) =>
+      item.content?.promptText
+        ?? `${item.content?.total} shared among ${item.content?.groups} — how many for each?`,
   },
 };

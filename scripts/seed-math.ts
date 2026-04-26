@@ -1122,6 +1122,360 @@ export function buildMathItems(skillId: (code: string) => string | undefined): R
     }
   }
 
+  // ═══════════ GRADE 3 — multiplication facts (3.OA.C.7) ═══════════
+  // facts_to_5 — every pair (a × b) where 0..5 × 0..5. We seed BOTH
+  // the text version (EquationTap) and a visual version
+  // (ArrayGridVisual) for the smaller arrays so the picker can
+  // rotate presentation. Visual items priced lower because the
+  // picture is a scaffold.
+  {
+    const r = rng(53);
+    for (let a = 0; a <= 5; a++) {
+      for (let b = 0; b <= 5; b++) {
+        const total = a * b;
+        const choices = total === 0 ? [0, 1, a + b, a * (b + 1)] : mkChoices(total, r, 6);
+        // Difficulty proxy: the larger of the two factors. ×0 / ×1 are
+        // trivial (Elo 1300), then climb steadily.
+        const big = Math.max(a, b);
+        const elo = big <= 1 ? 1300 : 1340 + big * 25;
+        push('math.multiply.facts_to_5', 'EquationTap', {
+          type: 'EquationTap',
+          equation: `${a} × ${b} = ?`,
+          choices,
+          promptText: `${a} times ${b}.`,
+        }, { correct: total }, elo);
+      }
+    }
+    // Visual scaffold variants — only for non-zero pairs where rows + cols are 2..5
+    for (let rows = 2; rows <= 5; rows++) {
+      for (let cols = 2; cols <= 5; cols++) {
+        const total = rows * cols;
+        const theme = themeList[Math.floor(r() * themeList.length)];
+        push('math.multiply.facts_to_5', 'ArrayGridVisual', {
+          type: 'ArrayGridVisual',
+          rows, cols, emoji: THEMES[theme].emoji,
+          choices: mkChoices(total, r, 6),
+          promptText: `Count: ${rows} rows of ${cols}.`,
+        }, { total }, 1280 + total * 4);
+      }
+    }
+  }
+
+  // facts_to_10 — climbs into ×6..×10 territory (the harder facts)
+  {
+    const r = rng(54);
+    for (let a = 0; a <= 10; a++) {
+      for (let b = 0; b <= 10; b++) {
+        const total = a * b;
+        // Don't double-seed the ×0..×5 facts (those live in facts_to_5).
+        if (a <= 5 && b <= 5) continue;
+        const choices = mkChoices(total, r, 8);
+        const big = Math.max(a, b);
+        // 6×6=36 lands at 1480; 9×9=81 at 1640; 10×10=100 at 1660.
+        const elo = 1400 + big * 25 + Math.floor(total / 8);
+        push('math.multiply.facts_to_10', 'EquationTap', {
+          type: 'EquationTap',
+          equation: `${a} × ${b} = ?`,
+          choices,
+          promptText: `${a} times ${b}.`,
+        }, { correct: total }, elo);
+      }
+    }
+    // A handful of word problems mixed in so it's not all bare facts
+    const stories = [
+      (a: number, b: number) => `Each tray has ${a} muffins. There are ${b} trays. How many muffins?`,
+      (a: number, b: number) => `${a} bird nests with ${b} eggs in each. How many eggs altogether?`,
+      (a: number, b: number) => `A garden has ${a} rows of ${b} carrots. How many carrots?`,
+    ];
+    const fa = [4, 6, 7, 8];
+    const fb = [6, 7, 8, 9];
+    for (let i = 0; i < stories.length; i++) {
+      const a = fa[i]; const b = fb[i];
+      const total = a * b;
+      push('math.multiply.facts_to_10', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${a} × ${b} = ?`,
+        choices: mkChoices(total, r, 8),
+        promptText: stories[i](a, b),
+      }, { correct: total }, 1500 + total);
+    }
+  }
+
+  // ═══════════ GRADE 3 — division (3.OA.A.2 / B.6 / C.7) ═══════════
+  // equal_share — VISUAL division. "12 acorns shared among 3 plates"
+  {
+    const r = rng(55);
+    type Pair = { total: number; groups: number };
+    const pairs: Pair[] = [
+      { total: 4, groups: 2 }, { total: 6, groups: 2 }, { total: 8, groups: 2 },
+      { total: 6, groups: 3 }, { total: 9, groups: 3 }, { total: 12, groups: 3 }, { total: 15, groups: 3 },
+      { total: 8, groups: 4 }, { total: 12, groups: 4 }, { total: 16, groups: 4 }, { total: 20, groups: 4 },
+      { total: 10, groups: 5 }, { total: 15, groups: 5 }, { total: 20, groups: 5 }, { total: 25, groups: 5 },
+      { total: 12, groups: 6 }, { total: 18, groups: 6 }, { total: 24, groups: 6 }, { total: 30, groups: 6 },
+    ];
+    const themeMap: Array<[string, string]> = [
+      ['🌰', '🐿️'],   // acorns / squirrels
+      ['🍎', '🧺'],    // apples / baskets
+      ['🐝', '🌼'],    // bees / flowers
+      ['🥕', '🐰'],    // carrots / bunnies
+      ['🐜', '🪨'],    // ants / rocks
+    ];
+    for (let i = 0; i < pairs.length; i++) {
+      const { total, groups } = pairs[i];
+      const each = total / groups;
+      const [emoji, groupEmoji] = themeMap[i % themeMap.length];
+      const distractors = new Set<number>();
+      distractors.add(each + 1);
+      if (each > 1) distractors.add(each - 1);
+      distractors.add(total - groups);
+      const choices = [each, ...Array.from(distractors).filter(d => d !== each).slice(0, 3)];
+      // Easier when each is small (2-3) and groups few; harder for bigger total
+      const elo = 1380 + groups * 12 + each * 8;
+      push('math.divide.equal_share', 'EqualShareVisual', {
+        type: 'EqualShareVisual',
+        total, groups, emoji, groupEmoji,
+        choices,
+        promptText: `${total} shared equally among ${groups}.`,
+      }, { each }, elo);
+    }
+  }
+
+  // facts_to_10 — 30 division facts derived from the multiplication
+  // table, including some written as "missing factor" word problems.
+  {
+    const r = rng(56);
+    // Derived from the ×0..×10 table where divisor 1..10 and quotient 1..10
+    type DivFact = { dividend: number; divisor: number; quotient: number };
+    const facts: DivFact[] = [];
+    for (let q = 2; q <= 10; q++) {
+      for (let d = 2; d <= 10; d++) {
+        facts.push({ dividend: q * d, divisor: d, quotient: q });
+      }
+    }
+    // Sample a fixed subset so the seed pool is bounded but varied.
+    const sampled = shuffle(facts, r).slice(0, 50);
+    for (const f of sampled) {
+      // Difficulty proxy: max(divisor, quotient). The 10× and 5× facts
+      // are easier than the 7× and 8×.
+      const big = Math.max(f.divisor, f.quotient);
+      const elo = 1450 + big * 18;
+      push('math.divide.facts_to_10', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${f.dividend} ÷ ${f.divisor} = ?`,
+        choices: mkChoices(f.quotient, r, 6),
+        promptText: `${f.dividend} divided by ${f.divisor}.`,
+      }, { correct: f.quotient }, elo);
+    }
+    // 5 word problems
+    const wp = [
+      { d: 24, n: 4, story: '24 cookies on 4 plates. Each plate gets…?' },
+      { d: 30, n: 5, story: '30 children on 5 buses. How many on each bus?' },
+      { d: 18, n: 6, story: '18 marbles, 6 friends. How many marbles each?' },
+      { d: 28, n: 7, story: '28 stickers across 7 pages. Each page has…?' },
+      { d: 40, n: 8, story: '40 acorns hidden in 8 nests. Each nest has…?' },
+    ];
+    for (const x of wp) {
+      const q = x.d / x.n;
+      push('math.divide.facts_to_10', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${x.d} ÷ ${x.n} = ?`,
+        choices: mkChoices(q, r, 6),
+        promptText: x.story,
+      }, { correct: q }, 1530);
+    }
+  }
+
+  // unknown_factor — "8 × ? = 56" (the algebraic flip of division)
+  {
+    const r = rng(57);
+    const facts: Array<[number, number]> = [
+      [3, 4], [3, 6], [3, 8], [4, 5], [4, 6], [4, 7], [4, 8],
+      [5, 6], [5, 7], [5, 8], [6, 6], [6, 7], [6, 8], [7, 7],
+      [7, 8], [8, 8], [8, 9], [9, 9], [6, 9], [7, 9],
+    ];
+    for (const [a, b] of facts) {
+      const total = a * b;
+      const elo = 1480 + Math.max(a, b) * 18;
+      push('math.divide.unknown_factor', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${a} × ? = ${total}`,
+        choices: mkChoices(b, r, 5),
+        promptText: `${a} times what equals ${total}?`,
+      }, { correct: b }, elo);
+    }
+  }
+
+  // ═══════════ GRADE 3 — 3-digit add/subtract (3.NBT.A.2) ═══════════
+  // add within 1000 — ~50 items, two tiers (no/with regrouping)
+  {
+    const r = rng(80);
+    // No regrouping: 3-digit + 3-digit where each column sums < 10
+    const nrPairs: Array<[number, number]> = [];
+    for (let a = 110; a <= 800; a += 25) {
+      for (let b = 110; b <= 999 - a; b += 35) {
+        const aH = Math.floor(a / 100), aT = Math.floor((a % 100) / 10), aO = a % 10;
+        const bH = Math.floor(b / 100), bT = Math.floor((b % 100) / 10), bO = b % 10;
+        if (aH + bH > 9 || aT + bT > 9 || aO + bO > 9) continue;
+        nrPairs.push([a, b]);
+      }
+    }
+    for (const [a, b] of shuffle(nrPairs, r).slice(0, 25)) {
+      push('math.add.within_1000', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${a} + ${b} = ?`,
+        choices: mkChoices(a + b, r, 10),
+        promptText: `${a} plus ${b}.`,
+      }, { correct: a + b }, 1450 + Math.floor((a + b) / 100) * 5);
+    }
+    // With regrouping in any column
+    const rgPairs: Array<[number, number]> = [];
+    for (let a = 110; a <= 700; a += 18) {
+      for (let b = 130; b <= 999 - a; b += 22) {
+        const aT = Math.floor((a % 100) / 10), aO = a % 10;
+        const bT = Math.floor((b % 100) / 10), bO = b % 10;
+        if (aO + bO < 10 && aT + bT < 10) continue;  // need at least one regroup
+        rgPairs.push([a, b]);
+      }
+    }
+    for (const [a, b] of shuffle(rgPairs, r).slice(0, 30)) {
+      push('math.add.within_1000', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${a} + ${b} = ?`,
+        choices: mkChoices(a + b, r, 10),
+        promptText: `${a} + ${b} — watch the carry.`,
+      }, { correct: a + b }, 1560 + Math.floor((a + b) / 100) * 4);
+    }
+  }
+
+  // subtract within 1000
+  {
+    const r = rng(81);
+    // No-borrow 3-digit subtract
+    const nbPairs: Array<[number, number]> = [];
+    for (let a = 250; a <= 999; a += 22) {
+      for (let b = 110; b < a; b += 27) {
+        const aH = Math.floor(a / 100), aT = Math.floor((a % 100) / 10), aO = a % 10;
+        const bH = Math.floor(b / 100), bT = Math.floor((b % 100) / 10), bO = b % 10;
+        if (aH < bH || aT < bT || aO < bO) continue;
+        nbPairs.push([a, b]);
+      }
+    }
+    for (const [a, b] of shuffle(nbPairs, r).slice(0, 25)) {
+      push('math.subtract.within_1000', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${a} − ${b} = ?`,
+        choices: mkChoices(a - b, r, 10),
+        promptText: `${a} minus ${b}.`,
+      }, { correct: a - b }, 1480 + Math.floor((a - b) / 100) * 5);
+    }
+    // With-borrow 3-digit subtract
+    const wbPairs: Array<[number, number]> = [];
+    for (let a = 230; a <= 980; a += 17) {
+      for (let b = 130; b < a - 50; b += 23) {
+        const aT = Math.floor((a % 100) / 10), aO = a % 10;
+        const bT = Math.floor((b % 100) / 10), bO = b % 10;
+        if (aO >= bO && aT >= bT) continue;  // need at least one borrow
+        wbPairs.push([a, b]);
+      }
+    }
+    for (const [a, b] of shuffle(wbPairs, r).slice(0, 30)) {
+      push('math.subtract.within_1000', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${a} − ${b} = ?`,
+        choices: mkChoices(a - b, r, 10),
+        promptText: `${a} − ${b} — borrow when you need to.`,
+      }, { correct: a - b }, 1600 + Math.floor((a - b) / 100) * 4);
+    }
+  }
+
+  // ═══════════ GRADE 3 — rounding (3.NBT.A.1) ═══════════
+  // Round to nearest 10
+  {
+    const r = rng(82);
+    for (let n = 12; n <= 99; n += 1) {
+      // Sample by skipping exact multiples of 10 (no rounding needed)
+      if (n % 10 === 0) continue;
+      // 1 in 4 sample — keeps the pool tractable
+      if (n % 4 !== 0) continue;
+      const rounded = Math.round(n / 10) * 10;
+      const distractors = [rounded + 10, rounded - 10, n].filter(d => d !== rounded);
+      push('math.placevalue.round_nearest_10', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${n} → nearest 10`,
+        choices: mkChoices(rounded, r, 4),
+        promptText: `Round ${n} to the nearest ten.`,
+      }, { correct: rounded }, 1430 + Math.floor(n / 20) * 4);
+    }
+  }
+  // Round to nearest 100
+  {
+    const r = rng(83);
+    for (let n = 110; n <= 990; n += 13) {
+      if (n % 100 === 0) continue;
+      const rounded = Math.round(n / 100) * 100;
+      push('math.placevalue.round_nearest_100', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${n} → nearest 100`,
+        choices: mkChoices(rounded, r, 6),
+        promptText: `Round ${n} to the nearest hundred.`,
+      }, { correct: rounded }, 1530 + Math.floor(n / 100) * 4);
+    }
+  }
+
+  // ═══════════ GRADE 3 — elapsed time intervals (3.MD.A.1) ═══════════
+  {
+    const r = rng(84);
+    const fmt = (h: number, m: number) => `${h}:${m.toString().padStart(2, '0')}`;
+    const fmtInterval = (mins: number): string => {
+      if (mins < 60) return `${mins} minutes`;
+      const h = Math.floor(mins / 60);
+      const m = mins % 60;
+      if (m === 0) return h === 1 ? '1 hour' : `${h} hours`;
+      return `${h} hour${h === 1 ? '' : 's'} ${m} min`;
+    };
+    type Interval = { sH: number; sM: number; eH: number; eM: number; mins: number };
+    const items: Interval[] = [];
+    // Easy: same hour, only minute hand moves (5..55 min spans)
+    for (const span of [10, 15, 20, 25, 30, 35, 40]) {
+      const sM = (span < 30) ? 0 : 15;
+      const eM = (sM + span) % 60;
+      const eH = sM + span >= 60 ? 4 : 3;
+      items.push({ sH: 3, sM, eH, eM, mins: span });
+    }
+    // Medium: cross-hour spans
+    items.push({ sH: 2, sM: 45, eH: 3, eM: 30, mins: 45 });
+    items.push({ sH: 9, sM: 50, eH: 10, eM: 20, mins: 30 });
+    items.push({ sH: 1, sM: 30, eH: 2, eM: 15, mins: 45 });
+    items.push({ sH: 7, sM: 25, eH: 8, eM: 5, mins: 40 });
+    items.push({ sH: 11, sM: 40, eH: 12, eM: 25, mins: 45 });
+    // Harder: full-hour or 1+ hour spans
+    items.push({ sH: 2, sM: 0, eH: 3, eM: 0, mins: 60 });
+    items.push({ sH: 9, sM: 15, eH: 10, eM: 30, mins: 75 });
+    items.push({ sH: 4, sM: 30, eH: 6, eM: 0, mins: 90 });
+    items.push({ sH: 11, sM: 0, eH: 12, eM: 45, mins: 105 });
+
+    for (const it of items) {
+      const correct = fmtInterval(it.mins);
+      // Distractors: ±5, ±15, the wrong-hand answer
+      const distractors = new Set<string>([
+        fmtInterval(Math.max(5, it.mins - 5)),
+        fmtInterval(it.mins + 5),
+        fmtInterval(it.mins + 15),
+      ]);
+      const distArr = Array.from(distractors).filter(d => d !== correct).slice(0, 3);
+      const elo = it.mins < 30 ? 1500
+              : it.mins < 60 ? 1560
+              :                1620;
+      push('math.time.elapsed_intervals', 'ClockInterval', {
+        type: 'ClockInterval',
+        startHour: it.sH, startMinute: it.sM,
+        endHour: it.eH, endMinute: it.eM,
+        choices: [correct, ...distArr],
+        promptText: `It's ${fmt(it.sH, it.sM)} now. Then it's ${fmt(it.eH, it.eM)}. How much time has passed?`,
+      }, { interval: correct }, elo);
+    }
+  }
+
   // skip count → multiplication — "2+2+2 = 2 x ? " bridge
   {
     const r = rng(52);

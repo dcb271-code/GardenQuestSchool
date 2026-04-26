@@ -63,6 +63,18 @@ export function scoreFractionCompareVisual(item: Item, response: any): ScoreOutc
   return { outcome: given === expected ? 'correct' : 'incorrect' };
 }
 
+export function scoreClockInterval(item: Item, response: any): ScoreOutcome {
+  const expected = (item.answer as { interval: string }).interval;
+  const given = (response as { chosen: string })?.chosen;
+  return { outcome: given === expected ? 'correct' : 'incorrect' };
+}
+
+export function scoreEqualShareVisual(item: Item, response: any): ScoreOutcome {
+  const expected = (item.answer as { each: number }).each;
+  const given = (response as { chosen: number })?.chosen;
+  return { outcome: given === expected ? 'correct' : 'incorrect' };
+}
+
 export function scorePlaceValueSplit(item: Item, response: any): ScoreOutcome {
   const expected = item.answer as { hundreds?: number; tens: number; ones: number };
   const given = response as { hundreds?: number; tens: number; ones: number };
@@ -88,6 +100,8 @@ export function scoreMathResponse(item: Item, response: any): ScoreOutcome {
     case 'ArrayGridVisual': return scoreArrayGridVisual(item, response);
     case 'FractionIdentify': return scoreFractionIdentify(item, response);
     case 'FractionCompareVisual': return scoreFractionCompareVisual(item, response);
+    case 'ClockInterval': return scoreClockInterval(item, response);
+    case 'EqualShareVisual': return scoreEqualShareVisual(item, response);
     default:
       throw new Error(`Unknown math item type: ${item.type}`);
   }

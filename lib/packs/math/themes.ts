@@ -62,6 +62,26 @@ export const MATH_THEMES: Record<string, ThemeHeader> = {
   // Fractions (Grade 3)
   'math.fractions.identify': { title: 'Pie Slices', themeEmoji: '🥧', skillHint: 'name the fraction' },
   'math.fractions.compare_visual': { title: 'Bigger Slice', themeEmoji: '🍰', skillHint: 'which fraction is bigger' },
+
+  // Multiplication facts (Grade 3)
+  'math.multiply.facts_to_5': { title: 'Times Tables (×0–×5)', themeEmoji: '✖️', skillHint: 'multiplication facts' },
+  'math.multiply.facts_to_10': { title: 'Times Tables (×0–×10)', themeEmoji: '✖️', skillHint: 'all the facts' },
+
+  // Division (Grade 3)
+  'math.divide.equal_share': { title: 'Sharing Squirrels', themeEmoji: '🐿️', skillHint: 'share equally' },
+  'math.divide.facts_to_10': { title: 'Division Facts', themeEmoji: '➗', skillHint: 'division facts' },
+  'math.divide.unknown_factor': { title: 'Missing Number', themeEmoji: '🧩', skillHint: 'find the missing factor' },
+
+  // 3-digit math (Grade 3)
+  'math.add.within_1000': { title: 'Big Number Bridge', themeEmoji: '🌉', skillHint: '3-digit add' },
+  'math.subtract.within_1000': { title: 'Big Number Falls', themeEmoji: '🏞️', skillHint: '3-digit subtract' },
+
+  // Rounding (Grade 3)
+  'math.placevalue.round_nearest_10': { title: 'Round to 10', themeEmoji: '🌀', skillHint: 'nearest ten' },
+  'math.placevalue.round_nearest_100': { title: 'Round to 100', themeEmoji: '🌀', skillHint: 'nearest hundred' },
+
+  // Elapsed time (Grade 3)
+  'math.time.elapsed_intervals': { title: 'Hourglass', themeEmoji: '⌛', skillHint: 'time that passed' },
 };
 
 export function getThemeHeader(skillCode: string): ThemeHeader {

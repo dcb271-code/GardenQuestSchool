@@ -9,7 +9,9 @@ export type MathItemType =
   | 'EqualGroupsVisual'
   | 'ArrayGridVisual'
   | 'FractionIdentify'
-  | 'FractionCompareVisual';
+  | 'FractionCompareVisual'
+  | 'ClockInterval'
+  | 'EqualShareVisual';
 
 export interface NumberBondsContent {
   type: 'NumberBonds';
@@ -143,3 +145,36 @@ export interface FractionCompareVisualContent {
 }
 export interface FractionCompareVisualAnswer { symbol: '<' | '>' | '=' }
 export interface FractionCompareVisualResponse { symbol: '<' | '>' | '=' }
+
+// ── Time intervals (CCSS 3.MD.A.1) ──────────────────────────────────
+// Two analog clocks side by side ("now" and "then"); child picks how
+// much time has passed.
+export interface ClockIntervalContent {
+  type: 'ClockInterval';
+  startHour: number;       // 1..12
+  startMinute: number;     // 0..55, multiples of 5
+  endHour: number;         // 1..12
+  endMinute: number;       // 0..55, multiples of 5
+  // Choices are formatted strings like "35 minutes" / "1 hour 15 min".
+  // Includes the correct one.
+  choices: string[];
+  promptText: string;
+}
+export interface ClockIntervalAnswer { interval: string }
+export interface ClockIntervalResponse { chosen: string }
+
+// ── Division: equal-share visualization (CCSS 3.OA.A.2) ─────────────
+// Show `total` items distributed across `groups` plates/bowls. The
+// child reads off how many ended up in each group.
+export interface EqualShareVisualContent {
+  type: 'EqualShareVisual';
+  total: number;           // total items, 4..30
+  groups: number;          // number of groups, 2..6
+  emoji: string;           // single char of the item being shared
+  groupEmoji: string;      // single char of the container (plate/bowl/nest)
+  // Multiple choice — number per group.
+  choices: number[];
+  promptText: string;
+}
+export interface EqualShareVisualAnswer { each: number }
+export interface EqualShareVisualResponse { chosen: number }

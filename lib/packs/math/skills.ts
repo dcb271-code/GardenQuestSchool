@@ -164,6 +164,66 @@ export const MATH_SKILLS: SkillDefinition[] = [
     curriculumRefs: { ccss: '3.NF.A.3.d' },
     themeTags: ['fractions', 'compare', 'visual'], sortOrder: 81 },
 
+  // ─── GRADE 3 — multiplication facts (3.OA.C.7) ─────────────────────
+  { code: 'math.multiply.facts_to_5', name: 'Multiplication facts (×0–×5)',
+    strandCode: 'multiplication', level: 0.65,
+    prereqSkillCodes: ['math.multiply.equal_groups', 'math.multiply.arrays'],
+    curriculumRefs: { ccss: '3.OA.C.7' },
+    themeTags: ['multiply', 'facts', 'fluency'], sortOrder: 53 },
+  { code: 'math.multiply.facts_to_10', name: 'Multiplication facts (×0–×10)',
+    strandCode: 'multiplication', level: 0.78,
+    prereqSkillCodes: ['math.multiply.facts_to_5'],
+    curriculumRefs: { ccss: '3.OA.C.7' },
+    themeTags: ['multiply', 'facts', 'fluency'], sortOrder: 54 },
+
+  // ─── GRADE 3 — division (3.OA.A.2 / 3.OA.B.6 / 3.OA.C.7) ──────────
+  { code: 'math.divide.equal_share', name: 'Share equally',
+    strandCode: 'multiplication', level: 0.7,
+    prereqSkillCodes: ['math.multiply.equal_groups'],
+    curriculumRefs: { ccss: '3.OA.A.2' },
+    themeTags: ['divide', 'share', 'visual'], sortOrder: 55 },
+  { code: 'math.divide.facts_to_10', name: 'Division facts (within 100)',
+    strandCode: 'multiplication', level: 0.8,
+    prereqSkillCodes: ['math.multiply.facts_to_10', 'math.divide.equal_share'],
+    curriculumRefs: { ccss: '3.OA.C.7' },
+    themeTags: ['divide', 'facts', 'fluency'], sortOrder: 56 },
+  { code: 'math.divide.unknown_factor', name: 'Find the missing factor',
+    strandCode: 'multiplication', level: 0.82,
+    prereqSkillCodes: ['math.multiply.facts_to_10'],
+    curriculumRefs: { ccss: '3.OA.B.6' },
+    themeTags: ['multiply', 'divide', 'algebra_thinking'], sortOrder: 57 },
+
+  // ─── GRADE 3 — 3-digit add/subtract (3.NBT.A.2) ────────────────────
+  { code: 'math.add.within_1000', name: 'Add within 1000 (3-digit)',
+    strandCode: 'operations', level: 0.82,
+    prereqSkillCodes: ['math.add.within_100.with_regrouping', 'math.placevalue.hundreds_tens_ones'],
+    curriculumRefs: { ccss: '3.NBT.A.2' },
+    themeTags: ['add', 'three_digit'], sortOrder: 16 },
+  { code: 'math.subtract.within_1000', name: 'Subtract within 1000 (3-digit)',
+    strandCode: 'operations', level: 0.85,
+    prereqSkillCodes: ['math.subtract.within_100.with_regrouping', 'math.placevalue.hundreds_tens_ones'],
+    curriculumRefs: { ccss: '3.NBT.A.2' },
+    themeTags: ['subtract', 'three_digit'], sortOrder: 25 },
+
+  // ─── GRADE 3 — rounding (3.NBT.A.1) ────────────────────────────────
+  { code: 'math.placevalue.round_nearest_10', name: 'Round to the nearest 10',
+    strandCode: 'place_value', level: 0.7,
+    prereqSkillCodes: ['math.placevalue.tens_ones'],
+    curriculumRefs: { ccss: '3.NBT.A.1' },
+    themeTags: ['rounding', 'place_value'], sortOrder: 46 },
+  { code: 'math.placevalue.round_nearest_100', name: 'Round to the nearest 100',
+    strandCode: 'place_value', level: 0.78,
+    prereqSkillCodes: ['math.placevalue.hundreds_tens_ones', 'math.placevalue.round_nearest_10'],
+    curriculumRefs: { ccss: '3.NBT.A.1' },
+    themeTags: ['rounding', 'place_value', 'three_digit'], sortOrder: 47 },
+
+  // ─── GRADE 3 — elapsed time (3.MD.A.1) ─────────────────────────────
+  { code: 'math.time.elapsed_intervals', name: 'How much time has passed?',
+    strandCode: 'measurement', level: 0.78,
+    prereqSkillCodes: ['math.time.read_to_5_min'],
+    curriculumRefs: { ccss: '3.MD.A.1' },
+    themeTags: ['time', 'clock', 'elapsed'], sortOrder: 73 },
+
   // ─── WORD PROBLEMS (contextual practice) ───────────────────────────
   { code: 'math.word_problem.add_within_20', name: 'Word problems (+ within 20)',
     strandCode: 'operations', level: 0.4,
