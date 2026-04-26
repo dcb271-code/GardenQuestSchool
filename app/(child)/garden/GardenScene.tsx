@@ -134,46 +134,66 @@ export default function GardenScene({
   };
 
   return (
-    <div className="min-h-screen bg-[#F5EBDC] flex flex-col">
-      <div className="flex items-center justify-between p-3 bg-cream/90 backdrop-blur border-b border-ochre/30">
+    // h-screen + flex-col so the wrapper is exactly viewport-tall on
+    // every device. Previously min-h-screen + a SVG maxHeight: 78vh
+    // cap left big strips of cream around the garden in iPhone
+    // landscape — the garden was using ~65% of available width.
+    // Now: header is compact on landscape, SVG fills 100% of the
+    // remaining flex-1 area, no cap.
+    <div
+      className="bg-[#F5EBDC] flex flex-col overflow-hidden"
+      style={{
+        // dvh = "dynamic viewport height", which respects the
+        // browser's collapsing URL bar on iOS / Chrome mobile. Falls
+        // back to 100vh on browsers that don't support it.
+        height: '100dvh',
+        minHeight: '100vh',
+      }}
+    >
+      <div
+        className="flex items-center justify-between bg-cream/90 backdrop-blur border-b border-ochre/30 px-3 py-2 landscape:py-1.5"
+      >
         <Link
           href="/picker"
-          className="text-2xl p-2 rounded-full bg-white border border-ochre"
+          className="text-xl p-1.5 rounded-full bg-white border border-ochre landscape:p-1"
           aria-label="back"
-          style={{ minWidth: 44, minHeight: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+          style={{ minWidth: 40, minHeight: 40, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
         >←</Link>
-        <h1 className="font-display text-[26px] text-bark" style={{ fontWeight: 600, letterSpacing: '-0.01em' }}>
+        <h1
+          className="font-display text-[22px] landscape:text-[18px] text-bark"
+          style={{ fontWeight: 600, letterSpacing: '-0.01em' }}
+        >
           <span className="italic">my</span> garden
         </h1>
-        <div className="flex gap-2">
+        <div className="flex gap-1.5">
           {/* Soft music toggle — pen-down friendly, doubles as visual
               indicator that the soundtrack is on. */}
           <button
             onClick={() => update({ gardenSoundtrack: !settings.gardenSoundtrack })}
-            className={`text-xl p-2 rounded-full border ${
+            className={`text-lg p-1.5 rounded-full border ${
               settings.gardenSoundtrack
                 ? 'bg-sage/30 border-sage'
                 : 'bg-white border-ochre'
             }`}
             aria-label={settings.gardenSoundtrack ? 'turn off garden music' : 'turn on garden music'}
             title={settings.gardenSoundtrack ? 'music on' : 'music off'}
-            style={{ minWidth: 44, minHeight: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', touchAction: 'manipulation' }}
+            style={{ minWidth: 40, minHeight: 40, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', touchAction: 'manipulation' }}
           >
             {settings.gardenSoundtrack ? '♪' : '♫'}
           </button>
           <Link
             href={`/explore?learner=${learnerId}`}
-            className="text-xl p-2 rounded-full bg-white border border-ochre"
+            className="text-lg p-1.5 rounded-full bg-white border border-ochre"
             aria-label="compass — choose a quest"
             title="Compass"
-            style={{ minWidth: 44, minHeight: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+            style={{ minWidth: 40, minHeight: 40, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
           >🧭</Link>
           <Link
             href={`/journal?learner=${learnerId}`}
-            className="text-xl p-2 rounded-full bg-white border border-ochre"
+            className="text-lg p-1.5 rounded-full bg-white border border-ochre"
             aria-label="field journal"
             title="Field Journal"
-            style={{ minWidth: 44, minHeight: 44, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+            style={{ minWidth: 40, minHeight: 40, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
           >📖</Link>
         </div>
       </div>
@@ -182,8 +202,8 @@ export default function GardenScene({
         <svg
           viewBox={`0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`}
           preserveAspectRatio="xMidYMid meet"
-          className="w-full h-full"
-          style={{ touchAction: 'manipulation', maxHeight: '78vh' }}
+          className="absolute inset-0 w-full h-full"
+          style={{ touchAction: 'manipulation' }}
         >
           <defs>
             <radialGradient id="readingZone" cx="18%" cy="30%" r="48%">
