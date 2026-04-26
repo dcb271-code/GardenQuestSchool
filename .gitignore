@@ -36,3 +36,6 @@ test-results/
 playwright-report/
 
 .vercel
+
+# Superpowers brainstorm scratch (visual companion mockups)
+.superpowers/
