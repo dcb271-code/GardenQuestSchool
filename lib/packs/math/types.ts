@@ -3,7 +3,11 @@ export type MathItemType =
   | 'CountingTiles'
   | 'EquationTap'
   | 'NumberCompare'
-  | 'PlaceValueSplit';
+  | 'PlaceValueSplit'
+  | 'ClockRead'
+  | 'CoinSum'
+  | 'EqualGroupsVisual'
+  | 'ArrayGridVisual';
 
 export interface NumberBondsContent {
   type: 'NumberBonds';
@@ -55,3 +59,56 @@ export interface PlaceValueSplitContent {
 }
 export interface PlaceValueSplitAnswer { hundreds?: number; tens: number; ones: number }
 export interface PlaceValueSplitResponse { hundreds?: number; tens: number; ones: number }
+
+// ── Clock reading (CCSS 2.MD.C.7) ────────────────────────────────────
+// hour 1..12, minute in {0,5,10,...,55}. Multiple-choice strings
+// like "3:25" / "9:00".
+export interface ClockReadContent {
+  type: 'ClockRead';
+  hour: number;            // 1..12 (the hour the hour-hand should be near)
+  minute: number;          // 0..55, multiples of 5
+  choices: string[];       // "h:mm" formatted, includes the correct one
+  promptText: string;
+}
+export interface ClockReadAnswer { time: string }    // "h:mm"
+export interface ClockReadResponse { chosen: string }
+
+// ── Coin counting (CCSS 2.MD.C.8) ────────────────────────────────────
+// Show a collection of coins and ask the total in cents.
+export type CoinKind = 'penny' | 'nickel' | 'dime' | 'quarter';
+export interface CoinSumContent {
+  type: 'CoinSum';
+  // Coins in the order they should be displayed left-to-right.
+  coins: CoinKind[];
+  // Multiple-choice cent values; includes the correct one.
+  choices: number[];
+  promptText: string;
+}
+export interface CoinSumAnswer { cents: number }
+export interface CoinSumResponse { chosen: number }
+
+// ── Multiplication: equal groups, visualized (CCSS 2.OA.C.4 / 3.OA.A.1) ─
+// Show `groups` rings, each containing `each` emoji items. Multiple
+// choice with the total.
+export interface EqualGroupsVisualContent {
+  type: 'EqualGroupsVisual';
+  groups: number;          // number of rings, 2..6
+  each: number;            // items in each ring, 2..6
+  emoji: string;           // the item rendered inside each ring (one char)
+  choices: number[];       // includes the correct total
+  promptText: string;
+}
+export interface EqualGroupsVisualAnswer { total: number }
+export interface EqualGroupsVisualResponse { chosen: number }
+
+// ── Multiplication: rectangular array, visualized ───────────────────
+export interface ArrayGridVisualContent {
+  type: 'ArrayGridVisual';
+  rows: number;            // 2..6
+  cols: number;            // 2..6
+  emoji: string;           // single char rendered in each cell
+  choices: number[];       // includes the correct total
+  promptText: string;
+}
+export interface ArrayGridVisualAnswer { total: number }
+export interface ArrayGridVisualResponse { chosen: number }

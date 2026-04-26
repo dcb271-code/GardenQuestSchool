@@ -48,6 +48,16 @@ export const MATH_THEMES: Record<string, ThemeHeader> = {
   'math.word_problem.add_within_20': { title: 'Garden Stories (+)', themeEmoji: '📖', skillHint: 'add in a story' },
   'math.word_problem.subtract_within_20': { title: 'Garden Stories (−)', themeEmoji: '📖', skillHint: 'subtract in a story' },
   'math.word_problem.two_step': { title: 'Long Stories', themeEmoji: '📜', skillHint: 'two-step problems' },
+
+  // Even / odd
+  'math.even_odd.recognize': { title: 'Even & Odd Stones', themeEmoji: '🪨', skillHint: 'even or odd?' },
+
+  // Time
+  'math.time.read_hour_half': { title: 'Garden Clock', themeEmoji: '🕐', skillHint: 'hour & half-hour' },
+  'math.time.read_to_5_min': { title: 'Sundial', themeEmoji: '🕰️', skillHint: 'time to nearest 5 min' },
+
+  // Money
+  'math.money.coin_count': { title: 'Pebble Coins', themeEmoji: '🪙', skillHint: 'count coins (¢)' },
 };
 
 export function getThemeHeader(skillCode: string): ThemeHeader {

@@ -3,4 +3,5 @@ export const MATH_STRANDS = [
   { code: 'operations', name: 'Operations & Algebraic Thinking', sortOrder: 2 },
   { code: 'place_value', name: 'Place Value', sortOrder: 3 },
   { code: 'multiplication', name: 'Multiplication Foundations', sortOrder: 4 },
+  { code: 'measurement', name: 'Measurement & Data', sortOrder: 5 },
 ] as const;

@@ -11,8 +11,17 @@ import { join } from 'node:path';
  *   components/child/**
  *   lib/packs/**\/rendering/*.tsx
  */
-const FORBIDDEN_PATTERNS = [
-  /\bcoins?\b/i,
+// The intent of this rule is to forbid GAMIFIED coin/currency
+// economies (Khan-Academy/Duolingo-style "earn coins, spend in shop"
+// loops), NOT to ban the literal English word "coin" — Grade-2 math
+// (CCSS 2.MD.C.8) explicitly teaches counting pennies/nickels/dimes/
+// quarters as "coins". So instead of `\bcoins?\b`, match phrases
+// that read like virtual-currency UI ("earn coins", "your coin
+// balance", "coin store", etc.).
+const FORBIDDEN_PATTERNS: Array<RegExp> = [
+  /\b(earn|earned|spend|spent|win|won|collect|collected)\s+(\d+\s+)?coins?\b/i,
+  /\b(your|the)\s+coins?\s+(balance|total|count|wallet)\b/i,
+  /\bcoin\s+(store|shop|economy|wallet|balance|reward)\b/i,
   /\bcurrency\b/i,
   /daily\s*streak/i,
   /\bgood\s*job\b/i,

@@ -27,6 +27,30 @@ export function scoreNumberCompare(item: Item, response: any): ScoreOutcome {
   return { outcome: given === expected ? 'correct' : 'incorrect' };
 }
 
+export function scoreClockRead(item: Item, response: any): ScoreOutcome {
+  const expected = (item.answer as { time: string }).time;
+  const given = (response as { chosen: string })?.chosen;
+  return { outcome: given === expected ? 'correct' : 'incorrect' };
+}
+
+export function scoreCoinSum(item: Item, response: any): ScoreOutcome {
+  const expected = (item.answer as { cents: number }).cents;
+  const given = (response as { chosen: number })?.chosen;
+  return { outcome: given === expected ? 'correct' : 'incorrect' };
+}
+
+export function scoreEqualGroupsVisual(item: Item, response: any): ScoreOutcome {
+  const expected = (item.answer as { total: number }).total;
+  const given = (response as { chosen: number })?.chosen;
+  return { outcome: given === expected ? 'correct' : 'incorrect' };
+}
+
+export function scoreArrayGridVisual(item: Item, response: any): ScoreOutcome {
+  const expected = (item.answer as { total: number }).total;
+  const given = (response as { chosen: number })?.chosen;
+  return { outcome: given === expected ? 'correct' : 'incorrect' };
+}
+
 export function scorePlaceValueSplit(item: Item, response: any): ScoreOutcome {
   const expected = item.answer as { hundreds?: number; tens: number; ones: number };
   const given = response as { hundreds?: number; tens: number; ones: number };
@@ -46,6 +70,10 @@ export function scoreMathResponse(item: Item, response: any): ScoreOutcome {
     case 'EquationTap': return scoreEquationTap(item, response);
     case 'NumberCompare': return scoreNumberCompare(item, response);
     case 'PlaceValueSplit': return scorePlaceValueSplit(item, response);
+    case 'ClockRead': return scoreClockRead(item, response);
+    case 'CoinSum': return scoreCoinSum(item, response);
+    case 'EqualGroupsVisual': return scoreEqualGroupsVisual(item, response);
+    case 'ArrayGridVisual': return scoreArrayGridVisual(item, response);
     default:
       throw new Error(`Unknown math item type: ${item.type}`);
   }

@@ -112,6 +112,10 @@ export function reviewingSkillsForGrade(grade: GradeLevel): string[] {
       'math.subtract.within_100.no_regrouping',
       'math.even_odd.recognize',
       'math.placevalue.tens_ones',
+      'math.time.read_hour_half',
+      'math.time.read_to_5_min',
+      'math.money.coin_count',
+      'math.multiply.equal_groups',
       // Reading — multi-syllabic + sentence comprehension is the
       // gap a Grade-2 learner most acutely felt
       'reading.phonics.silent_e',

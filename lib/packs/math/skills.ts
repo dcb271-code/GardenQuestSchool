@@ -125,6 +125,33 @@ export const MATH_SKILLS: SkillDefinition[] = [
     prereqSkillCodes: ['math.counting.skip_2s'], curriculumRefs: { ccss: '2.OA.C.3' },
     themeTags: ['even_odd', 'patterns'], sortOrder: 45 },
 
+  // ─── TIME (Grade 2) ────────────────────────────────────────────────
+  { code: 'math.time.read_hour_half', name: 'Read clocks (hour and half-hour)',
+    strandCode: 'measurement', level: 0.4,
+    prereqSkillCodes: ['math.counting.to_50'], curriculumRefs: { ccss: '1.MD.B.3' },
+    themeTags: ['time', 'clock'], sortOrder: 70 },
+  { code: 'math.time.read_to_5_min', name: 'Read clocks to the nearest 5 minutes',
+    strandCode: 'measurement', level: 0.55,
+    prereqSkillCodes: ['math.time.read_hour_half', 'math.counting.skip_5s'],
+    curriculumRefs: { ccss: '2.MD.C.7' },
+    themeTags: ['time', 'clock', 'skip_5'], sortOrder: 71 },
+
+  // ─── MONEY (Grade 2) ───────────────────────────────────────────────
+  { code: 'math.money.coin_count', name: 'Count coins (pennies, nickels, dimes, quarters)',
+    strandCode: 'measurement', level: 0.5,
+    prereqSkillCodes: ['math.counting.skip_5s', 'math.counting.skip_10s'],
+    curriculumRefs: { ccss: '2.MD.C.8' },
+    themeTags: ['money', 'coins', 'skip_count'], sortOrder: 72 },
+
+  // ─── MULTIPLICATION (Visual variants) ──────────────────────────────
+  // Already had math.multiply.equal_groups + .arrays as text-only
+  // EquationTap items. These are the SAME skills but the visual
+  // renderers — we add the items at the same skill codes so the
+  // adaptive picker can rotate text and visual presentations of the
+  // same concept.
+  // (No new skill rows here; the visual items reuse the existing
+  // multiplication skills.)
+
   // ─── WORD PROBLEMS (contextual practice) ───────────────────────────
   { code: 'math.word_problem.add_within_20', name: 'Word problems (+ within 20)',
     strandCode: 'operations', level: 0.4,

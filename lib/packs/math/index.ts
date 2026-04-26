@@ -4,12 +4,17 @@ import { MATH_THEMES, getThemeHeader } from './themes';
 import {
   scoreNumberBonds, scoreCountingTiles, scoreEquationTap,
   scoreNumberCompare, scorePlaceValueSplit, scoreMathResponse,
+  scoreClockRead, scoreCoinSum, scoreEqualGroupsVisual, scoreArrayGridVisual,
 } from './scoring';
 import NumberBonds from './rendering/NumberBonds';
 import CountingTiles from './rendering/CountingTiles';
 import EquationTap from './rendering/EquationTap';
 import NumberCompare from './rendering/NumberCompare';
 import PlaceValueSplit from './rendering/PlaceValueSplit';
+import ClockRead from './rendering/ClockRead';
+import CoinSum from './rendering/CoinSum';
+import EqualGroupsVisual from './rendering/EqualGroupsVisual';
+import ArrayGridVisual from './rendering/ArrayGridVisual';
 import type { ItemTypeMap } from '@/lib/packs/registry';
 
 export const MathPack = {
@@ -57,5 +62,29 @@ export const mathItemTypes: ItemTypeMap = {
     renderer: PlaceValueSplit,
     score: scorePlaceValueSplit,
     getPromptText: (item) => item.content?.promptText ?? `Split ${item.content?.number} into place values.`,
+  },
+  ClockRead: {
+    renderer: ClockRead,
+    score: scoreClockRead,
+    getPromptText: (item) => item.content?.promptText ?? 'What time is shown?',
+  },
+  CoinSum: {
+    renderer: CoinSum,
+    score: scoreCoinSum,
+    getPromptText: (item) => item.content?.promptText ?? 'How much money is this?',
+  },
+  EqualGroupsVisual: {
+    renderer: EqualGroupsVisual,
+    score: scoreEqualGroupsVisual,
+    getPromptText: (item) =>
+      item.content?.promptText
+        ?? `${item.content?.groups} groups of ${item.content?.each} — how many in all?`,
+  },
+  ArrayGridVisual: {
+    renderer: ArrayGridVisual,
+    score: scoreArrayGridVisual,
+    getPromptText: (item) =>
+      item.content?.promptText
+        ?? `An array with ${item.content?.rows} rows and ${item.content?.cols} in each — how many?`,
   },
 };

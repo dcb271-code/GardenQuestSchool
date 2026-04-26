@@ -801,7 +801,8 @@ export function buildMathItems(skillId: (code: string) => string | undefined): R
 
   // ═══════════ MULTIPLICATION FOUNDATIONS ═══════════
 
-  // equal groups — "3 groups of 4 = ?" — 25 items
+  // equal groups — text version (EquationTap), now FOLLOWED by visual
+  // versions so the planner has both presentations to choose from.
   {
     const r = rng(50);
     for (let g = 2; g <= 5; g++) {
@@ -818,8 +819,26 @@ export function buildMathItems(skillId: (code: string) => string | undefined): R
       }
     }
   }
+  // VISUAL equal groups — same skill, drawn version. Lower Elo than
+  // the text version because the picture acts as a scaffold.
+  {
+    const r = rng(50.5);
+    for (let g = 2; g <= 5; g++) {
+      for (let each = 2; each <= 6; each++) {
+        const total = g * each;
+        const theme = themeList[Math.floor(r() * themeList.length)];
+        const word = THEMES[theme];
+        push('math.multiply.equal_groups', 'EqualGroupsVisual', {
+          type: 'EqualGroupsVisual',
+          groups: g, each, emoji: word.emoji,
+          choices: mkChoices(total, r, 6),
+          promptText: `Look at the ${g} rings of ${word.noun} — how many in all?`,
+        }, { total }, 1240 + total * 3);
+      }
+    }
+  }
 
-  // arrays (rows x cols) — 20 items
+  // arrays (rows x cols) — text version, then visual.
   {
     const r = rng(51);
     for (let rows = 2; rows <= 5; rows++) {
@@ -833,6 +852,154 @@ export function buildMathItems(skillId: (code: string) => string | undefined): R
         }, { correct: total }, 1300 + total * 3);
       }
     }
+  }
+  // VISUAL arrays — same skill, drawn rows × cols grid.
+  {
+    const r = rng(51.5);
+    for (let rows = 2; rows <= 5; rows++) {
+      for (let cols = 2; cols <= 6; cols++) {
+        const total = rows * cols;
+        const theme = themeList[Math.floor(r() * themeList.length)];
+        const word = THEMES[theme];
+        push('math.multiply.arrays', 'ArrayGridVisual', {
+          type: 'ArrayGridVisual',
+          rows, cols, emoji: word.emoji,
+          choices: mkChoices(total, r, 6),
+          promptText: `${rows} rows of ${word.noun} with ${cols} in each row.`,
+        }, { total }, 1240 + total * 3);
+      }
+    }
+  }
+
+  // ═══════════ TIME (Grade 2) ═══════════
+  // Easier skill: hour + half-hour only (e.g. 3:00, 7:30). 24 items.
+  {
+    const r = rng(70);
+    const fmt = (h: number, m: number) => `${h}:${m.toString().padStart(2, '0')}`;
+    for (let h = 1; h <= 12; h++) {
+      for (const m of [0, 30]) {
+        // Distractors: same hour different minute, neighbouring hour
+        // same minute, randomly off by an hour.
+        const correct = fmt(h, m);
+        const distractors = new Set<string>();
+        distractors.add(fmt(h, m === 0 ? 30 : 0));
+        distractors.add(fmt(((h + 1) % 12) || 12, m));
+        distractors.add(fmt(((h + 6) % 12) || 12, m === 0 ? 30 : 0));
+        const choices = [correct, ...Array.from(distractors)].slice(0, 4);
+        push('math.time.read_hour_half', 'ClockRead', {
+          type: 'ClockRead',
+          hour: h, minute: m, choices,
+          promptText: 'What time is it?',
+        }, { time: correct }, 1080 + (m === 0 ? 0 : 12));
+      }
+    }
+  }
+  // Harder skill: nearest 5 minutes. 36 items spread across the hour.
+  {
+    const r = rng(71);
+    const fmt = (h: number, m: number) => `${h}:${m.toString().padStart(2, '0')}`;
+    const fiveMinTimes: Array<[number, number, number]> = [];
+    // For each interesting hour, sample a few minute values
+    for (let h = 1; h <= 12; h++) {
+      // Quarter past (15) and quarter to (45) feel "anchored"; 5/10/20/25/35/40/50/55 are the harder ones
+      const minutes = [15, 45, 10, 20, 35, 50];
+      for (const m of minutes) {
+        // Difficulty: 15 / 45 → easier (1180), 10/20 → mid (1250),
+        // 35/50 → hardest (1330)
+        const elo =
+          m === 15 || m === 45 ? 1180 :
+          m === 10 || m === 20 ? 1250 :
+          1330;
+        fiveMinTimes.push([h, m, elo]);
+      }
+    }
+    for (const [h, m, elo] of fiveMinTimes) {
+      const correct = fmt(h, m);
+      const distractors = new Set<string>();
+      // Same hour ±5 minutes (very near)
+      distractors.add(fmt(h, (m + 5) % 60));
+      distractors.add(fmt(h, (m - 5 + 60) % 60));
+      // Different hour same minute (read the hour wrong)
+      distractors.add(fmt(((h % 12) + 1), m));
+      // Trim to a unique set of 3 distractors
+      const distArr = Array.from(distractors).filter(d => d !== correct).slice(0, 3);
+      const choices = [correct, ...distArr];
+      push('math.time.read_to_5_min', 'ClockRead', {
+        type: 'ClockRead',
+        hour: h, minute: m, choices,
+        promptText: 'What time does this clock show?',
+      }, { time: correct }, elo);
+    }
+  }
+
+  // ═══════════ MONEY (Grade 2) ═══════════
+  // Coin counting — pennies, nickels, dimes, quarters. Easy items
+  // are single-denomination piles; harder ones mix two or three.
+  {
+    const r = rng(72);
+    type CoinKind = 'penny' | 'nickel' | 'dime' | 'quarter';
+    const VALUE: Record<CoinKind, number> = { penny: 1, nickel: 5, dime: 10, quarter: 25 };
+    const coinSetup = (coins: CoinKind[]): { coins: CoinKind[]; cents: number } => ({
+      coins, cents: coins.reduce((sum, c) => sum + VALUE[c], 0),
+    });
+    const distractorsFor = (cents: number): number[] => {
+      // Common confusions: forgot a coin (off by 1, 5, or 10), counted
+      // a nickel as 1¢, etc. Mix near-misses with a far miss.
+      const opts = [
+        cents - 1, cents + 1, cents - 5, cents + 5, cents - 10, cents + 10,
+      ].filter(v => v > 0 && v !== cents);
+      return shuffle(opts, r).slice(0, 3);
+    };
+    const pushCoin = (skill: 'math.money.coin_count', items: CoinKind[], elo: number, prompt = 'How much money is this?') => {
+      const { coins, cents } = coinSetup(items);
+      const choices = [cents, ...distractorsFor(cents)];
+      push(skill, 'CoinSum', {
+        type: 'CoinSum', coins, choices, promptText: prompt,
+      }, { cents }, elo);
+    };
+    // Tier 1: just pennies (skip count by 1) — 1100
+    for (let n = 3; n <= 9; n++) {
+      pushCoin('math.money.coin_count', Array(n).fill('penny'), 1100 + n * 2);
+    }
+    // Tier 2: just nickels (skip count by 5) — 1180
+    for (let n = 2; n <= 6; n++) {
+      pushCoin('math.money.coin_count', Array(n).fill('nickel'), 1180 + n * 3);
+    }
+    // Tier 3: just dimes (skip count by 10) — 1200
+    for (let n = 2; n <= 7; n++) {
+      pushCoin('math.money.coin_count', Array(n).fill('dime'), 1200 + n * 3);
+    }
+    // Tier 4: nickels + pennies — 1280
+    pushCoin('math.money.coin_count', ['nickel', 'penny', 'penny'], 1270);                            // 7
+    pushCoin('math.money.coin_count', ['nickel', 'nickel', 'penny'], 1280);                            // 11
+    pushCoin('math.money.coin_count', ['nickel', 'nickel', 'penny', 'penny', 'penny'], 1300);          // 13
+    pushCoin('math.money.coin_count', ['nickel', 'nickel', 'nickel', 'penny', 'penny'], 1310);         // 17
+    // Tier 5: dimes + pennies — 1290
+    pushCoin('math.money.coin_count', ['dime', 'penny'], 1270);                                        // 11
+    pushCoin('math.money.coin_count', ['dime', 'penny', 'penny', 'penny'], 1290);                      // 13
+    pushCoin('math.money.coin_count', ['dime', 'dime', 'penny'], 1300);                                // 21
+    pushCoin('math.money.coin_count', ['dime', 'dime', 'penny', 'penny'], 1310);                       // 22
+    // Tier 6: dimes + nickels — 1320
+    pushCoin('math.money.coin_count', ['dime', 'nickel'], 1300);                                       // 15
+    pushCoin('math.money.coin_count', ['dime', 'dime', 'nickel'], 1320);                               // 25
+    pushCoin('math.money.coin_count', ['dime', 'nickel', 'nickel'], 1330);                             // 20
+    pushCoin('math.money.coin_count', ['dime', 'dime', 'dime', 'nickel'], 1350);                       // 35
+    // Tier 7: quarters added — 1370
+    pushCoin('math.money.coin_count', ['quarter'], 1280);                                              // 25
+    pushCoin('math.money.coin_count', ['quarter', 'penny'], 1300);                                     // 26
+    pushCoin('math.money.coin_count', ['quarter', 'nickel'], 1340);                                    // 30
+    pushCoin('math.money.coin_count', ['quarter', 'dime'], 1360);                                      // 35
+    pushCoin('math.money.coin_count', ['quarter', 'quarter'], 1380);                                   // 50
+    pushCoin('math.money.coin_count', ['quarter', 'quarter', 'dime'], 1400);                           // 60
+    pushCoin('math.money.coin_count', ['quarter', 'quarter', 'dime', 'nickel'], 1410);                 // 65
+    pushCoin('math.money.coin_count', ['quarter', 'dime', 'dime', 'nickel', 'penny'], 1420);           // 51
+    pushCoin('math.money.coin_count', ['quarter', 'quarter', 'quarter'], 1420);                        // 75
+    pushCoin('math.money.coin_count', ['quarter', 'quarter', 'dime', 'dime', 'nickel', 'penny'], 1450);// 76
+    // Story-flavoured (price match)
+    pushCoin('math.money.coin_count',
+      ['dime', 'dime', 'nickel'], 1330, 'You have these coins. How much can you spend?');             // 25
+    pushCoin('math.money.coin_count',
+      ['quarter', 'dime', 'penny'], 1370, 'A pencil costs 36¢. Do you have enough? Count up.');        // 36
   }
 
   // skip count → multiplication — "2+2+2 = 2 x ? " bridge
