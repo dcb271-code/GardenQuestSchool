@@ -7,7 +7,7 @@ describe('CharacterSpot', () => {
     render(
       <CharacterSpot
         characterCode="nana"
-        name="Nana Mira"
+        name="Bachan"
         emoji="👵"
         alert={true}
         recommendation="Word Stump — sight words"
@@ -16,7 +16,7 @@ describe('CharacterSpot', () => {
     );
     expect(screen.getByRole('button')).toHaveAttribute(
       'aria-label',
-      expect.stringMatching(/nana mira/i),
+      expect.stringMatching(/bachan/i),
     );
   });
 
@@ -24,7 +24,7 @@ describe('CharacterSpot', () => {
     render(
       <CharacterSpot
         characterCode="nana"
-        name="Nana Mira"
+        name="Bachan"
         emoji="👵"
         alert={true}
         recommendation="Word Stump — sight words"

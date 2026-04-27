@@ -275,10 +275,10 @@ export const GARDEN_STRUCTURES: MapStructure[] = [
 
   // --- Quick-start characters ---
   {
-    code: 'char_nana_mira',
+    code: 'char_bachan',
     kind: 'character',
     characterCode: 'nana',
-    label: 'Nana Mira',
+    label: 'Bachan',
     themeEmoji: '👵',
     x: 200, y: 545, size: 48,    // on the cottage porch
     zone: 'meadow',

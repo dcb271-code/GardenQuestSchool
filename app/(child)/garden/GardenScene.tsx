@@ -18,8 +18,6 @@ import HabitatQuestModal from '@/components/child/garden/HabitatQuestModal';
 import { useGardenSoundtrack } from '@/lib/audio/useGardenSoundtrack';
 import { playSparkle } from '@/lib/audio/sfx';
 import { StructureIllustration, Tree, PineTree, Flower, GrassTuft, CozyHouse } from '@/components/child/garden/illustrations';
-import LockedGate from '@/components/child/garden/LockedGate';
-import CharacterSpot from '@/components/child/garden/CharacterSpot';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
 
 interface StructureState {
@@ -402,14 +400,25 @@ export default function GardenScene({
               All paths connect at the meadow junction (~780, 540). */}
           {(() => {
             const mainD = `M 360 160 C 400 280, 420 370, 460 420 S 560 500, 680 515 S 880 515, 960 475 S 1120 380, 1160 300 S 1200 200, 1280 170`;
-            // Path extensions toward branch gates. The right extension
-            // continues the main path past x=1280 toward the painted
-            // mountain silhouettes (Math Mountain). The left extension
-            // branches off the main path near (360, 160) and exits the
-            // upper-left edge toward the forest. Solid + warm when the
-            // gate is unlocked; dashed + cool-shadow when locked.
-            const mathMountainExtD = `M 1280 170 C 1340 130, 1380 110, 1430 90`;
-            const readingForestExtD = `M 360 160 C 280 150, 180 140, 30 130`;
+            // Path extensions toward branch gates. They MUST visually
+            // continue the main path's warm-tan look (same shadow +
+            // surface + highlight layering, same stepping stones)
+            // because they ARE the same path — just narrower as they
+            // wind off the screen edge. Locked vs unlocked changes the
+            // opacity, not the style; the gate icon itself communicates
+            // the lock state.
+            //
+            // Right ext: continues from (1280, 170) where the main path
+            // exits, winding upward through the painted mountain mist
+            // to the gate at (1410, 90), then narrowing past the right
+            // edge.
+            const mathExtFullD = `M 1280 170 C 1310 195, 1340 145, 1380 130`;
+            const mathExtNarrowD = `M 1380 130 C 1410 115, 1430 105, 1450 90`;
+            // Left ext: branches off the entry point at (360, 160)
+            // back through the trees to the gate at (30, 130), winding
+            // through the brook bank.
+            const readExtFullD = `M 360 160 C 320 175, 260 130, 220 145`;
+            const readExtNarrowD = `M 220 145 C 160 120, 100 145, 30 130`;
             const pondD = `M 780 515 C 880 555, 960 605, 1055 635`;
             // Bunny path — winding meander from the main path down to the
             // burrow at (330, 665). Alternating bends for organic feel.
@@ -436,25 +445,57 @@ export default function GardenScene({
                 <path d={pondD}  stroke="#F7E6C4" strokeWidth={10} fill="none" strokeLinecap="round" opacity={0.6} />
                 <path d={bunnyD} stroke="#F7E6C4" strokeWidth={10} fill="none" strokeLinecap="round" opacity={0.6} />
                 <path d={houseD} stroke="#F7E6C4" strokeWidth={10} fill="none" strokeLinecap="round" opacity={0.6} />
-                {/* Branch path-edge extensions: dashed/dim when locked,
-                    solid/warm when unlocked. The branch the path leads
-                    to is named in the gate icon rendered separately. */}
-                <path
-                  d={mathMountainExtD}
-                  stroke={branchUnlock.math_mountain.unlocked ? '#EAD2A8' : '#A99878'}
-                  strokeWidth={branchUnlock.math_mountain.unlocked ? 24 : 12}
-                  fill="none" strokeLinecap="round"
-                  strokeDasharray={branchUnlock.math_mountain.unlocked ? undefined : '8 6'}
-                  opacity={0.85}
-                />
-                <path
-                  d={readingForestExtD}
-                  stroke={branchUnlock.reading_forest.unlocked ? '#EAD2A8' : '#A99878'}
-                  strokeWidth={branchUnlock.reading_forest.unlocked ? 24 : 12}
-                  fill="none" strokeLinecap="round"
-                  strokeDasharray={branchUnlock.reading_forest.unlocked ? undefined : '8 6'}
-                  opacity={0.85}
-                />
+                {/* Branch path-edge extensions — same layered structure
+                    as the main path: shadow → surface → highlight, plus
+                    stepping stones. Inner half (full) matches the main
+                    path width; outer half (narrow) tapers as the trail
+                    walks off the screen. Lower opacity when the
+                    destination is locked, signalling "the way isn't
+                    open yet" without changing the warm-tan style. */}
+                {(['math', 'read'] as const).map(side => {
+                  const fullD = side === 'math' ? mathExtFullD : readExtFullD;
+                  const narrowD = side === 'math' ? mathExtNarrowD : readExtNarrowD;
+                  const unlocked = side === 'math'
+                    ? branchUnlock.math_mountain.unlocked
+                    : branchUnlock.reading_forest.unlocked;
+                  const a = unlocked ? 1 : 0.55;  // dim the trail when locked
+                  return (
+                    <g key={`ext-${side}`}>
+                      {/* full-width segment: matches main path */}
+                      <path d={fullD} stroke="#A99878" strokeWidth={50} fill="none" strokeLinecap="round" opacity={0.22 * a} />
+                      <path d={fullD} stroke="#EAD2A8" strokeWidth={36} fill="none" strokeLinecap="round" opacity={0.92 * a} />
+                      <path d={fullD} stroke="#F7E6C4" strokeWidth={14} fill="none" strokeLinecap="round" opacity={0.65 * a} />
+                      {/* narrow segment: tapers off-screen */}
+                      <path d={narrowD} stroke="#A99878" strokeWidth={32} fill="none" strokeLinecap="round" opacity={0.22 * a} />
+                      <path d={narrowD} stroke="#EAD2A8" strokeWidth={22} fill="none" strokeLinecap="round" opacity={0.92 * a} />
+                      <path d={narrowD} stroke="#F7E6C4" strokeWidth={8} fill="none" strokeLinecap="round" opacity={0.65 * a} />
+                    </g>
+                  );
+                })}
+                {/* Stepping stones along the extensions, same style as the main path's */}
+                {(branchUnlock.math_mountain.unlocked ? 1 : 0.55) >= 0 && [
+                  // right (math) extension
+                  { x: 1310, y: 175 }, { x: 1355, y: 140 }, { x: 1395, y: 122, side: 'math' as const },
+                  { x: 1430, y: 100, side: 'math' as const, narrow: true },
+                  // left (read) extension
+                  { x: 320, y: 168 }, { x: 270, y: 142 }, { x: 215, y: 142, side: 'read' as const },
+                  { x: 145, y: 130, side: 'read' as const, narrow: true },
+                  { x: 70, y: 132, side: 'read' as const, narrow: true },
+                ].map((s, i) => {
+                  const sideKey = (s as any).side ?? (s.x > 720 ? 'math' : 'read');
+                  const a = sideKey === 'math'
+                    ? (branchUnlock.math_mountain.unlocked ? 1 : 0.55)
+                    : (branchUnlock.reading_forest.unlocked ? 1 : 0.55);
+                  const r = (s as any).narrow ? 7 : 11;
+                  const ry = (s as any).narrow ? 4 : 6;
+                  return (
+                    <g key={`ext-stone-${i}`} opacity={a}>
+                      <ellipse cx={s.x + 1} cy={s.y + 2} rx={r} ry={ry} fill="#000" opacity={0.2} />
+                      <ellipse cx={s.x} cy={s.y} rx={r} ry={ry} fill="#C9B489" stroke="#8A7050" strokeWidth={1.2} />
+                      <ellipse cx={s.x - 2} cy={s.y - 1.5} rx={r * 0.45} ry={ry * 0.4} fill="#E0CBA1" opacity={0.8} />
+                    </g>
+                  );
+                })}
                 {/* stepping stones along the path — break up uniformity */}
                 {[
                   // main path
@@ -814,37 +855,62 @@ export default function GardenScene({
           <AmbientLayer reducedMotion={reducedMotion} />
 
           {GARDEN_STRUCTURES.map(s => {
-            // Gates → render LockedGate via foreignObject so the HTML/
-            // Tailwind component can sit inside the SVG scene.
+            // Gates → native SVG <g> with click handler. We tried
+            // <foreignObject> + an HTML LockedGate component first but
+            // touch events are unreliable inside foreignObject on iPad
+            // Safari, so the gate didn't respond to taps. Native SVG
+            // (same pattern as the existing Structure component) works
+            // everywhere.
             if (s.kind === 'gate' && s.branchCode) {
               const u = branchUnlock[s.branchCode];
               const branchPath =
                 s.branchCode === 'math_mountain'
                   ? `/garden/math-mountain?learner=${learnerId}`
                   : `/garden/reading-forest?learner=${learnerId}`;
+              const dest = s.label.replace(/^to /, '');
               return (
-                <foreignObject
+                <g
                   key={s.code}
-                  x={s.x - 60}
-                  y={s.y - 30}
-                  width={120}
-                  height={70}
+                  transform={`translate(${s.x}, ${s.y})`}
+                  style={{ cursor: 'pointer', touchAction: 'manipulation' }}
+                  onClick={() => { if (u.unlocked) router.push(branchPath); }}
                 >
-                  <LockedGate
-                    destinationLabel={s.label.replace(/^to /, '')}
-                    unlocked={u.unlocked}
-                    justUnlocked={u.justUnlocked}
-                    onTapWhenLocked={() => { /* LockedGate already
-                        explains itself via aria-label; no toast needed */ }}
-                    onTapWhenUnlocked={() => router.push(branchPath)}
+                  {/* large invisible hit target — meets the 60pt min */}
+                  <circle r={42} fill="transparent" />
+                  {/* gate icon: ivy when locked, open archway when unlocked */}
+                  <text
+                    textAnchor="middle"
+                    dominantBaseline="central"
+                    fontSize={36}
+                    opacity={u.unlocked ? 1 : 0.85}
+                    style={{ filter: u.unlocked && u.justUnlocked
+                      ? 'drop-shadow(0 0 10px rgba(255, 217, 61, 0.7))'
+                      : undefined }}
+                  >
+                    {u.unlocked ? '🚪' : '🌿'}
+                  </text>
+                  {/* destination label */}
+                  <rect
+                    x={-58} y={26} width={116} height={18} rx={5}
+                    fill={u.unlocked ? 'rgba(255, 250, 242, 0.92)' : 'rgba(107, 68, 35, 0.92)'}
+                    stroke={u.unlocked ? '#6b8e5a' : '#3a2510'}
+                    strokeWidth={1}
                   />
-                </foreignObject>
+                  <text
+                    x={0} y={38} textAnchor="middle"
+                    fontSize={10} fontWeight={700}
+                    fill={u.unlocked ? '#6b4423' : '#fffaf2'}
+                  >
+                    {u.unlocked ? `${dest} →` : `🔒 ${dest}`}
+                  </text>
+                </g>
               );
             }
 
-            // Characters → render CharacterSpot via foreignObject. The
-            // alert character is picked daily by characterRotation; the
-            // recommendation comes from the engine via characterRecs.
+            // Characters → native SVG <g> with click handler. Same
+            // foreignObject-touch caveat as gates above. The alert
+            // character is picked daily; the recommendation comes from
+            // the engine via characterRecs.
             if (s.kind === 'character' && s.characterCode) {
               const code = s.characterCode;
               const rec =
@@ -855,24 +921,55 @@ export default function GardenScene({
                     : characterRecs.signpost[0] ?? null;
               const isAlert = characterRotation.alertCharacterCode === code;
               return (
-                <foreignObject
+                <g
                   key={s.code}
-                  x={s.x - 50}
-                  y={s.y - 40}
-                  width={100}
-                  height={90}
+                  transform={`translate(${s.x}, ${s.y})`}
+                  style={{ cursor: 'pointer', touchAction: 'manipulation' }}
+                  onClick={() => { if (rec?.skillCode) startSkill(rec.skillCode); }}
+                  aria-label={isAlert ? `${s.label} — ${rec?.structureLabel ?? ''}` : `${s.label} is resting`}
                 >
-                  <CharacterSpot
-                    characterCode={code}
-                    name={s.label}
-                    emoji={s.themeEmoji}
-                    alert={isAlert}
-                    recommendation={rec?.structureLabel ?? '…'}
-                    onTap={() => {
-                      if (rec?.skillCode) startSkill(rec.skillCode);
-                    }}
+                  <circle r={36} fill="transparent" />
+                  <text
+                    textAnchor="middle"
+                    dominantBaseline="central"
+                    fontSize={30}
+                    opacity={isAlert ? 1 : 0.55}
+                    style={{ filter: isAlert
+                      ? 'drop-shadow(0 1px 2px rgba(107,68,35,0.45))'
+                      : 'grayscale(0.4)' }}
+                  >
+                    {s.themeEmoji}
+                  </text>
+                  {/* name banner */}
+                  <rect
+                    x={-44} y={20} width={88} height={16} rx={4}
+                    fill="rgba(195, 141, 158, 0.95)"
                   />
-                </foreignObject>
+                  <text
+                    x={0} y={31} textAnchor="middle"
+                    fontSize={9} fontWeight={700}
+                    fill="#fffaf2"
+                  >
+                    {s.label}
+                  </text>
+                  {/* recommendation hint when alert */}
+                  {isAlert && rec?.structureLabel && (
+                    <>
+                      <rect
+                        x={-62} y={38} width={124} height={14} rx={4}
+                        fill="rgba(255, 250, 242, 0.88)"
+                        stroke="#d8c8a8" strokeWidth={0.5}
+                      />
+                      <text
+                        x={0} y={47} textAnchor="middle"
+                        fontSize={8} fontStyle="italic"
+                        fill="#6b4423"
+                      >
+                        {rec.structureLabel}
+                      </text>
+                    </>
+                  )}
+                </g>
               );
             }
 
