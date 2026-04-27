@@ -240,6 +240,27 @@ export default async function GardenPage({
     interiorEnabledByHabitat[habitat.code] = habitatSpecies.some(s => journalCodes.has(s.code));
   }
 
+  // ─── First-arrival invitation eligibility ───────────────────────
+  // If the pending arrival is the FIRST species ever discovered for
+  // its habitat, surface the "come visit me inside" invitation copy
+  // and the step-inside CTA in the ArrivalCard. The journal entry for
+  // the arriving species hasn't been written yet (the modal writes it
+  // on welcome/step-inside), so "first" = no existing journal_entry
+  // codes overlap the habitat's species set.
+  let pendingArrivalIsFirstForHabitat = false;
+  let pendingArrivalHabitatCode: string | null = null;
+  if (pendingArrival) {
+    pendingArrivalHabitatCode = pendingArrival.habitatReqCodes
+      .find(c => builtSet.has(c)) ?? null;
+    if (pendingArrivalHabitatCode) {
+      const habitatSpeciesCodes = SPECIES_CATALOG
+        .filter(s => s.habitatReqCodes.includes(pendingArrivalHabitatCode!))
+        .map(s => s.code);
+      const discoveredFromThisHabitat = habitatSpeciesCodes.filter(c => journalCodes.has(c));
+      pendingArrivalIsFirstForHabitat = discoveredFromThisHabitat.length === 0;
+    }
+  }
+
   return (
     <GardenScene
       learnerId={learnerId}
@@ -250,6 +271,8 @@ export default async function GardenPage({
       characterRotation={{ alertCharacterCode }}
       characterRecs={characterRecs}
       interiorEnabledByHabitat={interiorEnabledByHabitat}
+      pendingArrivalIsFirstForHabitat={pendingArrivalIsFirstForHabitat}
+      pendingArrivalHabitatCode={pendingArrivalHabitatCode}
     />
   );
 }

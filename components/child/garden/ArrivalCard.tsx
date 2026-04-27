@@ -21,10 +21,14 @@ export default function ArrivalCard({
   species,
   learnerId,
   onDismiss,
+  isFirstForHabitat = false,
+  habitatCode = null,
 }: {
   species: SpeciesData;
   learnerId: string;
   onDismiss: () => void;
+  isFirstForHabitat?: boolean;
+  habitatCode?: string | null;
 }) {
   const { settings } = useAccessibilitySettings();
   const reducedMotion = settings.reducedMotion;
@@ -50,6 +54,22 @@ export default function ArrivalCard({
     setVisible(false);
     // allow exit animation to play
     setTimeout(onDismiss, 400);
+  };
+
+  // Step-inside variant: log the journal entry (so the species shows
+  // as discovered when the interior loads) THEN navigate to the
+  // interior. We use a hard nav since this leaves the garden — the
+  // server component on the interior route will rerun with the new
+  // journal data.
+  const stepInside = async () => {
+    if (!habitatCode) return;
+    setBusy(true);
+    await fetch('/api/garden/arrival', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ learnerId, speciesCode: species.code }),
+    });
+    window.location.href = `/garden/habitat/${habitatCode}?learner=${learnerId}`;
   };
 
   const speciesMotion: MotionProps = reducedMotion
@@ -174,6 +194,22 @@ export default function ArrivalCard({
               {species.funFact}
             </motion.div>
 
+            {isFirstForHabitat && habitatCode && (
+              <motion.div
+                className="text-center pt-1"
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.4, duration: 0.5 }}
+              >
+                <p
+                  className="font-display italic text-[16px] text-bark/85 leading-snug"
+                  style={{ fontWeight: 500 }}
+                >
+                  the {species.commonName.toLowerCase()} says — come visit me inside!
+                </p>
+              </motion.div>
+            )}
+
             <motion.button
               onClick={welcome}
               disabled={busy}
@@ -186,6 +222,22 @@ export default function ArrivalCard({
             >
               {busy ? 'welcoming…' : 'welcome them'}
             </motion.button>
+
+            {isFirstForHabitat && habitatCode && (
+              <motion.button
+                onClick={stepInside}
+                disabled={busy}
+                className="w-full bg-sage/20 text-bark border-4 border-sage rounded-full py-3 font-display disabled:opacity-50"
+                style={{ touchAction: 'manipulation', minHeight: 56, fontWeight: 600 }}
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.7, duration: 0.5 }}
+                whileTap={{ scale: 0.97 }}
+              >
+                <span className="text-xl mr-2" aria-hidden>🚪</span>
+                step inside →
+              </motion.button>
+            )}
           </motion.div>
         </motion.div>
       )}

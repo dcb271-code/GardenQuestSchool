@@ -44,6 +44,8 @@ export default function GardenScene({
   characterRotation = { alertCharacterCode: 'signpost' },
   characterRecs = { hodge: null, nana: null, signpost: [] },
   interiorEnabledByHabitat = {},
+  pendingArrivalIsFirstForHabitat = false,
+  pendingArrivalHabitatCode = null,
 }: {
   learnerId: string;
   firstName?: string | null;
@@ -57,6 +59,8 @@ export default function GardenScene({
     signpost: Array<{ skillCode: string; structureLabel: string }>;
   };
   interiorEnabledByHabitat?: Record<string, boolean>;
+  pendingArrivalIsFirstForHabitat?: boolean;
+  pendingArrivalHabitatCode?: string | null;
 }) {
   const router = useRouter();
   const { settings, update } = useAccessibilitySettings();
@@ -1027,6 +1031,20 @@ export default function GardenScene({
                           )}
                         </div>
                       )}
+                      {/* Step-inside CTA — appears once a species has
+                          accepted the invitation (i.e. the habitat has
+                          at least one resident in the journal). Driven
+                          by interiorEnabledByHabitat from the page. */}
+                      {isBuilt && selected.habitatCode && interiorEnabledByHabitat[selected.habitatCode] && (
+                        <a
+                          href={`/garden/habitat/${selected.habitatCode}?learner=${learnerId}`}
+                          className="block w-full text-center bg-sage/15 border-4 border-sage rounded-full py-3 font-display text-bark"
+                          style={{ touchAction: 'manipulation', minHeight: 60, fontWeight: 600 }}
+                        >
+                          <span className="text-xl mr-2" aria-hidden>🚪</span>
+                          step inside →
+                        </a>
+                      )}
                       <motion.button
                         onClick={() => setSelected(null)}
                         className="w-full bg-sage text-white rounded-full py-3 font-display"
@@ -1048,6 +1066,8 @@ export default function GardenScene({
         <ArrivalCard
           species={arrival}
           learnerId={learnerId}
+          isFirstForHabitat={pendingArrivalIsFirstForHabitat}
+          habitatCode={pendingArrivalHabitatCode}
           onDismiss={() => {
             setArrival(null);
             router.refresh();
