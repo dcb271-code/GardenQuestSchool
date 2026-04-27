@@ -493,8 +493,13 @@ export default function GardenScene({
           <circle cx={MAP_WIDTH * 0.78} cy={110} r={90} fill="url(#sunGlow)" opacity="0.75" />
           <circle cx={MAP_WIDTH * 0.78} cy={110} r={32} fill="#FFF2B5" opacity="0.9" />
 
-          {/* Sunbeam rays from upper-right, angled down-left */}
-          <g opacity="0.5" style={{ mixBlendMode: 'screen' }} pointerEvents="none">
+          {/* Sunbeam rays from upper-right, angled down-left.
+              No mixBlendMode — Firefox can paint mix-blended SVG
+              groups as solid black if any layered fill underneath
+              isn't fully opaque, even when the rays are warm yellow.
+              At opacity 0.4 the unblended warm beam reads close
+              enough across browsers. */}
+          <g opacity="0.4" pointerEvents="none">
             {[0, 1, 2, 3, 4].map(i => (
               <polygon
                 key={i}

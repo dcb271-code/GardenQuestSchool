@@ -270,8 +270,9 @@ export default function MathMountainScene({
         {/* ── SUN upper-left, mirroring the opposite perspective of the garden ── */}
         <circle cx={W * 0.14} cy={108} r={85} fill="url(#mmSunGlow)" opacity={0.72} />
         <circle cx={W * 0.14} cy={108} r={30} fill="#FFF2B5" opacity={0.88} />
-        {/* Sunbeam rays from upper-left, angling down-right */}
-        <g opacity={0.45} style={{ mixBlendMode: 'screen' }} pointerEvents="none">
+        {/* Sunbeam rays from upper-left, angling down-right.
+            No mixBlendMode (Firefox compat — see GardenScene). */}
+        <g opacity={0.36} pointerEvents="none">
           {[0, 1, 2, 3, 4].map(i => (
             <polygon
               key={`mmray-${i}`}

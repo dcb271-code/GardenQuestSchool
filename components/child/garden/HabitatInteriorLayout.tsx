@@ -41,8 +41,9 @@ export default function HabitatInteriorLayout({
           <div
             aria-hidden
             style={{
+              // See note in BranchSceneLayout — Firefox compatibility.
               position: 'absolute', inset: 0, background: tint,
-              pointerEvents: 'none', mixBlendMode: 'multiply',
+              pointerEvents: 'none',
             }}
           />
         )}

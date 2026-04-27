@@ -49,8 +49,12 @@ export default function BranchSceneLayout({
           <div
             aria-hidden
             style={{
+              // No mixBlendMode — Firefox renders that unreliably on
+              // div overlays and can paint a solid dark color instead
+              // of blending. The tint is already at ~18% alpha so the
+              // direct rgba layering reads close enough to multiply.
               position: 'absolute', inset: 0, background: tint,
-              pointerEvents: 'none', mixBlendMode: 'multiply',
+              pointerEvents: 'none',
             }}
           />
         )}

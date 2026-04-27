@@ -540,7 +540,7 @@ export default function ReadingForestScene({
         {/* ── 13. DAPPLED LIGHT SHAFTS ──
              4-5 soft beams angling from upper-centre through the canopy.
              Only above the floor layer — they fade before reaching y:500. */}
-        <g opacity={0.48} style={{ mixBlendMode: 'screen' }} pointerEvents="none">
+        <g opacity={0.4} pointerEvents="none">{/* no mixBlendMode — Firefox compat */}
           {[0, 1, 2, 3, 4].map(i => (
             <polygon
               key={`rfsh-${i}`}
