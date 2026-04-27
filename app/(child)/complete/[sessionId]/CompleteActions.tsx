@@ -13,7 +13,6 @@ interface ActionDef {
 export default function CompleteActions({ learnerId }: { learnerId: string }) {
   const actions: ActionDef[] = [
     { href: `/garden?learner=${learnerId}`, emoji: '🌿', label: 'garden',   primary: true },
-    { href: `/explore?learner=${learnerId}`, emoji: '🧭', label: 'another quest' },
     { href: `/journal?learner=${learnerId}`, emoji: '📖', label: 'journal' },
     { href: '/picker', emoji: '🏡', label: 'home' },
   ];
