@@ -606,61 +606,67 @@ export default function ReadingForestScene({
           );
         })}
 
-        {/* ── STRUCTURES ── */}
-        {structures.map(s => {
-          const state = structureStates[s.code];
-          const completed = state?.completed ?? false;
-          const unlocked = state?.unlocked ?? false;
-          const isTappedLocked = tappedLocked === s.code;
+        {/* ── STRUCTURES ──
+            Same uniform-size treatment as Math Mountain — see comment
+            there for rationale. */}
+        {(() => {
+          const UNIFORM = 44;
+          const HIT = 36;
+          const LABEL_Y = 28;
+          return structures.map(s => {
+            const state = structureStates[s.code];
+            const completed = state?.completed ?? false;
+            const unlocked = state?.unlocked ?? false;
+            const isTappedLocked = tappedLocked === s.code;
 
-          // Try to resolve a bespoke illustration (alias → existing code, or same code)
-          const illustrationCode = ILLUSTRATION_ALIAS[s.code] ?? s.code;
-          const drawn = StructureIllustration({ code: illustrationCode, x: 0, y: 0, size: s.size });
+            const illustrationCode = ILLUSTRATION_ALIAS[s.code] ?? s.code;
+            const drawn = StructureIllustration({ code: illustrationCode, x: 0, y: 0, size: UNIFORM });
 
-          return (
-            <g
-              key={s.code}
-              transform={`translate(${s.x}, ${s.y})`}
-              style={{ cursor: 'pointer', touchAction: 'manipulation' }}
-              onClick={() => onStructureTap(s)}
-            >
-              <circle r={Math.max(s.size * 0.7, 30)} fill="transparent" />
-              <g opacity={unlocked ? 1 : 0.35} style={{
-                filter: completed
-                  ? 'drop-shadow(0 0 6px rgba(255, 217, 61, 0.6))'
-                  : unlocked
-                    ? 'drop-shadow(0 1px 2px rgba(107,68,35,0.4))'
-                    : 'grayscale(0.7)',
-              }}>
-                {drawn ?? <PlinthEmoji emoji={s.themeEmoji} size={s.size} />}
-              </g>
-              <rect
-                x={-50} y={s.size * 0.45} width={100} height={16} rx={4}
-                fill={completed ? 'rgba(255,217,61,0.85)' : 'rgba(255,250,242,0.85)'}
-              />
-              <text
-                x={0} y={s.size * 0.55 + 6} textAnchor="middle"
-                fontSize={9} fontWeight={600} fill="#6b4423"
+            return (
+              <g
+                key={s.code}
+                transform={`translate(${s.x}, ${s.y})`}
+                style={{ cursor: 'pointer', touchAction: 'manipulation' }}
+                onClick={() => onStructureTap(s)}
               >
-                {s.label}
-              </text>
-              {isTappedLocked && state && (
-                <g>
-                  <rect
-                    x={-90} y={-s.size * 0.9} width={180} height={28} rx={6}
-                    fill="#fffaf2" stroke="#c38d9e" strokeWidth={1.5}
-                  />
-                  <text
-                    x={0} y={-s.size * 0.7 + 4} textAnchor="middle"
-                    fontSize={10} fontStyle="italic" fill="#6b4423"
-                  >
-                    {state.prereqDisplay}
-                  </text>
+                <circle r={HIT} fill="transparent" />
+                <g opacity={unlocked ? 1 : 0.35} style={{
+                  filter: completed
+                    ? 'drop-shadow(0 0 6px rgba(255, 217, 61, 0.6))'
+                    : unlocked
+                      ? 'drop-shadow(0 1px 2px rgba(107,68,35,0.4))'
+                      : 'grayscale(0.7)',
+                }}>
+                  {drawn ?? <PlinthEmoji emoji={s.themeEmoji} size={UNIFORM} />}
                 </g>
-              )}
-            </g>
-          );
-        })}
+                <rect
+                  x={-50} y={LABEL_Y} width={100} height={14} rx={4}
+                  fill={completed ? 'rgba(255,217,61,0.85)' : 'rgba(255,250,242,0.85)'}
+                />
+                <text
+                  x={0} y={LABEL_Y + 10} textAnchor="middle"
+                  fontSize={9} fontWeight={600} fill="#6b4423"
+                >
+                  {s.label}
+                </text>
+                {isTappedLocked && state && (
+                  <g>
+                    <rect
+                      x={-90} y={-UNIFORM * 1.1} width={180} height={28} rx={6}
+                      fill="#fffaf2" stroke="#c38d9e" strokeWidth={1.5}
+                    />
+                    <text
+                      x={0} y={-UNIFORM * 0.85} textAnchor="middle"
+                      fontSize={10} fontStyle="italic" fill="#6b4423"
+                    >
+                      {state.prereqDisplay}
+                    </text>
+                  </g>
+                )}
+              </g>
+            );
+          });
+        })()}
       </svg>
     </BranchSceneLayout>
   );
