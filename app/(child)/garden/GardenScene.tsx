@@ -18,6 +18,8 @@ import HabitatQuestModal from '@/components/child/garden/HabitatQuestModal';
 import { useGardenSoundtrack } from '@/lib/audio/useGardenSoundtrack';
 import { playSparkle } from '@/lib/audio/sfx';
 import { StructureIllustration, Tree, PineTree, Flower, GrassTuft, CozyHouse } from '@/components/child/garden/illustrations';
+import LockedGate from '@/components/child/garden/LockedGate';
+import CharacterSpot from '@/components/child/garden/CharacterSpot';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
 
 interface StructureState {
@@ -35,11 +37,30 @@ export default function GardenScene({
   firstName = null,
   structureStates,
   pendingArrival,
+  branchUnlock = {
+    math_mountain: { unlocked: false, justUnlocked: false },
+    reading_forest: { unlocked: false, justUnlocked: false },
+  },
+  characterRotation = { alertCharacterCode: 'signpost' },
+  characterRecs = { hodge: null, nana: null, signpost: [] },
+  interiorEnabledByHabitat = {},
+  pendingArrivalIsFirstForHabitat = false,
+  pendingArrivalHabitatCode = null,
 }: {
   learnerId: string;
   firstName?: string | null;
   structureStates: Record<string, StructureState>;
   pendingArrival: SpeciesData | null;
+  branchUnlock?: Record<'math_mountain' | 'reading_forest', { unlocked: boolean; justUnlocked: boolean }>;
+  characterRotation?: { alertCharacterCode: 'nana' | 'hodge' | 'signpost' };
+  characterRecs?: {
+    hodge: { skillCode: string; structureLabel: string } | null;
+    nana: { skillCode: string; structureLabel: string } | null;
+    signpost: Array<{ skillCode: string; structureLabel: string }>;
+  };
+  interiorEnabledByHabitat?: Record<string, boolean>;
+  pendingArrivalIsFirstForHabitat?: boolean;
+  pendingArrivalHabitatCode?: string | null;
 }) {
   const router = useRouter();
   const { settings, update } = useAccessibilitySettings();
@@ -181,13 +202,6 @@ export default function GardenScene({
           >
             {settings.gardenSoundtrack ? '♪' : '♫'}
           </button>
-          <Link
-            href={`/explore?learner=${learnerId}`}
-            className="text-lg p-1.5 rounded-full bg-white border border-ochre"
-            aria-label="compass — choose a quest"
-            title="Compass"
-            style={{ minWidth: 40, minHeight: 40, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
-          >🧭</Link>
           <Link
             href={`/journal?learner=${learnerId}`}
             className="text-lg p-1.5 rounded-full bg-white border border-ochre"
@@ -388,6 +402,14 @@ export default function GardenScene({
               All paths connect at the meadow junction (~780, 540). */}
           {(() => {
             const mainD = `M 360 160 C 400 280, 420 370, 460 420 S 560 500, 680 515 S 880 515, 960 475 S 1120 380, 1160 300 S 1200 200, 1280 170`;
+            // Path extensions toward branch gates. The right extension
+            // continues the main path past x=1280 toward the painted
+            // mountain silhouettes (Math Mountain). The left extension
+            // branches off the main path near (360, 160) and exits the
+            // upper-left edge toward the forest. Solid + warm when the
+            // gate is unlocked; dashed + cool-shadow when locked.
+            const mathMountainExtD = `M 1280 170 C 1340 130, 1380 110, 1430 90`;
+            const readingForestExtD = `M 360 160 C 280 150, 180 140, 30 130`;
             const pondD = `M 780 515 C 880 555, 960 605, 1055 635`;
             // Bunny path — winding meander from the main path down to the
             // burrow at (330, 665). Alternating bends for organic feel.
@@ -414,6 +436,25 @@ export default function GardenScene({
                 <path d={pondD}  stroke="#F7E6C4" strokeWidth={10} fill="none" strokeLinecap="round" opacity={0.6} />
                 <path d={bunnyD} stroke="#F7E6C4" strokeWidth={10} fill="none" strokeLinecap="round" opacity={0.6} />
                 <path d={houseD} stroke="#F7E6C4" strokeWidth={10} fill="none" strokeLinecap="round" opacity={0.6} />
+                {/* Branch path-edge extensions: dashed/dim when locked,
+                    solid/warm when unlocked. The branch the path leads
+                    to is named in the gate icon rendered separately. */}
+                <path
+                  d={mathMountainExtD}
+                  stroke={branchUnlock.math_mountain.unlocked ? '#EAD2A8' : '#A99878'}
+                  strokeWidth={branchUnlock.math_mountain.unlocked ? 24 : 12}
+                  fill="none" strokeLinecap="round"
+                  strokeDasharray={branchUnlock.math_mountain.unlocked ? undefined : '8 6'}
+                  opacity={0.85}
+                />
+                <path
+                  d={readingForestExtD}
+                  stroke={branchUnlock.reading_forest.unlocked ? '#EAD2A8' : '#A99878'}
+                  strokeWidth={branchUnlock.reading_forest.unlocked ? 24 : 12}
+                  fill="none" strokeLinecap="round"
+                  strokeDasharray={branchUnlock.reading_forest.unlocked ? undefined : '8 6'}
+                  opacity={0.85}
+                />
                 {/* stepping stones along the path — break up uniformity */}
                 {[
                   // main path
@@ -773,6 +814,69 @@ export default function GardenScene({
           <AmbientLayer reducedMotion={reducedMotion} />
 
           {GARDEN_STRUCTURES.map(s => {
+            // Gates → render LockedGate via foreignObject so the HTML/
+            // Tailwind component can sit inside the SVG scene.
+            if (s.kind === 'gate' && s.branchCode) {
+              const u = branchUnlock[s.branchCode];
+              const branchPath =
+                s.branchCode === 'math_mountain'
+                  ? `/garden/math-mountain?learner=${learnerId}`
+                  : `/garden/reading-forest?learner=${learnerId}`;
+              return (
+                <foreignObject
+                  key={s.code}
+                  x={s.x - 60}
+                  y={s.y - 30}
+                  width={120}
+                  height={70}
+                >
+                  <LockedGate
+                    destinationLabel={s.label.replace(/^to /, '')}
+                    unlocked={u.unlocked}
+                    justUnlocked={u.justUnlocked}
+                    onTapWhenLocked={() => { /* LockedGate already
+                        explains itself via aria-label; no toast needed */ }}
+                    onTapWhenUnlocked={() => router.push(branchPath)}
+                  />
+                </foreignObject>
+              );
+            }
+
+            // Characters → render CharacterSpot via foreignObject. The
+            // alert character is picked daily by characterRotation; the
+            // recommendation comes from the engine via characterRecs.
+            if (s.kind === 'character' && s.characterCode) {
+              const code = s.characterCode;
+              const rec =
+                code === 'hodge'
+                  ? characterRecs.hodge
+                  : code === 'nana'
+                    ? characterRecs.nana
+                    : characterRecs.signpost[0] ?? null;
+              const isAlert = characterRotation.alertCharacterCode === code;
+              return (
+                <foreignObject
+                  key={s.code}
+                  x={s.x - 50}
+                  y={s.y - 40}
+                  width={100}
+                  height={90}
+                >
+                  <CharacterSpot
+                    characterCode={code}
+                    name={s.label}
+                    emoji={s.themeEmoji}
+                    alert={isAlert}
+                    recommendation={rec?.structureLabel ?? '…'}
+                    onTap={() => {
+                      if (rec?.skillCode) startSkill(rec.skillCode);
+                    }}
+                  />
+                </foreignObject>
+              );
+            }
+
+            // Existing skill/habitat rendering — unchanged.
             const state = structureStates[s.code] ?? {
               unlocked: false, completed: false, isNext: false,
               correctCount: 0, target: 10, prereqDisplay: '',
@@ -927,6 +1031,20 @@ export default function GardenScene({
                           )}
                         </div>
                       )}
+                      {/* Step-inside CTA — appears once a species has
+                          accepted the invitation (i.e. the habitat has
+                          at least one resident in the journal). Driven
+                          by interiorEnabledByHabitat from the page. */}
+                      {isBuilt && selected.habitatCode && interiorEnabledByHabitat[selected.habitatCode] && (
+                        <a
+                          href={`/garden/habitat/${selected.habitatCode}?learner=${learnerId}`}
+                          className="block w-full text-center bg-sage/15 border-4 border-sage rounded-full py-3 font-display text-bark"
+                          style={{ touchAction: 'manipulation', minHeight: 60, fontWeight: 600 }}
+                        >
+                          <span className="text-xl mr-2" aria-hidden>🚪</span>
+                          step inside →
+                        </a>
+                      )}
                       <motion.button
                         onClick={() => setSelected(null)}
                         className="w-full bg-sage text-white rounded-full py-3 font-display"
@@ -948,6 +1066,8 @@ export default function GardenScene({
         <ArrivalCard
           species={arrival}
           learnerId={learnerId}
+          isFirstForHabitat={pendingArrivalIsFirstForHabitat}
+          habitatCode={pendingArrivalHabitatCode}
           onDismiss={() => {
             setArrival(null);
             router.refresh();

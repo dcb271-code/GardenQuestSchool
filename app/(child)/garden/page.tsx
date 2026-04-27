@@ -6,6 +6,18 @@ import { MATH_SKILLS } from '@/lib/packs/math/skills';
 import { READING_SKILLS } from '@/lib/packs/reading/skills';
 import { computeStructureProgress, ZONE_COMPLETION_TARGET } from '@/lib/world/zoneProgress';
 import { resolveLearnerId } from '@/lib/learner/activeLearner';
+import {
+  BRANCH_GATING,
+  isStructureCompletedForGating,
+  isBranchUnlocked,
+  type BranchCode,
+} from '@/lib/world/branchGating';
+import { todaysAlertCharacter } from '@/lib/world/characterRotation';
+import {
+  partitionRecommendations,
+  type RecommendedCandidate,
+} from '@/lib/world/characterRecommendation';
+import { hasHabitatInterior } from '@/lib/world/habitatInteriors';
 import GardenScene from './GardenScene';
 
 export const dynamic = 'force-dynamic';
@@ -145,12 +157,122 @@ export default async function GardenPage({
     ? SPECIES_CATALOG.find(s => s.code === pendingCode) ?? null
     : null;
 
+  // ─── Branch unlock state ─────────────────────────────────────────
+  const isCompleted = (structureCode: string) =>
+    isStructureCompletedForGating(
+      structureCode, GARDEN_STRUCTURES, correctByCode, mastered, ZONE_COMPLETION_TARGET,
+    );
+  const branchCodes: BranchCode[] = ['math_mountain', 'reading_forest'];
+  const previouslyUnlocked = new Set<string>(
+    (worldStateRow?.garden as Record<string, any> | null)?.unlocked_branches ?? [],
+  );
+  const branchUnlock: Record<BranchCode, { unlocked: boolean; justUnlocked: boolean }> = {
+    math_mountain: { unlocked: false, justUnlocked: false },
+    reading_forest: { unlocked: false, justUnlocked: false },
+  };
+  const newlyUnlocked: string[] = [];
+  for (const code of branchCodes) {
+    const unlocked = isBranchUnlocked(code, isCompleted);
+    const justUnlocked = unlocked && !previouslyUnlocked.has(code);
+    branchUnlock[code] = { unlocked, justUnlocked };
+    if (justUnlocked) newlyUnlocked.push(code);
+  }
+
+  // Persist newly-unlocked branches so the just-unlocked animation
+  // only fires once. Only write if there's a new entry.
+  if (newlyUnlocked.length > 0) {
+    const updatedGarden = {
+      ...(worldStateRow?.garden as Record<string, any> | null ?? {}),
+      unlocked_branches: [...Array.from(previouslyUnlocked), ...newlyUnlocked],
+    };
+    await db.from('world_state')
+      .update({ garden: updatedGarden })
+      .eq('learner_id', learnerId);
+  }
+
+  // ─── Character rotation + recommendations ───────────────────────
+  const alertCharacterCode = todaysAlertCharacter(learnerId);
+
+  // Self-fetch the engine's candidate list. NEXT_PUBLIC_BASE_URL is
+  // documented as the env for absolute URLs server-side; falls back to
+  // VERCEL_URL in production, localhost in dev. If that ever fails the
+  // cleaner fix is to expose the candidates logic as a shared lib —
+  // out of scope for this task.
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL
+    ?? (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000');
+  let candidates: RecommendedCandidate[] = [];
+  try {
+    const candidatesRes = await fetch(
+      `${baseUrl}/api/plan/candidates?learner=${learnerId}`,
+      { cache: 'no-store' },
+    );
+    if (candidatesRes.ok) {
+      const json = (await candidatesRes.json()) as { candidates?: RecommendedCandidate[] };
+      candidates = json.candidates ?? [];
+    }
+  } catch {
+    // If the self-fetch fails, fall through with empty candidates so
+    // the characters still render in their sleeping state.
+    candidates = [];
+  }
+  const partitioned = partitionRecommendations(candidates);
+  const characterRecs = {
+    hodge: partitioned.hodge ? { skillCode: partitioned.hodge.skillCode, structureLabel: partitioned.hodge.title } : null,
+    nana: partitioned.nana ? { skillCode: partitioned.nana.skillCode, structureLabel: partitioned.nana.title } : null,
+    signpost: partitioned.signpost.map(c => ({ skillCode: c.skillCode, structureLabel: c.title })),
+  };
+
+  // ─── Habitat interior eligibility ────────────────────────────────
+  // For each built habitat that has an implemented interior, check if
+  // any of its species is in the learner's journal.
+  const { data: journalRows } = await db
+    .from('journal_entry')
+    .select('species:species_id(code)')
+    .eq('learner_id', learnerId);
+  const journalCodes = new Set(
+    (journalRows ?? []).map((r: any) => r.species?.code).filter(Boolean),
+  );
+  const interiorEnabledByHabitat: Record<string, boolean> = {};
+  for (const habitat of HABITAT_CATALOG) {
+    if (!hasHabitatInterior(habitat.code)) continue;
+    if (!builtSet.has(habitat.code)) continue;
+    const habitatSpecies = SPECIES_CATALOG.filter(s => s.habitatReqCodes.includes(habitat.code));
+    interiorEnabledByHabitat[habitat.code] = habitatSpecies.some(s => journalCodes.has(s.code));
+  }
+
+  // ─── First-arrival invitation eligibility ───────────────────────
+  // If the pending arrival is the FIRST species ever discovered for
+  // its habitat, surface the "come visit me inside" invitation copy
+  // and the step-inside CTA in the ArrivalCard. The journal entry for
+  // the arriving species hasn't been written yet (the modal writes it
+  // on welcome/step-inside), so "first" = no existing journal_entry
+  // codes overlap the habitat's species set.
+  let pendingArrivalIsFirstForHabitat = false;
+  let pendingArrivalHabitatCode: string | null = null;
+  if (pendingArrival) {
+    pendingArrivalHabitatCode = pendingArrival.habitatReqCodes
+      .find(c => builtSet.has(c)) ?? null;
+    if (pendingArrivalHabitatCode) {
+      const habitatSpeciesCodes = SPECIES_CATALOG
+        .filter(s => s.habitatReqCodes.includes(pendingArrivalHabitatCode!))
+        .map(s => s.code);
+      const discoveredFromThisHabitat = habitatSpeciesCodes.filter(c => journalCodes.has(c));
+      pendingArrivalIsFirstForHabitat = discoveredFromThisHabitat.length === 0;
+    }
+  }
+
   return (
     <GardenScene
       learnerId={learnerId}
       firstName={firstName}
       structureStates={structureStates}
       pendingArrival={pendingArrival}
+      branchUnlock={branchUnlock}
+      characterRotation={{ alertCharacterCode }}
+      characterRecs={characterRecs}
+      interiorEnabledByHabitat={interiorEnabledByHabitat}
+      pendingArrivalIsFirstForHabitat={pendingArrivalIsFirstForHabitat}
+      pendingArrivalHabitatCode={pendingArrivalHabitatCode}
     />
   );
 }
