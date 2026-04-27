@@ -16,10 +16,11 @@
 //   5. Brook winding through Operations Hollow — enters upper-left,
 //      pools at a small pond (Quiet Pond sits on the bank), continues
 //      through Rushing Stream → Big Falls, exits lower-left
-//   6. One coherent path: arcs up from Word Stories Cottage through
-//      Measurement Meadow, then forks — left branch into Operations
-//      Hollow, right climbs to Place-Value Heights, then continues to
-//      Multiplication Orchard and Division Glen
+//   6. One coherent path: starts at Word Stories Cottage, arcs through
+//      Measurement Meadow, forks — left branch descends into Operations
+//      Hollow and ends at the brook/pond bank; right branch climbs to
+//      Place-Value Heights plateau peak; another branch reaches the
+//      Multiplication Orchard end and Division Glen
 //   7. Apple-orchard tree rows in Multiplication Orchard (right)
 //   8. Pine-framed wooded feel for Division Glen (upper-right)
 //   9. Stone step terraces in Place-Value Heights
@@ -36,7 +37,7 @@ import type { BranchCluster } from '@/lib/world/branchMaps';
 import { BRANCH_MAP_WIDTH, BRANCH_MAP_HEIGHT } from '@/lib/world/branchMaps';
 import BranchSceneLayout from '@/components/child/garden/BranchSceneLayout';
 import {
-  Tree, PineTree, Flower, GrassTuft,
+  Tree, PineTree, Flower, GrassTuft, StructureIllustration,
 } from '@/components/child/garden/illustrations';
 import type { MathMountainStructureState } from './page';
 
@@ -49,6 +50,49 @@ interface MathMountainSceneProps {
 
 const W = BRANCH_MAP_WIDTH;   // 1440
 const H = BRANCH_MAP_HEIGHT;  // 800
+
+// Maps branch structure codes → an existing StructureIllustration code
+// when the underlying skill is the same or thematically equivalent.
+const ILLUSTRATION_ALIAS: Record<string, string> = {
+  mm_butterfly_make10: 'math_butterfly_arrays',  // butterfly = crossing-ten / arrays
+  mm_array_orchard:    'math_array_orchard',
+  mm_hundreds_hollow:  'math_hundreds_hollow',
+  mm_tens_tower:       'math_tens_tower',
+  mm_compare_trees:    'math_compare_trees',
+  mm_stories_plus:     'math_word_stories',
+  mm_stories_minus:    'math_word_stories',
+  mm_long_stories:     'math_word_stories',
+};
+
+// A stone plinth with the structure emoji sitting on it.
+// Rendered at (0,0) — caller wraps in <g transform="translate(x,y)">
+function PlinthEmoji({ emoji, size }: { emoji: string; size: number }) {
+  const baseW = size * 0.65;
+  const baseH = size * 0.18;
+  const baseY = size * 0.32;
+  return (
+    <g>
+      {/* shadow under plinth */}
+      <ellipse cx={1} cy={baseY + 4} rx={baseW * 0.85} ry={baseH * 0.55} fill="#000" opacity={0.25} />
+      {/* plinth base — 3-tone */}
+      <ellipse cx={0} cy={baseY} rx={baseW} ry={baseH} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.4} />
+      <ellipse cx={0} cy={baseY - 2} rx={baseW * 0.92} ry={baseH * 0.7} fill="#A89D8A" />
+      <ellipse cx={-2} cy={baseY - 4} rx={baseW * 0.55} ry={baseH * 0.3} fill="#C9C2B5" opacity={0.85} />
+      {/* moss tuft */}
+      <ellipse cx={baseW * 0.5} cy={baseY - baseH * 0.4} rx={baseW * 0.18} ry={baseH * 0.35} fill="#7BA46F" opacity={0.85} />
+      {/* the emoji sits on the plinth */}
+      <text
+        textAnchor="middle"
+        dominantBaseline="central"
+        fontSize={size * 0.78}
+        y={baseY - baseH - size * 0.18}
+        style={{ filter: 'drop-shadow(0 1px 2px rgba(107,68,35,0.35))' }}
+      >
+        {emoji}
+      </text>
+    </g>
+  );
+}
 
 export default function MathMountainScene({
   learnerId, structures, clusters, structureStates,
@@ -341,34 +385,44 @@ export default function MathMountainScene({
         </g>
 
         {/* ── 6. COHERENT PATH SYSTEM ──
-             One main path arc + two branch forks, same 3-layer style as
-             the central garden (shadow → surface → highlight + stepping stones).
-             Path avoids all structure positions by routing through
-             the GAPS between clusters. */}
+             Redesigned so EVERY branch ends at a recognizable landmark:
+             • Main spine: starts at Word Stories Cottage (lower-left ~x:170,y:760)
+               and sweeps right through Measurement Meadow.
+             • Left fork: branches off the spine at ~x:490,y:718, arcs left and DOWN
+               into Operations Hollow, ENDS at the brook/pond bank (~x:200,y:540).
+             • Upper/plateau path: from the brook bank climbs up through Operations
+               Hollow and terminates at the highest Place-Value plateau structure
+               (mm_three_digit_tower x:720,y:300).
+             • Right fork: splits off the spine at ~x:1050,y:706, climbs to Division Glen
+               and ends at the highest Glen structure (mm_missing_number x:1320,y:260).
+             Same 3-layer (shadow / surface / highlight) + stepping stones style. */}
         {(() => {
-          // Main spine: Word Stories Cottage (lower-left) arcs right through
-          // Measurement Meadow then climbs to Place-Value Heights.
+          // Main spine: Cottage → Measurement Meadow (ends around x:1300)
           const spineD = `M 170 760 C 280 720, 440 720, 590 712 C 740 702, 860 698, 960 706 C 1070 714, 1180 700, 1300 698`;
-          // Left fork from spine: climbs into Operations Hollow (upper-left cluster)
-          // Route passes between x:430-460 gap (mm_big_falls at 510,580 and mm_twin_bonds at 380,460)
-          const leftForkD = `M 490 718 C 470 668, 460 620, 470 572 C 480 528, 475 490, 450 460`;
-          // Upper path: from Hollow climbs to Place-Value Heights (left gate)
-          const upperD = `M 450 460 C 490 420, 540 400, 600 378 C 660 355, 720 320, 780 308 C 850 295, 920 370, 970 395`;
-          // Right fork: splits off the spine at ~x:1050 and climbs to
-          // Division Glen (upper-right), then Multiplication Orchard
-          const rightForkD = `M 1050 706 C 1060 648, 1068 580, 1065 545 C 1062 510, 1082 290, 1110 282`;
+          // Left fork: from spine junction (~x:490,y:718) arcs left and curves DOWN
+          // ending at the brook bank (x:200, y:540 — the Quiet Pond area)
+          const leftForkD = `M 490 718 C 470 680, 440 650, 400 620 C 355 588, 295 565, 235 553 C 210 548, 200 544, 200 540`;
+          // Upper path: from the brook bank (x:200,y:540) climbs through Hollow
+          // and terminates at the Place-Value Heights peak (x:720,y:300)
+          const upperD = `M 200 540 C 240 510, 300 480, 380 460 C 460 440, 530 400, 600 370 C 660 345, 700 320, 720 300`;
+          // Right fork: from spine (~x:1050,y:706) climbs to Division Glen
+          // ending at mm_missing_number (x:1320,y:260)
+          const rightForkD = `M 1050 706 C 1060 648, 1068 580, 1065 545 C 1062 510, 1082 350, 1180 290 C 1240 262, 1290 258, 1320 260`;
+          // Orchard spur: short branch from spine end (~x:1300,y:698)
+          // sweeps into the Multiplication Orchard and ends at mm_times_to_10 (x:1240,y:680)
+          const orchardD = `M 1300 698 C 1350 690, 1400 660, 1420 620 C 1435 580, 1430 560, 1400 550`;
           return (
             <g pointerEvents="none">
               {/* Shadow layer */}
-              {[spineD, leftForkD, upperD, rightForkD].map((d, i) => (
+              {[spineD, leftForkD, upperD, rightForkD, orchardD].map((d, i) => (
                 <path key={`mmsh-${i}`} d={d} stroke="#A99878" strokeWidth={i < 2 ? 44 : 38} fill="none" strokeLinecap="round" opacity={0.20} />
               ))}
               {/* Surface */}
-              {[spineD, leftForkD, upperD, rightForkD].map((d, i) => (
+              {[spineD, leftForkD, upperD, rightForkD, orchardD].map((d, i) => (
                 <path key={`mmsu-${i}`} d={d} stroke="#EAD2A8" strokeWidth={i < 2 ? 30 : 26} fill="none" strokeLinecap="round" opacity={0.88} />
               ))}
               {/* Highlight ribbon */}
-              {[spineD, leftForkD, upperD, rightForkD].map((d, i) => (
+              {[spineD, leftForkD, upperD, rightForkD, orchardD].map((d, i) => (
                 <path key={`mmhi-${i}`} d={d} stroke="#F7E6C4" strokeWidth={i < 2 ? 11 : 9} fill="none" strokeLinecap="round" opacity={0.60} />
               ))}
               {/* Stepping stones */}
@@ -377,14 +431,18 @@ export default function MathMountainScene({
                 { x: 230, y: 748 }, { x: 360, y: 728 }, { x: 500, y: 718 },
                 { x: 650, y: 710 }, { x: 800, y: 706 }, { x: 950, y: 708 },
                 { x: 1110, y: 706 }, { x: 1260, y: 700 },
-                // left fork (into Hollow)
-                { x: 468, y: 670 }, { x: 464, y: 622 }, { x: 466, y: 570 },
-                // upper (plateau path)
-                { x: 510, y: 432 }, { x: 590, y: 395 }, { x: 680, y: 348 },
-                { x: 780, y: 318 }, { x: 880, y: 328 }, { x: 960, y: 400 },
-                // right fork (to Glen)
-                { x: 1060, y: 650 }, { x: 1062, y: 588 }, { x: 1066, y: 518 },
-                { x: 1068, y: 420 }, { x: 1100, y: 330 },
+                // left fork (descending into Hollow toward brook bank)
+                { x: 460, y: 685 }, { x: 418, y: 650 }, { x: 370, y: 612 },
+                { x: 310, y: 578 }, { x: 250, y: 558 }, { x: 208, y: 544 },
+                // upper (brook bank → plateau peak)
+                { x: 248, y: 518 }, { x: 315, y: 490 }, { x: 395, y: 462 },
+                { x: 480, y: 435 }, { x: 556, y: 404 }, { x: 636, y: 360 },
+                { x: 690, y: 324 }, { x: 718, y: 302 },
+                // right fork (to Glen peak)
+                { x: 1060, y: 650 }, { x: 1062, y: 588 }, { x: 1082, y: 480 },
+                { x: 1130, y: 368 }, { x: 1210, y: 296 }, { x: 1300, y: 262 },
+                // orchard spur
+                { x: 1350, y: 685 }, { x: 1408, y: 638 }, { x: 1416, y: 568 },
               ].map((s, i) => (
                 <g key={`mmstn-${i}`}>
                   <ellipse cx={s.x + 1} cy={s.y + 2} rx={11} ry={6} fill="#000" opacity={0.19} />
@@ -547,7 +605,7 @@ export default function MathMountainScene({
           ))}
         </g>
 
-        {/* ── CLUSTER LABELS ── */}
+        {/* ── CLUSTER LABELS — softened, name-tag style ── */}
         {clusters.map(c => {
           const members = c.structureCodes
             .map(code => structures.find(s => s.code === code))
@@ -558,13 +616,12 @@ export default function MathMountainScene({
           return (
             <g key={c.code} pointerEvents="none">
               <rect
-                x={avgX - 90} y={avgY - 110} width={180} height={20} rx={10}
-                fill="rgba(255,250,242,0.65)" stroke="#95876a" strokeDasharray="3 2" strokeWidth={1}
+                x={avgX - 72} y={avgY - 108} width={144} height={18} rx={9}
+                fill="rgba(255,250,242,0.35)" stroke="none"
               />
               <text
                 x={avgX} y={avgY - 96} textAnchor="middle"
-                fontSize={11} fontWeight={700} fill="#6b4423"
-                style={{ letterSpacing: '1.2px', textTransform: 'uppercase' }}
+                fontSize={9} fontWeight={500} fontStyle="italic" fill="#95876a"
               >
                 {c.label}
               </text>
@@ -578,6 +635,11 @@ export default function MathMountainScene({
           const completed = state?.completed ?? false;
           const unlocked = state?.unlocked ?? false;
           const isTappedLocked = tappedLocked === s.code;
+
+          // Try to resolve a bespoke illustration (alias → existing code, or same code)
+          const illustrationCode = ILLUSTRATION_ALIAS[s.code] ?? s.code;
+          const drawn = StructureIllustration({ code: illustrationCode, x: 0, y: 0, size: s.size });
+
           return (
             <g
               key={s.code}
@@ -586,20 +648,15 @@ export default function MathMountainScene({
               onClick={() => onStructureTap(s)}
             >
               <circle r={Math.max(s.size * 0.7, 30)} fill="transparent" />
-              <text
-                textAnchor="middle"
-                fontSize={s.size * 0.7}
-                opacity={unlocked ? 1 : 0.35}
-                style={{
-                  filter: completed
-                    ? 'drop-shadow(0 0 6px rgba(255, 217, 61, 0.6))'
-                    : unlocked
-                      ? 'drop-shadow(0 1px 2px rgba(107,68,35,0.4))'
-                      : 'grayscale(0.7)',
-                }}
-              >
-                {s.themeEmoji}
-              </text>
+              <g opacity={unlocked ? 1 : 0.35} style={{
+                filter: completed
+                  ? 'drop-shadow(0 0 6px rgba(255, 217, 61, 0.6))'
+                  : unlocked
+                    ? 'drop-shadow(0 1px 2px rgba(107,68,35,0.4))'
+                    : 'grayscale(0.7)',
+              }}>
+                {drawn ?? <PlinthEmoji emoji={s.themeEmoji} size={s.size} />}
+              </g>
               <rect
                 x={-50} y={s.size * 0.45} width={100} height={16} rx={4}
                 fill={completed ? 'rgba(255,217,61,0.85)' : 'rgba(255,250,242,0.85)'}
