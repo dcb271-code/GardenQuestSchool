@@ -16,9 +16,15 @@
 
 export interface MapStructure {
   code: string;           // unique id
-  kind: 'skill' | 'habitat';
+  kind: 'skill' | 'habitat' | 'gate' | 'character';
   skillCode?: string;     // for skill-entries
   habitatCode?: string;   // for habitats (matches HABITAT_CATALOG code)
+  // gates carry the destination branch code so the page knows where
+  // to navigate when tapped + unlocked.
+  branchCode?: 'math_mountain' | 'reading_forest';
+  // characters carry which character they are; the recommendation is
+  // computed in the page layer and passed in via props, not via the map.
+  characterCode?: 'nana' | 'hodge' | 'signpost';
   label: string;          // display name
   subLabel?: string;      // skill hint
   themeEmoji: string;     // what shows on the map
@@ -244,6 +250,55 @@ export const GARDEN_STRUCTURES: MapStructure[] = [
     label: 'Log Pile',
     themeEmoji: '🪵',
     x: 620, y: 620, size: 72,
+    zone: 'meadow',
+  },
+
+  // --- Path-edge gates (NW = Reading Forest, NE = Math Mountain) ---
+  {
+    code: 'gate_math_mountain',
+    kind: 'gate',
+    branchCode: 'math_mountain',
+    label: 'to Math Mountain',
+    themeEmoji: '🌿',
+    x: 1410, y: 90, size: 56,
+    zone: 'math',
+  },
+  {
+    code: 'gate_reading_forest',
+    kind: 'gate',
+    branchCode: 'reading_forest',
+    label: 'to Reading Forest',
+    themeEmoji: '🌿',
+    x: 30, y: 130, size: 56,
+    zone: 'reading',
+  },
+
+  // --- Quick-start characters ---
+  {
+    code: 'char_nana_mira',
+    kind: 'character',
+    characterCode: 'nana',
+    label: 'Nana Mira',
+    themeEmoji: '👵',
+    x: 200, y: 545, size: 48,    // on the cottage porch
+    zone: 'meadow',
+  },
+  {
+    code: 'char_hodge',
+    kind: 'character',
+    characterCode: 'hodge',
+    label: 'Hodge',
+    themeEmoji: '🦫',
+    x: 110, y: 280, size: 44,    // on the brook bank
+    zone: 'reading',
+  },
+  {
+    code: 'char_signpost',
+    kind: 'character',
+    characterCode: 'signpost',
+    label: 'Wanderer',
+    themeEmoji: '🪧',
+    x: 680, y: 510, size: 48,    // path-meadow junction
     zone: 'meadow',
   },
 ];
