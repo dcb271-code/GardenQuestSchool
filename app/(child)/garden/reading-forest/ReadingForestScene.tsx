@@ -212,64 +212,44 @@ export default function ReadingForestScene({
         <rect width={W} height={H} fill="url(#rfGroveTint)" />
         <rect width={W} height={H} fill="url(#rfRocksTint)" />
 
-        {/* ── 8. BROOK — lower-left horizontal body ──
-             Flows from LEFT edge at y≈508, arcs gently, exits back toward the
-             left at y≈560. Stays BELOW y:490 so it's entirely clear of:
-               • Sight Word Glade (y:360-510, but brook is at x<430 only)
-               • Phonics Path structures (y:220-370)
-               • rf_digraphs at (480, 360) — the bridge is east of the brook's exit
-             The path dips OVER the brook via a stepping stone ford just east of
-             the brook exit (~x:450, y:500). */}
+        {/* ── 8. BROOK — small focused pond directly under the
+             Digraph Bridge structure (rf_digraphs at 480, 360).
+             The previous lower-left horizontal brook was unrelated to
+             the bridge structure; the user wants the path to actually
+             cross water on the bridge. So: water lives where the bridge
+             does, and the path naturally passes over it. */}
         <g pointerEvents="none">
-          {/* outer wet-earth bank */}
-          <path
-            d={`M 0 508
-                Q 55 496 120 506 Q 200 518 290 512 Q 358 508 410 520
-                Q 432 530 428 542 Q 422 556 390 550 Q 320 542 240 548
-                Q 155 554 80 562 Q 32 568 0 562 Z`}
-            fill="#6B8E5A" opacity={0.28}
-          />
+          {/* wet-earth bank — small ellipse just below the bridge */}
+          <ellipse cx={480} cy={400} rx={88} ry={26} fill="#6B8E5A" opacity={0.28} />
           {/* primary water body */}
-          <path
-            d={`M 0 512
-                Q 56 502 120 511 Q 200 522 290 516 Q 356 512 408 522
-                Q 430 532 424 542 Q 418 552 388 546 Q 318 540 240 545
-                Q 156 550 82 557 Q 36 562 0 558 Z`}
-            fill="#B2D4D9"
-          />
+          <ellipse cx={480} cy={400} rx={76} ry={18} fill="#B2D4D9" />
           {/* depth channel */}
           <path
-            d="M 30 524 Q 110 516 210 526 Q 300 534 400 528"
-            stroke="#8FB7C2" strokeWidth={9} fill="none" strokeLinecap="round" opacity={0.64}
+            d="M 416 402 Q 480 396 544 402"
+            stroke="#8FB7C2" strokeWidth={6} fill="none" strokeLinecap="round" opacity={0.62}
           />
           {/* shimmer ripples */}
-          <path d="M 55 522 Q 78 518 100 524" stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.68} strokeLinecap="round" />
-          <path d="M 170 528 Q 192 524 212 530" stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.64} strokeLinecap="round" />
-          <path d="M 288 526 Q 308 522 330 530" stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.66} strokeLinecap="round" />
-          {/* moss-topped boulders in stream */}
+          <path d="M 432 398 Q 444 394 458 398" stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.66} strokeLinecap="round" />
+          <path d="M 504 402 Q 518 398 532 402" stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.62} strokeLinecap="round" />
+          {/* moss-topped boulders on bank */}
           <g>
-            <ellipse cx={148} cy={516} rx={13} ry={7.5} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.4} />
-            <ellipse cx={146} cy={512} rx={9.5} ry={3.5} fill="#A89D8A" />
-            <ellipse cx={148} cy={510} rx={11} ry={2.8} fill="#7BA46F" opacity={0.88} />
+            <ellipse cx={406} cy={414} rx={11} ry={6} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.3} />
+            <ellipse cx={404} cy={411} rx={8} ry={3} fill="#A89D8A" />
+            <ellipse cx={406} cy={409} rx={9} ry={2.4} fill="#7BA46F" opacity={0.88} />
           </g>
           <g>
-            <ellipse cx={260} cy={522} rx={11} ry={6} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.4} />
-            <ellipse cx={258} cy={518} rx={8} ry={3} fill="#A89D8A" />
-            <ellipse cx={260} cy={516} rx={9} ry={2.2} fill="#7BA46F" opacity={0.88} />
+            <ellipse cx={556} cy={414} rx={11} ry={6} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.3} />
+            <ellipse cx={554} cy={411} rx={8} ry={3} fill="#A89D8A" />
+            <ellipse cx={556} cy={409} rx={9} ry={2.4} fill="#7BA46F" opacity={0.88} />
           </g>
-          {/* bank grass tufts */}
-          {[[18, 538], [108, 546], [222, 538], [372, 542]].map(([gx, gy], i) => (
+          {/* bank grass tufts on either side of the pond */}
+          {[[420, 422], [480, 426], [540, 422]].map(([gx, gy], i) => (
             <g key={`rfbt-${i}`} transform={`translate(${gx},${gy})`}>
               <path d="M 0 0 Q -1 -6 -2 -10" stroke="#5C7E4F" strokeWidth={1.3} fill="none" strokeLinecap="round" />
               <path d="M 0 0 Q 1 -7 3 -11" stroke="#5C7E4F" strokeWidth={1.3} fill="none" strokeLinecap="round" />
               <path d="M 0 0 Q 2 -5 5 -9" stroke="#5C7E4F" strokeWidth={1.2} fill="none" strokeLinecap="round" />
             </g>
           ))}
-          {/* Cattail at bank */}
-          <g transform="translate(40, 494)">
-            <path d="M 0 0 Q -1 -12 -2 -22" stroke="#6B8E5A" strokeWidth={1.5} fill="none" strokeLinecap="round" />
-            <ellipse cx={-2} cy={-24} rx={1.6} ry={5} fill="#7B4F2C" stroke="#3F2817" strokeWidth={0.8} />
-          </g>
         </g>
 
         {/* The orphan bridge graphic at (452, 490) was removed — the
@@ -285,16 +265,19 @@ export default function ReadingForestScene({
              loop-back → Glade edge. Garden-exit spur exits right at y:260.
              Path dips south at ~x:450 to cross the brook ford (bridge above). */}
         {(() => {
-          // Segment 1: Glade edge → through phonics structures → Diphthong Cove
-          // Smooth meander through the phonics band (no V-dip — the
-          // previous dip was meant to cross a "bridge ford" but the
-          // bridge graphic was orphaned and the dip read as a sharp V).
+          // Segment 1: Glade edge → OVER the Digraph Bridge → through
+          // the rest of the phonics structures → Diphthong Cove. The
+          // path is held flat at y:360 from x:430-530 so the Digraph
+          // Bridge structure (480, 360) sits ON the path crossing the
+          // pond directly below it — the bridge is the river-crossing.
+          // From the bridge it climbs north into the upper phonics band.
           const seg1D = `M 380 370
-            C 420 348, 460 332, 510 320
-            C 560 308, 600 290, 640 270
-            C 680 252, 720 234, 760 230
-            C 800 226, 838 246, 870 254
-            C 912 264, 950 232, 990 228
+            C 410 366, 440 362, 470 360
+            C 490 360, 510 360, 540 358
+            C 580 350, 620 320, 660 295
+            C 700 270, 740 240, 780 232
+            C 820 226, 858 248, 890 254
+            C 924 262, 956 232, 990 228
             C 1030 226, 1064 254, 1104 260
             C 1144 266, 1180 232, 1218 230
             C 1252 230, 1280 250, 1280 268`;
@@ -338,15 +321,18 @@ export default function ReadingForestScene({
               <path d={gardenExitUpperD} stroke="#F7E6C4" strokeWidth={4} fill="none" strokeLinecap="round" opacity={0.40} />
               {/* Stepping stones */}
               {[
-                // seg 1 — smooth meander through phonics band (no dip)
-                { x: 408, y: 354 }, { x: 444, y: 338 }, { x: 484, y: 326 },
-                { x: 524, y: 314 }, { x: 564, y: 302 }, { x: 604, y: 286 },
-                { x: 644, y: 268 }, { x: 684, y: 250 }, { x: 724, y: 234 },
-                { x: 764, y: 230 }, { x: 804, y: 240 }, { x: 844, y: 250 },
-                { x: 884, y: 256 }, { x: 924, y: 240 }, { x: 964, y: 228 },
-                { x: 1004, y: 232 }, { x: 1044, y: 250 }, { x: 1084, y: 260 },
-                { x: 1124, y: 256 }, { x: 1164, y: 234 }, { x: 1204, y: 230 },
-                { x: 1244, y: 240 }, { x: 1278, y: 262 },
+                // seg 1 — Glade edge → flat over Digraph Bridge crossing → climb to upper phonics band
+                { x: 408, y: 366 }, { x: 440, y: 362 },
+                // path is flat at y:360 across the pond/bridge crossing
+                { x: 470, y: 360 }, { x: 490, y: 360 }, { x: 510, y: 360 }, { x: 540, y: 358 },
+                // climbs out of the crossing into the upper phonics band
+                { x: 578, y: 348 }, { x: 614, y: 322 }, { x: 650, y: 296 },
+                { x: 686, y: 268 }, { x: 722, y: 248 }, { x: 760, y: 234 },
+                { x: 800, y: 232 }, { x: 838, y: 244 }, { x: 876, y: 254 },
+                { x: 914, y: 250 }, { x: 952, y: 232 }, { x: 990, y: 228 },
+                { x: 1030, y: 232 }, { x: 1068, y: 252 }, { x: 1108, y: 260 },
+                { x: 1148, y: 250 }, { x: 1186, y: 232 }, { x: 1224, y: 232 },
+                { x: 1262, y: 248 }, { x: 1278, y: 264 },
                 // seg 2 — drop to Story Rocks
                 { x: 1298, y: 320 }, { x: 1268, y: 390 }, { x: 1238, y: 452 },
                 { x: 1200, y: 510 }, { x: 1162, y: 546 }, { x: 1110, y: 582 },

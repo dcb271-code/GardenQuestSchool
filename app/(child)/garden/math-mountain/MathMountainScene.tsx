@@ -279,42 +279,11 @@ export default function MathMountainScene({
              Stays within x:40-220, y:380-630 — clear of all structure positions.
              The ONE path crossing (mm_big_bridge at x:400, y:660) is EAST of
              the brook exit, so path and brook never cross. */}
-        {/* Simple kidney-shaped pond in the lower-left meadow nook.
-            Replaces the boot-shaped meandering brook (the L-bend made
-            it read as a footprint). Now: a single soft horizontal
-            pool with a quiet bank, two boulders, light shimmer. The
-            pond sits cleanly in the foreground meadow at y:600-680
-            so no path or structure overlaps it. */}
-        <g pointerEvents="none">
-          {/* wet-earth bank */}
-          <ellipse cx={130} cy={648} rx={120} ry={42} fill="#6B8E5A" opacity={0.28} />
-          {/* primary water body */}
-          <ellipse cx={130} cy={648} rx={106} ry={32} fill="#B2D4D9" />
-          {/* depth ring */}
-          <ellipse cx={130} cy={650} rx={84} ry={22} fill="none" stroke="#8FB7C2" strokeWidth={6} opacity={0.55} />
-          {/* shimmer ripples */}
-          <path d="M 70 644 Q 90 638 110 644" stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.65} strokeLinecap="round" />
-          <path d="M 140 656 Q 162 650 184 656" stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.60} strokeLinecap="round" />
-          {/* moss-topped boulders on bank */}
-          <g>
-            <ellipse cx={36} cy={650} rx={14} ry={8} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.4} />
-            <ellipse cx={34} cy={646} rx={10} ry={4} fill="#A89D8A" />
-            <ellipse cx={36} cy={644} rx={11} ry={3} fill="#7BA46F" opacity={0.88} />
-          </g>
-          <g>
-            <ellipse cx={232} cy={658} rx={12} ry={7} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.4} />
-            <ellipse cx={230} cy={654} rx={9} ry={3.5} fill="#A89D8A" />
-            <ellipse cx={232} cy={652} rx={10} ry={2.5} fill="#7BA46F" opacity={0.88} />
-          </g>
-          {/* bank grass tufts */}
-          {[[60, 678], [150, 686], [210, 678]].map(([gx, gy], i) => (
-            <g key={`mmbt-${i}`} transform={`translate(${gx},${gy})`}>
-              <path d="M 0 0 Q -1 -6 -2 -10" stroke="#5C7E4F" strokeWidth={1.3} fill="none" strokeLinecap="round" />
-              <path d="M 0 0 Q 1 -7 3 -11" stroke="#5C7E4F" strokeWidth={1.3} fill="none" strokeLinecap="round" />
-              <path d="M 0 0 Q 2 -5 5 -9" stroke="#5C7E4F" strokeWidth={1.2} fill="none" strokeLinecap="round" />
-            </g>
-          ))}
-        </g>
+        {/* Pond removed from Math Mountain entirely. Structures in
+            the lower-left (Word Stories Cottage, Operations Hollow's
+            water-themed Quiet Pond / Rushing Stream / Berry Basket /
+            Big Falls) carry the water theme through their own
+            illustrations — the map doesn't need a literal lake. */}
 
         {/* Stone terracing was removed — the three small filled
             quadrilaterals were reading as "weird shaded rectangles"
