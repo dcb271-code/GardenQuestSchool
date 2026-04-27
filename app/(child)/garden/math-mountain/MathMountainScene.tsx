@@ -267,8 +267,11 @@ export default function MathMountainScene({
         <rect width={W} height={H} fill="url(#mmGlenTint)" />
         <rect width={W} height={H} fill="url(#mmMeadowTint)" />
         <rect width={W} height={H} fill="url(#mmCottageTint)" />
-        {/* Grass texture above zone tints */}
-        <rect width={W} height={H} fill="url(#mmGrass)" />
+        {/* Grass texture above zone tints — restricted to MEADOW band
+            only (y>320). Previously this rect spanned the full viewport
+            so the grass-tuft pattern was visible across the sky too,
+            which read as "the sky has grass in it." */}
+        <rect x={0} y={320} width={W} height={H - 320} fill="url(#mmGrass)" />
 
         {/* ── 6. BROOK — Operations Hollow ──
              Enters from upper-left slope (~x:70, y:380), flows south in a
@@ -276,84 +279,48 @@ export default function MathMountainScene({
              Stays within x:40-220, y:380-630 — clear of all structure positions.
              The ONE path crossing (mm_big_bridge at x:400, y:660) is EAST of
              the brook exit, so path and brook never cross. */}
+        {/* Simple kidney-shaped pond in the lower-left meadow nook.
+            Replaces the boot-shaped meandering brook (the L-bend made
+            it read as a footprint). Now: a single soft horizontal
+            pool with a quiet bank, two boulders, light shimmer. The
+            pond sits cleanly in the foreground meadow at y:600-680
+            so no path or structure overlaps it. */}
         <g pointerEvents="none">
-          {/* outer wet-earth bank */}
-          <path
-            d={`M 48 382
-                C 68 410, 75 445, 62 482
-                C 48 518, 60 548, 88 562
-                C 110 574, 140 572, 160 578
-                C 178 584, 182 600, 168 612
-                C 152 624, 118 620, 88 624
-                C 62 628, 40 622, 32 610
-                C 22 596, 28 570, 42 548
-                C 58 524, 60 496, 46 462
-                C 32 430, 32 400, 48 386 Z`}
-            fill="#6B8E5A" opacity={0.28}
-          />
+          {/* wet-earth bank */}
+          <ellipse cx={130} cy={648} rx={120} ry={42} fill="#6B8E5A" opacity={0.28} />
           {/* primary water body */}
-          <path
-            d={`M 56 386
-                C 74 412, 80 446, 68 482
-                C 56 516, 68 544, 94 556
-                C 114 566, 144 564, 162 570
-                C 178 576, 180 590, 168 600
-                C 154 612, 122 608, 94 612
-                C 68 616, 48 610, 40 598
-                C 32 586, 36 562, 50 540
-                C 66 516, 68 488, 54 456
-                C 40 426, 38 404, 56 390 Z`}
-            fill="#B2D4D9"
-          />
-          {/* depth channel */}
-          <path
-            d="M 64 414 C 82 450, 88 480, 76 508 C 66 534, 92 552, 130 562 C 160 570, 170 582, 162 596"
-            stroke="#8FB7C2" strokeWidth={9} fill="none" strokeLinecap="round" opacity={0.66}
-          />
+          <ellipse cx={130} cy={648} rx={106} ry={32} fill="#B2D4D9" />
+          {/* depth ring */}
+          <ellipse cx={130} cy={650} rx={84} ry={22} fill="none" stroke="#8FB7C2" strokeWidth={6} opacity={0.55} />
           {/* shimmer ripples */}
-          <path d="M 72 440 Q 80 452 74 466" stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.66} strokeLinecap="round" />
-          <path d="M 68 506 Q 82 514 78 526" stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.60} strokeLinecap="round" />
-          <path d="M 108 548 Q 126 554 142 550" stroke="#FFFFFF" strokeWidth={1.1} fill="none" opacity={0.68} strokeLinecap="round" />
-          {/* moss-topped boulders in stream */}
+          <path d="M 70 644 Q 90 638 110 644" stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.65} strokeLinecap="round" />
+          <path d="M 140 656 Q 162 650 184 656" stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.60} strokeLinecap="round" />
+          {/* moss-topped boulders on bank */}
           <g>
-            <ellipse cx={88} cy={466} rx={14} ry={8} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.4} />
-            <ellipse cx={86} cy={462} rx={10} ry={4} fill="#A89D8A" />
-            <ellipse cx={88} cy={460} rx={12} ry={3} fill="#7BA46F" opacity={0.88} />
+            <ellipse cx={36} cy={650} rx={14} ry={8} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.4} />
+            <ellipse cx={34} cy={646} rx={10} ry={4} fill="#A89D8A" />
+            <ellipse cx={36} cy={644} rx={11} ry={3} fill="#7BA46F" opacity={0.88} />
           </g>
           <g>
-            <ellipse cx={128} cy={556} rx={12} ry={7} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.4} />
-            <ellipse cx={126} cy={552} rx={9} ry={3.5} fill="#A89D8A" />
-            <ellipse cx={128} cy={550} rx={10} ry={2.5} fill="#7BA46F" opacity={0.88} />
+            <ellipse cx={232} cy={658} rx={12} ry={7} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.4} />
+            <ellipse cx={230} cy={654} rx={9} ry={3.5} fill="#A89D8A" />
+            <ellipse cx={232} cy={652} rx={10} ry={2.5} fill="#7BA46F" opacity={0.88} />
           </g>
-          {/* dry bank stones */}
-          <ellipse cx={36} cy={468} rx={8} ry={5} fill="#C2B4A0" stroke="#6B5D48" strokeWidth={1.2} />
-          <ellipse cx={34} cy={465} rx={4.5} ry={2} fill="#D6C9B3" />
           {/* bank grass tufts */}
-          {[[40, 500], [90, 580], [158, 568]].map(([gx, gy], i) => (
+          {[[60, 678], [150, 686], [210, 678]].map(([gx, gy], i) => (
             <g key={`mmbt-${i}`} transform={`translate(${gx},${gy})`}>
               <path d="M 0 0 Q -1 -6 -2 -10" stroke="#5C7E4F" strokeWidth={1.3} fill="none" strokeLinecap="round" />
               <path d="M 0 0 Q 1 -7 3 -11" stroke="#5C7E4F" strokeWidth={1.3} fill="none" strokeLinecap="round" />
               <path d="M 0 0 Q 2 -5 5 -9" stroke="#5C7E4F" strokeWidth={1.2} fill="none" strokeLinecap="round" />
             </g>
           ))}
-          {/* Cattail at brook bend */}
-          <g transform="translate(38, 440)">
-            <path d="M 0 0 Q -1 -12 -2 -24" stroke="#6B8E5A" strokeWidth={1.5} fill="none" strokeLinecap="round" />
-            <ellipse cx={-2} cy={-26} rx={1.6} ry={5.5} fill="#7B4F2C" stroke="#3F2817" strokeWidth={0.8} />
-          </g>
         </g>
 
-        {/* ── 7. STONE TERRACING — Place-Value Heights ──
-             Three horizontal ledges on the slope above the meadow,
-             framing the plateau where structures sit (y:430-530). */}
-        <g pointerEvents="none" opacity={0.68}>
-          <path d="M 510 415 L 660 415 L 654 428 L 504 428 Z" fill="#A89D8A" stroke="#6B5D48" strokeWidth={1.2} strokeLinejoin="round" />
-          <path d="M 515 415 L 655 415" stroke="#C2B4A0" strokeWidth={1} opacity={0.55} />
-          <path d="M 640 398 L 810 398 L 804 410 L 634 410 Z" fill="#9B9082" stroke="#6B5D48" strokeWidth={1.2} strokeLinejoin="round" />
-          <path d="M 645 398 L 805 398" stroke="#C2B4A0" strokeWidth={0.9} opacity={0.50} />
-          <path d="M 840 410 L 1000 410 L 994 422 L 834 422 Z" fill="#A89D8A" stroke="#6B5D48" strokeWidth={1.2} strokeLinejoin="round" />
-          <path d="M 845 410 L 995 410" stroke="#C2B4A0" strokeWidth={1} opacity={0.55} />
-        </g>
+        {/* Stone terracing was removed — the three small filled
+            quadrilaterals were reading as "weird shaded rectangles"
+            scattered across the plateau. The cluster-tint radial
+            already demarcates Place-Value Heights without geometric
+            terraces. */}
 
         {/* ── 8. PATH SYSTEM ──
              • Spine: Word Stories Cottage → Measurement Meadow (bottom, y≈720)

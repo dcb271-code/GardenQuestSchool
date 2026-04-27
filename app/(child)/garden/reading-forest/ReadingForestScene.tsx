@@ -201,8 +201,11 @@ export default function ReadingForestScene({
           fill="#6B8E5A" opacity={0.56}
         />
 
-        {/* ── 6. GRASS TEXTURE (above hill layers, below cluster tints) ── */}
-        <rect width={W} height={H} fill="url(#rfGrass)" />
+        {/* ── 6. GRASS TEXTURE — restricted to FLOOR band only (y>340).
+             Previously spanned the full viewport, so the grass-tuft
+             pattern was visible across the canopy/sky too — read as
+             "the sky has grass in it." Floor-only now. */}
+        <rect x={0} y={340} width={W} height={H - 340} fill="url(#rfGrass)" />
 
         {/* ── 7. CLUSTER REGION TINTS ── */}
         <rect width={W} height={H} fill="url(#rfGladeTint)" />
@@ -269,32 +272,13 @@ export default function ReadingForestScene({
           </g>
         </g>
 
-        {/* ── 9. WOODEN BRIDGE at rf_digraphs ford ──
-             rf_digraphs is at (480, 360). The path swoops south briefly
-             at ~x:450 to cross the brook's eastern ford. The bridge is
-             drawn at the path crossing point, suggesting water below even
-             though the main brook body is to the left.
-             Drawn BEFORE the path so path stones layer on top. */}
-        <g transform="translate(452, 490)" pointerEvents="none">
-          {/* water glint below bridge (echoes the brook tone) */}
-          <ellipse cx={0} cy={8} rx={28} ry={6} fill="#B2D4D9" opacity={0.60} />
-          <path d="M -18 6 Q 0 2 18 6" stroke="#92BFCA" strokeWidth={6} fill="none" opacity={0.72} strokeLinecap="round" />
-          <path d="M -18 6 Q 0 2 18 6" stroke="#C4DFE4" strokeWidth={3.5} fill="none" opacity={0.80} strokeLinecap="round" />
-          {/* shadow under bridge */}
-          <ellipse cx={0} cy={16} rx={30} ry={5} fill="#000" opacity={0.16} />
-          {/* post bases */}
-          <rect x={-24} y={-14} width={7} height={30} rx={2} fill="#6B4423" stroke="#3F2210" strokeWidth={1.2} />
-          <rect x={17} y={-14} width={7} height={30} rx={2} fill="#6B4423" stroke="#3F2210" strokeWidth={1.2} />
-          {/* top rails */}
-          <path d="M -22 -14 L 22 -14" stroke="#8B5A2B" strokeWidth={2.5} strokeLinecap="round" />
-          <path d="M -22 -4}  L 22 -4"  stroke="#8B5A2B" strokeWidth={1.5} strokeLinecap="round" opacity={0.7} />
-          {/* planks */}
-          {[-14, -5, 4, 13].map((px, i) => (
-            <rect key={`bp-${i}`} x={px} y={-10} width={6} height={18} rx={1}
-              fill="#A87C50" stroke="#5A3B1F" strokeWidth={1} />
-          ))}
-          <rect x={-14} y={-10} width={28} height={3} rx={1} fill="#C9A070" opacity={0.52} />
-        </g>
+        {/* The orphan bridge graphic at (452, 490) was removed — the
+            actual brook body sits at y:512-562, so the bridge floated
+            above empty meadow and the V-shape path dip below it had
+            nothing to cross. The rf_digraphs structure already renders
+            as a hand-drawn DigraphBridge illustration via the
+            ILLUSTRATION_ALIAS map; that illustration carries the
+            "bridge" visual at the structure's own position. */}
 
         {/* ── 10. PHONICS PATH ──
              Complete loop: Glade edge → phonics band → Grove → Story Rocks →
@@ -302,18 +286,18 @@ export default function ReadingForestScene({
              Path dips south at ~x:450 to cross the brook ford (bridge above). */}
         {(() => {
           // Segment 1: Glade edge → through phonics structures → Diphthong Cove
-          // Dips south briefly at x:445-480 to cross the bridge ford
+          // Smooth meander through the phonics band (no V-dip — the
+          // previous dip was meant to cross a "bridge ford" but the
+          // bridge graphic was orphaned and the dip read as a sharp V).
           const seg1D = `M 380 370
-            C 408 360, 432 370, 450 430
-            C 460 460, 465 478, 478 490
-            C 490 480, 502 372, 520 355
-            C 548 332, 578 290, 620 265
-            C 660 240, 700 230, 740 226
-            C 778 222, 808 252, 848 262
-            C 888 272, 918 232, 958 226
-            C 998 222, 1030 256, 1072 262
-            C 1108 270, 1138 232, 1178 228
-            C 1216 226, 1248 260, 1280 268`;
+            C 420 348, 460 332, 510 320
+            C 560 308, 600 290, 640 270
+            C 680 252, 720 234, 760 230
+            C 800 226, 838 246, 870 254
+            C 912 264, 950 232, 990 228
+            C 1030 226, 1064 254, 1104 260
+            C 1144 266, 1180 232, 1218 230
+            C 1252 230, 1280 250, 1280 268`;
           // Segment 2: Diphthong Cove → drops SE → loops back SW to Story Rocks
           const seg2D = `M 1280 268
             C 1308 278, 1268 364, 1230 430
@@ -354,17 +338,15 @@ export default function ReadingForestScene({
               <path d={gardenExitUpperD} stroke="#F7E6C4" strokeWidth={4} fill="none" strokeLinecap="round" opacity={0.40} />
               {/* Stepping stones */}
               {[
-                // seg 1 — glade edge dip to ford
-                { x: 408, y: 366 }, { x: 432, y: 378 }, { x: 446, y: 410 },
-                { x: 450, y: 448 }, { x: 458, y: 474 }, { x: 470, y: 490 },
-                // seg 1 — east through phonics band
-                { x: 490, y: 482 }, { x: 510, y: 400 }, { x: 524, y: 362 },
-                { x: 556, y: 332 }, { x: 592, y: 296 }, { x: 630, y: 268 },
-                { x: 668, y: 246 }, { x: 706, y: 232 }, { x: 748, y: 226 },
-                { x: 790, y: 234 }, { x: 832, y: 252 }, { x: 872, y: 260 },
-                { x: 912, y: 242 }, { x: 952, y: 228 }, { x: 994, y: 228 },
-                { x: 1038, y: 248 }, { x: 1078, y: 260 }, { x: 1120, y: 250 },
-                { x: 1158, y: 232 }, { x: 1200, y: 228 }, { x: 1242, y: 248 }, { x: 1278, y: 266 },
+                // seg 1 — smooth meander through phonics band (no dip)
+                { x: 408, y: 354 }, { x: 444, y: 338 }, { x: 484, y: 326 },
+                { x: 524, y: 314 }, { x: 564, y: 302 }, { x: 604, y: 286 },
+                { x: 644, y: 268 }, { x: 684, y: 250 }, { x: 724, y: 234 },
+                { x: 764, y: 230 }, { x: 804, y: 240 }, { x: 844, y: 250 },
+                { x: 884, y: 256 }, { x: 924, y: 240 }, { x: 964, y: 228 },
+                { x: 1004, y: 232 }, { x: 1044, y: 250 }, { x: 1084, y: 260 },
+                { x: 1124, y: 256 }, { x: 1164, y: 234 }, { x: 1204, y: 230 },
+                { x: 1244, y: 240 }, { x: 1278, y: 262 },
                 // seg 2 — drop to Story Rocks
                 { x: 1298, y: 320 }, { x: 1268, y: 390 }, { x: 1238, y: 452 },
                 { x: 1200, y: 510 }, { x: 1162, y: 546 }, { x: 1110, y: 582 },
