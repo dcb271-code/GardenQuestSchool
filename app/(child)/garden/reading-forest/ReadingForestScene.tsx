@@ -16,21 +16,18 @@
 //        Morphology Grove (NE, x:1060-1430, y:400-650) — deep forest-green wash
 //        Story Rocks (centre-back, x:580-900, y:580-760) — soft stone-grey wash
 //   7. Brook — flows lower-left, enters from left edge ~y:500, arcs through
-//      x:0-420, exits bottom-left. Kept entirely below y:490 so it never
-//      clips into Phonics Path (y:220-360) or Sight Word Glade (y:280-480).
-//      Trees/flora at x:0-420 must be above y:490 or to the right of x:480.
-//   8. Phonics Path — ONE continuous stepping-stone trail starting at the
-//      Sight Word Glade edge, winding east through phonics structures,
-//      dropping SE toward Morphology Grove, looping back SW to Story Rocks,
-//      and terminating at the central clearing near the boulder semicircle.
+//      x:0-420, exits bottom-left. Kept entirely below y:500 so it never
+//      clips into Phonics Path (y:220-360) or Sight Word Glade (y:280-480)
+//   8. Phonics Path — ONE continuous stepping-stone trail connecting all
+//      8 Phonics structures. No bridge clip-art. At rf_digraphs (x:480,y:360)
+//      the path crosses the brook via a tiny hand-drawn wooden plank.
 //   9. Glade clearing — open oval in the NW (Sight Word Glade), surrounded
 //      by framing trees, filled with wildflower clusters
 //  10. Ancient oak — anchors the Morphology Grove (NE), organic multi-tone
 //      canopy, thick trunk, root flare, lighter than the central garden oaks
 //  11. Story Rocks — five mossy boulders arranged in a deliberate semicircle
 //      at ~x:660-850, y:640-720 (structures at x:660-800, y:620-720)
-//  12. Framing trees — distinct lines, NEVER overlapping path or structures.
-//      No tree centres within brook area (x:0-420, y:490-620)
+//  12. Framing trees — distinct lines, NEVER overlapping path or structures
 //  13. Dappled light shafts through canopy (mixBlendMode screen)
 //  14. Grass tufts + flowers at forest floor only (y > 620)
 
@@ -42,7 +39,7 @@ import type { MapStructure } from '@/lib/world/gardenMap';
 import type { BranchCluster } from '@/lib/world/branchMaps';
 import { BRANCH_MAP_WIDTH, BRANCH_MAP_HEIGHT } from '@/lib/world/branchMaps';
 import BranchSceneLayout from '@/components/child/garden/BranchSceneLayout';
-import { Tree, PineTree, Flower, GrassTuft, StructureIllustration } from '@/components/child/garden/illustrations';
+import { Tree, PineTree, Flower, GrassTuft } from '@/components/child/garden/illustrations';
 import type { ReadingForestStructureState } from './page';
 
 interface ReadingForestSceneProps {
@@ -54,49 +51,6 @@ interface ReadingForestSceneProps {
 
 const W = BRANCH_MAP_WIDTH;   // 1440
 const H = BRANCH_MAP_HEIGHT;  // 800
-
-// Maps branch structure codes → an existing StructureIllustration code
-// when the underlying skill is the same or thematically equivalent.
-const ILLUSTRATION_ALIAS: Record<string, string> = {
-  rf_dolch_first:    'reading_bee_words',      // sight words = bee words
-  rf_dolch_second:   'reading_bee_words',
-  rf_dolch_third:    'reading_bee_words',
-  rf_digraphs:       'reading_digraph_bridge',
-  rf_initial_blends: 'reading_blending_beach',
-  rf_longer_words:   'reading_readaloud_log',  // read-aloud = reading log
-  rf_sentence:       'reading_book_stump',
-  rf_paragraph:      'reading_book_stump',
-};
-
-// A stone plinth with the structure emoji sitting on it.
-// Rendered at (0,0) — caller wraps in <g transform="translate(x,y)">
-function PlinthEmoji({ emoji, size }: { emoji: string; size: number }) {
-  const baseW = size * 0.65;
-  const baseH = size * 0.18;
-  const baseY = size * 0.32;
-  return (
-    <g>
-      {/* shadow under plinth */}
-      <ellipse cx={1} cy={baseY + 4} rx={baseW * 0.85} ry={baseH * 0.55} fill="#000" opacity={0.25} />
-      {/* plinth base — 3-tone */}
-      <ellipse cx={0} cy={baseY} rx={baseW} ry={baseH} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.4} />
-      <ellipse cx={0} cy={baseY - 2} rx={baseW * 0.92} ry={baseH * 0.7} fill="#A89D8A" />
-      <ellipse cx={-2} cy={baseY - 4} rx={baseW * 0.55} ry={baseH * 0.3} fill="#C9C2B5" opacity={0.85} />
-      {/* moss tuft */}
-      <ellipse cx={baseW * 0.5} cy={baseY - baseH * 0.4} rx={baseW * 0.18} ry={baseH * 0.35} fill="#7BA46F" opacity={0.85} />
-      {/* the emoji sits on the plinth */}
-      <text
-        textAnchor="middle"
-        dominantBaseline="central"
-        fontSize={size * 0.78}
-        y={baseY - baseH - size * 0.18}
-        style={{ filter: 'drop-shadow(0 1px 2px rgba(107,68,35,0.35))' }}
-      >
-        {emoji}
-      </text>
-    </g>
-  );
-}
 
 export default function ReadingForestScene({
   learnerId, structures, clusters, structureStates,
@@ -240,8 +194,9 @@ export default function ReadingForestScene({
         {/* ── 7. BROOK — lower-left only ──
              Flows along the bottom-left. Enters from left edge at y:510,
              arcs gently to exit at bottom-left corner.
-             Max x extent: ~430, y range: 500-580.
-             Brook area: x:0-430, y:490-620 — kept clear of all tree/flora. */}
+             Max x extent: ~430. Structures in Sight Word Glade begin at
+             x:140, y:380 — the brook at y:510+ clears them entirely.
+             rf_digraphs (x:480, y:360) is above and to the right — safe. */}
         <g pointerEvents="none">
           {/* wet-earth bank */}
           <path
@@ -290,18 +245,8 @@ export default function ReadingForestScene({
         </g>
 
         {/* ── 8. PHONICS PATH ──
-             Redesigned as a single continuous meander that visits all four cluster
-             regions instead of stopping mid-forest.
-
-             Route:
-               • Starts at the Sight Word Glade clearing edge (x:380, y:368)
-               • Winds east through the Phonics Path structures (y:220-360 band)
-               • Drops south-east toward the Morphology Grove (passes near the
-                 ancient oak at x:1382, threading between grove structures)
-               • Loops back south-west to Story Rocks (x:730, y:680)
-               • Terminates at the central clearing near the boulder semicircle
-
-             Phonics structures it visits:
+             One continuous trail from x:380,y:368 to x:1280,y:280.
+             It curves gently through all 8 Phonics Path structures:
                rf_digraphs      x:480,  y:360
                rf_initial_blends x:580, y:280
                rf_silent_e      x:700,  y:220
@@ -310,42 +255,25 @@ export default function ReadingForestScene({
                rf_vowel_oa_ow   x:1000, y:260
                rf_r_controlled  x:1100, y:220
                rf_diphthongs    x:1200, y:260
-             Then loops down to Morphology Grove (x:1140-1280, y:460-580)
-             and returns to Story Rocks (x:660-800, y:620-720).
-
-             The path is split into two bezier segments joined at the
-             diphthong cove (x:1200, y:260) for a natural meander look. */}
+             The path begins at the Sight Word Glade edge (x:380,y:368)
+             where it meets the glade clearing, and ends at ~x:1280,y:280
+             continuing into the Morphology Grove.
+             At rf_digraphs (x:480,y:360) the brook is at y:510+ —
+             no crossing needed at this point. The path stays above the
+             brook throughout.
+             The tiny hand-built plank bridge element is placed purely as
+             a decorative marker at the Digraph Bridge structure position. */}
         {(() => {
-          // Segment 1: Glade edge → through phonics structures → Diphthong Cove
-          const seg1D = `M 380 368
-            C 420 350, 448 350, 480 358
-            C 510 368, 545 300, 580 285
-            C 620 265, 660 234, 700 225
-            C 740 216, 768 248, 800 255
-            C 836 264, 868 226, 900 222
-            C 934 220, 968 252, 1000 258
-            C 1036 268, 1068 226, 1100 222
-            C 1136 220, 1168 252, 1200 258`;
-          // Segment 2: Diphthong Cove → drops SE through Morphology Grove →
-          // loops SW back to Story Rocks clearing
-          const seg2D = `M 1200 258
-            C 1230 268, 1258 350, 1220 420
-            C 1185 490, 1160 510, 1140 540
-            C 1115 570, 1050 600, 980 630
-            C 900 660, 830 670, 780 678
-            C 748 686, 720 688, 730 680`;
+          const pathD = `M 380 368 C 420 350, 448 350, 480 358 C 510 368, 545 300, 580 285 C 620 265, 660 234, 700 225 C 740 216, 768 248, 800 255 C 836 264, 868 226, 900 222 C 934 220, 968 252, 1000 258 C 1036 268, 1068 226, 1100 222 C 1136 220, 1168 252, 1200 258 C 1232 266, 1258 272, 1280 278`;
           return (
             <g pointerEvents="none">
               {/* Shadow */}
-              <path d={seg1D} stroke="#A99878" strokeWidth={38} fill="none" strokeLinecap="round" opacity={0.20} />
-              <path d={seg2D} stroke="#A99878" strokeWidth={38} fill="none" strokeLinecap="round" opacity={0.20} />
+              <path d={pathD} stroke="#A99878" strokeWidth={38} fill="none" strokeLinecap="round" opacity={0.20} />
               {/* Surface */}
-              <path d={seg1D} stroke="#EAD2A8" strokeWidth={26} fill="none" strokeLinecap="round" opacity={0.86} />
-              <path d={seg2D} stroke="#EAD2A8" strokeWidth={26} fill="none" strokeLinecap="round" opacity={0.86} />
+              <path d={pathD} stroke="#EAD2A8" strokeWidth={26} fill="none" strokeLinecap="round" opacity={0.86} />
               {/* Highlight */}
-              <path d={seg1D} stroke="#F7E6C4" strokeWidth={9} fill="none" strokeLinecap="round" opacity={0.58} />
-              <path d={seg2D} stroke="#F7E6C4" strokeWidth={9} fill="none" strokeLinecap="round" opacity={0.58} />
-              {/* Stepping stones — seg 1 (phonics band) */}
+              <path d={pathD} stroke="#F7E6C4" strokeWidth={9} fill="none" strokeLinecap="round" opacity={0.58} />
+              {/* Stepping stones along the path */}
               {[
                 { x: 415, y: 362 }, { x: 450, y: 354 }, { x: 480, y: 356 },
                 { x: 525, y: 304 }, { x: 568, y: 284 }, { x: 612, y: 256 },
@@ -353,12 +281,7 @@ export default function ReadingForestScene({
                 { x: 786, y: 255 }, { x: 830, y: 238 }, { x: 872, y: 224 },
                 { x: 916, y: 222 }, { x: 958, y: 248 }, { x: 1000, y: 257 },
                 { x: 1044, y: 248 }, { x: 1085, y: 226 }, { x: 1130, y: 222 },
-                { x: 1172, y: 248 }, { x: 1198, y: 256 },
-                // seg 2 (loop down to Story Rocks)
-                { x: 1225, y: 310 }, { x: 1230, y: 380 }, { x: 1205, y: 444 },
-                { x: 1165, y: 498 }, { x: 1110, y: 542 }, { x: 1040, y: 584 },
-                { x: 968, y: 618 }, { x: 900, y: 646 }, { x: 835, y: 664 },
-                { x: 780, y: 676 }, { x: 740, y: 682 },
+                { x: 1172, y: 248 }, { x: 1214, y: 258 }, { x: 1256, y: 270 },
               ].map((s, i) => (
                 <g key={`rfph-${i}`}>
                   <ellipse cx={s.x + 1} cy={s.y + 2} rx={9} ry={5} fill="#000" opacity={0.18} />
@@ -412,12 +335,11 @@ export default function ReadingForestScene({
         ].map((f, i) => (
           <Flower key={`glade-fl-${i}`} x={f.x} y={f.y} size={13} />
         ))}
-        {/* Framing trees around the glade perimeter — all above y:490 to clear brook */}
+        {/* Framing trees around the glade perimeter */}
         <Tree x={72} y={360} size={68} variant={2} />
         <Tree x={360} y={330} size={62} variant={1} />
-        {/* South glade trees moved up-bank (clear of brook area x:0-430, y:490-620) */}
-        <Tree x={68} y={482} size={64} variant={3} />
-        <Tree x={368} y={478} size={60} variant={2} />
+        <Tree x={68} y={510} size={64} variant={3} />
+        <Tree x={368} y={518} size={60} variant={2} />
 
         {/* ── 10. ANCIENT OAK — Morphology Grove anchor (NE) ──
              Morphology Grove structures: x:1100-1280, y:460-580.
@@ -502,8 +424,6 @@ export default function ReadingForestScene({
 
         {/* ── 12. FRAMING TREES ──
              Placed in distinct clusters, never overlapping path or structures.
-             CRITICAL: no tree centre within brook area x:0-430, y:490-620.
-
              Key structural positions to avoid:
                rf_digraphs x:480,y:360 — no tree within 60px
                rf_initial_blends x:580,y:280 — no tree within 60px
@@ -511,14 +431,14 @@ export default function ReadingForestScene({
                Story Rocks structures x:660-800, y:620-720 — trees at x<600 or x>870
 
              Framing clusters:
-               • Left mid (flanking Glade on its south side): glade trees at y<490 above
-               • South-left safe zone: x>430 or y<490
+               • Left mid (flanking Glade on its south side): x:65-80, y:580
                • Centre (flanking Phonics Path from below): x:485-1000, y:460-510
                • Right mid (between Grove and story area): x:1055-1070, y:500-580
-               • Bottom corners: below y:625 */}
+               • Bottom-left + bottom-right: below y:600 */}
 
-        {/* South of glade — moved to x:490+ to clear brook zone */}
-        <Tree x={492} y={488} size={56} variant={1} />
+        {/* South of glade — grounding the left side */}
+        <Tree x={68} y={595} size={80} variant={1} />
+        <Tree x={118} y={628} size={62} variant={3} />
 
         {/* Framing the south side of Phonics Path — trees at ~y:460-510, between path structures */}
         {/* Gap between rf_digraphs(x:480) and rf_initial_blends(x:580): Trees at x:530 */}
@@ -531,9 +451,9 @@ export default function ReadingForestScene({
         {/* Between Story Rocks and Morphology Grove */}
         <Tree x={1058} y={508} size={66} variant={2} />
 
-        {/* Bottom corners — forest floor framing (all outside brook zone) */}
-        <Tree x={22} y={638} size={72} variant={2} />
-        <Tree x={315} y={650} size={58} variant={3} />
+        {/* Bottom corners — forest floor framing */}
+        <Tree x={22} y={682} size={72} variant={2} />
+        <Tree x={315} y={690} size={58} variant={3} />
         <Tree x={1342} y={676} size={66} variant={1} />
         <PineTree x={1432} y={668} size={72} />
 
@@ -582,7 +502,7 @@ export default function ReadingForestScene({
           ))}
         </g>
 
-        {/* ── CLUSTER LABELS — softened, name-tag style ── */}
+        {/* ── CLUSTER LABELS ── */}
         {clusters.map(c => {
           const members = c.structureCodes
             .map(code => structures.find(s => s.code === code))
@@ -593,12 +513,13 @@ export default function ReadingForestScene({
           return (
             <g key={c.code} pointerEvents="none">
               <rect
-                x={avgX - 72} y={avgY - 108} width={144} height={18} rx={9}
-                fill="rgba(255,250,242,0.35)" stroke="none"
+                x={avgX - 90} y={avgY - 110} width={180} height={20} rx={10}
+                fill="rgba(255,250,242,0.65)" stroke="#95876a" strokeDasharray="3 2" strokeWidth={1}
               />
               <text
                 x={avgX} y={avgY - 96} textAnchor="middle"
-                fontSize={9} fontWeight={500} fontStyle="italic" fill="#95876a"
+                fontSize={11} fontWeight={700} fill="#6b4423"
+                style={{ letterSpacing: '1.2px', textTransform: 'uppercase' }}
               >
                 {c.label}
               </text>
@@ -612,11 +533,6 @@ export default function ReadingForestScene({
           const completed = state?.completed ?? false;
           const unlocked = state?.unlocked ?? false;
           const isTappedLocked = tappedLocked === s.code;
-
-          // Try to resolve a bespoke illustration (alias → existing code, or same code)
-          const illustrationCode = ILLUSTRATION_ALIAS[s.code] ?? s.code;
-          const drawn = StructureIllustration({ code: illustrationCode, x: 0, y: 0, size: s.size });
-
           return (
             <g
               key={s.code}
@@ -625,15 +541,20 @@ export default function ReadingForestScene({
               onClick={() => onStructureTap(s)}
             >
               <circle r={Math.max(s.size * 0.7, 30)} fill="transparent" />
-              <g opacity={unlocked ? 1 : 0.35} style={{
-                filter: completed
-                  ? 'drop-shadow(0 0 6px rgba(255, 217, 61, 0.6))'
-                  : unlocked
-                    ? 'drop-shadow(0 1px 2px rgba(107,68,35,0.4))'
-                    : 'grayscale(0.7)',
-              }}>
-                {drawn ?? <PlinthEmoji emoji={s.themeEmoji} size={s.size} />}
-              </g>
+              <text
+                textAnchor="middle"
+                fontSize={s.size * 0.7}
+                opacity={unlocked ? 1 : 0.35}
+                style={{
+                  filter: completed
+                    ? 'drop-shadow(0 0 6px rgba(255, 217, 61, 0.6))'
+                    : unlocked
+                      ? 'drop-shadow(0 1px 2px rgba(107,68,35,0.4))'
+                      : 'grayscale(0.7)',
+                }}
+              >
+                {s.themeEmoji}
+              </text>
               <rect
                 x={-50} y={s.size * 0.45} width={100} height={16} rx={4}
                 fill={completed ? 'rgba(255,217,61,0.85)' : 'rgba(255,250,242,0.85)'}
