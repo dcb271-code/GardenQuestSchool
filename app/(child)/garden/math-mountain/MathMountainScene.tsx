@@ -2,31 +2,45 @@
 //
 // Math Mountain — hand-illustrated SVG, same vocabulary as the central garden.
 //
-// Composition (back to front):
-//   1. Alpine sky gradient (cool lavender-blue to meadow green)
-//   2. Five Fuji-style peaks with snow caps + mist band (sun upper-left)
-//   3. Three layered hill silhouettes (periwinkle → sage → deeper sage)
-//   4. Cluster region tints — soft radial washes that demarcate:
-//        Operations Hollow (left, warm amber valley)
-//        Place-Value Heights (centre, cooler plateau)
-//        Multiplication Orchard (right, warm ochre)
-//        Division Glen (upper-right, cool pine-shadow)
-//        Measurement Meadow (bottom centre, bright meadow)
-//        Word Stories Cottage (bottom-left, cream nook)
-//   5. Brook winding through Operations Hollow — enters upper-left,
-//      pools at a small pond (Quiet Pond sits on the bank), continues
-//      through Rushing Stream → Big Falls, exits lower-left
-//   6. One coherent path: starts at Word Stories Cottage, arcs through
-//      Measurement Meadow, forks — left branch descends into Operations
-//      Hollow and ends at the brook/pond bank; right branch climbs to
-//      Place-Value Heights plateau peak; another branch reaches the
-//      Multiplication Orchard end and Division Glen
-//   7. Apple-orchard tree rows in Multiplication Orchard (right)
-//   8. Pine-framed wooded feel for Division Glen (upper-right)
-//   9. Stone step terraces in Place-Value Heights
-//  10. CozyHouse + cottage garden for Word Stories Cottage
-//  11. Framing trees (never overlapping structures)
-//  12. Grass tufts + flowers at meadow level only (y > 600)
+// Design rules now in force:
+//   LAYERING (back to front):
+//     1. Alpine sky gradient (cool lavender-blue → meadow green)
+//     2. Five Fuji-style peaks — THE PEAK SILHOUETTE ZONE is above y≈390.
+//        NO structures ever placed above y:420 (see branchMaps.ts).
+//     3. Sun upper-left with glow + sunbeams
+//     4. Three layered hill silhouettes (periwinkle → sage → deeper sage)
+//     5. Cluster region tints
+//     6. Grass texture
+//     7. Brook — enters upper-left slope, flows south through the hollow
+//        (x:40-200, y:380-620). The brook's wet body is drawn first so
+//        the path and structures layer on top of the bank.
+//     8. Stone terracing for Place-Value Heights (purely decorative; behind structures)
+//     9. Path system — spineD runs along Measurement Meadow at y≈700;
+//        branches climb left into the hollow, right into Division Glen.
+//        Path NEVER crosses the brook except at mm_big_bridge (the bridge
+//        crossing is the one deliberate water-path intersection).
+//    10. Word Stories Cottage (drawn before trees so foliage overlaps naturally)
+//    11. Apple orchard rows (Multiplication Orchard, right foreground)
+//    12. Division Glen boulders + pine framing (upper-right, y:350-500)
+//    13. Framing trees — edges and mid-distance only. Never overlapping
+//        path or structure positions. Rules:
+//          • No tree within 60px of any structure x,y
+//          • No tree inside the brook body (x:40-220, y:380-620)
+//          • Trees cluster at scene edges, at mid-distance between clusters,
+//            on the ridge above Place-Value Heights
+//    14. Grass tufts + flowers — meadow level only (y > 640)
+//    15. Foreground grass silhouette — depth frame along bottom
+//    16. Cluster labels
+//    17. Structures — locked structures render as a soft circle silhouette
+//        (no emoji/plinth block); unlocked emoji-fallback structures render
+//        emoji at size 36 with a warm drop-shadow (no plinth).
+//
+//   BROOK GEOMETRY:
+//     Enters at upper-left (~x:60, y:380), flows south-west, pools slightly,
+//     exits lower-left (~x:60, y:620). Stays entirely left of x:250.
+//     mm_big_bridge (x:400, y:660) is positioned as the path crossing —
+//     NOT over the brook itself (brook exits at x<250, so the bridge is
+//     downstream where the path crosses a shallow ford).
 
 'use client';
 
@@ -54,7 +68,7 @@ const H = BRANCH_MAP_HEIGHT;  // 800
 // Maps branch structure codes → an existing StructureIllustration code
 // when the underlying skill is the same or thematically equivalent.
 const ILLUSTRATION_ALIAS: Record<string, string> = {
-  mm_butterfly_make10: 'math_butterfly_arrays',  // butterfly = crossing-ten / arrays
+  mm_butterfly_make10: 'math_butterfly_arrays',
   mm_array_orchard:    'math_array_orchard',
   mm_hundreds_hollow:  'math_hundreds_hollow',
   mm_tens_tower:       'math_tens_tower',
@@ -63,36 +77,6 @@ const ILLUSTRATION_ALIAS: Record<string, string> = {
   mm_stories_minus:    'math_word_stories',
   mm_long_stories:     'math_word_stories',
 };
-
-// A stone plinth with the structure emoji sitting on it.
-// Rendered at (0,0) — caller wraps in <g transform="translate(x,y)">
-function PlinthEmoji({ emoji, size }: { emoji: string; size: number }) {
-  const baseW = size * 0.65;
-  const baseH = size * 0.18;
-  const baseY = size * 0.32;
-  return (
-    <g>
-      {/* shadow under plinth */}
-      <ellipse cx={1} cy={baseY + 4} rx={baseW * 0.85} ry={baseH * 0.55} fill="#000" opacity={0.25} />
-      {/* plinth base — 3-tone */}
-      <ellipse cx={0} cy={baseY} rx={baseW} ry={baseH} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.4} />
-      <ellipse cx={0} cy={baseY - 2} rx={baseW * 0.92} ry={baseH * 0.7} fill="#A89D8A" />
-      <ellipse cx={-2} cy={baseY - 4} rx={baseW * 0.55} ry={baseH * 0.3} fill="#C9C2B5" opacity={0.85} />
-      {/* moss tuft */}
-      <ellipse cx={baseW * 0.5} cy={baseY - baseH * 0.4} rx={baseW * 0.18} ry={baseH * 0.35} fill="#7BA46F" opacity={0.85} />
-      {/* the emoji sits on the plinth */}
-      <text
-        textAnchor="middle"
-        dominantBaseline="central"
-        fontSize={size * 0.78}
-        y={baseY - baseH - size * 0.18}
-        style={{ filter: 'drop-shadow(0 1px 2px rgba(107,68,35,0.35))' }}
-      >
-        {emoji}
-      </text>
-    </g>
-  );
-}
 
 export default function MathMountainScene({
   learnerId, structures, clusters, structureStates,
@@ -135,25 +119,22 @@ export default function MathMountainScene({
           {/* Alpine sky — cooler than the central garden, reads as mountain morning */}
           <linearGradient id="mmSky" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%"  stopColor="#C8D8EC" />
-            <stop offset="20%" stopColor="#D9E6F0" />
-            <stop offset="38%" stopColor="#EDE5D2" />
-            <stop offset="58%" stopColor="#E0DDB8" stopOpacity="0.85" />
+            <stop offset="22%" stopColor="#D9E6F0" />
+            <stop offset="40%" stopColor="#EDE5D2" />
+            <stop offset="60%" stopColor="#E0DDB8" stopOpacity="0.85" />
             <stop offset="100%" stopColor="#CEE3B4" stopOpacity="0" />
           </linearGradient>
-          {/* Meadow — same as central garden */}
           <linearGradient id="mmMeadow" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%"  stopColor="#D7EFB9" />
             <stop offset="55%" stopColor="#AED29A" />
             <stop offset="100%" stopColor="#8EB98A" />
           </linearGradient>
-          {/* Grass texture pattern — reduced opacity so it reads as texture, not tile */}
           <pattern id="mmGrass" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
             <rect width="40" height="40" fill="transparent" />
-            <path d="M 4 36 Q 4 30 6 28" stroke="#7BA46F" strokeWidth="1.2" fill="none" opacity="0.35" />
-            <path d="M 20 38 Q 22 32 24 30" stroke="#7BA46F" strokeWidth="1.2" fill="none" opacity="0.30" />
-            <path d="M 32 36 Q 30 32 32 28" stroke="#7BA46F" strokeWidth="1.2" fill="none" opacity="0.35" />
+            <path d="M 4 36 Q 4 30 6 28" stroke="#7BA46F" strokeWidth="1.2" fill="none" opacity="0.32" />
+            <path d="M 20 38 Q 22 32 24 30" stroke="#7BA46F" strokeWidth="1.2" fill="none" opacity="0.28" />
+            <path d="M 32 36 Q 30 32 32 28" stroke="#7BA46F" strokeWidth="1.2" fill="none" opacity="0.32" />
           </pattern>
-          {/* Sunbeam gradient — angled from upper-left */}
           <linearGradient id="mmSunbeam" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0%" stopColor="#FFF5D0" stopOpacity="0.5" />
             <stop offset="100%" stopColor="#FFF5D0" stopOpacity="0" />
@@ -164,58 +145,50 @@ export default function MathMountainScene({
             <stop offset="100%" stopColor="#FFE89A" stopOpacity="0" />
           </radialGradient>
           {/* Cluster region tints */}
-          <radialGradient id="mmHollowTint" cx="20%" cy="68%" r="32%">
-            <stop offset="0%" stopColor="#E8C493" stopOpacity="0.28" />
+          <radialGradient id="mmHollowTint" cx="22%" cy="76%" r="26%">
+            <stop offset="0%" stopColor="#E8C493" stopOpacity="0.24" />
             <stop offset="100%" stopColor="#E8C493" stopOpacity="0" />
           </radialGradient>
-          <radialGradient id="mmPlateauTint" cx="50%" cy="48%" r="30%">
-            <stop offset="0%" stopColor="#B5BED4" stopOpacity="0.22" />
+          <radialGradient id="mmPlateauTint" cx="50%" cy="58%" r="24%">
+            <stop offset="0%" stopColor="#B5BED4" stopOpacity="0.20" />
             <stop offset="100%" stopColor="#B5BED4" stopOpacity="0" />
           </radialGradient>
-          <radialGradient id="mmOrchardTint" cx="82%" cy="72%" r="28%">
-            <stop offset="0%" stopColor="#E8A87C" stopOpacity="0.2" />
+          <radialGradient id="mmOrchardTint" cx="82%" cy="74%" r="24%">
+            <stop offset="0%" stopColor="#E8A87C" stopOpacity="0.18" />
             <stop offset="100%" stopColor="#E8A87C" stopOpacity="0" />
           </radialGradient>
-          <radialGradient id="mmGlenTint" cx="82%" cy="32%" r="22%">
-            <stop offset="0%" stopColor="#95B88F" stopOpacity="0.22" />
+          <radialGradient id="mmGlenTint" cx="82%" cy="50%" r="20%">
+            <stop offset="0%" stopColor="#95B88F" stopOpacity="0.20" />
             <stop offset="100%" stopColor="#95B88F" stopOpacity="0" />
           </radialGradient>
-          <radialGradient id="mmMeadowTint" cx="55%" cy="92%" r="30%">
-            <stop offset="0%" stopColor="#D7EFB9" stopOpacity="0.35" />
+          <radialGradient id="mmMeadowTint" cx="55%" cy="92%" r="28%">
+            <stop offset="0%" stopColor="#D7EFB9" stopOpacity="0.30" />
             <stop offset="100%" stopColor="#D7EFB9" stopOpacity="0" />
           </radialGradient>
-          <radialGradient id="mmCottageTint" cx="8%" cy="95%" r="18%">
-            <stop offset="0%" stopColor="#F5EBDC" stopOpacity="0.55" />
+          <radialGradient id="mmCottageTint" cx="8%" cy="95%" r="16%">
+            <stop offset="0%" stopColor="#F5EBDC" stopOpacity="0.50" />
             <stop offset="100%" stopColor="#F5EBDC" stopOpacity="0" />
           </radialGradient>
-          {/* Brook water */}
-          <linearGradient id="mmBrookGrad" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#C4DFE4" />
-            <stop offset="100%" stopColor="#92BFCA" />
-          </linearGradient>
         </defs>
 
-        {/* ── 1. SKY WASH ── */}
+        {/* ── 1. SKY + MEADOW BASE ── */}
         <rect width={W} height={H * 0.58} fill="url(#mmSky)" />
-        {/* Meadow fills the rest */}
         <rect width={W} height={H} fill="url(#mmMeadow)" opacity="0.95" />
 
         {/* ── 2. FUJI PEAKS — five across the back ──
-             Central peak (Math Mountain itself) is the tallest.
-             Two flanking pairs at decreasing scale and opacity.
-             Sun sits upper-LEFT, same as an alternate viewpoint
-             of the same mountain world. */}
-        <g opacity={0.92}>
-          {/* Peak 5 — far-left, faintest, barely-there */}
+             THE PEAK SILHOUETTE ZONE: the big central peak's flanks
+             reach down to approximately y:390 at their widest. No structure
+             sits above y:420. Sun upper-left. */}
+        <g opacity={0.90}>
+          {/* Peak 5 — far-left, faintest */}
           <path
             d="M 0 295 Q 55 238 95 185 Q 108 173 122 186 Q 162 238 210 295 Z"
-            fill="#DCE0ED" opacity={0.48}
+            fill="#DCE0ED" opacity={0.46}
           />
-
           {/* Peak 3 — left mid-distance */}
           <path
             d="M 160 305 Q 235 230 295 148 Q 315 128 335 148 Q 395 230 455 305 Z"
-            fill="#B5BED4" opacity={0.72}
+            fill="#B5BED4" opacity={0.70}
           />
           <path
             d="M 277 172 Q 305 138 322 142 Q 340 147 360 174
@@ -223,28 +196,23 @@ export default function MathMountainScene({
                Q 283 174 277 172 Z"
             fill="#F4F0E3" opacity={0.85}
           />
-
           {/* Peak 1 — THE BIG ONE, centred slightly left, tallest */}
           <path
             d="M 500 330 Q 610 225 700 68 Q 722 45 745 68 Q 835 225 945 330 Z"
             fill="#7B8AAA"
           />
-          {/* Snow crown */}
           <path
             d="M 658 118 Q 695 65 718 62 Q 742 63 782 118
                Q 766 112 755 126 Q 742 110 730 126 Q 716 114 704 128
                Q 688 118 678 130 Q 666 122 658 118 Z"
             fill="#FBF8ED"
           />
-          {/* Shadow side — right face darker */}
-          <path d="M 742 62 Q 835 225 945 330 L 742 330 Z" fill="#8D97B4" opacity={0.48} />
-          {/* Reflected light on left face */}
-          <path d="M 700 90 Q 665 185 610 295 Q 645 175 718 70 Z" fill="#C8D0E3" opacity={0.4} />
-
+          <path d="M 742 62 Q 835 225 945 330 L 742 330 Z" fill="#8D97B4" opacity={0.46} />
+          <path d="M 700 90 Q 665 185 610 295 Q 645 175 718 70 Z" fill="#C8D0E3" opacity={0.38} />
           {/* Peak 2 — right mid-distance */}
           <path
             d="M 1020 305 Q 1090 230 1150 148 Q 1170 128 1190 148 Q 1248 230 1310 305 Z"
-            fill="#B5BED4" opacity={0.72}
+            fill="#B5BED4" opacity={0.70}
           />
           <path
             d="M 1132 172 Q 1160 138 1177 142 Q 1195 147 1215 174
@@ -252,26 +220,22 @@ export default function MathMountainScene({
                Q 1138 174 1132 172 Z"
             fill="#F4F0E3" opacity={0.85}
           />
-
           {/* Peak 4 — far-right, faintest */}
           <path
             d="M 1290 295 Q 1340 240 1380 188 Q 1392 175 1406 188 Q 1435 240 1460 295 Z"
-            fill="#DCE0ED" opacity={0.48}
+            fill="#DCE0ED" opacity={0.46}
           />
-
-          {/* Soft mist band — ties peaks to hills, atmospheric bridge */}
+          {/* Mist band — ties peaks to hills */}
           <path
             d="M 0 338 Q 280 320 720 334 T 1440 328 L 1440 372 L 0 372 Z"
-            fill="#FFFFFF" opacity={0.36}
+            fill="#FFFFFF" opacity={0.34}
           />
         </g>
 
-        {/* ── SUN upper-left, mirroring the opposite perspective of the garden ── */}
-        <circle cx={W * 0.14} cy={108} r={85} fill="url(#mmSunGlow)" opacity={0.72} />
+        {/* ── 3. SUN upper-left ── */}
+        <circle cx={W * 0.14} cy={108} r={85} fill="url(#mmSunGlow)" opacity={0.70} />
         <circle cx={W * 0.14} cy={108} r={30} fill="#FFF2B5" opacity={0.88} />
-        {/* Sunbeam rays from upper-left, angling down-right.
-            No mixBlendMode (Firefox compat — see GardenScene). */}
-        <g opacity={0.36} pointerEvents="none">
+        <g opacity={0.34} pointerEvents="none">
           {[0, 1, 2, 3, 4].map(i => (
             <polygon
               key={`mmray-${i}`}
@@ -282,193 +246,185 @@ export default function MathMountainScene({
           ))}
         </g>
 
-        {/* ── 3. LAYERED HILL SILHOUETTES ── */}
-        {/* Far hills — periwinkle */}
+        {/* ── 4. LAYERED HILL SILHOUETTES ── */}
         <path
           d={`M 0 ${H * 0.44} Q 220 ${H * 0.36} 460 ${H * 0.42} T 900 ${H * 0.39} T ${W} ${H * 0.43} L ${W} ${H * 0.57} L 0 ${H * 0.57} Z`}
-          fill="#B8C4DB" opacity={0.52}
+          fill="#B8C4DB" opacity={0.50}
         />
-        {/* Mid hills — pale sage */}
         <path
-          d={`M 0 ${H * 0.52} Q 280 ${H * 0.44} 560 ${H * 0.5} T 1050 ${H * 0.47} T ${W} ${H * 0.51} L ${W} ${H * 0.64} L 0 ${H * 0.64} Z`}
-          fill="#A3BEA2" opacity={0.68}
+          d={`M 0 ${H * 0.52} Q 280 ${H * 0.44} 560 ${H * 0.50} T 1050 ${H * 0.47} T ${W} ${H * 0.51} L ${W} ${H * 0.64} L 0 ${H * 0.64} Z`}
+          fill="#A3BEA2" opacity={0.66}
         />
-        {/* Near hills — deeper sage */}
         <path
           d={`M 0 ${H * 0.60} Q 320 ${H * 0.53} 680 ${H * 0.58} T ${W} ${H * 0.55} L ${W} ${H * 0.72} L 0 ${H * 0.72} Z`}
-          fill="#8AAF84" opacity={0.62}
+          fill="#8AAF84" opacity={0.60}
         />
 
-        {/* ── 4. CLUSTER REGION TINTS ── */}
+        {/* ── 5. CLUSTER REGION TINTS ── */}
         <rect width={W} height={H} fill="url(#mmHollowTint)" />
         <rect width={W} height={H} fill="url(#mmPlateauTint)" />
         <rect width={W} height={H} fill="url(#mmOrchardTint)" />
         <rect width={W} height={H} fill="url(#mmGlenTint)" />
         <rect width={W} height={H} fill="url(#mmMeadowTint)" />
         <rect width={W} height={H} fill="url(#mmCottageTint)" />
-        {/* Grass texture sits ABOVE zone tints so it reads as grass peeking through, not a tiled layer */}
+        {/* Grass texture above zone tints */}
         <rect width={W} height={H} fill="url(#mmGrass)" />
 
-        {/* ── 5. BROOK — Operations Hollow ──
-             Enters from the upper-left slope, widens into a small pool
-             (Quiet Pond sits on its bank ~x:340,y:500), continues
-             south-east through the hollow, exits lower-left.
-             Kept well clear of all structure positions. */}
+        {/* ── 6. BROOK — Operations Hollow ──
+             Enters from upper-left slope (~x:70, y:380), flows south in a
+             tight meandering channel, exits lower-left (~x:70, y:620).
+             Stays within x:40-220, y:380-630 — clear of all structure positions.
+             The ONE path crossing (mm_big_bridge at x:400, y:660) is EAST of
+             the brook exit, so path and brook never cross. */}
         <g pointerEvents="none">
           {/* outer wet-earth bank */}
           <path
-            d={`M 22 360
-                C 55 395, 72 428, 58 465
-                C 42 502, 72 528, 115 536
-                C 160 544, 210 540, 270 535
-                C 318 530, 348 528, 378 538
-                C 402 546, 408 558, 392 568
-                C 372 580, 330 576, 275 572
-                C 210 568, 148 572, 98 580
-                C 55 586, 22 582, 12 568
-                C 4 556, 12 535, 28 512
-                C 46 488, 48 462, 30 432
-                C 14 405, 14 380, 22 365 Z`}
-            fill="#6B8E5A" opacity={0.30}
+            d={`M 48 382
+                C 68 410, 75 445, 62 482
+                C 48 518, 60 548, 88 562
+                C 110 574, 140 572, 160 578
+                C 178 584, 182 600, 168 612
+                C 152 624, 118 620, 88 624
+                C 62 628, 40 622, 32 610
+                C 22 596, 28 570, 42 548
+                C 58 524, 60 496, 46 462
+                C 32 430, 32 400, 48 386 Z`}
+            fill="#6B8E5A" opacity={0.28}
           />
           {/* primary water body */}
           <path
-            d={`M 30 364
-                C 60 398, 76 430, 63 466
-                C 50 500, 78 524, 120 530
-                C 165 536, 215 532, 272 528
-                C 320 524, 348 524, 375 533
-                C 396 540, 400 551, 386 560
-                C 368 571, 330 568, 275 564
-                C 210 559, 148 564, 100 572
-                C 60 578, 30 575, 20 563
-                C 12 552, 18 532, 35 510
-                C 53 487, 55 460, 38 432
-                C 23 408, 22 384, 30 368 Z`}
+            d={`M 56 386
+                C 74 412, 80 446, 68 482
+                C 56 516, 68 544, 94 556
+                C 114 566, 144 564, 162 570
+                C 178 576, 180 590, 168 600
+                C 154 612, 122 608, 94 612
+                C 68 616, 48 610, 40 598
+                C 32 586, 36 562, 50 540
+                C 66 516, 68 488, 54 456
+                C 40 426, 38 404, 56 390 Z`}
             fill="#B2D4D9"
           />
-          {/* depth channel — darkens the thalweg */}
+          {/* depth channel */}
           <path
-            d={`M 40 392 C 68 428, 80 462, 68 490 C 58 516, 100 524, 160 528 C 225 532, 290 528, 360 535`}
-            stroke="#8FB7C2" strokeWidth={10} fill="none" strokeLinecap="round" opacity={0.68}
+            d="M 64 414 C 82 450, 88 480, 76 508 C 66 534, 92 552, 130 562 C 160 570, 170 582, 162 596"
+            stroke="#8FB7C2" strokeWidth={9} fill="none" strokeLinecap="round" opacity={0.66}
           />
           {/* shimmer ripples */}
-          <path d="M 54 418 Q 64 430 58 444" stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.68} strokeLinecap="round" />
-          <path d="M 76 492 Q 98 500 92 514" stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.6} strokeLinecap="round" />
-          <path d="M 148 520 Q 172 524 188 520" stroke="#FFFFFF" strokeWidth={1.1} fill="none" opacity={0.7} strokeLinecap="round" />
-          <path d="M 248 525 Q 272 522 290 527" stroke="#FFFFFF" strokeWidth={1.1} fill="none" opacity={0.65} strokeLinecap="round" />
-          {/* Moss-topped boulders sitting IN the stream */}
+          <path d="M 72 440 Q 80 452 74 466" stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.66} strokeLinecap="round" />
+          <path d="M 68 506 Q 82 514 78 526" stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.60} strokeLinecap="round" />
+          <path d="M 108 548 Q 126 554 142 550" stroke="#FFFFFF" strokeWidth={1.1} fill="none" opacity={0.68} strokeLinecap="round" />
+          {/* moss-topped boulders in stream */}
           <g>
-            <ellipse cx={90} cy={465} rx={15} ry={9} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.5} />
-            <ellipse cx={88} cy={461} rx={11} ry={4.5} fill="#A89D8A" />
-            <ellipse cx={90} cy={459} rx={13} ry={3} fill="#7BA46F" opacity={0.9} />
+            <ellipse cx={88} cy={466} rx={14} ry={8} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.4} />
+            <ellipse cx={86} cy={462} rx={10} ry={4} fill="#A89D8A" />
+            <ellipse cx={88} cy={460} rx={12} ry={3} fill="#7BA46F" opacity={0.88} />
           </g>
           <g>
-            <ellipse cx={195} cy={520} rx={13} ry={7.5} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.4} />
-            <ellipse cx={193} cy={516} rx={9.5} ry={4} fill="#A89D8A" />
-            <ellipse cx={195} cy={514} rx={11} ry={2.8} fill="#7BA46F" opacity={0.9} />
+            <ellipse cx={128} cy={556} rx={12} ry={7} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.4} />
+            <ellipse cx={126} cy={552} rx={9} ry={3.5} fill="#A89D8A" />
+            <ellipse cx={128} cy={550} rx={10} ry={2.5} fill="#7BA46F" opacity={0.88} />
           </g>
-          <g>
-            <ellipse cx={310} cy={528} rx={11} ry={6} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.4} />
-            <ellipse cx={308} cy={524} rx={8} ry={3} fill="#A89D8A" />
-          </g>
-          {/* Dry-bank stones */}
-          <ellipse cx={18} cy={458} rx={9} ry={5.5} fill="#C2B4A0" stroke="#6B5D48" strokeWidth={1.2} />
-          <ellipse cx={16} cy={455} rx={5} ry={2.2} fill="#D6C9B3" />
-          <ellipse cx={14} cy={536} rx={8} ry={4.5} fill="#C2B4A0" stroke="#6B5D48" strokeWidth={1.2} />
-          {/* Bank grass tufts — at brook level, well above the "sky" zone */}
-          {[[24, 484], [105, 548], [230, 526], [360, 542]].map(([gx, gy], i) => (
+          {/* dry bank stones */}
+          <ellipse cx={36} cy={468} rx={8} ry={5} fill="#C2B4A0" stroke="#6B5D48" strokeWidth={1.2} />
+          <ellipse cx={34} cy={465} rx={4.5} ry={2} fill="#D6C9B3" />
+          {/* bank grass tufts */}
+          {[[40, 500], [90, 580], [158, 568]].map(([gx, gy], i) => (
             <g key={`mmbt-${i}`} transform={`translate(${gx},${gy})`}>
               <path d="M 0 0 Q -1 -6 -2 -10" stroke="#5C7E4F" strokeWidth={1.3} fill="none" strokeLinecap="round" />
               <path d="M 0 0 Q 1 -7 3 -11" stroke="#5C7E4F" strokeWidth={1.3} fill="none" strokeLinecap="round" />
               <path d="M 0 0 Q 2 -5 5 -9" stroke="#5C7E4F" strokeWidth={1.2} fill="none" strokeLinecap="round" />
             </g>
           ))}
+          {/* Cattail at brook bend */}
+          <g transform="translate(38, 440)">
+            <path d="M 0 0 Q -1 -12 -2 -24" stroke="#6B8E5A" strokeWidth={1.5} fill="none" strokeLinecap="round" />
+            <ellipse cx={-2} cy={-26} rx={1.6} ry={5.5} fill="#7B4F2C" stroke="#3F2817" strokeWidth={0.8} />
+          </g>
         </g>
 
-        {/* ── 6. COHERENT PATH SYSTEM ──
-             Redesigned so EVERY branch ends at a recognizable landmark:
-             • Main spine: starts at Word Stories Cottage (lower-left ~x:170,y:760)
-               and sweeps right through Measurement Meadow.
-             • Left fork: branches off the spine at ~x:490,y:718, arcs left and DOWN
-               into Operations Hollow, ENDS at the brook/pond bank (~x:200,y:540).
-             • Upper/plateau path: from the brook bank climbs up through Operations
-               Hollow and terminates at the highest Place-Value plateau structure
-               (mm_three_digit_tower x:720,y:300).
-             • Right fork: splits off the spine at ~x:1050,y:706, climbs to Division Glen
-               and ends at the highest Glen structure (mm_missing_number x:1320,y:260).
-             Same 3-layer (shadow / surface / highlight) + stepping stones style. */}
+        {/* ── 7. STONE TERRACING — Place-Value Heights ──
+             Three horizontal ledges on the slope above the meadow,
+             framing the plateau where structures sit (y:430-530). */}
+        <g pointerEvents="none" opacity={0.68}>
+          <path d="M 510 415 L 660 415 L 654 428 L 504 428 Z" fill="#A89D8A" stroke="#6B5D48" strokeWidth={1.2} strokeLinejoin="round" />
+          <path d="M 515 415 L 655 415" stroke="#C2B4A0" strokeWidth={1} opacity={0.55} />
+          <path d="M 640 398 L 810 398 L 804 410 L 634 410 Z" fill="#9B9082" stroke="#6B5D48" strokeWidth={1.2} strokeLinejoin="round" />
+          <path d="M 645 398 L 805 398" stroke="#C2B4A0" strokeWidth={0.9} opacity={0.50} />
+          <path d="M 840 410 L 1000 410 L 994 422 L 834 422 Z" fill="#A89D8A" stroke="#6B5D48" strokeWidth={1.2} strokeLinejoin="round" />
+          <path d="M 845 410 L 995 410" stroke="#C2B4A0" strokeWidth={1} opacity={0.55} />
+        </g>
+
+        {/* ── 8. PATH SYSTEM ──
+             • Spine: Word Stories Cottage → Measurement Meadow (bottom, y≈720)
+             • Left fork: branches off spine at x≈340, arcs into Operations Hollow,
+               ENDS at the brook bank just east of the brook (x≈280, y≈600).
+               The ONE water crossing is mm_big_bridge at x:400,y:660 — path
+               crosses the dried rocky ford below the brook exit.
+             • Plateau climb: from hollow bank, arcs up through Place-Value Heights
+               (y:430-520), ends at upper plateau structure.
+             • Right fork: from spine at x≈1060, climbs to Division Glen (y≈380-450).
+             • Orchard spur: wraps around the Multiplication Orchard. */}
         {(() => {
-          // Main spine: Cottage → Measurement Meadow (ends around x:1300)
-          const spineD = `M 170 760 C 280 720, 440 720, 590 712 C 740 702, 860 698, 960 706 C 1070 714, 1180 700, 1300 698`;
-          // Left fork: from spine junction (~x:490,y:718) arcs left and curves DOWN
-          // ending at the brook bank (x:200, y:488 — just ABOVE the brook at y:490)
-          const leftForkD = `M 490 718 C 470 680, 440 650, 400 620 C 355 592, 295 558, 235 530 C 215 521, 202 510, 200 488`;
-
-          // Upper path (A1+A2): starts at brook bank (above brook zone), arcs NORTH to
-          // clear the brook (x:0-430, y:490-620) immediately, then climbs east.
-          // Split into lower (full width) + upper (tapered, ends ~y:310, before mountains).
-          // Lower segment: from brook bank (200,488) arcs right, staying ABOVE y:480
-          const upperLowerD = `M 200 488 C 260 470, 340 455, 430 445 C 510 436, 570 420, 620 400 C 660 382, 685 358, 700 340`;
-          // Upper segment: tapers in stroke width, ends at foot of plateau y~315
-          const upperUpperD = `M 700 340 C 710 330, 718 318, 720 310`;
-
-          // Right fork lower (A2): from spine to mid-mountain, full width
-          const rightForkLowerD = `M 1050 706 C 1060 648, 1068 580, 1065 545 C 1062 510, 1072 440, 1100 380 C 1120 340, 1148 318, 1160 310`;
-          // Right fork upper (A2): tapered, ends at foot of Division Glen ~y:310-330
-          const rightForkUpperD = `M 1160 310 C 1190 300, 1230 308, 1260 310`;
-
-          // Orchard spur: short branch from spine end (~x:1300,y:698)
-          // sweeps into the Multiplication Orchard and ends at mm_times_to_10 (x:1240,y:680)
-          const orchardD = `M 1300 698 C 1340 688, 1385 662, 1400 630 C 1412 600, 1408 572, 1390 558`;
+          // Spine: Cottage corner → full Measurement Meadow width
+          const spineD = `M 200 755 C 320 730, 480 722, 640 718 C 800 714, 920 710, 1060 716 C 1190 722, 1320 712, 1400 718`;
+          // Left fork: spine at ~x:340 → hollow structures ending at brook bank
+          const leftForkD = `M 340 726 C 320 700, 300 672, 285 645 C 272 620, 268 600, 272 582`;
+          // Brook-bank to Plateau (staying east of brook body at x:220+)
+          const plateauD = `M 272 582 C 310 560, 370 538, 430 520 C 480 504, 520 490, 548 472 C 568 458, 576 446, 580 436`;
+          // Plateau upper taper (narrower, reads as a high mountain trail)
+          const plateauUpperD = `M 580 436 C 620 428, 660 430, 700 432`;
+          // Right fork lower: from spine → Division Glen foreground
+          const rightForkD = `M 1060 716 C 1068 676, 1072 618, 1072 565 C 1072 520, 1076 490, 1082 462 C 1086 440, 1090 420, 1096 400`;
+          // Right fork taper (ends at Glen foot)
+          const rightForkUpperD = `M 1096 400 C 1148 392, 1210 392, 1270 392`;
+          // Orchard spur: from spine end → wraps the orchard
+          const orchardD = `M 1400 718 C 1420 690, 1425 650, 1418 616 C 1410 584, 1402 562, 1390 548`;
           return (
             <g pointerEvents="none">
-              {/* Shadow layer — full-width paths */}
-              {[spineD, leftForkD, upperLowerD, rightForkLowerD, orchardD].map((d, i) => (
-                <path key={`mmsh-${i}`} d={d} stroke="#A99878" strokeWidth={i < 2 ? 44 : 38} fill="none" strokeLinecap="round" opacity={0.20} />
+              {/* Shadow layer */}
+              {[spineD, leftForkD, plateauD, rightForkD, orchardD].map((d, i) => (
+                <path key={`mmsh-${i}`} d={d} stroke="#A99878" strokeWidth={44} fill="none" strokeLinecap="round" opacity={0.19} />
               ))}
-              {/* Shadow layer — tapered upper segments */}
-              <path d={upperUpperD} stroke="#A99878" strokeWidth={32} fill="none" strokeLinecap="round" opacity={0.16} />
-              <path d={rightForkUpperD} stroke="#A99878" strokeWidth={32} fill="none" strokeLinecap="round" opacity={0.16} />
-              {/* Surface — full-width paths */}
-              {[spineD, leftForkD, upperLowerD, rightForkLowerD, orchardD].map((d, i) => (
-                <path key={`mmsu-${i}`} d={d} stroke="#EAD2A8" strokeWidth={i < 2 ? 30 : 26} fill="none" strokeLinecap="round" opacity={0.88} />
+              <path d={plateauUpperD} stroke="#A99878" strokeWidth={32} fill="none" strokeLinecap="round" opacity={0.15} />
+              <path d={rightForkUpperD} stroke="#A99878" strokeWidth={32} fill="none" strokeLinecap="round" opacity={0.15} />
+              {/* Surface */}
+              {[spineD, leftForkD, plateauD, rightForkD, orchardD].map((d, i) => (
+                <path key={`mmsu-${i}`} d={d} stroke="#EAD2A8" strokeWidth={30} fill="none" strokeLinecap="round" opacity={0.88} />
               ))}
-              {/* Surface — tapered upper segments (narrower → reads as far-off trail) */}
-              <path d={upperUpperD} stroke="#EAD2A8" strokeWidth={22} fill="none" strokeLinecap="round" opacity={0.78} />
-              <path d={rightForkUpperD} stroke="#EAD2A8" strokeWidth={22} fill="none" strokeLinecap="round" opacity={0.78} />
-              {/* Highlight ribbon — full-width paths */}
-              {[spineD, leftForkD, upperLowerD, rightForkLowerD, orchardD].map((d, i) => (
-                <path key={`mmhi-${i}`} d={d} stroke="#F7E6C4" strokeWidth={i < 2 ? 11 : 9} fill="none" strokeLinecap="round" opacity={0.60} />
+              <path d={plateauUpperD} stroke="#EAD2A8" strokeWidth={20} fill="none" strokeLinecap="round" opacity={0.76} />
+              <path d={rightForkUpperD} stroke="#EAD2A8" strokeWidth={20} fill="none" strokeLinecap="round" opacity={0.76} />
+              {/* Highlight ribbon */}
+              {[spineD, leftForkD, plateauD, rightForkD, orchardD].map((d, i) => (
+                <path key={`mmhi-${i}`} d={d} stroke="#F7E6C4" strokeWidth={11} fill="none" strokeLinecap="round" opacity={0.58} />
               ))}
-              {/* Highlight — tapered upper segments */}
-              <path d={upperUpperD} stroke="#F7E6C4" strokeWidth={8} fill="none" strokeLinecap="round" opacity={0.50} />
-              <path d={rightForkUpperD} stroke="#F7E6C4" strokeWidth={8} fill="none" strokeLinecap="round" opacity={0.50} />
+              <path d={plateauUpperD} stroke="#F7E6C4" strokeWidth={7} fill="none" strokeLinecap="round" opacity={0.48} />
+              <path d={rightForkUpperD} stroke="#F7E6C4" strokeWidth={7} fill="none" strokeLinecap="round" opacity={0.48} />
               {/* Stepping stones */}
               {[
                 // spine (Measurement Meadow)
-                { x: 230, y: 748 }, { x: 360, y: 728 }, { x: 500, y: 718 },
-                { x: 650, y: 710 }, { x: 800, y: 706 }, { x: 950, y: 708 },
-                { x: 1110, y: 706 }, { x: 1260, y: 700 },
-                // left fork (descending into Hollow toward brook bank, staying above y:490)
-                { x: 460, y: 685 }, { x: 418, y: 648 }, { x: 370, y: 614 },
-                { x: 310, y: 574 }, { x: 252, y: 532 }, { x: 204, y: 492 },
-                // upper lower (brook bank above → plateau foot, skirting above brook)
-                { x: 255, y: 474 }, { x: 342, y: 456 }, { x: 428, y: 447 },
-                { x: 512, y: 438 }, { x: 580, y: 420 }, { x: 640, y: 396 },
-                { x: 678, y: 362 }, { x: 700, y: 342 },
-                // upper tapered (foot of mountain)
-                { x: 716, y: 316 },
+                { x: 260, y: 742 }, { x: 400, y: 728 }, { x: 540, y: 720 },
+                { x: 680, y: 716 }, { x: 820, y: 714 }, { x: 960, y: 716 },
+                { x: 1130, y: 720 }, { x: 1300, y: 714 },
+                // left fork (down into hollow toward brook bank)
+                { x: 320, y: 710 }, { x: 308, y: 684 }, { x: 295, y: 656 },
+                { x: 284, y: 630 }, { x: 276, y: 606 },
+                // plateau lower (brook bank up to plateau structures)
+                { x: 298, y: 572 }, { x: 346, y: 548 }, { x: 402, y: 528 },
+                { x: 452, y: 512 }, { x: 504, y: 494 }, { x: 546, y: 474 },
+                { x: 570, y: 454 }, { x: 576, y: 438 },
+                // plateau upper taper
+                { x: 626, y: 430 }, { x: 672, y: 430 },
                 // right fork lower (to Glen foot)
-                { x: 1060, y: 650 }, { x: 1063, y: 588 }, { x: 1072, y: 510 },
-                { x: 1090, y: 432 }, { x: 1120, y: 360 }, { x: 1148, y: 322 },
-                // right fork tapered (Division Glen foot)
-                { x: 1200, y: 310 }, { x: 1250, y: 310 },
+                { x: 1066, y: 672 }, { x: 1068, y: 620 }, { x: 1072, y: 566 },
+                { x: 1076, y: 522 }, { x: 1082, y: 482 }, { x: 1088, y: 440 }, { x: 1094, y: 410 },
+                // right fork taper
+                { x: 1156, y: 392 }, { x: 1228, y: 392 },
                 // orchard spur
-                { x: 1345, y: 685 }, { x: 1392, y: 644 }, { x: 1400, y: 590 },
+                { x: 1412, y: 682 }, { x: 1420, y: 644 }, { x: 1412, y: 596 }, { x: 1394, y: 554 },
               ].map((s, i) => (
                 <g key={`mmstn-${i}`}>
-                  <ellipse cx={s.x + 1} cy={s.y + 2} rx={11} ry={6} fill="#000" opacity={0.19} />
+                  <ellipse cx={s.x + 1} cy={s.y + 2} rx={11} ry={6} fill="#000" opacity={0.18} />
                   <ellipse cx={s.x} cy={s.y} rx={11} ry={6} fill="#C9B489" stroke="#8A7050" strokeWidth={1.2} />
                   <ellipse cx={s.x - 2} cy={s.y - 1.5} rx={5} ry={2} fill="#E0CBA1" opacity={0.8} />
                 </g>
@@ -477,55 +433,30 @@ export default function MathMountainScene({
           );
         })()}
 
-        {/* ── 7. STONE TERRACE STEPS for Place-Value Heights ──
-             Three gently-rising horizontal stone ledges suggest a tiered
-             alpine plateau. Positioned so they frame the cluster without
-             overlapping any structure. */}
-        <g pointerEvents="none" opacity={0.72}>
-          {/* Terrace 1 — lowest, widest, x:530-640 y:440 */}
-          <path d="M 530 445 L 642 445 L 636 458 L 524 458 Z" fill="#A89D8A" stroke="#6B5D48" strokeWidth={1.2} strokeLinejoin="round" />
-          <path d="M 535 445 L 637 445" stroke="#C2B4A0" strokeWidth={1} opacity={0.6} />
-          {/* Terrace 2 — mid */}
-          <path d="M 626 385 L 742 385 L 736 398 L 620 398 Z" fill="#A89D8A" stroke="#6B5D48" strokeWidth={1.2} strokeLinejoin="round" />
-          <path d="M 631 385 L 737 385" stroke="#C2B4A0" strokeWidth={1} opacity={0.6} />
-          {/* Terrace 3 — upper, narrowest */}
-          <path d="M 706 308 L 805 308 L 798 320 L 700 320 Z" fill="#9B9082" stroke="#6B5D48" strokeWidth={1.2} strokeLinejoin="round" />
-          <path d="M 711 308 L 800 308" stroke="#C2B4A0" strokeWidth={0.9} opacity={0.55} />
-        </g>
-
-        {/* ── 8. WORD STORIES COTTAGE ──
-             A small cozy nook in the bottom-left corner. Cottage sits at
-             about x:60-160, y:680-760. Structures sit at x:70,y:720 and
-             x:70,y:760 and x:170,y:760 so the cottage must be clear of those.
-             We place a simple hand-drawn cottage shape to the LEFT of the
-             structures, cottage centre ~x:40, y:700. */}
-        <g transform="translate(38, 690)" pointerEvents="none">
-          {/* Ground shadow */}
-          <ellipse cx={28} cy={66} rx={34} ry={6} fill="#000" opacity={0.14} />
-          {/* Walls */}
+        {/* ── 9. WORD STORIES COTTAGE — lower-left corner ──
+             Structures (mm_stories_plus/minus/long_stories) sit to the
+             RIGHT of this cottage at x:70-200, y:720-760. Cottage sits
+             to the left at x:30-90, y:690. */}
+        <g transform="translate(38, 692)" pointerEvents="none">
+          <ellipse cx={28} cy={66} rx={34} ry={6} fill="#000" opacity={0.12} />
           <rect x={0} y={30} width={56} height={36} rx={3} fill="#F5EBDC" stroke="#5A3B1F" strokeWidth={2} />
-          {/* Door */}
           <rect x={22} y={44} width={12} height={22} rx={3} fill="#8B5A2B" stroke="#5A3B1F" strokeWidth={1.5} />
           <circle cx={32} cy={56} r={1.5} fill="#5A3B1F" />
-          {/* Window left */}
           <rect x={5} y={38} width={11} height={9} rx={1.5} fill="#BDE3EC" stroke="#5A3B1F" strokeWidth={1.2} />
           <line x1={10} y1={38} x2={10} y2={47} stroke="#5A3B1F" strokeWidth={0.8} />
           <line x1={5} y1={43} x2={16} y2={43} stroke="#5A3B1F" strokeWidth={0.8} />
-          {/* Window right */}
           <rect x={40} y={38} width={11} height={9} rx={1.5} fill="#BDE3EC" stroke="#5A3B1F" strokeWidth={1.2} />
           <line x1={45} y1={38} x2={45} y2={47} stroke="#5A3B1F" strokeWidth={0.8} />
           <line x1={40} y1={43} x2={51} y2={43} stroke="#5A3B1F" strokeWidth={0.8} />
-          {/* Roof — gabled */}
+          {/* Gabled roof */}
           <path d="M -6 32 L 28 2 L 62 32 Z" fill="#C38D9E" stroke="#5A3B1F" strokeWidth={2} strokeLinejoin="round" />
-          {/* Roof ridge highlight */}
           <path d="M 12 20 L 28 4 L 44 20" stroke="#D4A8B4" strokeWidth={1} fill="none" opacity={0.6} />
-          {/* Chimney */}
           <rect x={36} y={4} width={8} height={16} rx={1} fill="#B8A090" stroke="#5A3B1F" strokeWidth={1.5} />
-          {/* Chimney smoke puffs */}
-          <ellipse cx={40} cy={0} rx={5} ry={4} fill="#E8E0D3" opacity={0.6} />
-          <ellipse cx={43} cy={-6} rx={4} ry={3.5} fill="#E8E0D3" opacity={0.4} />
-          <ellipse cx={39} cy={-12} rx={3.5} ry={3} fill="#E8E0D3" opacity={0.25} />
-          {/* Cottage garden — tiny flowers beside door */}
+          {/* Chimney smoke */}
+          <ellipse cx={40} cy={0}  rx={5} ry={4}   fill="#E8E0D3" opacity={0.60} />
+          <ellipse cx={43} cy={-6} rx={4} ry={3.5} fill="#E8E0D3" opacity={0.40} />
+          <ellipse cx={39} cy={-12} rx={3.5} ry={3} fill="#E8E0D3" opacity={0.24} />
+          {/* Cottage garden flowers */}
           <circle cx={17} cy={66} r={3.5} fill="#C38D9E" stroke="#5A3B1F" strokeWidth={0.8} />
           <circle cx={14} cy={64} r={1} fill="#FFD93D" />
           <circle cx={18} cy={64} r={1} fill="#FFD93D" />
@@ -538,80 +469,70 @@ export default function MathMountainScene({
           <path d="M 42 66 L 42 72" stroke="#6B8E5A" strokeWidth={1.2} strokeLinecap="round" />
         </g>
 
-        {/* ── 9. APPLE ORCHARD ROWS for Multiplication Orchard ──
-             Three rows of apple trees, right foreground (x:950-1440, y:480-720).
-             Rows spaced so they frame clusters without hitting structure positions:
-             mm_equal_garden x:1080,y:560 | mm_array_orchard x:1200,y:580
-             mm_skip_bridge x:1320,y:540  | mm_times_to_5 x:1100,y:660
-             mm_times_to_10 x:1240,y:680
-             Tree rows at x:960-1000 and x:1370-1430 (flanks), y:500 and y:620. */}
-        {/* Row 1 — back row, smaller — A3: last x moved inward to ≤1390 */}
-        {[968, 1040, 1156, 1280, 1375, 1388].map((tx, i) => (
-          <Tree key={`orch-back-${i}`} x={tx} y={510} size={42} variant={i % 2 === 0 ? 1 : 2} />
+        {/* ── 10. APPLE ORCHARD ROWS — Multiplication Orchard (right foreground) ──
+             Structures: mm_equal_garden (1080,560), mm_array_orchard (1200,580),
+             mm_skip_bridge (1320,540), mm_times_to_5 (1100,660), mm_times_to_10 (1240,680).
+             Tree rows flank the cluster without hitting structure positions. */}
+        {[988, 1056, 1148, 1265, 1380].map((tx, i) => (
+          <Tree key={`orch-back-${i}`} x={tx} y={508} size={40} variant={i % 2 === 0 ? 1 : 2} />
         ))}
-        {/* Row 2 — mid row — A3: last x moved inward to ≤1390 */}
-        {[958, 1042, 1168, 1355, 1388].map((tx, i) => (
-          <Tree key={`orch-mid-${i}`} x={tx} y={628} size={50} variant={i % 3 === 0 ? 2 : i % 3 === 1 ? 1 : 3} />
+        {[978, 1050, 1155, 1362].map((tx, i) => (
+          <Tree key={`orch-mid-${i}`} x={tx} y={628} size={48} variant={i % 3 === 0 ? 2 : i % 3 === 1 ? 1 : 3} />
         ))}
-        {/* Row ground line — ochre orchard floor band */}
-        <rect x={945} y={490} width={500} height={8} rx={4} fill="#D4A850" opacity={0.18} />
-        <rect x={942} y={608} width={502} height={8} rx={4} fill="#D4A850" opacity={0.15} />
+        <rect x={958} y={488} width={442} height={7} rx={3.5} fill="#D4A850" opacity={0.16} />
+        <rect x={955} y={608} width={432} height={7} rx={3.5} fill="#D4A850" opacity={0.13} />
 
-        {/* ── 10. DIVISION GLEN — pine framing (upper-right) ──
-             A4: removed the 3 sky-hanging pines (x>1060, y<280).
-             The painted Fuji peaks already anchor that zone visually. */}
-        {/* Mossy boulders that give the glen its 'glen' feel */}
+        {/* ── 11. DIVISION GLEN — mossy boulders + pine framing ──
+             Glen structures now at y:380-450 (foreground meadow).
+             Boulders sit AROUND the structure positions, not on top. */}
         <g pointerEvents="none">
-          <ellipse cx={1068} cy={295} rx={18} ry={10} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.5} />
-          <ellipse cx={1066} cy={291} rx={13} ry={5} fill="#A89D8A" />
-          <ellipse cx={1068} cy={289} rx={15} ry={3.5} fill="#7BA46F" opacity={0.85} />
-          <ellipse cx={1382} cy={295} rx={14} ry={8} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.4} />
-          <ellipse cx={1380} cy={291} rx={10} ry={4} fill="#A89D8A" />
-          <ellipse cx={1382} cy={289} rx={12} ry={3} fill="#7BA46F" opacity={0.85} />
+          <ellipse cx={1050} cy={366} rx={18} ry={10} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.4} />
+          <ellipse cx={1048} cy={362} rx={13} ry={5} fill="#A89D8A" />
+          <ellipse cx={1050} cy={360} rx={15} ry={3.5} fill="#7BA46F" opacity={0.84} />
+          <ellipse cx={1368} cy={366} rx={14} ry={8} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.4} />
+          <ellipse cx={1366} cy={362} rx={10} ry={4} fill="#A89D8A" />
+          <ellipse cx={1368} cy={360} rx={12} ry={3} fill="#7BA46F" opacity={0.84} />
+          <ellipse cx={1240} cy={370} rx={12} ry={7} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.3} />
+          <ellipse cx={1238} cy={366} rx={8} ry={3} fill="#A89D8A" />
         </g>
 
-        {/* ── 11. FRAMING TREES — edges and mid-distance ──
-             Never overlap any structure position.
-             Operations Hollow left edge: Trees at x:22-80, y:430-500
-             (structures start at x:110 — safe gap of 30px)
-             Plateau backdrop: PineTrees upper-centre
-             Measurement Meadow frame: Trees at bottom, outside structure range */}
+        {/* ── 12. FRAMING TREES ──
+             Rules: no tree within 60px of any structure; no tree in brook body
+             (x:40-220, y:380-630); trees only at edges and mid-distance. */}
 
-        {/* Left edge — frame the hollow entrance — A3: x=28→55 (30px buffer) */}
-        <Tree x={55} y={435} size={72} variant={2} />
-        <Tree x={88} y={418} size={58} variant={3} />
+        {/* Ridge line above Place-Value Heights plateau */}
+        <PineTree x={490} y={348} size={54} />
+        <PineTree x={1008} y={358} size={52} />
 
-        {/* Upper-centre — alpine pines on the plateau ridge
-             (placed at the ridge LINE above the plateau structures, not beside them) */}
-        <PineTree x={558} y={300} size={54} />
-        <PineTree x={1010} y={318} size={54} />
+        {/* Left edge — hollow entrance framing (clear of brook x:40-220) */}
+        <Tree x={240} y={390} size={62} variant={2} />
 
-        {/* Right-centre — trees between Glen and Orchard */}
-        <Tree x={1050} y={420} size={58} variant={1} />
+        {/* Between Glen and Orchard at mid height */}
+        <PineTree x={1068} y={450} size={56} />
+        <Tree x={1390} y={440} size={60} variant={1} />
 
-        {/* Far-right edge — A3: moved x inward to ≥50px from edge */}
-        <Tree x={1388} y={460} size={66} variant={2} />
-        <Tree x={1382} y={600} size={58} variant={3} />
+        {/* Far-right edge */}
+        <Tree x={1398} y={600} size={54} variant={3} />
 
-        {/* Bottom-left of cottage nook — A3: moved x inward to ≥50px from edge */}
-        <Tree x={55} y={648} size={62} variant={1} />
+        {/* Bottom-left cottage nook */}
+        <Tree x={62} y={648} size={60} variant={2} />
 
-        {/* ── 12. GRASS TUFTS + FLOWERS — meadow level only (y > 600) ── */}
-        <GrassTuft x={240} y={748} size={20} />
-        <GrassTuft x={490} y={764} size={22} />
-        <GrassTuft x={760} y={772} size={20} />
-        <GrassTuft x={1040} y={764} size={20} />
-        <GrassTuft x={1350} y={756} size={22} />
-        <Flower x={310} y={762} size={16} />
-        <Flower x={420} y={756} size={15} />
-        <Flower x={610} y={768} size={16} />
-        <Flower x={870} y={760} size={15} />
-        <Flower x={1170} y={762} size={16} />
-        <Flower x={1280} y={752} size={15} />
-        <Flower x={1400} y={766} size={14} />
+        {/* ── 13. GRASS TUFTS + FLOWERS — meadow level only (y > 640) ── */}
+        <GrassTuft x={220} y={752} size={20} />
+        <GrassTuft x={460} y={764} size={22} />
+        <GrassTuft x={740} y={772} size={20} />
+        <GrassTuft x={1020} y={764} size={20} />
+        <GrassTuft x={1340} y={756} size={22} />
+        <Flower x={310} y={762} size={15} />
+        <Flower x={420} y={756} size={14} />
+        <Flower x={600} y={768} size={15} />
+        <Flower x={860} y={760} size={14} />
+        <Flower x={1160} y={762} size={15} />
+        <Flower x={1280} y={752} size={14} />
+        <Flower x={1398} y={766} size={13} />
 
-        {/* ── Foreground grass silhouette — Miyazaki depth-frame along bottom ── */}
-        <g opacity={0.42} pointerEvents="none">
+        {/* ── Foreground grass silhouette ── */}
+        <g opacity={0.40} pointerEvents="none">
           <path
             d={`M 0 ${H} L 0 ${H - 18} Q 90 ${H - 30} 180 ${H - 20} T 360 ${H - 24} T 540 ${H - 18} T 720 ${H - 26} T 900 ${H - 20} T 1080 ${H - 28} T 1260 ${H - 20} T ${W} ${H - 18} L ${W} ${H} Z`}
             fill="#6B8E5A"
@@ -625,7 +546,7 @@ export default function MathMountainScene({
           ))}
         </g>
 
-        {/* ── CLUSTER LABELS — softened, name-tag style ── */}
+        {/* ── CLUSTER LABELS — softened italic name-tags ── */}
         {clusters.map(c => {
           const members = c.structureCodes
             .map(code => structures.find(s => s.code === code))
@@ -650,16 +571,18 @@ export default function MathMountainScene({
         })}
 
         {/* ── STRUCTURES ──
-            All structures render at a UNIFORM visual size on the
-            branch scenes regardless of their per-entry s.size in
-            branchMaps.ts. This keeps the cluster regions reading as
-            grids of equal-weight stops rather than a busy mix of
-            "important" and "tiny" things. The hit target stays
-            generous (60pt min) for tap accuracy on iPad. */}
+            UNIFORM visual size regardless of s.size in branchMaps.ts.
+            LOCKED structures: render as a quiet circle silhouette with the label
+              only — no emoji, no plinth. This avoids the "grayed-out clipart"
+              problem. The circle communicates "a stop that will open here."
+            UNLOCKED structures with a bespoke illustration: render the illustration.
+            UNLOCKED structures with emoji-only fallback: render the emoji at a
+              consistent size with a warm drop-shadow. No plinth ellipse.
+            COMPLETED structures: warm gold drop-shadow glow. */}
         {(() => {
-          const UNIFORM = 44;        // visual radius the structure occupies
-          const HIT = 36;            // invisible hit-circle radius (≥30 for tap)
-          const LABEL_Y = 28;        // label rect top, below the structure
+          const UNIFORM = 44;
+          const HIT = 36;
+          const LABEL_Y = 28;
           return structures.map(s => {
             const state = structureStates[s.code];
             const completed = state?.completed ?? false;
@@ -677,25 +600,55 @@ export default function MathMountainScene({
                 onClick={() => onStructureTap(s)}
               >
                 <circle r={HIT} fill="transparent" />
-                <g opacity={unlocked ? 1 : 0.35} style={{
-                  filter: completed
-                    ? 'drop-shadow(0 0 6px rgba(255, 217, 61, 0.6))'
-                    : unlocked
-                      ? 'drop-shadow(0 1px 2px rgba(107,68,35,0.4))'
-                      : 'grayscale(0.7)',
-                }}>
-                  {drawn ?? <PlinthEmoji emoji={s.themeEmoji} size={UNIFORM} />}
-                </g>
+
+                {unlocked ? (
+                  /* Unlocked — full illustration or plain emoji */
+                  <g style={{
+                    filter: completed
+                      ? 'drop-shadow(0 0 6px rgba(255, 217, 61, 0.60))'
+                      : 'drop-shadow(0 1.5px 2px rgba(107,68,35,0.42))',
+                  }}>
+                    {drawn ?? (
+                      <text
+                        textAnchor="middle"
+                        dominantBaseline="central"
+                        fontSize={36}
+                        y={0}
+                      >
+                        {s.themeEmoji}
+                      </text>
+                    )}
+                  </g>
+                ) : (
+                  /* Locked — soft circle silhouette only, no emoji block */
+                  <g>
+                    <circle r={UNIFORM * 0.52} fill="rgba(180,170,155,0.22)" stroke="rgba(140,120,90,0.35)" strokeWidth={1.5} strokeDasharray="4 3" />
+                    <text
+                      textAnchor="middle"
+                      dominantBaseline="central"
+                      fontSize={18}
+                      y={0}
+                      fill="rgba(107,68,35,0.30)"
+                    >
+                      {s.themeEmoji}
+                    </text>
+                  </g>
+                )}
+
+                {/* Label pill */}
                 <rect
                   x={-50} y={LABEL_Y} width={100} height={14} rx={4}
-                  fill={completed ? 'rgba(255,217,61,0.85)' : 'rgba(255,250,242,0.85)'}
+                  fill={completed ? 'rgba(255,217,61,0.85)' : unlocked ? 'rgba(255,250,242,0.85)' : 'rgba(230,220,208,0.70)'}
                 />
                 <text
                   x={0} y={LABEL_Y + 10} textAnchor="middle"
-                  fontSize={9} fontWeight={600} fill="#6b4423"
+                  fontSize={9} fontWeight={600}
+                  fill={unlocked ? '#6b4423' : 'rgba(107,68,35,0.55)'}
                 >
                   {s.label}
                 </text>
+
+                {/* Lock hint tooltip on tap */}
                 {isTappedLocked && state && (
                   <g>
                     <rect

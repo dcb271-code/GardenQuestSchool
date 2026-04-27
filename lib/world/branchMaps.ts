@@ -29,62 +29,70 @@ export interface BranchCluster {
 
 export const MATH_MOUNTAIN_STRUCTURES: MapStructure[] = [
   // ─── Operations Hollow (left foreground) ────────────────────────
+  // Brook flows through x:40-420, y:380-590. Structures moved to sit
+  // on the BANK of the brook or in the foreground meadow EAST of it,
+  // never inside the water body. The "pond" structures (quiet_pond,
+  // rushing_stream) now sit as bankside structures east of the brook
+  // at x:450-530 where the bank is dry.
   { code: 'mm_butterfly_make10', kind: 'skill', skillCode: 'math.add.within_20.crossing_ten',
     label: 'Butterfly Clusters', subLabel: 'make-10 add', themeEmoji: '🦋',
-    x: 240, y: 560, size: 64, zone: 'math' },
+    x: 200, y: 620, size: 64, zone: 'math' },
   { code: 'mm_fast_facts', kind: 'skill', skillCode: 'math.add.fluency_within_20',
     label: 'Fast Facts', subLabel: 'quick recall', themeEmoji: '⚡',
-    x: 360, y: 580, size: 60, zone: 'math' },
+    x: 320, y: 640, size: 60, zone: 'math' },
   { code: 'mm_hundreds_hollow', kind: 'skill', skillCode: 'math.add.within_100.no_regrouping',
     label: "Hundred's Hollow", subLabel: '2-digit add', themeEmoji: '🌳',
-    x: 160, y: 620, size: 64, zone: 'math' },
+    x: 120, y: 660, size: 64, zone: 'math' },
   { code: 'mm_regroup_ridge', kind: 'skill', skillCode: 'math.add.within_100.with_regrouping',
     label: 'Regrouping Ridge', subLabel: '2-digit regroup', themeEmoji: '⛰️',
-    x: 280, y: 660, size: 64, zone: 'math' },
+    x: 240, y: 680, size: 64, zone: 'math' },
   { code: 'mm_big_bridge', kind: 'skill', skillCode: 'math.add.within_1000',
     label: 'Big Number Bridge', subLabel: '3-digit add', themeEmoji: '🌉',
-    x: 410, y: 670, size: 60, zone: 'math' },
+    x: 400, y: 660, size: 60, zone: 'math' },
   { code: 'mm_leaf_drops', kind: 'skill', skillCode: 'math.subtract.within_20.no_crossing',
     label: 'Leaf Drops', subLabel: 'subtract within 20', themeEmoji: '🍂',
-    x: 110, y: 500, size: 60, zone: 'math' },
+    x: 460, y: 580, size: 60, zone: 'math' },
   { code: 'mm_berry_basket', kind: 'skill', skillCode: 'math.subtract.within_20.crossing_ten',
     label: 'Berry Basket', subLabel: 'subtract make-10', themeEmoji: '🫐',
-    x: 220, y: 480, size: 60, zone: 'math' },
+    x: 360, y: 580, size: 60, zone: 'math' },
   { code: 'mm_quiet_pond', kind: 'skill', skillCode: 'math.subtract.within_100.no_regrouping',
     label: 'Quiet Pond', subLabel: '2-digit subtract', themeEmoji: '🪷',
-    x: 340, y: 500, size: 60, zone: 'math' },
+    x: 460, y: 480, size: 60, zone: 'math' },
   { code: 'mm_rushing_stream', kind: 'skill', skillCode: 'math.subtract.within_100.with_regrouping',
     label: 'Rushing Stream', subLabel: '2-digit regroup', themeEmoji: '🌊',
-    x: 440, y: 540, size: 60, zone: 'math' },
+    x: 480, y: 640, size: 60, zone: 'math' },
   { code: 'mm_big_falls', kind: 'skill', skillCode: 'math.subtract.within_1000',
     label: 'Big Number Falls', subLabel: '3-digit subtract', themeEmoji: '🏞️',
-    x: 510, y: 580, size: 60, zone: 'math' },
+    x: 500, y: 560, size: 60, zone: 'math' },
   { code: 'mm_twin_bonds', kind: 'skill', skillCode: 'math.number_bond.within_20',
     label: 'Twin Blossoms', subLabel: 'bonds to 20', themeEmoji: '🌷',
-    x: 380, y: 460, size: 56, zone: 'math' },
+    x: 360, y: 480, size: 56, zone: 'math' },
 
   // ─── Place-Value Heights (center, mid-mountain) ─────────────────
+  // Positions moved down from peak silhouette area (was y:300-380) to
+  // the terrace meadow below the snow line (y:430-520). This prevents
+  // structures from floating inside the painted Fuji peak.
   { code: 'mm_tens_tower', kind: 'skill', skillCode: 'math.placevalue.tens_ones',
     label: 'Tens Tower', subLabel: 'tens & ones', themeEmoji: '🏯',
-    x: 600, y: 360, size: 64, zone: 'math' },
+    x: 560, y: 440, size: 64, zone: 'math' },
   { code: 'mm_three_digit_tower', kind: 'skill', skillCode: 'math.placevalue.hundreds_tens_ones',
     label: 'Three-Digit Tower', subLabel: 'hundreds, tens, ones', themeEmoji: '🏛️',
-    x: 720, y: 300, size: 64, zone: 'math' },
+    x: 660, y: 430, size: 64, zone: 'math' },
   { code: 'mm_compare_trees', kind: 'skill', skillCode: 'math.placevalue.compare_2digit',
     label: 'Compare Trees', subLabel: 'compare 2-digit', themeEmoji: '🌲',
-    x: 540, y: 420, size: 60, zone: 'math' },
+    x: 540, y: 520, size: 60, zone: 'math' },
   { code: 'mm_mountain_compare', kind: 'skill', skillCode: 'math.placevalue.compare_3digit',
     label: 'Mountain Heights', subLabel: 'compare 3-digit', themeEmoji: '🏔️',
-    x: 820, y: 360, size: 60, zone: 'math' },
+    x: 760, y: 430, size: 60, zone: 'math' },
   { code: 'mm_ten_more_less', kind: 'skill', skillCode: 'math.placevalue.add_subtract_10',
     label: 'Ten More, Ten Less', subLabel: '±10 mentally', themeEmoji: '🍃',
-    x: 660, y: 460, size: 60, zone: 'math' },
+    x: 680, y: 520, size: 60, zone: 'math' },
   { code: 'mm_round_10', kind: 'skill', skillCode: 'math.placevalue.round_nearest_10',
     label: 'Round to 10', subLabel: 'nearest ten', themeEmoji: '🌀',
-    x: 860, y: 440, size: 60, zone: 'math' },
+    x: 860, y: 480, size: 60, zone: 'math' },
   { code: 'mm_round_100', kind: 'skill', skillCode: 'math.placevalue.round_nearest_100',
     label: 'Round to 100', subLabel: 'nearest hundred', themeEmoji: '🌀',
-    x: 940, y: 380, size: 60, zone: 'math' },
+    x: 960, y: 430, size: 60, zone: 'math' },
 
   // ─── Multiplication Orchard (right foreground) ──────────────────
   { code: 'mm_equal_garden', kind: 'skill', skillCode: 'math.multiply.equal_groups',
@@ -104,15 +112,17 @@ export const MATH_MOUNTAIN_STRUCTURES: MapStructure[] = [
     x: 1240, y: 680, size: 60, zone: 'math' },
 
   // ─── Division Glen (right, behind orchard) ──────────────────────
+  // Moved from peak-silhouette zone (was y:260-300) down into the
+  // pine-shaded glen clearing at y:380-450, which is foreground meadow.
   { code: 'mm_sharing_squirrels', kind: 'skill', skillCode: 'math.divide.equal_share',
     label: 'Sharing Squirrels', subLabel: 'share equally', themeEmoji: '🐿️',
-    x: 1100, y: 280, size: 60, zone: 'math' },
+    x: 1080, y: 380, size: 60, zone: 'math' },
   { code: 'mm_division_facts', kind: 'skill', skillCode: 'math.divide.facts_to_10',
     label: 'Division Facts', subLabel: 'division facts', themeEmoji: '➗',
-    x: 1220, y: 300, size: 60, zone: 'math' },
+    x: 1200, y: 400, size: 60, zone: 'math' },
   { code: 'mm_missing_number', kind: 'skill', skillCode: 'math.divide.unknown_factor',
     label: 'Missing Number', subLabel: 'find the factor', themeEmoji: '🧩',
-    x: 1320, y: 260, size: 60, zone: 'math' },
+    x: 1320, y: 380, size: 60, zone: 'math' },
 
   // ─── Measurement Meadow (across center-bottom) ──────────────────
   { code: 'mm_even_odd', kind: 'skill', skillCode: 'math.even_odd.recognize',
@@ -181,15 +191,18 @@ export const MATH_MOUNTAIN_CLUSTERS: BranchCluster[] = [
 
 export const READING_FOREST_STRUCTURES: MapStructure[] = [
   // ─── Sight Word Glade (NW) ──────────────────────────────────────
+  // All three structures now placed within the glade clearing (x:80-370, y:360-510)
+  // so they read as a coherent cluster. Previously rf_dolch_second and rf_dolch_third
+  // were at y:700-740, stranded far south of the glade.
   { code: 'rf_dolch_first', kind: 'skill', skillCode: 'reading.sight_words.dolch_first_grade',
     label: 'Bee Words', subLabel: 'Dolch 1st grade', themeEmoji: '🌼',
     x: 140, y: 400, size: 64, zone: 'reading' },
   { code: 'rf_dolch_second', kind: 'skill', skillCode: 'reading.sight_words.dolch_second_grade',
     label: 'Petal Words', subLabel: 'Dolch 2nd grade', themeEmoji: '🌸',
-    x: 180, y: 700, size: 60, zone: 'reading' },
+    x: 240, y: 440, size: 60, zone: 'reading' },
   { code: 'rf_dolch_third', kind: 'skill', skillCode: 'reading.sight_words.dolch_third_grade',
     label: 'Wildflower Words', subLabel: 'Dolch 3rd grade', themeEmoji: '🌷',
-    x: 280, y: 740, size: 60, zone: 'reading' },
+    x: 160, y: 490, size: 60, zone: 'reading' },
 
   // ─── Phonics Path (winding through center) ──────────────────────
   { code: 'rf_digraphs', kind: 'skill', skillCode: 'reading.phonics.digraphs',
