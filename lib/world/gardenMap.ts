@@ -298,7 +298,7 @@ export const GARDEN_STRUCTURES: MapStructure[] = [
     characterCode: 'signpost',
     label: 'Wanderer',
     themeEmoji: '🪧',
-    x: 680, y: 510, size: 48,    // path-meadow junction
+    x: 520, y: 430, size: 48,    // up-left of the path crest, in the meadow above
     zone: 'meadow',
   },
 ];

@@ -20,6 +20,124 @@ import { playSparkle } from '@/lib/audio/sfx';
 import { StructureIllustration, Tree, PineTree, Flower, GrassTuft, CozyHouse } from '@/components/child/garden/illustrations';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
 
+// ───────────────────────────────────────────────────────────────────
+// Bachan — the grandmother on the cottage porch. Drawn in the same
+// style as Cecily and Esme (see components/child/garden/SisterWalkers):
+// warm peach skin, light bangs over a visible face, a kind smile, but
+// scaled UP roughly 1.6× to read as an adult, with grey-silver hair in
+// a low bun, glasses, a shawl + apron, and a slight stoop. Sits in
+// front of the cottage porch, doesn't walk.
+// ───────────────────────────────────────────────────────────────────
+
+const BACHAN_LINE = '#3F2817';
+const BACHAN_SKIN = '#F4C9A0';
+const BACHAN_HAIR = '#A8A09A';        // silver-grey
+const BACHAN_HAIR_HI = '#C5BFB9';
+const BACHAN_SHAWL = '#C38D9E';       // rose
+const BACHAN_APRON = '#FFFDF2';       // cream
+const BACHAN_SKIRT = '#6B8E5A';       // forest green
+
+function BachanFigure({ isAlert }: { isAlert: boolean }) {
+  // Whole figure scales from a (-16, -32) → (16, 28) box. Slight idle
+  // sway when alert; otherwise still.
+  return (
+    <g
+      style={{
+        transform: 'translate(0, -8px)',
+        filter: isAlert
+          ? 'drop-shadow(0 1px 2px rgba(107,68,35,0.45))'
+          : 'grayscale(0.25)',
+        opacity: isAlert ? 1 : 0.78,
+      }}
+    >
+      {/* ground shadow */}
+      <ellipse cx={0} cy={32} rx={14} ry={3} fill="#000" opacity={0.22} />
+
+      {/* SKIRT — forest-green long skirt with a little flare */}
+      <path
+        d="M -12 8
+           Q -16 22 -15 30
+           Q -8 32 0 32
+           Q 8 32 15 30
+           Q 16 22 12 8 Z"
+        fill={BACHAN_SKIRT} stroke={BACHAN_LINE} strokeWidth={1.4} strokeLinejoin="round"
+      />
+      {/* skirt hem trim */}
+      <path d="M -15 30 Q -8 32 0 32 Q 8 32 15 30" stroke={BACHAN_LINE} strokeWidth={0.7} fill="none" opacity={0.5} />
+
+      {/* APRON — cream tied at the waist */}
+      <path
+        d="M -8 9 Q -10 20 -9 28 Q -4 29 0 29 Q 4 29 9 28 Q 10 20 8 9 Z"
+        fill={BACHAN_APRON} stroke={BACHAN_LINE} strokeWidth={1.0} strokeLinejoin="round"
+      />
+      {/* apron pocket */}
+      <rect x={-3} y={18} width={6} height={5} rx={0.6} fill="none" stroke={BACHAN_LINE} strokeWidth={0.7} opacity={0.5} />
+      {/* apron tie */}
+      <path d="M -8 9 Q 0 7 8 9" stroke={BACHAN_LINE} strokeWidth={0.6} fill="none" opacity={0.55} />
+
+      {/* SHAWL — rose, drapes over shoulders + back */}
+      <path
+        d="M -10 -4 Q -13 4 -11 10 Q -8 12 -4 11 L 0 9 L 4 11 Q 8 12 11 10 Q 13 4 10 -4 Q 5 -7 0 -7 Q -5 -7 -10 -4 Z"
+        fill={BACHAN_SHAWL} stroke={BACHAN_LINE} strokeWidth={1.2} strokeLinejoin="round"
+      />
+      {/* shawl fringe hint */}
+      <path d="M -10 8 L -10.5 11 M -7 9 L -7 12 M -4 9.5 L -4 12.5 M 4 9.5 L 4 12.5 M 7 9 L 7 12 M 10 8 L 10.5 11"
+        stroke={BACHAN_LINE} strokeWidth={0.5} opacity={0.55} />
+
+      {/* ARMS — short, peach, hands resting on apron */}
+      <path d="M -10 -2 Q -12 4 -9 8" stroke={BACHAN_SKIN} strokeWidth={2.6} fill="none" strokeLinecap="round" />
+      <path d="M 10 -2 Q 12 4 9 8" stroke={BACHAN_SKIN} strokeWidth={2.6} fill="none" strokeLinecap="round" />
+      {/* hands (two small ovals) */}
+      <ellipse cx={-9} cy={9} rx={1.6} ry={1.3} fill={BACHAN_SKIN} stroke={BACHAN_LINE} strokeWidth={0.7} />
+      <ellipse cx={9} cy={9} rx={1.6} ry={1.3} fill={BACHAN_SKIN} stroke={BACHAN_LINE} strokeWidth={0.7} />
+
+      {/* NECK */}
+      <rect x={-1.8} y={-9} width={3.6} height={3} fill={BACHAN_SKIN} />
+
+      {/* BACK HAIR — silver bun behind head */}
+      <ellipse cx={0} cy={-15} rx={9} ry={8} fill={BACHAN_HAIR} stroke={BACHAN_LINE} strokeWidth={0.8} />
+      {/* bun tucked behind */}
+      <ellipse cx={0} cy={-22} rx={4} ry={3.2} fill={BACHAN_HAIR} stroke={BACHAN_LINE} strokeWidth={0.9} />
+      {/* hair highlight */}
+      <path d="M -5 -19 Q -3 -22 0 -22.5" stroke={BACHAN_HAIR_HI} strokeWidth={0.8} fill="none" strokeLinecap="round" opacity={0.7} />
+
+      {/* HEAD — warm peach, fully visible */}
+      <ellipse cx={0} cy={-14} rx={7} ry={7.5} fill={BACHAN_SKIN} stroke={BACHAN_LINE} strokeWidth={1.2} />
+
+      {/* Bangs — silvery wisp at top of forehead */}
+      <path
+        d="M -5 -19
+           Q -3 -20.5 0 -20.2
+           Q 3 -20.5 5 -19
+           Q 3 -18.6 1.5 -18.5
+           Q 0 -18.4 -1.5 -18.5
+           Q -3 -18.6 -5 -19 Z"
+        fill={BACHAN_HAIR} stroke={BACHAN_LINE} strokeWidth={0.8}
+      />
+
+      {/* GLASSES — circular, with bridge */}
+      <circle cx={-2.4} cy={-14} r={1.7} fill="none" stroke={BACHAN_LINE} strokeWidth={0.8} />
+      <circle cx={2.4} cy={-14} r={1.7} fill="none" stroke={BACHAN_LINE} strokeWidth={0.8} />
+      <line x1={-0.7} y1={-14} x2={0.7} y2={-14} stroke={BACHAN_LINE} strokeWidth={0.6} />
+
+      {/* EYES — small, kind, slightly closed (smiling crinkle) */}
+      <path d="M -3.4 -14 Q -2.4 -13.6 -1.4 -14" stroke={BACHAN_LINE} strokeWidth={0.7} fill="none" strokeLinecap="round" />
+      <path d="M 1.4 -14 Q 2.4 -13.6 3.4 -14" stroke={BACHAN_LINE} strokeWidth={0.7} fill="none" strokeLinecap="round" />
+
+      {/* eyebrows — soft, silver */}
+      <path d="M -3.5 -16.8 Q -2.4 -17.2 -1.4 -16.9" stroke={BACHAN_HAIR} strokeWidth={0.6} fill="none" strokeLinecap="round" />
+      <path d="M 1.4 -16.9 Q 2.4 -17.2 3.5 -16.8" stroke={BACHAN_HAIR} strokeWidth={0.6} fill="none" strokeLinecap="round" />
+
+      {/* CHEEK BLUSH */}
+      <ellipse cx={-3.6} cy={-11.5} rx={1.3} ry={0.7} fill="#F4A8A8" opacity={0.7} />
+      <ellipse cx={3.6} cy={-11.5} rx={1.3} ry={0.7} fill="#F4A8A8" opacity={0.7} />
+
+      {/* MOUTH — small warm smile */}
+      <path d="M -1.5 -10.5 Q 0 -9.6 1.5 -10.5" stroke={BACHAN_LINE} strokeWidth={0.8} fill="none" strokeLinecap="round" />
+    </g>
+  );
+}
+
 interface StructureState {
   unlocked: boolean;
   completed: boolean;
@@ -910,7 +1028,8 @@ export default function GardenScene({
             // Characters → native SVG <g> with click handler. Same
             // foreignObject-touch caveat as gates above. The alert
             // character is picked daily; the recommendation comes from
-            // the engine via characterRecs.
+            // the engine via characterRecs (always populated thanks to
+            // characterRecommendation's fallbacks — no dead taps).
             if (s.kind === 'character' && s.characterCode) {
               const code = s.characterCode;
               const rec =
@@ -928,25 +1047,38 @@ export default function GardenScene({
                   onClick={() => { if (rec?.skillCode) startSkill(rec.skillCode); }}
                   aria-label={isAlert ? `${s.label} — ${rec?.structureLabel ?? ''}` : `${s.label} is resting`}
                 >
+                  {/* invisible hit target — meets 60pt min */}
                   <circle r={36} fill="transparent" />
-                  <text
-                    textAnchor="middle"
-                    dominantBaseline="central"
-                    fontSize={30}
-                    opacity={isAlert ? 1 : 0.55}
-                    style={{ filter: isAlert
-                      ? 'drop-shadow(0 1px 2px rgba(107,68,35,0.45))'
-                      : 'grayscale(0.4)' }}
-                  >
-                    {s.themeEmoji}
-                  </text>
+
+                  {/* The figure itself: Bachan is a hand-illustrated
+                      grandmother in the same style as Cecily / Esme
+                      (see SisterWalkers). Hodge is a beaver, the
+                      Signpost is a wooden post — both work fine as
+                      large emoji at this scale and don't need bespoke
+                      art yet. */}
+                  {code === 'nana' ? (
+                    <BachanFigure isAlert={isAlert} />
+                  ) : (
+                    <text
+                      textAnchor="middle"
+                      dominantBaseline="central"
+                      fontSize={code === 'signpost' ? 36 : 32}
+                      opacity={isAlert ? 1 : 0.6}
+                      style={{ filter: isAlert
+                        ? 'drop-shadow(0 1px 2px rgba(107,68,35,0.45))'
+                        : 'grayscale(0.4)' }}
+                    >
+                      {s.themeEmoji}
+                    </text>
+                  )}
+
                   {/* name banner */}
                   <rect
-                    x={-44} y={20} width={88} height={16} rx={4}
+                    x={-44} y={code === 'nana' ? 28 : 22} width={88} height={16} rx={4}
                     fill="rgba(195, 141, 158, 0.95)"
                   />
                   <text
-                    x={0} y={31} textAnchor="middle"
+                    x={0} y={code === 'nana' ? 39 : 33} textAnchor="middle"
                     fontSize={9} fontWeight={700}
                     fill="#fffaf2"
                   >
@@ -956,12 +1088,12 @@ export default function GardenScene({
                   {isAlert && rec?.structureLabel && (
                     <>
                       <rect
-                        x={-62} y={38} width={124} height={14} rx={4}
+                        x={-62} y={code === 'nana' ? 46 : 40} width={124} height={14} rx={4}
                         fill="rgba(255, 250, 242, 0.88)"
                         stroke="#d8c8a8" strokeWidth={0.5}
                       />
                       <text
-                        x={0} y={47} textAnchor="middle"
+                        x={0} y={code === 'nana' ? 55 : 49} textAnchor="middle"
                         fontSize={8} fontStyle="italic"
                         fill="#6b4423"
                       >

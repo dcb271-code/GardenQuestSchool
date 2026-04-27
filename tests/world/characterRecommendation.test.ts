@@ -10,12 +10,12 @@ const fakeCandidates = [
 ];
 
 describe('characterRecommendation', () => {
-  it('Hodge gets the first math candidate', () => {
+  it('Hodge gets the first math candidate from the engine when available', () => {
     const out = partitionRecommendations(fakeCandidates);
     expect(out.hodge?.skillCode).toBe('math.add.within_10');
   });
 
-  it('Nana gets the first reading candidate', () => {
+  it('Nana gets the first reading candidate from the engine when available', () => {
     const out = partitionRecommendations(fakeCandidates);
     expect(out.nana?.skillCode).toBe('reading.sight_words.dolch_primer');
   });
@@ -26,24 +26,25 @@ describe('characterRecommendation', () => {
     expect(out.signpost[0].skillCode).toBe('math.add.within_10');
   });
 
-  it('handles missing math candidates gracefully', () => {
+  it('Hodge falls back to a math baseline when engine has no math candidates', () => {
     const onlyReading = fakeCandidates.filter(c => c.skillCode.startsWith('reading.'));
     const out = partitionRecommendations(onlyReading);
-    expect(out.hodge).toBeNull();
+    expect(out.hodge?.skillCode).toMatch(/^math\./);
     expect(out.nana?.skillCode).toBe('reading.sight_words.dolch_primer');
   });
 
-  it('handles missing reading candidates gracefully', () => {
+  it('Nana falls back to a reading baseline when engine has no reading candidates', () => {
     const onlyMath = fakeCandidates.filter(c => c.skillCode.startsWith('math.'));
     const out = partitionRecommendations(onlyMath);
-    expect(out.nana).toBeNull();
+    expect(out.nana?.skillCode).toMatch(/^reading\./);
     expect(out.hodge?.skillCode).toBe('math.add.within_10');
   });
 
-  it('handles empty input', () => {
+  it('all characters fall back to baselines when input is empty (no dead taps)', () => {
     const out = partitionRecommendations([]);
-    expect(out.hodge).toBeNull();
-    expect(out.nana).toBeNull();
-    expect(out.signpost).toEqual([]);
+    expect(out.hodge?.skillCode).toMatch(/^math\./);
+    expect(out.nana?.skillCode).toMatch(/^reading\./);
+    expect(out.signpost.length).toBeGreaterThan(0);
+    expect(out.signpost[0].skillCode).toBeTruthy();
   });
 });
