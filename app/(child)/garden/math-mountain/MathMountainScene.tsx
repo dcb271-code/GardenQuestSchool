@@ -146,12 +146,12 @@ export default function MathMountainScene({
             <stop offset="55%" stopColor="#AED29A" />
             <stop offset="100%" stopColor="#8EB98A" />
           </linearGradient>
-          {/* Grass texture pattern */}
+          {/* Grass texture pattern — reduced opacity so it reads as texture, not tile */}
           <pattern id="mmGrass" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
             <rect width="40" height="40" fill="transparent" />
-            <path d="M 4 36 Q 4 30 6 28" stroke="#7BA46F" strokeWidth="1.2" fill="none" opacity="0.5" />
-            <path d="M 20 38 Q 22 32 24 30" stroke="#7BA46F" strokeWidth="1.2" fill="none" opacity="0.45" />
-            <path d="M 32 36 Q 30 32 32 28" stroke="#7BA46F" strokeWidth="1.2" fill="none" opacity="0.5" />
+            <path d="M 4 36 Q 4 30 6 28" stroke="#7BA46F" strokeWidth="1.2" fill="none" opacity="0.35" />
+            <path d="M 20 38 Q 22 32 24 30" stroke="#7BA46F" strokeWidth="1.2" fill="none" opacity="0.30" />
+            <path d="M 32 36 Q 30 32 32 28" stroke="#7BA46F" strokeWidth="1.2" fill="none" opacity="0.35" />
           </pattern>
           {/* Sunbeam gradient — angled from upper-left */}
           <linearGradient id="mmSunbeam" x1="0" y1="0" x2="1" y2="1">
@@ -199,7 +199,6 @@ export default function MathMountainScene({
         <rect width={W} height={H * 0.58} fill="url(#mmSky)" />
         {/* Meadow fills the rest */}
         <rect width={W} height={H} fill="url(#mmMeadow)" opacity="0.95" />
-        <rect width={W} height={H} fill="url(#mmGrass)" />
 
         {/* ── 2. FUJI PEAKS — five across the back ──
              Central peak (Math Mountain itself) is the tallest.
@@ -307,6 +306,8 @@ export default function MathMountainScene({
         <rect width={W} height={H} fill="url(#mmGlenTint)" />
         <rect width={W} height={H} fill="url(#mmMeadowTint)" />
         <rect width={W} height={H} fill="url(#mmCottageTint)" />
+        {/* Grass texture sits ABOVE zone tints so it reads as grass peeking through, not a tiled layer */}
+        <rect width={W} height={H} fill="url(#mmGrass)" />
 
         {/* ── 5. BROOK — Operations Hollow ──
              Enters from the upper-left slope, widens into a small pool
@@ -401,49 +402,70 @@ export default function MathMountainScene({
           // Main spine: Cottage → Measurement Meadow (ends around x:1300)
           const spineD = `M 170 760 C 280 720, 440 720, 590 712 C 740 702, 860 698, 960 706 C 1070 714, 1180 700, 1300 698`;
           // Left fork: from spine junction (~x:490,y:718) arcs left and curves DOWN
-          // ending at the brook bank (x:200, y:540 — the Quiet Pond area)
-          const leftForkD = `M 490 718 C 470 680, 440 650, 400 620 C 355 588, 295 565, 235 553 C 210 548, 200 544, 200 540`;
-          // Upper path: from the brook bank (x:200,y:540) climbs through Hollow
-          // and terminates at the Place-Value Heights peak (x:720,y:300)
-          const upperD = `M 200 540 C 240 510, 300 480, 380 460 C 460 440, 530 400, 600 370 C 660 345, 700 320, 720 300`;
-          // Right fork: from spine (~x:1050,y:706) climbs to Division Glen
-          // ending at mm_missing_number (x:1320,y:260)
-          const rightForkD = `M 1050 706 C 1060 648, 1068 580, 1065 545 C 1062 510, 1082 350, 1180 290 C 1240 262, 1290 258, 1320 260`;
+          // ending at the brook bank (x:200, y:488 — just ABOVE the brook at y:490)
+          const leftForkD = `M 490 718 C 470 680, 440 650, 400 620 C 355 592, 295 558, 235 530 C 215 521, 202 510, 200 488`;
+
+          // Upper path (A1+A2): starts at brook bank (above brook zone), arcs NORTH to
+          // clear the brook (x:0-430, y:490-620) immediately, then climbs east.
+          // Split into lower (full width) + upper (tapered, ends ~y:310, before mountains).
+          // Lower segment: from brook bank (200,488) arcs right, staying ABOVE y:480
+          const upperLowerD = `M 200 488 C 260 470, 340 455, 430 445 C 510 436, 570 420, 620 400 C 660 382, 685 358, 700 340`;
+          // Upper segment: tapers in stroke width, ends at foot of plateau y~315
+          const upperUpperD = `M 700 340 C 710 330, 718 318, 720 310`;
+
+          // Right fork lower (A2): from spine to mid-mountain, full width
+          const rightForkLowerD = `M 1050 706 C 1060 648, 1068 580, 1065 545 C 1062 510, 1072 440, 1100 380 C 1120 340, 1148 318, 1160 310`;
+          // Right fork upper (A2): tapered, ends at foot of Division Glen ~y:310-330
+          const rightForkUpperD = `M 1160 310 C 1190 300, 1230 308, 1260 310`;
+
           // Orchard spur: short branch from spine end (~x:1300,y:698)
           // sweeps into the Multiplication Orchard and ends at mm_times_to_10 (x:1240,y:680)
-          const orchardD = `M 1300 698 C 1350 690, 1400 660, 1420 620 C 1435 580, 1430 560, 1400 550`;
+          const orchardD = `M 1300 698 C 1340 688, 1385 662, 1400 630 C 1412 600, 1408 572, 1390 558`;
           return (
             <g pointerEvents="none">
-              {/* Shadow layer */}
-              {[spineD, leftForkD, upperD, rightForkD, orchardD].map((d, i) => (
+              {/* Shadow layer — full-width paths */}
+              {[spineD, leftForkD, upperLowerD, rightForkLowerD, orchardD].map((d, i) => (
                 <path key={`mmsh-${i}`} d={d} stroke="#A99878" strokeWidth={i < 2 ? 44 : 38} fill="none" strokeLinecap="round" opacity={0.20} />
               ))}
-              {/* Surface */}
-              {[spineD, leftForkD, upperD, rightForkD, orchardD].map((d, i) => (
+              {/* Shadow layer — tapered upper segments */}
+              <path d={upperUpperD} stroke="#A99878" strokeWidth={32} fill="none" strokeLinecap="round" opacity={0.16} />
+              <path d={rightForkUpperD} stroke="#A99878" strokeWidth={32} fill="none" strokeLinecap="round" opacity={0.16} />
+              {/* Surface — full-width paths */}
+              {[spineD, leftForkD, upperLowerD, rightForkLowerD, orchardD].map((d, i) => (
                 <path key={`mmsu-${i}`} d={d} stroke="#EAD2A8" strokeWidth={i < 2 ? 30 : 26} fill="none" strokeLinecap="round" opacity={0.88} />
               ))}
-              {/* Highlight ribbon */}
-              {[spineD, leftForkD, upperD, rightForkD, orchardD].map((d, i) => (
+              {/* Surface — tapered upper segments (narrower → reads as far-off trail) */}
+              <path d={upperUpperD} stroke="#EAD2A8" strokeWidth={22} fill="none" strokeLinecap="round" opacity={0.78} />
+              <path d={rightForkUpperD} stroke="#EAD2A8" strokeWidth={22} fill="none" strokeLinecap="round" opacity={0.78} />
+              {/* Highlight ribbon — full-width paths */}
+              {[spineD, leftForkD, upperLowerD, rightForkLowerD, orchardD].map((d, i) => (
                 <path key={`mmhi-${i}`} d={d} stroke="#F7E6C4" strokeWidth={i < 2 ? 11 : 9} fill="none" strokeLinecap="round" opacity={0.60} />
               ))}
+              {/* Highlight — tapered upper segments */}
+              <path d={upperUpperD} stroke="#F7E6C4" strokeWidth={8} fill="none" strokeLinecap="round" opacity={0.50} />
+              <path d={rightForkUpperD} stroke="#F7E6C4" strokeWidth={8} fill="none" strokeLinecap="round" opacity={0.50} />
               {/* Stepping stones */}
               {[
                 // spine (Measurement Meadow)
                 { x: 230, y: 748 }, { x: 360, y: 728 }, { x: 500, y: 718 },
                 { x: 650, y: 710 }, { x: 800, y: 706 }, { x: 950, y: 708 },
                 { x: 1110, y: 706 }, { x: 1260, y: 700 },
-                // left fork (descending into Hollow toward brook bank)
-                { x: 460, y: 685 }, { x: 418, y: 650 }, { x: 370, y: 612 },
-                { x: 310, y: 578 }, { x: 250, y: 558 }, { x: 208, y: 544 },
-                // upper (brook bank → plateau peak)
-                { x: 248, y: 518 }, { x: 315, y: 490 }, { x: 395, y: 462 },
-                { x: 480, y: 435 }, { x: 556, y: 404 }, { x: 636, y: 360 },
-                { x: 690, y: 324 }, { x: 718, y: 302 },
-                // right fork (to Glen peak)
-                { x: 1060, y: 650 }, { x: 1062, y: 588 }, { x: 1082, y: 480 },
-                { x: 1130, y: 368 }, { x: 1210, y: 296 }, { x: 1300, y: 262 },
+                // left fork (descending into Hollow toward brook bank, staying above y:490)
+                { x: 460, y: 685 }, { x: 418, y: 648 }, { x: 370, y: 614 },
+                { x: 310, y: 574 }, { x: 252, y: 532 }, { x: 204, y: 492 },
+                // upper lower (brook bank above → plateau foot, skirting above brook)
+                { x: 255, y: 474 }, { x: 342, y: 456 }, { x: 428, y: 447 },
+                { x: 512, y: 438 }, { x: 580, y: 420 }, { x: 640, y: 396 },
+                { x: 678, y: 362 }, { x: 700, y: 342 },
+                // upper tapered (foot of mountain)
+                { x: 716, y: 316 },
+                // right fork lower (to Glen foot)
+                { x: 1060, y: 650 }, { x: 1063, y: 588 }, { x: 1072, y: 510 },
+                { x: 1090, y: 432 }, { x: 1120, y: 360 }, { x: 1148, y: 322 },
+                // right fork tapered (Division Glen foot)
+                { x: 1200, y: 310 }, { x: 1250, y: 310 },
                 // orchard spur
-                { x: 1350, y: 685 }, { x: 1408, y: 638 }, { x: 1416, y: 568 },
+                { x: 1345, y: 685 }, { x: 1392, y: 644 }, { x: 1400, y: 590 },
               ].map((s, i) => (
                 <g key={`mmstn-${i}`}>
                   <ellipse cx={s.x + 1} cy={s.y + 2} rx={11} ry={6} fill="#000" opacity={0.19} />
@@ -523,12 +545,12 @@ export default function MathMountainScene({
              mm_skip_bridge x:1320,y:540  | mm_times_to_5 x:1100,y:660
              mm_times_to_10 x:1240,y:680
              Tree rows at x:960-1000 and x:1370-1430 (flanks), y:500 and y:620. */}
-        {/* Row 1 — back row, smaller */}
-        {[968, 1040, 1156, 1280, 1380, 1428].map((tx, i) => (
+        {/* Row 1 — back row, smaller — A3: last x moved inward to ≤1390 */}
+        {[968, 1040, 1156, 1280, 1375, 1388].map((tx, i) => (
           <Tree key={`orch-back-${i}`} x={tx} y={510} size={42} variant={i % 2 === 0 ? 1 : 2} />
         ))}
-        {/* Row 2 — mid row */}
-        {[958, 1042, 1168, 1362, 1432].map((tx, i) => (
+        {/* Row 2 — mid row — A3: last x moved inward to ≤1390 */}
+        {[958, 1042, 1168, 1355, 1388].map((tx, i) => (
           <Tree key={`orch-mid-${i}`} x={tx} y={628} size={50} variant={i % 3 === 0 ? 2 : i % 3 === 1 ? 1 : 3} />
         ))}
         {/* Row ground line — ochre orchard floor band */}
@@ -536,11 +558,8 @@ export default function MathMountainScene({
         <rect x={942} y={608} width={502} height={8} rx={4} fill="#D4A850" opacity={0.15} />
 
         {/* ── 10. DIVISION GLEN — pine framing (upper-right) ──
-             Pines cluster around the glen (x:1100-1320, y:260-300)
-             without overlapping. Placed at x:1060,y:240 and x:1380,y:240. */}
-        <PineTree x={1062} y={240} size={62} />
-        <PineTree x={1390} y={238} size={58} />
-        <PineTree x={1430} y={272} size={52} />
+             A4: removed the 3 sky-hanging pines (x>1060, y<280).
+             The painted Fuji peaks already anchor that zone visually. */}
         {/* Mossy boulders that give the glen its 'glen' feel */}
         <g pointerEvents="none">
           <ellipse cx={1068} cy={295} rx={18} ry={10} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.5} />
@@ -558,9 +577,9 @@ export default function MathMountainScene({
              Plateau backdrop: PineTrees upper-centre
              Measurement Meadow frame: Trees at bottom, outside structure range */}
 
-        {/* Left edge — frame the hollow entrance */}
-        <Tree x={28} y={435} size={72} variant={2} />
-        <Tree x={75} y={418} size={58} variant={3} />
+        {/* Left edge — frame the hollow entrance — A3: x=28→55 (30px buffer) */}
+        <Tree x={55} y={435} size={72} variant={2} />
+        <Tree x={88} y={418} size={58} variant={3} />
 
         {/* Upper-centre — alpine pines on the plateau ridge
              (placed at the ridge LINE above the plateau structures, not beside them) */}
@@ -570,12 +589,12 @@ export default function MathMountainScene({
         {/* Right-centre — trees between Glen and Orchard */}
         <Tree x={1050} y={420} size={58} variant={1} />
 
-        {/* Far-right edge */}
-        <Tree x={1440} y={460} size={66} variant={2} />
-        <Tree x={1436} y={600} size={58} variant={3} />
+        {/* Far-right edge — A3: moved x inward to ≥50px from edge */}
+        <Tree x={1388} y={460} size={66} variant={2} />
+        <Tree x={1382} y={600} size={58} variant={3} />
 
-        {/* Bottom-left of cottage nook */}
-        <Tree x={22} y={648} size={62} variant={1} />
+        {/* Bottom-left of cottage nook — A3: moved x inward to ≥50px from edge */}
+        <Tree x={55} y={648} size={62} variant={1} />
 
         {/* ── 12. GRASS TUFTS + FLOWERS — meadow level only (y > 600) ── */}
         <GrassTuft x={240} y={748} size={20} />

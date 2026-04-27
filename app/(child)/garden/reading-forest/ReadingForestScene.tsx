@@ -136,11 +136,13 @@ export default function ReadingForestScene({
         style={{ touchAction: 'manipulation' }}
       >
         <defs>
-          {/* Forest-filtered sky — warm amber light at top, deepening forest below */}
+          {/* Forest-filtered sky — warm amber light at top, deepening forest below
+               B7: added intermediate stop at 28% to smooth the amber→green transition */}
           <linearGradient id="rfSky" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%"  stopColor="#F2E8C8" />
-            <stop offset="18%" stopColor="#E0DDB5" />
-            <stop offset="38%" stopColor="#C0D9A0" />
+            <stop offset="15%" stopColor="#E2DDB8" />
+            <stop offset="28%" stopColor="#CFDC9E" />
+            <stop offset="42%" stopColor="#AECF90" />
             <stop offset="62%" stopColor="#8EBF85" />
             <stop offset="100%" stopColor="#6B8E5A" />
           </linearGradient>
@@ -175,6 +177,13 @@ export default function ReadingForestScene({
             <stop offset="0%" stopColor="#C4DFE4" />
             <stop offset="100%" stopColor="#92BFCA" />
           </linearGradient>
+          {/* B1: Forest floor grass texture — same pattern as the central garden */}
+          <pattern id="rfGrass" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+            <rect width="40" height="40" fill="transparent" />
+            <path d="M 4 36 Q 4 30 6 28" stroke="#7BA46F" strokeWidth="1.2" fill="none" opacity="0.30" />
+            <path d="M 20 38 Q 22 32 24 30" stroke="#7BA46F" strokeWidth="1.2" fill="none" opacity="0.25" />
+            <path d="M 32 36 Q 30 32 32 28" stroke="#7BA46F" strokeWidth="1.2" fill="none" opacity="0.30" />
+          </pattern>
         </defs>
 
         {/* ── 1. SKY + CANOPY WASH ── */}
@@ -199,8 +208,9 @@ export default function ReadingForestScene({
              Rendered as pairs of Tree / PineTree at specific x coords.
              ALL placed at y:220-265 — well clear of Glade (y:280+)
              and Phonics Path (y:220-360). These read as distant canopy,
-             not foreground objects. */}
-        <Tree  x={42}   y={248} size={78} variant={1} />
+             not foreground objects.
+             B2: x=42→55, x=1430→1385 (30px edge buffer). */}
+        <Tree  x={55}   y={248} size={78} variant={1} />
         <PineTree x={105}  y={238} size={72} />
         <PineTree x={168}  y={252} size={66} />
         <Tree  x={232}  y={242} size={72} variant={2} />
@@ -210,8 +220,8 @@ export default function ReadingForestScene({
         {/* gap here — the Phonics Path begins at x:480 — leave open */}
         <PineTree x={1250} y={250} size={64} />
         <Tree  x={1318} y={244} size={70} variant={2} />
-        <PineTree x={1388} y={252} size={72} />
-        <Tree  x={1430} y={244} size={68} variant={1} />
+        <PineTree x={1382} y={252} size={72} />
+        <Tree  x={1385} y={244} size={68} variant={1} />
 
         {/* ── 4. MIST BAND — atmospheric wash between tree-line and floor ── */}
         <path
@@ -232,36 +242,59 @@ export default function ReadingForestScene({
           fill="#6B8E5A" opacity={0.58}
         />
 
+        {/* ── B1: FOREST FLOOR GRASS TEXTURE ── sits above hill layers, below cluster tints */}
+        <rect width={W} height={H} fill="url(#rfGrass)" />
+
         {/* ── 6. CLUSTER REGION TINTS ── */}
         <rect width={W} height={H} fill="url(#rfGladeTint)" />
         <rect width={W} height={H} fill="url(#rfGroveTint)" />
         <rect width={W} height={H} fill="url(#rfRocksTint)" />
 
-        {/* ── 7. BROOK — lower-left only ──
-             Flows along the bottom-left. Enters from left edge at y:510,
-             arcs gently to exit at bottom-left corner.
-             Max x extent: ~430, y range: 500-580.
-             Brook area: x:0-430, y:490-620 — kept clear of all tree/flora. */}
+        {/* ── 7. BROOK — lower-left, extended north to pass under the Digraph Bridge ──
+             B3: The brook now bends north-east from its main body at ~(400,525)
+             and flows up through (450, 430) to pass under rf_digraphs bridge at (480, 360).
+             The brook arm is drawn BEHIND the bridge structure so the bridge reads
+             as spanning across the water.
+             Main body: x:0-430, y:490-580. North arm: x:380-500, y:360-530. */}
         <g pointerEvents="none">
-          {/* wet-earth bank */}
+          {/* North arm of brook — flows from main body up to bridge (behind bridge) */}
+          {/* Outer bank of north arm */}
+          <path
+            d="M 400 530 Q 420 490 440 450 Q 455 415 462 378 Q 466 362 468 352"
+            stroke="#6B8E5A" strokeWidth={22} fill="none" strokeLinecap="round" opacity={0.28}
+          />
+          {/* North arm water */}
+          <path
+            d="M 402 530 Q 422 490 442 450 Q 456 416 464 380 Q 468 364 470 354"
+            stroke="#B2D4D9" strokeWidth={15} fill="none" strokeLinecap="round"
+          />
+          {/* North arm depth channel */}
+          <path
+            d="M 404 526 Q 424 488 444 448 Q 458 414 466 376"
+            stroke="#8FB7C2" strokeWidth={6} fill="none" strokeLinecap="round" opacity={0.62}
+          />
+          {/* North arm shimmer ripples */}
+          <path d="M 420 492 Q 430 488 440 493" stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.65} strokeLinecap="round" />
+          <path d="M 446 436 Q 454 432 462 437" stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.6} strokeLinecap="round" />
+          {/* wet-earth bank — main body */}
           <path
             d={`M 0 512
-                Q 55 498 120 508 Q 200 520 290 514 Q 358 510 400 524
-                Q 432 535 428 548 Q 422 562 388 556 Q 320 548 240 554
+                Q 55 498 120 508 Q 200 520 290 514 Q 358 510 406 524
+                Q 430 534 428 548 Q 422 562 388 556 Q 320 548 240 554
                 Q 155 560 80 568 Q 32 576 0 568 Z`}
             fill="#6B8E5A" opacity={0.30}
           />
           {/* primary water body */}
           <path
             d={`M 0 516
-                Q 55 504 120 513 Q 200 524 290 518 Q 355 514 396 527
-                Q 424 536 420 546 Q 415 556 384 550 Q 318 543 240 549
-                Q 155 555 80 563 Q 34 570 0 563 Z`}
+                Q 55 504 120 513 Q 200 524 290 518 Q 355 514 404 526
+                Q 428 536 424 548 Q 418 558 386 552 Q 318 545 240 550
+                Q 155 556 80 563 Q 34 570 0 563 Z`}
             fill="#B2D4D9"
           />
           {/* depth channel */}
           <path
-            d="M 30 528 Q 110 518 210 530 Q 300 540 390 535"
+            d="M 30 528 Q 110 518 210 530 Q 300 540 395 534"
             stroke="#8FB7C2" strokeWidth={9} fill="none" strokeLinecap="round" opacity={0.65}
           />
           {/* shimmer */}
@@ -290,31 +323,11 @@ export default function ReadingForestScene({
         </g>
 
         {/* ── 8. PHONICS PATH ──
-             Redesigned as a single continuous meander that visits all four cluster
-             regions instead of stopping mid-forest.
-
-             Route:
-               • Starts at the Sight Word Glade clearing edge (x:380, y:368)
-               • Winds east through the Phonics Path structures (y:220-360 band)
-               • Drops south-east toward the Morphology Grove (passes near the
-                 ancient oak at x:1382, threading between grove structures)
-               • Loops back south-west to Story Rocks (x:730, y:680)
-               • Terminates at the central clearing near the boulder semicircle
-
-             Phonics structures it visits:
-               rf_digraphs      x:480,  y:360
-               rf_initial_blends x:580, y:280
-               rf_silent_e      x:700,  y:220
-               rf_vowel_ee_ea   x:800,  y:260
-               rf_vowel_ai_ay   x:900,  y:220
-               rf_vowel_oa_ow   x:1000, y:260
-               rf_r_controlled  x:1100, y:220
-               rf_diphthongs    x:1200, y:260
-             Then loops down to Morphology Grove (x:1140-1280, y:460-580)
-             and returns to Story Rocks (x:660-800, y:620-720).
-
-             The path is split into two bezier segments joined at the
-             diphthong cove (x:1200, y:260) for a natural meander look. */}
+             B4: The path now forms a complete loop — from Glade edge east through
+             all phonics structures, south to Morphology Grove and Story Rocks,
+             then a loop-back segment reconnects Story Rocks → Glade.
+             B5: A garden-exit extension narrows and exits the right edge (x:1440)
+             at ~y:260, signalling "this way to the garden." */}
         {(() => {
           // Segment 1: Glade edge → through phonics structures → Diphthong Cove
           const seg1D = `M 380 368
@@ -334,17 +347,42 @@ export default function ReadingForestScene({
             C 1115 570, 1050 600, 980 630
             C 900 660, 830 670, 780 678
             C 748 686, 720 688, 730 680`;
+          // B4 — Loop-back: Story Rocks → west along forest floor → reconnects to Glade edge
+          // Goes from (730, 680) south-west through the lower forest, arcing back to (380, 368)
+          const loopBackD = `M 730 680
+            C 700 694, 640 710, 560 718
+            C 480 724, 410 718, 340 700
+            C 280 684, 220 660, 180 628
+            C 148 600, 140 568, 160 530
+            C 180 494, 220 462, 270 432
+            C 310 408, 348 388, 380 368`;
+          // B5 — Garden exit: extends from Diphthong Cove (1200, 258) east-right,
+          // narrowing to the right edge at (1440, 260)
+          const gardenExitLowerD = `M 1200 258 C 1250 258, 1310 256, 1360 258`;
+          const gardenExitUpperD = `M 1360 258 C 1390 258, 1420 259, 1440 260`;
           return (
             <g pointerEvents="none">
-              {/* Shadow */}
+              {/* Shadow — main segments + loop-back */}
               <path d={seg1D} stroke="#A99878" strokeWidth={38} fill="none" strokeLinecap="round" opacity={0.20} />
               <path d={seg2D} stroke="#A99878" strokeWidth={38} fill="none" strokeLinecap="round" opacity={0.20} />
-              {/* Surface */}
+              <path d={loopBackD} stroke="#A99878" strokeWidth={34} fill="none" strokeLinecap="round" opacity={0.18} />
+              {/* Shadow — garden exit */}
+              <path d={gardenExitLowerD} stroke="#A99878" strokeWidth={34} fill="none" strokeLinecap="round" opacity={0.18} />
+              <path d={gardenExitUpperD} stroke="#A99878" strokeWidth={22} fill="none" strokeLinecap="round" opacity={0.14} />
+              {/* Surface — main segments + loop-back */}
               <path d={seg1D} stroke="#EAD2A8" strokeWidth={26} fill="none" strokeLinecap="round" opacity={0.86} />
               <path d={seg2D} stroke="#EAD2A8" strokeWidth={26} fill="none" strokeLinecap="round" opacity={0.86} />
-              {/* Highlight */}
+              <path d={loopBackD} stroke="#EAD2A8" strokeWidth={22} fill="none" strokeLinecap="round" opacity={0.80} />
+              {/* Surface — garden exit (narrowing) */}
+              <path d={gardenExitLowerD} stroke="#EAD2A8" strokeWidth={22} fill="none" strokeLinecap="round" opacity={0.80} />
+              <path d={gardenExitUpperD} stroke="#EAD2A8" strokeWidth={14} fill="none" strokeLinecap="round" opacity={0.72} />
+              {/* Highlight — main segments + loop-back */}
               <path d={seg1D} stroke="#F7E6C4" strokeWidth={9} fill="none" strokeLinecap="round" opacity={0.58} />
               <path d={seg2D} stroke="#F7E6C4" strokeWidth={9} fill="none" strokeLinecap="round" opacity={0.58} />
+              <path d={loopBackD} stroke="#F7E6C4" strokeWidth={8} fill="none" strokeLinecap="round" opacity={0.50} />
+              {/* Highlight — garden exit */}
+              <path d={gardenExitLowerD} stroke="#F7E6C4" strokeWidth={8} fill="none" strokeLinecap="round" opacity={0.50} />
+              <path d={gardenExitUpperD} stroke="#F7E6C4" strokeWidth={5} fill="none" strokeLinecap="round" opacity={0.42} />
               {/* Stepping stones — seg 1 (phonics band) */}
               {[
                 { x: 415, y: 362 }, { x: 450, y: 354 }, { x: 480, y: 356 },
@@ -359,6 +397,14 @@ export default function ReadingForestScene({
                 { x: 1165, y: 498 }, { x: 1110, y: 542 }, { x: 1040, y: 584 },
                 { x: 968, y: 618 }, { x: 900, y: 646 }, { x: 835, y: 664 },
                 { x: 780, y: 676 }, { x: 740, y: 682 },
+                // B4 loop-back (Story Rocks → Glade)
+                { x: 700, y: 694 }, { x: 620, y: 712 }, { x: 530, y: 720 },
+                { x: 440, y: 716 }, { x: 360, y: 698 }, { x: 292, y: 674 },
+                { x: 238, y: 640 }, { x: 192, y: 596 }, { x: 164, y: 548 },
+                { x: 164, y: 498 }, { x: 195, y: 456 }, { x: 242, y: 422 },
+                { x: 296, y: 400 }, { x: 340, y: 384 },
+                // B5 garden exit stones
+                { x: 1260, y: 257 }, { x: 1330, y: 257 }, { x: 1390, y: 258 },
               ].map((s, i) => (
                 <g key={`rfph-${i}`}>
                   <ellipse cx={s.x + 1} cy={s.y + 2} rx={9} ry={5} fill="#000" opacity={0.18} />
@@ -370,27 +416,43 @@ export default function ReadingForestScene({
           );
         })()}
 
-        {/* ── Tiny wooden plank bridge at rf_digraphs (x:480, y:360) ──
-             Hand-drawn, three planks across a shallow gap. NOT clip-art.
-             Placed slightly below the path stones so it reads as
-             the path crossing a tiny rivulet. */}
-        <g transform="translate(478, 362)" pointerEvents="none">
+        {/* ── Wooden plank bridge at rf_digraphs (x:480, y:360) ──
+             B3: The brook north arm now flows UP through this point, so the bridge
+             visually spans the brook. Brook water passes BEHIND (below) this group.
+             Hand-drawn wooden bridge — two rails, four planks, posts. NOT clip-art. */}
+        <g transform="translate(478, 360)" pointerEvents="none">
           {/* shadow under bridge */}
-          <ellipse cx={0} cy={16} rx={28} ry={4} fill="#000" opacity={0.14} />
-          {/* side rails */}
-          <path d="M -22 -6 L -22 14" stroke="#6B4423" strokeWidth={2.5} strokeLinecap="round" />
-          <path d="M  22 -6 L  22 14" stroke="#6B4423" strokeWidth={2.5} strokeLinecap="round" />
-          {/* top rail */}
-          <path d="M -22 -6 L 22 -6" stroke="#8B5A2B" strokeWidth={2} strokeLinecap="round" />
+          <ellipse cx={0} cy={20} rx={32} ry={5} fill="#000" opacity={0.18} />
+          {/* water continuation below bridge (bridge side posts cast shadows on water) */}
+          <path d="M -18 16 Q 0 12 18 16" stroke="#92BFCA" strokeWidth={9} fill="none" opacity={0.72} strokeLinecap="round" />
+          <path d="M -18 16 Q 0 12 18 16" stroke="#C4DFE4" strokeWidth={5} fill="none" opacity={0.8} strokeLinecap="round" />
+          {/* post bases — left and right */}
+          <rect x={-26} y={-8} width={7} height={28} rx={2} fill="#6B4423" stroke="#3F2210" strokeWidth={1.2} />
+          <rect x={19} y={-8} width={7} height={28} rx={2} fill="#6B4423" stroke="#3F2210" strokeWidth={1.2} />
+          {/* top rails */}
+          <path d="M -24 -8 L 24 -8" stroke="#8B5A2B" strokeWidth={2.5} strokeLinecap="round" />
+          <path d="M -24 2 L 24 2" stroke="#8B5A2B" strokeWidth={1.5} strokeLinecap="round" opacity={0.7} />
           {/* planks — 4 planks across */}
           {[-14, -5, 4, 13].map((px, i) => (
-            <rect key={`plank-${i}`} x={px} y={-2} width={6} height={14} rx={1}
+            <rect key={`plank-${i}`} x={px} y={-4} width={6} height={16} rx={1}
               fill="#A87C50" stroke="#5A3B1F" strokeWidth={1} />
           ))}
           {/* plank highlight */}
-          <rect x={-14} y={-2} width={28} height={2.5} rx={1} fill="#C9A070" opacity={0.5} />
-          {/* tiny trickle beneath */}
-          <path d="M -18 18 Q 0 14 18 18" stroke="#8FB7C2" strokeWidth={1.5} fill="none" opacity={0.7} strokeLinecap="round" />
+          <rect x={-14} y={-4} width={28} height={3} rx={1} fill="#C9A070" opacity={0.55} />
+          {/* water shimmer emerging below bridge */}
+          <path d="M -12 22 Q 0 18 12 22" stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.65} strokeLinecap="round" />
+        </g>
+
+        {/* ── B5: GARDEN EXIT SIGNPOST — right edge ~(1420, 260) ──
+             Non-interactive. Signals "this path leads back to the garden."
+             Rendered at the terminus of the garden-exit path extension. */}
+        <g transform="translate(1422, 258)" pointerEvents="none">
+          {/* post */}
+          <rect x={-3} y={-22} width={6} height={30} rx={2} fill="#8B5A2B" stroke="#5A3B1F" strokeWidth={1.2} />
+          {/* sign board */}
+          <rect x={-28} y={-34} width={56} height={16} rx={3} fill="#F5EBDC" stroke="#8B5A2B" strokeWidth={1.5} />
+          {/* arrow pointing left */}
+          <text x={-20} y={-22} fontSize={8} fill="#6b4423" fontWeight={600} fontFamily="serif">← garden</text>
         </g>
 
         {/* ── 9. SIGHT WORD GLADE — open clearing, NW ──
@@ -466,9 +528,9 @@ export default function ReadingForestScene({
           <circle cx={14} cy={-55} r={3} fill="#FFFFFF" opacity={0.25} />
         </g>
 
-        {/* Additional grove trees flanking the oak */}
+        {/* Additional grove trees flanking the oak — B2: x=1438→1382 */}
         <Tree x={1182} y={428} size={62} variant={2} />
-        <PineTree x={1438} y={438} size={58} />
+        <PineTree x={1382} y={438} size={58} />
 
         {/* ── 11. STORY ROCKS — semicircle of mossy boulders ──
              Structures: rf_longer_words x:660,y:620 | rf_sentence x:800,y:660
@@ -531,11 +593,12 @@ export default function ReadingForestScene({
         {/* Between Story Rocks and Morphology Grove */}
         <Tree x={1058} y={508} size={66} variant={2} />
 
-        {/* Bottom corners — forest floor framing (all outside brook zone) */}
-        <Tree x={22} y={638} size={72} variant={2} />
+        {/* Bottom corners — forest floor framing (all outside brook zone)
+             B2: x=22→58, x=1432→1382 (30px edge buffer) */}
+        <Tree x={58} y={638} size={72} variant={2} />
         <Tree x={315} y={650} size={58} variant={3} />
         <Tree x={1342} y={676} size={66} variant={1} />
-        <PineTree x={1432} y={668} size={72} />
+        <PineTree x={1382} y={668} size={72} />
 
         {/* ── 13. DAPPLED LIGHT SHAFTS ──
              4-5 soft beams angling from upper-centre through the canopy.

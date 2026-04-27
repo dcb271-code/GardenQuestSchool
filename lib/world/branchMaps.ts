@@ -186,10 +186,10 @@ export const READING_FOREST_STRUCTURES: MapStructure[] = [
     x: 140, y: 400, size: 64, zone: 'reading' },
   { code: 'rf_dolch_second', kind: 'skill', skillCode: 'reading.sight_words.dolch_second_grade',
     label: 'Petal Words', subLabel: 'Dolch 2nd grade', themeEmoji: '🌸',
-    x: 280, y: 380, size: 60, zone: 'reading' },
+    x: 180, y: 700, size: 60, zone: 'reading' },
   { code: 'rf_dolch_third', kind: 'skill', skillCode: 'reading.sight_words.dolch_third_grade',
     label: 'Wildflower Words', subLabel: 'Dolch 3rd grade', themeEmoji: '🌷',
-    x: 200, y: 480, size: 60, zone: 'reading' },
+    x: 280, y: 740, size: 60, zone: 'reading' },
 
   // ─── Phonics Path (winding through center) ──────────────────────
   { code: 'rf_digraphs', kind: 'skill', skillCode: 'reading.phonics.digraphs',
