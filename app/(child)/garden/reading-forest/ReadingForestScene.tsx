@@ -212,42 +212,54 @@ export default function ReadingForestScene({
         <rect width={W} height={H} fill="url(#rfGroveTint)" />
         <rect width={W} height={H} fill="url(#rfRocksTint)" />
 
-        {/* ── 8. BROOK — small focused pond directly under the
-             Digraph Bridge structure (rf_digraphs at 480, 360).
-             The previous lower-left horizontal brook was unrelated to
-             the bridge structure; the user wants the path to actually
-             cross water on the bridge. So: water lives where the bridge
-             does, and the path naturally passes over it. */}
+        {/* ── 8. BROOK — winds through the forest UNDER the Digraph Bridge.
+             The bridge structure itself sits at (480, 360); the water body
+             passes directly beneath the path crossing so the bridge is
+             literally spanning water (no orphan bridge). Two extra pools
+             give the brook a shape that reads as a real watercourse, not
+             a single floating puddle. */}
         <g pointerEvents="none">
-          {/* wet-earth bank — small ellipse just below the bridge */}
-          <ellipse cx={480} cy={400} rx={88} ry={26} fill="#6B8E5A" opacity={0.28} />
-          {/* primary water body */}
-          <ellipse cx={480} cy={400} rx={76} ry={18} fill="#B2D4D9" />
+          {/* wet-earth bank along the brook trajectory */}
+          <path
+            d="M 380 388 Q 480 376 580 388 Q 640 396 700 410 Q 760 418 800 412 Q 824 414 836 422 L 836 442 Q 800 444 760 438 Q 700 432 640 418 Q 580 408 480 408 Q 380 412 360 410 Z"
+            fill="#6B8E5A" opacity={0.26}
+          />
+          {/* primary water body — passes UNDER the bridge at x:430-540 */}
+          <path
+            d="M 388 384 Q 480 372 572 384 Q 632 392 692 406 Q 752 414 792 408 Q 818 408 824 416 L 824 432 Q 792 436 752 432 Q 692 426 632 412 Q 572 402 480 402 Q 388 406 372 402 Z"
+            fill="#B2D4D9"
+          />
           {/* depth channel */}
           <path
-            d="M 416 402 Q 480 396 544 402"
-            stroke="#8FB7C2" strokeWidth={6} fill="none" strokeLinecap="round" opacity={0.62}
+            d="M 396 388 Q 480 380 564 388 Q 632 396 696 410 Q 760 418 800 412"
+            stroke="#8FB7C2" strokeWidth={4} fill="none" strokeLinecap="round" opacity={0.58}
           />
-          {/* shimmer ripples */}
-          <path d="M 432 398 Q 444 394 458 398" stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.66} strokeLinecap="round" />
-          <path d="M 504 402 Q 518 398 532 402" stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.62} strokeLinecap="round" />
-          {/* moss-topped boulders on bank */}
+          {/* shimmer ripples — under bridge + downstream */}
+          <path d="M 432 384 Q 446 380 462 384" stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.66} strokeLinecap="round" />
+          <path d="M 502 388 Q 516 384 532 388" stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.62} strokeLinecap="round" />
+          <path d="M 622 402 Q 636 398 652 402" stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.55} strokeLinecap="round" />
+          <path d="M 712 412 Q 726 408 742 412" stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.50} strokeLinecap="round" />
+          {/* moss-topped boulders on bank either side of bridge */}
           <g>
-            <ellipse cx={406} cy={414} rx={11} ry={6} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.3} />
-            <ellipse cx={404} cy={411} rx={8} ry={3} fill="#A89D8A" />
-            <ellipse cx={406} cy={409} rx={9} ry={2.4} fill="#7BA46F" opacity={0.88} />
+            <ellipse cx={398} cy={416} rx={10} ry={5.5} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.2} />
+            <ellipse cx={396} cy={413} rx={7} ry={2.6} fill="#A89D8A" />
+            <ellipse cx={398} cy={411} rx={8} ry={2} fill="#7BA46F" opacity={0.88} />
           </g>
           <g>
-            <ellipse cx={556} cy={414} rx={11} ry={6} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.3} />
-            <ellipse cx={554} cy={411} rx={8} ry={3} fill="#A89D8A" />
-            <ellipse cx={556} cy={409} rx={9} ry={2.4} fill="#7BA46F" opacity={0.88} />
+            <ellipse cx={566} cy={416} rx={10} ry={5.5} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.2} />
+            <ellipse cx={564} cy={413} rx={7} ry={2.6} fill="#A89D8A" />
+            <ellipse cx={566} cy={411} rx={8} ry={2} fill="#7BA46F" opacity={0.88} />
           </g>
-          {/* bank grass tufts on either side of the pond */}
-          {[[420, 422], [480, 426], [540, 422]].map(([gx, gy], i) => (
+          <g>
+            <ellipse cx={748} cy={426} rx={9} ry={5} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.1} />
+            <ellipse cx={746} cy={423} rx={6} ry={2.4} fill="#A89D8A" />
+          </g>
+          {/* bank grass tufts on either side of the brook */}
+          {[[396, 432], [480, 436], [556, 432], [660, 442], [780, 442]].map(([gx, gy], i) => (
             <g key={`rfbt-${i}`} transform={`translate(${gx},${gy})`}>
-              <path d="M 0 0 Q -1 -6 -2 -10" stroke="#5C7E4F" strokeWidth={1.3} fill="none" strokeLinecap="round" />
-              <path d="M 0 0 Q 1 -7 3 -11" stroke="#5C7E4F" strokeWidth={1.3} fill="none" strokeLinecap="round" />
-              <path d="M 0 0 Q 2 -5 5 -9" stroke="#5C7E4F" strokeWidth={1.2} fill="none" strokeLinecap="round" />
+              <path d="M 0 0 Q -1 -6 -2 -10" stroke="#5C7E4F" strokeWidth={1.2} fill="none" strokeLinecap="round" />
+              <path d="M 0 0 Q 1 -7 3 -11" stroke="#5C7E4F" strokeWidth={1.2} fill="none" strokeLinecap="round" />
+              <path d="M 0 0 Q 2 -5 5 -9" stroke="#5C7E4F" strokeWidth={1.1} fill="none" strokeLinecap="round" />
             </g>
           ))}
         </g>
@@ -545,13 +557,18 @@ export default function ReadingForestScene({
         })}
 
         {/* ── STRUCTURES ──
-            Same locked/unlocked design as Math Mountain:
-            LOCKED = quiet dashed circle + faint emoji (no plinth block)
-            UNLOCKED = bespoke illustration or emoji with drop-shadow (no plinth) */}
+            Matches the central garden + Math Mountain treatment.
+            UNLOCKED  → illustration / emoji with warm drop-shadow.
+            LOCKED    → SAME illustration, grayscale + dimmed, with a
+                        white lock badge in the upper-right corner.
+            COMPLETED → warm gold drop-shadow + check badge.
+            Label pill: rounded white pill with terracotta hairline. */}
         {(() => {
           const UNIFORM = 44;
           const HIT = 36;
-          const LABEL_Y = 28;
+          const LABEL_Y = 30;
+          const LABEL_W = 92;
+          const LABEL_H = 17;
           return structures.map(s => {
             const state = structureStates[s.code];
             const completed = state?.completed ?? false;
@@ -570,55 +587,76 @@ export default function ReadingForestScene({
               >
                 <circle r={HIT} fill="transparent" />
 
-                {unlocked ? (
-                  <g style={{
-                    filter: completed
-                      ? 'drop-shadow(0 0 6px rgba(255, 217, 61, 0.60))'
-                      : 'drop-shadow(0 1.5px 2px rgba(107,68,35,0.42))',
-                  }}>
-                    {drawn ?? (
-                      <text
-                        textAnchor="middle"
-                        dominantBaseline="central"
-                        fontSize={36}
-                        y={0}
-                      >
-                        {s.themeEmoji}
-                      </text>
-                    )}
-                  </g>
-                ) : (
-                  <g>
-                    <circle r={UNIFORM * 0.52} fill="rgba(160,180,140,0.20)" stroke="rgba(107,130,80,0.32)" strokeWidth={1.5} strokeDasharray="4 3" />
+                {unlocked && !completed && (
+                  <circle r={UNIFORM * 0.78} fill="#FFE89A" opacity={0.18} />
+                )}
+
+                <g style={{
+                  filter: completed
+                    ? 'drop-shadow(0 0 6px rgba(255, 217, 61, 0.60))'
+                    : unlocked
+                      ? 'drop-shadow(0 1.5px 2px rgba(107,68,35,0.42))'
+                      : 'grayscale(1) brightness(0.92)',
+                  opacity: unlocked ? 1 : 0.58,
+                }}>
+                  {drawn ?? (
                     <text
                       textAnchor="middle"
                       dominantBaseline="central"
-                      fontSize={18}
+                      fontSize={36}
                       y={0}
-                      fill="rgba(79,111,66,0.28)"
                     >
                       {s.themeEmoji}
                     </text>
+                  )}
+                </g>
+
+                {!unlocked && (
+                  <g pointerEvents="none">
+                    <circle cx={UNIFORM * 0.4} cy={-UNIFORM * 0.4} r={9}
+                            fill="#FFFFFF" stroke="#8A7E6C" strokeWidth={1.3} />
+                    <text
+                      x={UNIFORM * 0.4} y={-UNIFORM * 0.4 + 3.4}
+                      fontSize={11} textAnchor="middle"
+                      style={{ userSelect: 'none' }}
+                    >🔒</text>
                   </g>
                 )}
 
-                {/* Label pill */}
+                {completed && (
+                  <g pointerEvents="none">
+                    <circle cx={UNIFORM * 0.4} cy={-UNIFORM * 0.4} r={9}
+                            fill="#6B8E5A" stroke="#4F6F42" strokeWidth={1.3} />
+                    <path
+                      d={`M ${UNIFORM * 0.4 - 4} ${-UNIFORM * 0.4 + 0.5}
+                          L ${UNIFORM * 0.4 - 1} ${-UNIFORM * 0.4 + 3.5}
+                          L ${UNIFORM * 0.4 + 4} ${-UNIFORM * 0.4 - 2.5}`}
+                      stroke="#FFFFFF" strokeWidth={1.8} fill="none"
+                      strokeLinecap="round" strokeLinejoin="round"
+                    />
+                  </g>
+                )}
+
                 <rect
-                  x={-50} y={LABEL_Y} width={100} height={14} rx={4}
-                  fill={completed ? 'rgba(255,217,61,0.85)' : unlocked ? 'rgba(255,250,242,0.85)' : 'rgba(218,232,214,0.68)'}
+                  x={-LABEL_W / 2} y={LABEL_Y} width={LABEL_W} height={LABEL_H} rx={LABEL_H / 2}
+                  fill={completed ? '#FFF6CC' : unlocked ? '#FFFAF2' : '#EDEAD8'}
+                  stroke={completed ? '#D4B43E' : unlocked ? '#E8A87C' : '#B5BFA0'}
+                  strokeWidth={1.2}
+                  opacity={unlocked || completed ? 0.96 : 0.78}
                 />
                 <text
-                  x={0} y={LABEL_Y + 10} textAnchor="middle"
-                  fontSize={9} fontWeight={600}
-                  fill={unlocked ? '#6b4423' : 'rgba(79,111,66,0.55)'}
+                  x={0} y={LABEL_Y + 12} textAnchor="middle"
+                  fontSize={9.5} fontWeight={700}
+                  fill={unlocked ? '#6b4423' : '#6f7d5a'}
+                  style={{ userSelect: 'none' }}
                 >
                   {s.label}
                 </text>
 
                 {isTappedLocked && state && (
-                  <g>
+                  <g pointerEvents="none">
                     <rect
-                      x={-90} y={-UNIFORM * 1.1} width={180} height={28} rx={6}
+                      x={-90} y={-UNIFORM * 1.1} width={180} height={28} rx={8}
                       fill="#fffaf2" stroke="#c38d9e" strokeWidth={1.5}
                     />
                     <text

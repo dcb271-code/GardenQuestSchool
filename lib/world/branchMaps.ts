@@ -69,30 +69,31 @@ export const MATH_MOUNTAIN_STRUCTURES: MapStructure[] = [
     x: 360, y: 480, size: 56, zone: 'math' },
 
   // ─── Place-Value Heights (center, mid-mountain) ─────────────────
-  // Positions moved down from peak silhouette area (was y:300-380) to
-  // the terrace meadow below the snow line (y:430-520). This prevents
-  // structures from floating inside the painted Fuji peak.
+  // Sits on the TERRACE BAND below the painted Fuji silhouette.
+  // The central peak's foot reaches down to y≈330 and the mist band
+  // ends at y≈372. Three-Digit Tower at y:540 (was 430) is now on
+  // the green plateau, not floating in the snow line.
   { code: 'mm_tens_tower', kind: 'skill', skillCode: 'math.placevalue.tens_ones',
     label: 'Tens Tower', subLabel: 'tens & ones', themeEmoji: '🏯',
-    x: 560, y: 440, size: 64, zone: 'math' },
+    x: 560, y: 540, size: 64, zone: 'math' },
   { code: 'mm_three_digit_tower', kind: 'skill', skillCode: 'math.placevalue.hundreds_tens_ones',
     label: 'Three-Digit Tower', subLabel: 'hundreds, tens, ones', themeEmoji: '🏛️',
-    x: 660, y: 430, size: 64, zone: 'math' },
+    x: 680, y: 530, size: 64, zone: 'math' },
   { code: 'mm_compare_trees', kind: 'skill', skillCode: 'math.placevalue.compare_2digit',
     label: 'Compare Trees', subLabel: 'compare 2-digit', themeEmoji: '🌲',
-    x: 540, y: 520, size: 60, zone: 'math' },
+    x: 590, y: 614, size: 60, zone: 'math' },
   { code: 'mm_mountain_compare', kind: 'skill', skillCode: 'math.placevalue.compare_3digit',
     label: 'Mountain Heights', subLabel: 'compare 3-digit', themeEmoji: '🏔️',
-    x: 760, y: 430, size: 60, zone: 'math' },
+    x: 800, y: 530, size: 60, zone: 'math' },
   { code: 'mm_ten_more_less', kind: 'skill', skillCode: 'math.placevalue.add_subtract_10',
     label: 'Ten More, Ten Less', subLabel: '±10 mentally', themeEmoji: '🍃',
-    x: 680, y: 520, size: 60, zone: 'math' },
+    x: 730, y: 612, size: 60, zone: 'math' },
   { code: 'mm_round_10', kind: 'skill', skillCode: 'math.placevalue.round_nearest_10',
     label: 'Round to 10', subLabel: 'nearest ten', themeEmoji: '🌀',
-    x: 860, y: 480, size: 60, zone: 'math' },
+    x: 900, y: 596, size: 60, zone: 'math' },
   { code: 'mm_round_100', kind: 'skill', skillCode: 'math.placevalue.round_nearest_100',
     label: 'Round to 100', subLabel: 'nearest hundred', themeEmoji: '🌀',
-    x: 960, y: 430, size: 60, zone: 'math' },
+    x: 970, y: 528, size: 60, zone: 'math' },
 
   // ─── Multiplication Orchard (right foreground) ──────────────────
   { code: 'mm_equal_garden', kind: 'skill', skillCode: 'math.multiply.equal_groups',
@@ -111,18 +112,19 @@ export const MATH_MOUNTAIN_STRUCTURES: MapStructure[] = [
     label: 'Times Tables ×0–×10', subLabel: 'all the facts', themeEmoji: '✖️',
     x: 1240, y: 680, size: 60, zone: 'math' },
 
-  // ─── Division Glen (right, behind orchard) ──────────────────────
-  // Moved from peak-silhouette zone (was y:260-300) down into the
-  // pine-shaded glen clearing at y:380-450, which is foreground meadow.
+  // ─── Division Glen (right, mid-meadow band) ─────────────────────
+  // Moved further south so the glen sits in clear foreground meadow,
+  // not hugging the hill silhouettes. The pine framing in the scene
+  // SVG follows along.
   { code: 'mm_sharing_squirrels', kind: 'skill', skillCode: 'math.divide.equal_share',
     label: 'Sharing Squirrels', subLabel: 'share equally', themeEmoji: '🐿️',
-    x: 1080, y: 380, size: 60, zone: 'math' },
+    x: 1090, y: 462, size: 60, zone: 'math' },
   { code: 'mm_division_facts', kind: 'skill', skillCode: 'math.divide.facts_to_10',
     label: 'Division Facts', subLabel: 'division facts', themeEmoji: '➗',
-    x: 1200, y: 400, size: 60, zone: 'math' },
+    x: 1210, y: 470, size: 60, zone: 'math' },
   { code: 'mm_missing_number', kind: 'skill', skillCode: 'math.divide.unknown_factor',
     label: 'Missing Number', subLabel: 'find the factor', themeEmoji: '🧩',
-    x: 1320, y: 380, size: 60, zone: 'math' },
+    x: 1320, y: 462, size: 60, zone: 'math' },
 
   // ─── Measurement Meadow (across center-bottom) ──────────────────
   { code: 'mm_even_odd', kind: 'skill', skillCode: 'math.even_odd.recognize',
