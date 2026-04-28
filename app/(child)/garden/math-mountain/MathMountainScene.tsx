@@ -367,80 +367,105 @@ export default function MathMountainScene({
           onClick={() => setExpandedHabitat(expandedHabitat === 'cave' ? null : 'cave')}
         >
           {/* invisible hit target covering the cave area */}
-          <rect x={-30} y={560} width={280} height={200} fill="transparent" />
+          <rect x={-20} y={580} width={210} height={170} fill="transparent" />
 
-          {/* outer rocky face — extends offscreen-left, mostly closed
-              on the bottom-left, OPEN on the bottom-right where the
-              river emerges. Hand-drawn-ish curve, not a flat dome. */}
+          {/* outer rocky face — smaller and more organic. Extends just
+              past the left edge, more whimsical curve (Miyazaki-soft,
+              not architectural). Open at bottom-right for river. */}
           <path
-            d="M -30 740
-               L -30 700
-               C -20 660, -8 622, 8 596
-               C 30 568, 70 552, 118 550
-               C 158 552, 196 568, 220 596
-               C 234 622, 240 656, 234 686
-               L 232 706
-               L 232 740
+            d="M -20 740
+               L -20 700
+               C -14 670, -4 638, 12 614
+               C 30 596, 60 586, 92 586
+               C 124 588, 150 600, 168 622
+               C 180 642, 184 666, 180 686
+               C 178 696, 176 700, 176 706
+               L 176 740
                Z"
             fill="#7A6B58" stroke="#3F3026" strokeWidth={2}
           />
-          {/* darker rock shading on the right side (depth) */}
+          {/* darker rock shading on the right (depth) */}
           <path
-            d="M 200 580 C 220 600, 232 632, 232 670 L 232 706 L 218 706
-               C 220 670, 214 622, 200 600 Z"
+            d="M 144 600 C 162 618, 178 644, 178 670 L 176 706 L 164 706
+               C 168 670, 164 624, 150 608 Z"
             fill="#5C4F3F" opacity={0.5}
           />
 
-          {/* inner cave shadow — irregular natural opening, opens at the
-              bottom-right where the river flows out (no solid floor on
-              that side, so it visually merges with the water). */}
+          {/* inner cave shadow — soft organic opening, opens at the
+              bottom-right where river emerges. */}
           <path
-            d="M 6 740
-               C -2 706, 0 668, 18 632
-               C 38 600, 78 584, 122 584
-               C 156 588, 188 602, 208 626
-               C 220 652, 222 686, 216 706
-               C 212 720, 208 730, 204 740
+            d="M 4 740
+               C -2 712, 0 678, 18 650
+               C 36 626, 64 614, 92 614
+               C 120 618, 144 628, 160 650
+               C 172 670, 174 696, 168 712
+               C 164 720, 160 730, 158 740
                Z"
-            fill="#1F1610" opacity={0.84}
+            fill="#1A1208" opacity={0.86}
           />
-          {/* a darker pocket deeper inside */}
-          <ellipse cx={108} cy={680} rx={70} ry={42} fill="#000" opacity={0.34} />
+          {/* deeper pocket */}
+          <ellipse cx={84} cy={696} rx={48} ry={24} fill="#000" opacity={0.32} />
 
-          {/* moss along the top edge of the arch */}
+          {/* mossy rim along the top of the arch */}
           <path
-            d="M 0 612 C 24 596, 56 586, 96 584 C 138 584, 174 594, 200 612"
-            stroke="#7BA46F" strokeWidth={5} fill="none" strokeLinecap="round" opacity={0.78}
+            d="M 4 632 C 24 614, 52 604, 86 602 C 118 602, 146 614, 164 630"
+            stroke="#7BA46F" strokeWidth={5} fill="none" strokeLinecap="round" opacity={0.82}
           />
           <path
-            d="M 22 596 C 48 588, 84 584, 122 586 C 156 590, 178 600, 192 608"
-            stroke="#A2C794" strokeWidth={2} fill="none" strokeLinecap="round" opacity={0.6}
+            d="M 18 622 C 38 612, 60 606, 86 608 C 116 612, 138 622, 152 630"
+            stroke="#A2C794" strokeWidth={2.4} fill="none" strokeLinecap="round" opacity={0.68}
           />
-          {/* a few moss tufts on the rock face */}
-          <circle cx={-12} cy={680} r={4} fill="#7BA46F" opacity={0.7} />
-          <circle cx={-6} cy={696} r={3} fill="#7BA46F" opacity={0.6} />
-          <circle cx={224} cy={648} r={3.5} fill="#7BA46F" opacity={0.7} />
+          {/* moss tufts on the rock face */}
+          <circle cx={-8} cy={672} r={4} fill="#7BA46F" opacity={0.7} />
+          <circle cx={-2} cy={694} r={3} fill="#7BA46F" opacity={0.6} />
+          <circle cx={166} cy={650} r={3.5} fill="#7BA46F" opacity={0.7} />
+          <circle cx={180} cy={678} r={3} fill="#7BA46F" opacity={0.6} />
 
-          {/* hanging lantern inside — warm beacon */}
-          <line x1={104} y1={584} x2={104} y2={624} stroke="#5A3B1F" strokeWidth={1.4} />
-          <path
-            d="M 96 626 L 112 626 L 110 618 L 98 618 Z"
-            fill="#5A3B1F" stroke="#3F2614" strokeWidth={1}
-          />
-          <ellipse cx={104} cy={636} rx={7} ry={9} fill="#FFD06B" stroke="#5A3B1F" strokeWidth={1.2} />
-          <circle cx={104} cy={634} r={4} fill="#FFF2B5" opacity={0.95} />
-          {/* warm light glow around lantern */}
-          <circle cx={104} cy={634} r={26} fill="#FFE89A" opacity={0.18} />
+          {/* atmospheric warm glow inside (no lantern) — soft suggestion
+              of warmth deep in the cave, not a discrete light source. */}
+          <ellipse cx={70} cy={684} rx={56} ry={26} fill="#FFE89A" opacity={0.14} />
+          <ellipse cx={62} cy={696} rx={36} ry={16} fill="#FFD06B" opacity={0.10} />
+
+          {/* HANGING VINES at the cave mouth — Miyazaki-soft */}
+          <g pointerEvents="none">
+            <path
+              d="M 24 600 C 24 614, 22 628, 26 642 C 28 658, 24 670, 22 682"
+              stroke="#5C7E4F" strokeWidth={1.6} fill="none" strokeLinecap="round" opacity={0.85}
+            />
+            <ellipse cx={26} cy={624} rx={3} ry={2} fill="#7BA46F" opacity={0.85} transform="rotate(-30 26 624)" />
+            <ellipse cx={24} cy={638} rx={2.6} ry={1.7} fill="#A2C794" opacity={0.78} transform="rotate(20 24 638)" />
+            <ellipse cx={22} cy={668} rx={3} ry={2} fill="#7BA46F" opacity={0.85} transform="rotate(-10 22 668)" />
+
+            <path
+              d="M 88 588 C 86 602, 90 616, 86 632 C 84 648, 88 660, 86 676"
+              stroke="#5C7E4F" strokeWidth={1.4} fill="none" strokeLinecap="round" opacity={0.78}
+            />
+            <ellipse cx={87} cy={612} rx={2.6} ry={1.7} fill="#7BA46F" opacity={0.8} transform="rotate(15 87 612)" />
+            <ellipse cx={86} cy={642} rx={2.4} ry={1.5} fill="#A2C794" opacity={0.74} transform="rotate(-25 86 642)" />
+            <ellipse cx={87} cy={668} rx={2.5} ry={1.6} fill="#7BA46F" opacity={0.78} transform="rotate(10 87 668)" />
+
+            <path
+              d="M 168 600 C 170 614, 168 628, 172 642 C 174 656, 170 668, 172 682"
+              stroke="#5C7E4F" strokeWidth={1.5} fill="none" strokeLinecap="round" opacity={0.82}
+            />
+            <ellipse cx={170} cy={620} rx={2.8} ry={1.8} fill="#7BA46F" opacity={0.85} transform="rotate(-15 170 620)" />
+            <ellipse cx={172} cy={650} rx={2.4} ry={1.5} fill="#A2C794" opacity={0.78} transform="rotate(20 172 650)" />
+            <ellipse cx={170} cy={672} rx={2.6} ry={1.6} fill="#7BA46F" opacity={0.82} transform="rotate(-5 170 672)" />
+          </g>
 
           {/* small rocks at the cave mouth ground */}
-          <ellipse cx={-14} cy={740} rx={22} ry={6} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.2} />
-          <ellipse cx={-12} cy={736} rx={14} ry={3} fill="#A89D8A" />
-          <ellipse cx={32} cy={740} rx={14} ry={5} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.1} />
-          {/* ferns growing out of the rocks at the entrance */}
-          <g transform="translate(40, 738)">
-            <path d="M 0 0 Q -4 -10 -8 -16" stroke="#6B8E5A" strokeWidth={1.4} fill="none" strokeLinecap="round" />
+          <ellipse cx={-10} cy={740} rx={18} ry={5} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.1} />
+          <ellipse cx={-8} cy={737} rx={11} ry={2.6} fill="#A89D8A" />
+          <ellipse cx={166} cy={740} rx={14} ry={4.5} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.1} />
+          {/* ferns at the entrance */}
+          <g transform="translate(-2, 740)">
+            <path d="M 0 0 Q -3 -10 -7 -16" stroke="#6B8E5A" strokeWidth={1.4} fill="none" strokeLinecap="round" />
             <path d="M 0 0 Q 0 -12 -2 -20" stroke="#6B8E5A" strokeWidth={1.4} fill="none" strokeLinecap="round" />
-            <path d="M 0 0 Q 4 -10 6 -16" stroke="#6B8E5A" strokeWidth={1.4} fill="none" strokeLinecap="round" />
+            <path d="M 0 0 Q 3 -10 5 -16" stroke="#6B8E5A" strokeWidth={1.3} fill="none" strokeLinecap="round" />
+          </g>
+          <g transform="translate(170, 740)">
+            <path d="M 0 0 Q -3 -10 -6 -16" stroke="#6B8E5A" strokeWidth={1.4} fill="none" strokeLinecap="round" />
+            <path d="M 0 0 Q 0 -10 1 -18" stroke="#6B8E5A" strokeWidth={1.4} fill="none" strokeLinecap="round" />
           </g>
         </g>
 
@@ -450,11 +475,11 @@ export default function MathMountainScene({
              BIG BRIDGE at (540, 700), SKIP BRIDGE at (1320, 700).
              Log-jam dam at midpoint (820, 705). */}
         <g pointerEvents="none">
-          {/* wet-earth bank — irregular, follows the river's curves */}
+          {/* wet-earth bank — emerges from cave (right edge x:172) */}
           <path
-            d="M 215 706
-               C 270 698, 320 690, 380 686
-               C 460 686, 540 696, 620 702
+            d="M 172 706
+               C 230 698, 290 690, 360 686
+               C 440 686, 530 696, 620 702
                C 720 706, 820 700, 920 696
                C 1020 692, 1120 696, 1220 700
                C 1320 702, 1400 696, 1440 694
@@ -462,16 +487,16 @@ export default function MathMountainScene({
                C 1400 732, 1320 734, 1220 732
                C 1120 730, 1020 732, 920 734
                C 820 736, 720 734, 620 728
-               C 540 724, 460 720, 380 720
-               C 320 722, 270 728, 230 730
-               C 220 728, 216 720, 215 706 Z"
+               C 530 724, 440 720, 360 720
+               C 290 722, 230 728, 190 730
+               C 180 728, 174 720, 172 706 Z"
             fill="#6B8E5A" opacity={0.30}
           />
-          {/* primary water body — narrower at source, wider mid-scene */}
+          {/* primary water body — emerges from cave at x:175 */}
           <path
-            d="M 218 708
-               C 272 702, 326 696, 386 692
-               C 466 692, 544 700, 624 706
+            d="M 175 708
+               C 232 702, 296 696, 366 692
+               C 446 692, 534 700, 624 706
                C 724 708, 822 704, 922 700
                C 1022 696, 1122 700, 1222 704
                C 1320 706, 1400 702, 1440 700
@@ -479,9 +504,9 @@ export default function MathMountainScene({
                C 1400 724, 1320 726, 1222 724
                C 1122 722, 1022 724, 922 724
                C 822 726, 724 724, 624 720
-               C 544 718, 466 716, 386 716
-               C 326 718, 272 720, 232 722
-               C 224 718, 220 714, 218 708 Z"
+               C 534 718, 446 716, 366 716
+               C 296 718, 232 720, 192 722
+               C 184 718, 178 714, 175 708 Z"
             fill="#A8CDD2"
           />
           {/* deeper channel — meanders through the river */}
@@ -507,9 +532,10 @@ export default function MathMountainScene({
           ))}
 
           {/* foam at the cave-mouth source — water emerges */}
-          <ellipse cx={222} cy={708} rx={14} ry={4} fill="#FFFFFF" opacity={0.45} />
-          <ellipse cx={234} cy={714} rx={9} ry={3} fill="#FFFFFF" opacity={0.36} />
-          <path d="M 220 702 Q 226 700 234 704" stroke="#FFFFFF" strokeWidth={1.1} fill="none" opacity={0.6} strokeLinecap="round" />
+          <ellipse cx={184} cy={708} rx={14} ry={4} fill="#FFFFFF" opacity={0.50} />
+          <ellipse cx={196} cy={714} rx={9} ry={3} fill="#FFFFFF" opacity={0.40} />
+          <path d="M 180 702 Q 188 700 198 704" stroke="#FFFFFF" strokeWidth={1.1} fill="none" opacity={0.65} strokeLinecap="round" />
+          <path d="M 188 718 Q 196 716 204 718" stroke="#FFFFFF" strokeWidth={0.9} fill="none" opacity={0.5} strokeLinecap="round" />
 
           {/* small reeds along the bank */}
           {[[300, 690], [430, 686], [690, 692], [970, 692], [1140, 696], [1380, 692]].map(([rx, ry], i) => (
@@ -613,8 +639,8 @@ export default function MathMountainScene({
             C 842 562, 828 574, 820 580`;
 
           // Cave east → Big Bridge approach (path on north bank of river)
-          const caveToBridgeD = `M 215 706
-            C 250 696, 290 686, 340 680
+          const caveToBridgeD = `M 175 706
+            C 220 696, 280 684, 340 678
             C 400 678, 450 686, 480 700`;
 
           // Big Bridge plank (slight arch, span the river)
@@ -658,28 +684,16 @@ export default function MathMountainScene({
               {trails.map((d, i) => (
                 <path key={`mmsh-${i}`} d={d} stroke="#A99878" strokeWidth={18} fill="none" strokeLinecap="round" opacity={0.18} />
               ))}
-              {/* Bridge plank shadows */}
-              <path d={bigBridgeD}  stroke="#7A5A3A" strokeWidth={24} fill="none" strokeLinecap="round" opacity={0.78} />
-              <path d={skipBridgeD} stroke="#7A5A3A" strokeWidth={20} fill="none" strokeLinecap="round" opacity={0.78} />
-
               {/* Surface */}
               {trails.map((d, i) => (
                 <path key={`mmsu-${i}`} d={d} stroke="#EAD2A8" strokeWidth={12} fill="none" strokeLinecap="round" opacity={0.84} />
               ))}
-              {/* Bridge plank surfaces */}
-              <path d={bigBridgeD}  stroke="#C8A57A" strokeWidth={18} fill="none" strokeLinecap="round" opacity={0.94} />
-              <path d={skipBridgeD} stroke="#C8A57A" strokeWidth={14} fill="none" strokeLinecap="round" opacity={0.94} />
-              {[488, 506, 524, 542, 560, 578, 596].map(px => (
-                <line key={`bbp-${px}`} x1={px} y1={690} x2={px} y2={710} stroke="#7A5A3A" strokeWidth={1.3} opacity={0.7} />
-              ))}
-              {[1268, 1284, 1300, 1316, 1332, 1348, 1372].map(px => (
-                <line key={`sbp-${px}`} x1={px} y1={690} x2={px} y2={710} stroke="#7A5A3A" strokeWidth={1.3} opacity={0.7} />
-              ))}
-
               {/* Highlight ribbon */}
               {trails.map((d, i) => (
                 <path key={`mmhi-${i}`} d={d} stroke="#F7E6C4" strokeWidth={4.5} fill="none" strokeLinecap="round" opacity={0.46} />
               ))}
+              {/* (Bridges drawn separately — they're clickable as their
+                  own skill structures now, not part of the path block.) */}
 
               {/* Stepping stones — sparse, only on key approaches */}
               {[
@@ -729,6 +743,150 @@ export default function MathMountainScene({
 
         {/* Cottage SVG removed — the cottage habitat icon now anchors
             the cluster on its own. */}
+
+        {/* ── 8b. BRIDGES (clickable skill structures) ──
+             Bespoke wooden bridges with arched plank deck, support
+             posts, and railings. The bridge SVG itself IS the click
+             target for mm_big_bridge and mm_skip_bridge — no redundant
+             "shadowy bridge icon" shown elsewhere. */}
+        {(() => {
+          const renderBridge = (
+            code: string,
+            cx: number,
+            halfWidth: number,
+            scale = 1,
+          ) => {
+            const struct = structures.find(s => s.code === code);
+            if (!struct) return null;
+            const state = structureStates[code];
+            const completed = state?.completed ?? false;
+            const unlocked = state?.unlocked ?? false;
+            const cy = 700;
+            const w = halfWidth;
+            const railH = 18 * scale;
+            return (
+              <g
+                key={`bridge-${code}`}
+                style={{ cursor: 'pointer', touchAction: 'manipulation',
+                  filter: completed
+                    ? 'drop-shadow(0 0 6px rgba(255,217,61,0.55))'
+                    : unlocked
+                      ? 'drop-shadow(0 1.5px 2px rgba(107,68,35,0.42))'
+                      : 'grayscale(1) brightness(0.92)',
+                  opacity: unlocked ? 1 : 0.62,
+                }}
+                onClick={() => onStructureTap(struct)}
+              >
+                {/* invisible enlarged hit target */}
+                <rect x={cx - w - 6} y={cy - railH - 14} width={2 * (w + 6)} height={railH + 38} fill="transparent" />
+
+                {/* under-arch shadow on water */}
+                <path
+                  d={`M ${cx - w} ${cy + 6}
+                      C ${cx - w * 0.5} ${cy + 12}, ${cx + w * 0.5} ${cy + 12}, ${cx + w} ${cy + 6}`}
+                  stroke="#000" strokeWidth={3} fill="none" opacity={0.22} strokeLinecap="round"
+                />
+
+                {/* support posts at each abutment */}
+                <rect x={cx - w - 3} y={cy - 4} width={5} height={14 * scale} fill="#5A3B1F" stroke="#3F2614" strokeWidth={1} />
+                <rect x={cx + w - 2} y={cy - 4} width={5} height={14 * scale} fill="#5A3B1F" stroke="#3F2614" strokeWidth={1} />
+
+                {/* arched deck base (planks underside) */}
+                <path
+                  d={`M ${cx - w} ${cy + 4}
+                      C ${cx - w * 0.4} ${cy - 4 * scale}, ${cx + w * 0.4} ${cy - 4 * scale}, ${cx + w} ${cy + 4}`}
+                  stroke="#7A5A3A" strokeWidth={10 * scale} fill="none" strokeLinecap="round"
+                />
+                {/* deck top (lighter wood) */}
+                <path
+                  d={`M ${cx - w} ${cy + 1}
+                      C ${cx - w * 0.4} ${cy - 7 * scale}, ${cx + w * 0.4} ${cy - 7 * scale}, ${cx + w} ${cy + 1}`}
+                  stroke="#C8A57A" strokeWidth={7 * scale} fill="none" strokeLinecap="round"
+                />
+                {/* plank cross-lines on the deck */}
+                {Array.from({ length: 7 }, (_, i) => {
+                  const t = (i + 0.5) / 7;
+                  // bezier point at parameter t (approx)
+                  const px = cx - w + 2 * w * t;
+                  const py = cy - 7 * scale * 4 * t * (1 - t) + 1;
+                  return (
+                    <line
+                      key={`plank-${code}-${i}`}
+                      x1={px} y1={py - 4 * scale}
+                      x2={px} y2={py + 4 * scale}
+                      stroke="#7A5A3A" strokeWidth={1.2} opacity={0.7}
+                    />
+                  );
+                })}
+
+                {/* railings: rope-like top rail + spindles */}
+                <path
+                  d={`M ${cx - w} ${cy - 5}
+                      C ${cx - w * 0.4} ${cy - railH}, ${cx + w * 0.4} ${cy - railH}, ${cx + w} ${cy - 5}`}
+                  stroke="#5A3B1F" strokeWidth={1.6} fill="none" strokeLinecap="round"
+                />
+                {/* spindles dropping from rail to deck */}
+                {Array.from({ length: 5 }, (_, i) => {
+                  const t = (i + 1) / 6;
+                  const px = cx - w + 2 * w * t;
+                  // rail y at parameter t (bezier approximation)
+                  const railY = cy - 5 - (railH - 5) * 4 * t * (1 - t);
+                  const deckY = cy - 7 * scale * 4 * t * (1 - t) + 1;
+                  return (
+                    <line
+                      key={`sp-${code}-${i}`}
+                      x1={px} y1={railY}
+                      x2={px} y2={deckY}
+                      stroke="#5A3B1F" strokeWidth={1.2}
+                    />
+                  );
+                })}
+
+                {/* lock badge if locked, check if completed */}
+                {!unlocked && (
+                  <g pointerEvents="none">
+                    <circle cx={cx} cy={cy - railH - 6} r={8}
+                            fill="#FFFFFF" stroke="#8A7E6C" strokeWidth={1.2} />
+                    <text x={cx} y={cy - railH - 3} fontSize={10} textAnchor="middle"
+                          style={{ userSelect: 'none' }}>🔒</text>
+                  </g>
+                )}
+                {completed && (
+                  <g pointerEvents="none">
+                    <circle cx={cx} cy={cy - railH - 6} r={8}
+                            fill="#6B8E5A" stroke="#4F6F42" strokeWidth={1.2} />
+                    <path
+                      d={`M ${cx - 3.5} ${cy - railH - 5.5}
+                          L ${cx - 0.8} ${cy - railH - 3}
+                          L ${cx + 3.5} ${cy - railH - 8}`}
+                      stroke="#FFFFFF" strokeWidth={1.6} fill="none"
+                      strokeLinecap="round" strokeLinejoin="round"
+                    />
+                  </g>
+                )}
+
+                {/* small label below the bridge */}
+                <rect
+                  x={cx - 56} y={cy + 18} width={112} height={15} rx={7.5}
+                  fill={unlocked ? 'rgba(255,250,242,0.92)' : 'rgba(239,231,212,0.78)'}
+                  stroke={unlocked ? '#E8A87C' : '#C7B89A'} strokeWidth={0.9}
+                />
+                <text x={cx} y={cy + 28.5} textAnchor="middle"
+                      fontSize={9} fontWeight={700}
+                      fill={unlocked ? '#6b4423' : '#8a7050'}
+                      style={{ userSelect: 'none' }}>
+                  {struct.label}
+                </text>
+              </g>
+            );
+          };
+          return (
+            <g>
+              {renderBridge('mm_big_bridge', 540, 64, 1.0)}
+              {renderBridge('mm_skip_bridge', 1320, 56, 0.9)}
+            </g>
+          );
+        })()}
 
         {/* ── 10. APPLE ORCHARD trees — flank the Orchard habitat ── */}
         <Tree x={1010} y={460} size={40} variant={1} />
@@ -801,10 +959,62 @@ export default function MathMountainScene({
           const LABEL_Y = 22;
           const LABEL_W = 88;
           const LABEL_H = 15;
+          // Bespoke water icons for Rushing Stream + Big Falls — replace
+          // emoji with hand-drawn SVG so they don't read as clip art.
+          const drawBespoke = (code: string): JSX.Element | null => {
+            if (code === 'mm_rushing_stream') {
+              return (
+                <g>
+                  {/* fast curving water with a small cascade-step */}
+                  <path d="M -14 -5 Q -8 -11, -2 -5 T 12 -5"
+                        stroke="#7FA9B0" strokeWidth={3.2} fill="none" strokeLinecap="round" />
+                  <path d="M -16 1 Q -8 -5, 0 1 T 14 1"
+                        stroke="#A8CDD2" strokeWidth={2.8} fill="none" strokeLinecap="round" />
+                  <path d="M -14 7 Q -6 1, 2 7 T 14 7"
+                        stroke="#7FA9B0" strokeWidth={2.4} fill="none" strokeLinecap="round" />
+                  {/* sparkle dots */}
+                  <circle cx={-8} cy={-9} r={1.1} fill="#FFFFFF" opacity={0.85} />
+                  <circle cx={6} cy={-7} r={1} fill="#FFFFFF" opacity={0.7} />
+                  <circle cx={-2} cy={-2} r={0.9} fill="#FFFFFF" opacity={0.6} />
+                  <circle cx={10} cy={5} r={1} fill="#FFFFFF" opacity={0.7} />
+                </g>
+              );
+            }
+            if (code === 'mm_big_falls') {
+              return (
+                <g>
+                  {/* rocky cliff (the falls source) */}
+                  <path d="M -14 -10 L -14 -4 L 14 -4 L 14 -10 Q 12 -14 8 -14 L -8 -14 Q -12 -14 -14 -10 Z"
+                        fill="#7A6B58" stroke="#3F3026" strokeWidth={1.4} />
+                  {/* dark seam at top of cliff */}
+                  <path d="M -10 -8 Q 0 -10, 10 -8" stroke="#3F3026" strokeWidth={0.8} fill="none" opacity={0.6} />
+                  {/* falling water (vertical bands) */}
+                  <path d="M -8 -4 Q -8 0, -7 4 Q -7 7, -6 9" stroke="#A8CDD2" strokeWidth={2.2} fill="none" strokeLinecap="round" />
+                  <path d="M -2 -4 Q -1 0, 0 5 Q 0 8, 1 10" stroke="#A8CDD2" strokeWidth={2.6} fill="none" strokeLinecap="round" />
+                  <path d="M 6 -4 Q 6 0, 7 4 Q 7 7, 8 9" stroke="#A8CDD2" strokeWidth={2.2} fill="none" strokeLinecap="round" />
+                  {/* white-water sheen on the falling water */}
+                  <path d="M -7 -2 Q -6 2, -6 6" stroke="#FFFFFF" strokeWidth={0.9} fill="none" opacity={0.7} strokeLinecap="round" />
+                  <path d="M 0 -2 Q 1 3, 2 7" stroke="#FFFFFF" strokeWidth={0.9} fill="none" opacity={0.7} strokeLinecap="round" />
+                  <path d="M 7 -2 Q 8 2, 8 6" stroke="#FFFFFF" strokeWidth={0.9} fill="none" opacity={0.7} strokeLinecap="round" />
+                  {/* pool at the base */}
+                  <ellipse cx={0} cy={11} rx={14} ry={3} fill="#A8CDD2" stroke="#7FA9B0" strokeWidth={1} />
+                  <ellipse cx={0} cy={10} rx={9} ry={1.6} fill="#FFFFFF" opacity={0.55} />
+                  {/* foam splash */}
+                  <circle cx={-7} cy={9} r={1.6} fill="#FFFFFF" opacity={0.7} />
+                  <circle cx={6} cy={10} r={1.5} fill="#FFFFFF" opacity={0.7} />
+                </g>
+              );
+            }
+            return null;
+          };
+
           return structures.map(s => {
             // Skip individual structures that belong to a collapsed habitat
             const habitatKey = HABITAT_BY_SKILL[s.code];
             if (habitatKey && expandedHabitat !== habitatKey) return null;
+            // Skip bridge structures — bridges are rendered as their own
+            // clickable SVG planks above. No redundant locked-icon overlay.
+            if (s.code === 'mm_big_bridge' || s.code === 'mm_skip_bridge') return null;
 
             const state = structureStates[s.code];
             const completed = state?.completed ?? false;
@@ -812,7 +1022,8 @@ export default function MathMountainScene({
             const isTappedLocked = tappedLocked === s.code;
 
             const illustrationCode = ILLUSTRATION_ALIAS[s.code] ?? s.code;
-            const drawn = StructureIllustration({ code: illustrationCode, x: 0, y: 0, size: UNIFORM });
+            const bespoke = drawBespoke(s.code);
+            const drawn = bespoke ?? StructureIllustration({ code: illustrationCode, x: 0, y: 0, size: UNIFORM });
 
             return (
               <g
