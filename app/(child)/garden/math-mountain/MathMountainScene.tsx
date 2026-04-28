@@ -78,34 +78,35 @@ const ILLUSTRATION_ALIAS: Record<string, string> = {
   mm_long_stories:     'math_word_stories',
 };
 
-// HABITAT GROUPS — clusters that consolidate into ONE icon by default.
-// Click the habitat icon → its skills fan out and become individually
-// clickable. Click again (or anywhere outside) → collapses back.
-// This is the "container habitat" pattern — like Bunny Burrow on the
-// central garden, but inline (no route navigation needed).
+// HABITAT GROUPS — clusters that consolidate into ONE marker by default.
+// Each habitat uses a BESPOKE illustration as its marker (cottage = a
+// cottage, orchard = apple trees, glen = pines, meadow = wildflowers,
+// cave = the existing cave SVG). NO orb / glass-ball icons.
+// Tap the marker → skills fan out at their original positions; tap
+// again → collapses back.
 const HABITAT_GROUPS: Record<string, {
-  codes: string[]; x: number; y: number; label: string; icon: string;
+  codes: string[]; x: number; y: number; label: string;
 }> = {
   cottage: {
     codes: ['mm_stories_plus', 'mm_stories_minus', 'mm_long_stories'],
-    x: 110, y: 470, label: 'Stories Cottage', icon: '📖',
+    x: 110, y: 480, label: 'Stories Cottage',
   },
   cave: {
     codes: ['mm_hundreds_hollow', 'mm_fast_facts', 'mm_regroup_ridge'],
-    x: 190, y: 680, label: 'Operations Cave', icon: '🕳️',
+    x: 190, y: 758, label: 'Operations Cave', // label position only — cave SVG itself is the marker
   },
   orchard: {
     codes: ['mm_equal_garden', 'mm_array_orchard', 'mm_times_to_5', 'mm_times_to_10'],
-    x: 1150, y: 580, label: 'Apple Orchard', icon: '🍎',
+    x: 1150, y: 580, label: 'Apple Orchard',
   },
   glen: {
     codes: ['mm_sharing_squirrels', 'mm_division_facts', 'mm_missing_number'],
-    x: 1200, y: 390, label: 'Division Glen', icon: '🐿️',
+    x: 1200, y: 390, label: 'Division Glen',
   },
   measurement: {
     codes: ['mm_even_odd', 'mm_garden_clock', 'mm_sundial', 'mm_hourglass',
             'mm_pebble_coins', 'mm_pie_slices', 'mm_bigger_slice'],
-    x: 820, y: 580, label: 'Measurement Meadow', icon: '⏳',
+    x: 820, y: 580, label: 'Measurement Meadow',
   },
 };
 const HABITAT_BY_SKILL: Record<string, string> = Object.entries(HABITAT_GROUPS)
@@ -351,30 +352,21 @@ export default function MathMountainScene({
           ))}
         </g>
 
-        {/* ── 6b. WATERFALL — lake outflow cascading down to the river ──
-             A thin stream of water drops from the lake's south edge at
-             (290, 510) down to the river at (290, 700). Big Falls
-             structure sits on this cascade at (290, 580). */}
-        <g pointerEvents="none">
-          {/* falling-water stream */}
-          <path
-            d="M 280 510 C 282 540, 278 568, 282 596 C 286 624, 280 656, 282 690"
-            stroke="#A8CDD2" strokeWidth={14} fill="none" strokeLinecap="round" opacity={0.8}
-          />
-          <path
-            d="M 280 510 C 282 540, 278 568, 282 596 C 286 624, 280 656, 282 690"
-            stroke="#FFFFFF" strokeWidth={5} fill="none" strokeLinecap="round" opacity={0.5}
-          />
-          {/* mist at the bottom where it joins the river */}
-          <ellipse cx={282} cy={695} rx={22} ry={6} fill="#FFFFFF" opacity={0.42} />
-          <ellipse cx={282} cy={690} rx={16} ry={4} fill="#FFFFFF" opacity={0.32} />
-        </g>
+        {/* (Waterfall removed — was a single thin blue line that read
+            as a defect, not a cascade. Big Falls structure sits on the
+            lake's south bank instead, at (300, 510), part of the lake
+            cluster's water-themed group.) */}
 
         {/* ── 6c. CAVE — lower-left mountain cluster anchor ──
-             Rocky cave mouth at x:40-340, y:608-740 holding Hundred's
-             Hollow (110,660), Fast Facts (180,700), Regroup Ridge
-             (270,670). Stays out of the lake's bounding box. */}
-        <g pointerEvents="none">
+             Rocky cave mouth at x:40-340, y:608-740. Wrapped in a
+             clickable group so the WHOLE cave entrance acts as the
+             Operations Cave habitat marker (no extra orb on top). */}
+        <g
+          style={{ cursor: 'pointer', touchAction: 'manipulation' }}
+          onClick={() => setExpandedHabitat(expandedHabitat === 'cave' ? null : 'cave')}
+        >
+          {/* invisible enlarged hit target */}
+          <rect x={20} y={600} width={340} height={150} fill="transparent" />
           {/* outer rocky base */}
           <path
             d="M 36 740 Q 50 700 70 670 Q 100 632 150 622
@@ -438,29 +430,28 @@ export default function MathMountainScene({
             />
           ))}
 
-          {/* BEAVER DAM at river midpoint (820, 705) — visual anchor.
-              Path does NOT cross here; it crosses upstream at Big Bridge
-              (540) and downstream at Skip Bridge (1320). */}
+          {/* DAM at river midpoint (820, 705) — just stacked logs, no
+              cartoon beaver. Reads as a beaver dam without the cringe. */}
           <g transform="translate(820, 706)">
             {/* shadow on water */}
             <ellipse cx={0} cy={6} rx={42} ry={5} fill="#000" opacity={0.18} />
-            {/* stacked logs */}
-            <rect x={-38} y={-2}  width={76} height={6} rx={3} fill="#8B5A2B" stroke="#5A3B1F" strokeWidth={1.2} />
-            <rect x={-32} y={-8}  width={64} height={6} rx={3} fill="#A06B36" stroke="#5A3B1F" strokeWidth={1.2} />
-            <rect x={-24} y={-14} width={48} height={6} rx={3} fill="#B47845" stroke="#5A3B1F" strokeWidth={1.1} />
-            {/* end-grain rings */}
-            <circle cx={-38} cy={1} r={2.4} fill="#7A4A1F" stroke="#5A3B1F" strokeWidth={0.8} />
-            <circle cx={38}  cy={1} r={2.4} fill="#7A4A1F" stroke="#5A3B1F" strokeWidth={0.8} />
-            {/* small beaver on the dam */}
-            <g transform="translate(8, -22)">
-              <ellipse cx={0} cy={0} rx={9} ry={6.5} fill="#7A4E2C" stroke="#3F2614" strokeWidth={1.2} />
-              <circle cx={6} cy={-2} r={4} fill="#8B5A2B" stroke="#3F2614" strokeWidth={1.1} />
-              <circle cx={5.4} cy={-3} r={0.9} fill="#1A0E08" />
-              <circle cx={7.5} cy={-3.5} r={0.4} fill="#1A0E08" />
-              <ellipse cx={9.4} cy={-1.5} rx={1.3} ry={0.8} fill="#3F2614" />
-              <circle cx={4.2} cy={-5} r={1.2} fill="#3F2614" />
-              <ellipse cx={-9} cy={2} rx={4} ry={2} fill="#3F2614" stroke="#1A0E08" strokeWidth={0.8} />
+            {/* stacked logs at slight angles, like a real jam */}
+            <g transform="rotate(-3)">
+              <rect x={-40} y={-1} width={80} height={5} rx={2.5} fill="#8B5A2B" stroke="#5A3B1F" strokeWidth={1.1} />
             </g>
+            <g transform="rotate(4)">
+              <rect x={-34} y={-7} width={68} height={5} rx={2.5} fill="#A06B36" stroke="#5A3B1F" strokeWidth={1.1} />
+            </g>
+            <g transform="rotate(-2)">
+              <rect x={-26} y={-13} width={52} height={5} rx={2.5} fill="#B47845" stroke="#5A3B1F" strokeWidth={1.0} />
+            </g>
+            {/* small twigs sticking out */}
+            <line x1={-32} y1={-1} x2={-44} y2={-6} stroke="#5A3B1F" strokeWidth={1.2} strokeLinecap="round" />
+            <line x1={36} y1={-6} x2={48} y2={-12} stroke="#5A3B1F" strokeWidth={1.2} strokeLinecap="round" />
+            <line x1={-8} y1={-14} x2={-2} y2={-22} stroke="#5A3B1F" strokeWidth={1} strokeLinecap="round" />
+            {/* end-grain rings on protruding logs */}
+            <circle cx={-40} cy={1.5} r={2.2} fill="#7A4A1F" stroke="#5A3B1F" strokeWidth={0.7} />
+            <circle cx={40} cy={1.5} r={2.2} fill="#7A4A1F" stroke="#5A3B1F" strokeWidth={0.7} />
           </g>
 
           {/* River-bank stones near each bridge */}
@@ -554,17 +545,12 @@ export default function MathMountainScene({
           // Measurement → Orchard (Bigger Slice → Times-5, curve)
           const measureToOrchardD = `M 990 620
             C 1020 614, 1056 622, 1090 620`;
-          // Cave loop — loops around the 3 cave structures
-          const caveLoopD = `M 110 660
-            C 130 642, 158 638, 180 644
-            C 220 650, 246 660, 270 670
-            C 244 690, 214 700, 180 700
-            C 144 700, 122 686, 110 660 Z`;
-          // North-bank trail — cave east meanders to Big Bridge
-          const riverNorthBankD = `M 270 670
-            C 308 660, 350 660, 386 666
-            C 420 672, 446 686, 470 696
-            C 478 698, 480 700, 480 700`;
+          // (Cave loop path removed — the cave SVG itself is the cluster
+          //  marker; no need to draw a path circling it.)
+          // North-bank trail — runs east across the meadow to Big Bridge
+          const riverNorthBankD = `M 360 670
+            C 400 666, 430 670, 462 678
+            C 470 684, 478 692, 480 700`;
           // Big Bridge plank (gentle arch over river)
           const bigBridgeD = `M 480 700
             C 504 696, 540 694, 600 700`;
@@ -580,13 +566,16 @@ export default function MathMountainScene({
           const skipBridgeD = `M 1260 700
             C 1290 696, 1326 694, 1380 700`;
 
-          // All non-bridge trails (cave loop is included; bridges drawn separately)
+          // Non-bridge trails. Habitat-internal paths (cottage interconnect,
+          // orchard chain, time row, measurement row) ALSO removed — when
+          // a habitat is collapsed, those internal connectors look like
+          // floating spaghetti. The habitat marker is the destination;
+          // structures fan out on tap.
           const trails = [
-            cottageInterD, lakeLoopNorthD, berryToCompareD, lowerRidgeD,
+            lakeLoopNorthD, berryToCompareD, lowerRidgeD,
             climbWestD, plateauRidgeD, climbEastD, glenConnectD,
-            roundToTimeD, timeRowD, timeToMeasureD, measureRowD,
-            orchardUpperD, orchardMidD, orchardLowerD, measureToOrchardD,
-            caveLoopD, riverNorthBankD, bridgeEastUpD, timesToSkipD,
+            roundToTimeD, timeToMeasureD,
+            riverNorthBankD, bridgeEastUpD, timesToSkipD,
           ];
           return (
             <g pointerEvents="none">
@@ -840,11 +829,13 @@ export default function MathMountainScene({
           });
         })()}
 
-        {/* ── HABITATS ── single-icon clusters that expand on tap.
-             Each habitat shows the cluster name + progress badge.
-             Tapping reveals the individual skills inside; tapping a
-             skill (or anywhere) to start a lesson, tapping the habitat
-             icon again collapses back. */}
+        {/* ── HABITATS ── bespoke illustration markers (NOT orbs).
+             Cottage = a cottage. Orchard = apple trees. Glen = pines
+             with a small squirrel on a stump. Meadow = wildflowers
+             with a sundial. Cave is its own SVG (clickable directly,
+             see ── 6c. CAVE ──), so the habitat block here just adds
+             a label + progress for cave at its position.
+             Tapping a marker → its skills fan out; tap again → close. */}
         {Object.entries(HABITAT_GROUPS).map(([key, group]) => {
           const isExpanded = expandedHabitat === key;
           const states = group.codes.map(c => structureStates[c]).filter(Boolean);
@@ -854,6 +845,171 @@ export default function MathMountainScene({
           const anyUnlocked = unlockedCount > 0;
           const allCompleted = completedCount === total;
 
+          // Render the bespoke illustration for this habitat (when collapsed)
+          const illustration = (() => {
+            const tone = !anyUnlocked ? 0.62 : 1;
+            const filter = allCompleted
+              ? 'drop-shadow(0 0 6px rgba(255,217,61,0.55))'
+              : 'drop-shadow(0 2px 3px rgba(107,68,35,0.42))';
+
+            if (key === 'cottage') {
+              return (
+                <g style={{ filter, opacity: tone }}>
+                  <ellipse cx={0} cy={36} rx={36} ry={6} fill="#000" opacity={0.14} />
+                  <rect x={-28} y={0} width={56} height={36} rx={3} fill="#F5EBDC" stroke="#5A3B1F" strokeWidth={2} />
+                  <rect x={-6} y={14} width={12} height={22} rx={3} fill="#8B5A2B" stroke="#5A3B1F" strokeWidth={1.5} />
+                  <circle cx={4} cy={26} r={1.5} fill="#5A3B1F" />
+                  <rect x={-23} y={8} width={11} height={9} rx={1.5} fill="#BDE3EC" stroke="#5A3B1F" strokeWidth={1.2} />
+                  <line x1={-18} y1={8} x2={-18} y2={17} stroke="#5A3B1F" strokeWidth={0.8} />
+                  <line x1={-23} y1={13} x2={-12} y2={13} stroke="#5A3B1F" strokeWidth={0.8} />
+                  <rect x={12} y={8} width={11} height={9} rx={1.5} fill="#BDE3EC" stroke="#5A3B1F" strokeWidth={1.2} />
+                  <line x1={17} y1={8} x2={17} y2={17} stroke="#5A3B1F" strokeWidth={0.8} />
+                  <line x1={12} y1={13} x2={23} y2={13} stroke="#5A3B1F" strokeWidth={0.8} />
+                  <path d="M -34 2 L 0 -28 L 34 2 Z" fill="#C38D9E" stroke="#5A3B1F" strokeWidth={2} strokeLinejoin="round" />
+                  <path d="M -16 -10 L 0 -26 L 16 -10" stroke="#D4A8B4" strokeWidth={1} fill="none" opacity={0.6} />
+                  <rect x={8} y={-26} width={8} height={16} rx={1} fill="#B8A090" stroke="#5A3B1F" strokeWidth={1.5} />
+                  <ellipse cx={12} cy={-30} rx={5} ry={4} fill="#E8E0D3" opacity={0.60} />
+                  <ellipse cx={15} cy={-36} rx={4} ry={3.5} fill="#E8E0D3" opacity={0.40} />
+                  <ellipse cx={11} cy={-42} rx={3.5} ry={3} fill="#E8E0D3" opacity={0.24} />
+                </g>
+              );
+            }
+            if (key === 'orchard') {
+              return (
+                <g style={{ filter, opacity: tone }}>
+                  {/* ground shadow */}
+                  <ellipse cx={0} cy={32} rx={48} ry={6} fill="#000" opacity={0.16} />
+                  {/* left apple tree */}
+                  <g transform="translate(-30, 16)">
+                    <rect x={-3} y={-4} width={6} height={20} rx={2} fill="#8B5A2B" stroke="#5A3B1F" strokeWidth={1.2} />
+                    <ellipse cx={0} cy={-14} rx={20} ry={18} fill="#5C7E4F" stroke="#3F5A30" strokeWidth={1.6} />
+                    <ellipse cx={-5} cy={-20} rx={10} ry={7} fill="#7BA46F" />
+                    <circle cx={-9} cy={-12} r={2.4} fill="#C53030" stroke="#5A3B1F" strokeWidth={0.7} />
+                    <circle cx={4} cy={-16} r={2.4} fill="#C53030" stroke="#5A3B1F" strokeWidth={0.7} />
+                    <circle cx={6} cy={-7} r={2.4} fill="#C53030" stroke="#5A3B1F" strokeWidth={0.7} />
+                  </g>
+                  {/* right apple tree */}
+                  <g transform="translate(30, 16)">
+                    <rect x={-3} y={-4} width={6} height={20} rx={2} fill="#8B5A2B" stroke="#5A3B1F" strokeWidth={1.2} />
+                    <ellipse cx={0} cy={-14} rx={20} ry={18} fill="#5C7E4F" stroke="#3F5A30" strokeWidth={1.6} />
+                    <ellipse cx={5} cy={-20} rx={10} ry={7} fill="#7BA46F" />
+                    <circle cx={9} cy={-12} r={2.4} fill="#C53030" stroke="#5A3B1F" strokeWidth={0.7} />
+                    <circle cx={-4} cy={-16} r={2.4} fill="#C53030" stroke="#5A3B1F" strokeWidth={0.7} />
+                    <circle cx={-6} cy={-7} r={2.4} fill="#C53030" stroke="#5A3B1F" strokeWidth={0.7} />
+                  </g>
+                  {/* basket of apples between trees */}
+                  <g transform="translate(0, 26)">
+                    <ellipse cx={0} cy={3} rx={11} ry={2.5} fill="#000" opacity={0.16} />
+                    <path d="M -10 -2 L -8 4 L 8 4 L 10 -2 Z" fill="#A87B4A" stroke="#5A3B1F" strokeWidth={1.2} />
+                    <line x1="-8" y1="-1" x2="-7" y2="3" stroke="#5A3B1F" strokeWidth={0.6} />
+                    <line x1="-3" y1="-1" x2="-2" y2="3" stroke="#5A3B1F" strokeWidth={0.6} />
+                    <line x1="2" y1="-1" x2="3" y2="3" stroke="#5A3B1F" strokeWidth={0.6} />
+                    <line x1="7" y1="-1" x2="8" y2="3" stroke="#5A3B1F" strokeWidth={0.6} />
+                    <circle cx={-3} cy={-3} r={2.2} fill="#C53030" stroke="#5A3B1F" strokeWidth={0.6} />
+                    <circle cx={3} cy={-4} r={2.2} fill="#C53030" stroke="#5A3B1F" strokeWidth={0.6} />
+                    <circle cx={0} cy={-5} r={2} fill="#E04848" />
+                  </g>
+                </g>
+              );
+            }
+            if (key === 'glen') {
+              return (
+                <g style={{ filter, opacity: tone }}>
+                  <ellipse cx={0} cy={30} rx={44} ry={5} fill="#000" opacity={0.16} />
+                  {/* left pine */}
+                  <g transform="translate(-26, 14)">
+                    <rect x={-2.5} y={4} width={5} height={12} fill="#8B5A2B" stroke="#5A3B1F" strokeWidth={1} />
+                    <path d="M -16 6 L 0 -20 L 16 6 Z" fill="#5C7E4F" stroke="#3F5A30" strokeWidth={1.5} strokeLinejoin="round" />
+                    <path d="M -12 -2 L 0 -16 L 12 -2 Z" fill="#7BA46F" />
+                    <path d="M -8 -10 L 0 -20 L 8 -10" stroke="#3F5A30" strokeWidth={0.8} fill="none" opacity={0.5} />
+                  </g>
+                  {/* right pine */}
+                  <g transform="translate(26, 14)">
+                    <rect x={-2.5} y={4} width={5} height={12} fill="#8B5A2B" stroke="#5A3B1F" strokeWidth={1} />
+                    <path d="M -16 6 L 0 -20 L 16 6 Z" fill="#5C7E4F" stroke="#3F5A30" strokeWidth={1.5} strokeLinejoin="round" />
+                    <path d="M -12 -2 L 0 -16 L 12 -2 Z" fill="#7BA46F" />
+                    <path d="M -8 -10 L 0 -20 L 8 -10" stroke="#3F5A30" strokeWidth={0.8} fill="none" opacity={0.5} />
+                  </g>
+                  {/* small mossy stump in middle */}
+                  <g transform="translate(0, 22)">
+                    <ellipse cx={0} cy={4} rx={11} ry={3} fill="#000" opacity={0.16} />
+                    <ellipse cx={0} cy={2} rx={10} ry={4} fill="#A06B36" stroke="#5A3B1F" strokeWidth={1.1} />
+                    <ellipse cx={0} cy={-1} rx={9} ry={3.2} fill="#C9A270" stroke="#5A3B1F" strokeWidth={0.9} />
+                    <ellipse cx={0} cy={-1} rx={6} ry={2.1} fill="none" stroke="#8B5A2B" strokeWidth={0.5} />
+                    <ellipse cx={0} cy={-1} rx={3.4} ry={1.2} fill="none" stroke="#8B5A2B" strokeWidth={0.5} />
+                    <ellipse cx={1} cy={-3} rx={4.5} ry={1.2} fill="#7BA46F" opacity={0.85} />
+                  </g>
+                  {/* squirrel perched on the stump */}
+                  <g transform="translate(2, 11)">
+                    {/* tail */}
+                    <path d="M -6 -2 Q -12 -8 -10 -16 Q -3 -10 -4 -2 Z"
+                          fill="#A06B36" stroke="#5A3B1F" strokeWidth={1.1} strokeLinejoin="round" />
+                    <path d="M -10 -16 Q -8 -14 -6 -10" stroke="#C9A270" strokeWidth={1.5} fill="none" opacity={0.7} />
+                    {/* body */}
+                    <ellipse cx={0} cy={-1} rx={5} ry={4} fill="#A06B36" stroke="#5A3B1F" strokeWidth={1.1} />
+                    {/* head */}
+                    <circle cx={3.5} cy={-4} r={3.2} fill="#A06B36" stroke="#5A3B1F" strokeWidth={1.1} />
+                    {/* ear */}
+                    <path d="M 2 -7 L 2.6 -8.6 L 4 -7" fill="#5A3B1F" />
+                    {/* eye */}
+                    <circle cx={4} cy={-4.4} r={0.6} fill="#1A0E08" />
+                    {/* tiny acorn in paws */}
+                    <ellipse cx={6.5} cy={-1} rx={1.4} ry={1.7} fill="#8B5A2B" stroke="#5A3B1F" strokeWidth={0.5} />
+                    <rect x={6.1} y={-3.2} width={0.8} height={1.2} fill="#5A3B1F" />
+                  </g>
+                </g>
+              );
+            }
+            if (key === 'measurement') {
+              return (
+                <g style={{ filter, opacity: tone }}>
+                  <ellipse cx={0} cy={30} rx={44} ry={6} fill="#000" opacity={0.14} />
+                  {/* central sundial */}
+                  <g transform="translate(0, -2)">
+                    <rect x={-2.5} y={-6} width={5} height={28} rx={1.5} fill="#A87B4A" stroke="#5A3B1F" strokeWidth={1.2} />
+                    <ellipse cx={0} cy={-8} rx={14} ry={2.6} fill="#C9A270" stroke="#5A3B1F" strokeWidth={1.2} />
+                    <ellipse cx={0} cy={-8.5} rx={11} ry={1.8} fill="#E0CBA1" />
+                    {/* gnomon (sundial pointer) */}
+                    <path d="M 0 -8 L -7 -16 L -7 -10 Z" fill="#5A3B1F" />
+                    {/* hour ticks */}
+                    <line x1={-10} y1={-9} x2={-12} y2={-9} stroke="#5A3B1F" strokeWidth={0.6} />
+                    <line x1={10} y1={-9} x2={12} y2={-9} stroke="#5A3B1F" strokeWidth={0.6} />
+                    <line x1={0} y1={-9.6} x2={0} y2={-11} stroke="#5A3B1F" strokeWidth={0.6} />
+                  </g>
+                  {/* flowers around the base */}
+                  <g transform="translate(-26, 18)">
+                    <line x1={0} y1={6} x2={0} y2={-2} stroke="#6B8E5A" strokeWidth={1.4} strokeLinecap="round" />
+                    <circle cx={0} cy={-3} r={4} fill="#C38D9E" stroke="#5A3B1F" strokeWidth={0.8} />
+                    <circle cx={-2} cy={-5} r={1.2} fill="#FFD93D" />
+                    <circle cx={2} cy={-5} r={1.2} fill="#FFD93D" />
+                    <circle cx={0} cy={-2} r={1.2} fill="#FFD93D" />
+                  </g>
+                  <g transform="translate(-12, 22)">
+                    <line x1={0} y1={4} x2={0} y2={-2} stroke="#6B8E5A" strokeWidth={1.3} strokeLinecap="round" />
+                    <circle cx={0} cy={-3} r={3.4} fill="#E8A87C" stroke="#5A3B1F" strokeWidth={0.7} />
+                    <circle cx={-1.5} cy={-4} r={1} fill="#FFD93D" />
+                    <circle cx={1.5} cy={-4} r={1} fill="#FFD93D" />
+                  </g>
+                  <g transform="translate(14, 22)">
+                    <line x1={0} y1={4} x2={0} y2={-2} stroke="#6B8E5A" strokeWidth={1.3} strokeLinecap="round" />
+                    <circle cx={0} cy={-3} r={3.4} fill="#FFD93D" stroke="#5A3B1F" strokeWidth={0.7} />
+                    <circle cx={0} cy={-3} r={1.2} fill="#E8A87C" />
+                  </g>
+                  <g transform="translate(28, 18)">
+                    <line x1={0} y1={6} x2={0} y2={-2} stroke="#6B8E5A" strokeWidth={1.4} strokeLinecap="round" />
+                    <circle cx={0} cy={-3} r={4} fill="#95B88F" stroke="#5A3B1F" strokeWidth={0.8} />
+                    <circle cx={0} cy={-3} r={1.4} fill="#FFD93D" />
+                  </g>
+                </g>
+              );
+            }
+            // CAVE: no marker drawn here — the cave SVG itself is the marker
+            return null;
+          })();
+
+          // For cave: hide hover ring + skip illustration; cave SVG handles tapping
+          const drawTapTarget = key !== 'cave';
+
           return (
             <g key={`habitat-${key}`} pointerEvents="auto">
               <g
@@ -861,69 +1017,30 @@ export default function MathMountainScene({
                 style={{ cursor: 'pointer', touchAction: 'manipulation' }}
                 onClick={() => setExpandedHabitat(isExpanded ? null : key)}
               >
-                {/* big circular hit target + soft hover ring */}
-                <circle r={42} fill="transparent" />
-                {!isExpanded && anyUnlocked && (
-                  <circle r={36} fill="#FFE89A" opacity={0.22} />
+                {drawTapTarget && (
+                  <rect x={-60} y={-46} width={120} height={108} fill="transparent" />
                 )}
-
-                {/* hand-drawn habitat marker — wood-stake banner */}
-                {!isExpanded && (
-                  <g style={{
-                    filter: allCompleted
-                      ? 'drop-shadow(0 0 6px rgba(255,217,61,0.55))'
-                      : 'drop-shadow(0 2px 3px rgba(107,68,35,0.42))',
-                    opacity: anyUnlocked ? 1 : 0.62,
-                  }}>
-                    {/* wooden plinth */}
-                    <ellipse cx={0} cy={28} rx={32} ry={5} fill="#000" opacity={0.20} />
-                    <ellipse cx={0} cy={26} rx={30} ry={6} fill="#A87B4A" stroke="#5A3B1F" strokeWidth={1.2} />
-                    <ellipse cx={0} cy={24} rx={26} ry={3} fill="#C9A270" />
-                    {/* round emblem disk */}
-                    <circle r={26} fill="#FFFAF2" stroke="#5A3B1F" strokeWidth={1.8} />
-                    <circle r={22} fill="#F5EBDC" />
-                    <text
-                      textAnchor="middle"
-                      dominantBaseline="central"
-                      fontSize={26}
-                      y={2}
-                      style={{ userSelect: 'none', filter: anyUnlocked ? '' : 'grayscale(1)' }}
-                    >
-                      {group.icon}
-                    </text>
-                    {/* progress arc — fraction of completed skills */}
-                    {total > 0 && (() => {
-                      const angle = (completedCount / total) * 360;
-                      const rad = (a: number) => (a - 90) * Math.PI / 180;
-                      const endX = 23 * Math.cos(rad(angle));
-                      const endY = 23 * Math.sin(rad(angle));
-                      const large = angle > 180 ? 1 : 0;
-                      if (completedCount === 0) return null;
-                      return (
-                        <path
-                          d={`M 0 -23 A 23 23 0 ${large} 1 ${endX.toFixed(1)} ${endY.toFixed(1)}`}
-                          stroke="#6B8E5A" strokeWidth={3.5} fill="none" strokeLinecap="round"
-                        />
-                      );
-                    })()}
-                  </g>
+                {!isExpanded && drawTapTarget && anyUnlocked && (
+                  <ellipse cx={0} cy={20} rx={50} ry={32} fill="#FFE89A" opacity={0.16} />
                 )}
+                {!isExpanded && illustration}
 
-                {/* Collapsed-state label banner */}
+                {/* Label banner — sits below the illustration (or below
+                    the cave SVG for cave). Soft, sign-like. */}
                 {!isExpanded && (
                   <>
-                    <rect x={-58} y={42} width={116} height={18} rx={9}
-                          fill="#FFFAF2" stroke="#E8A87C" strokeWidth={1.3} />
-                    <text x={0} y={55} textAnchor="middle" fontSize={10}
+                    <rect x={-58} y={42} width={116} height={17} rx={8.5}
+                          fill="#FFFAF2" stroke="#E8A87C" strokeWidth={1.1} />
+                    <text x={0} y={54.5} textAnchor="middle" fontSize={10}
                           fontWeight={700} fill="#6b4423"
                           style={{ userSelect: 'none' }}>
                       {group.label}
                     </text>
-                    <rect x={-22} y={62} width={44} height={14} rx={7}
+                    <rect x={-22} y={61} width={44} height={13} rx={6.5}
                           fill={allCompleted ? '#6B8E5A' : '#FDF6E8'}
                           stroke={allCompleted ? '#4F6F42' : '#C7B89A'}
-                          strokeWidth={1} />
-                    <text x={0} y={72} textAnchor="middle" fontSize={9}
+                          strokeWidth={0.9} />
+                    <text x={0} y={70.5} textAnchor="middle" fontSize={9}
                           fontWeight={700}
                           fill={allCompleted ? '#FFFFFF' : '#6b4423'}
                           style={{ userSelect: 'none', fontFamily: 'ui-monospace, SFMono-Regular, monospace' }}>
@@ -932,18 +1049,26 @@ export default function MathMountainScene({
                   </>
                 )}
 
-                {/* Expanded-state — show small dim ring + close hint */}
-                {isExpanded && (
+                {/* Expanded indicator — small dim "tap to close" hint */}
+                {isExpanded && drawTapTarget && (
                   <g>
-                    <circle r={36} fill="rgba(255,250,242,0.42)" stroke="#E8A87C" strokeWidth={1.5} strokeDasharray="3 4" />
-                    <text textAnchor="middle" dominantBaseline="central"
-                          fontSize={20} y={-1} opacity={0.6}>{group.icon}</text>
                     <rect x={-46} y={28} width={92} height={14} rx={7}
                           fill="rgba(255,250,242,0.85)" stroke="#E8A87C" strokeWidth={1} />
                     <text x={0} y={38} textAnchor="middle" fontSize={9}
                           fontStyle="italic" fill="#6b4423"
                           style={{ userSelect: 'none' }}>
                       tap to close
+                    </text>
+                  </g>
+                )}
+                {isExpanded && !drawTapTarget && (
+                  <g>
+                    <rect x={-46} y={-32} width={92} height={14} rx={7}
+                          fill="rgba(255,250,242,0.85)" stroke="#E8A87C" strokeWidth={1} />
+                    <text x={0} y={-22} textAnchor="middle" fontSize={9}
+                          fontStyle="italic" fill="#6b4423"
+                          style={{ userSelect: 'none' }}>
+                      tap cave to close
                     </text>
                   </g>
                 )}

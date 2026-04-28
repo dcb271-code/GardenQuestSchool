@@ -66,7 +66,7 @@ export const MATH_MOUNTAIN_STRUCTURES: MapStructure[] = [
     x: 380, y: 660, size: 60, zone: 'math' },
   { code: 'mm_big_falls', kind: 'skill', skillCode: 'math.subtract.within_1000',
     label: 'Big Number Falls', subLabel: '3-digit subtract', themeEmoji: '🏞️',
-    x: 290, y: 580, size: 60, zone: 'math' },
+    x: 300, y: 510, size: 60, zone: 'math' },
   { code: 'mm_twin_bonds', kind: 'skill', skillCode: 'math.number_bond.within_20',
     label: 'Twin Blossoms', subLabel: 'bonds to 20', themeEmoji: '🌷',
     x: 280, y: 400, size: 56, zone: 'math' },
