@@ -93,7 +93,7 @@ const HABITAT_GROUPS: Record<string, {
   },
   cave: {
     codes: ['mm_hundreds_hollow', 'mm_fast_facts', 'mm_regroup_ridge'],
-    x: 190, y: 758, label: 'Operations Cave', // label position only — cave SVG itself is the marker
+    x: 110, y: 760, label: 'Operations Cave', // label position only — cave SVG itself is the marker
   },
   orchard: {
     codes: ['mm_equal_garden', 'mm_array_orchard', 'mm_times_to_5', 'mm_times_to_10'],
@@ -357,85 +357,174 @@ export default function MathMountainScene({
             lake's south bank instead, at (300, 510), part of the lake
             cluster's water-themed group.) */}
 
-        {/* ── 6c. CAVE — lower-left mountain cluster anchor ──
-             Rocky cave mouth at x:40-340, y:608-740. Wrapped in a
-             clickable group so the WHOLE cave entrance acts as the
-             Operations Cave habitat marker (no extra orb on top). */}
+        {/* ── 6c. CAVE — natural rocky archway at the far-left edge ──
+             The river flows OUT of the cave mouth on the right side,
+             so it's clearly the source of the watercourse — not just
+             a rectangle plopped in front of the river. Cave occupies
+             x:-30 to 230, y:570-740; river starts at x:230, y:705. */}
         <g
           style={{ cursor: 'pointer', touchAction: 'manipulation' }}
           onClick={() => setExpandedHabitat(expandedHabitat === 'cave' ? null : 'cave')}
         >
-          {/* invisible enlarged hit target */}
-          <rect x={20} y={600} width={340} height={150} fill="transparent" />
-          {/* outer rocky base */}
+          {/* invisible hit target covering the cave area */}
+          <rect x={-30} y={560} width={280} height={200} fill="transparent" />
+
+          {/* outer rocky face — extends offscreen-left, mostly closed
+              on the bottom-left, OPEN on the bottom-right where the
+              river emerges. Hand-drawn-ish curve, not a flat dome. */}
           <path
-            d="M 36 740 Q 50 700 70 670 Q 100 632 150 622
-               Q 220 614 280 622 Q 320 632 340 670 Q 348 706 348 740 Z"
+            d="M -30 740
+               L -30 700
+               C -20 660, -8 622, 8 596
+               C 30 568, 70 552, 118 550
+               C 158 552, 196 568, 220 596
+               C 234 622, 240 656, 234 686
+               L 232 706
+               L 232 740
+               Z"
             fill="#7A6B58" stroke="#3F3026" strokeWidth={2}
           />
-          {/* cave inner shadow (the dark mouth) */}
+          {/* darker rock shading on the right side (depth) */}
           <path
-            d="M 88 738 Q 100 706 122 678 Q 158 654 200 654 Q 240 656 270 680
-               Q 292 706 296 738 Z"
-            fill="#2C2018" opacity={0.78}
+            d="M 200 580 C 220 600, 232 632, 232 670 L 232 706 L 218 706
+               C 220 670, 214 622, 200 600 Z"
+            fill="#5C4F3F" opacity={0.5}
           />
-          {/* moss along top edge */}
+
+          {/* inner cave shadow — irregular natural opening, opens at the
+              bottom-right where the river flows out (no solid floor on
+              that side, so it visually merges with the water). */}
           <path
-            d="M 60 678 Q 100 660 145 654 Q 215 650 265 658 Q 305 666 332 680"
-            stroke="#7BA46F" strokeWidth={5} fill="none" strokeLinecap="round" opacity={0.74}
+            d="M 6 740
+               C -2 706, 0 668, 18 632
+               C 38 600, 78 584, 122 584
+               C 156 588, 188 602, 208 626
+               C 220 652, 222 686, 216 706
+               C 212 720, 208 730, 204 740
+               Z"
+            fill="#1F1610" opacity={0.84}
           />
-          {/* lantern hanging in the cave mouth — a warm beacon */}
-          <line x1={200} y1={654} x2={200} y2={682} stroke="#5A3B1F" strokeWidth={1.4} />
-          <ellipse cx={200} cy={690} rx={6} ry={8} fill="#FFD06B" stroke="#5A3B1F" strokeWidth={1.2} />
-          <circle cx={200} cy={690} r={3} fill="#FFF2B5" opacity={0.92} />
-          {/* base rocks at the mouth */}
-          <ellipse cx={64} cy={742} rx={20} ry={6} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.2} />
-          <ellipse cx={336} cy={742} rx={18} ry={6} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.2} />
+          {/* a darker pocket deeper inside */}
+          <ellipse cx={108} cy={680} rx={70} ry={42} fill="#000" opacity={0.34} />
+
+          {/* moss along the top edge of the arch */}
+          <path
+            d="M 0 612 C 24 596, 56 586, 96 584 C 138 584, 174 594, 200 612"
+            stroke="#7BA46F" strokeWidth={5} fill="none" strokeLinecap="round" opacity={0.78}
+          />
+          <path
+            d="M 22 596 C 48 588, 84 584, 122 586 C 156 590, 178 600, 192 608"
+            stroke="#A2C794" strokeWidth={2} fill="none" strokeLinecap="round" opacity={0.6}
+          />
+          {/* a few moss tufts on the rock face */}
+          <circle cx={-12} cy={680} r={4} fill="#7BA46F" opacity={0.7} />
+          <circle cx={-6} cy={696} r={3} fill="#7BA46F" opacity={0.6} />
+          <circle cx={224} cy={648} r={3.5} fill="#7BA46F" opacity={0.7} />
+
+          {/* hanging lantern inside — warm beacon */}
+          <line x1={104} y1={584} x2={104} y2={624} stroke="#5A3B1F" strokeWidth={1.4} />
+          <path
+            d="M 96 626 L 112 626 L 110 618 L 98 618 Z"
+            fill="#5A3B1F" stroke="#3F2614" strokeWidth={1}
+          />
+          <ellipse cx={104} cy={636} rx={7} ry={9} fill="#FFD06B" stroke="#5A3B1F" strokeWidth={1.2} />
+          <circle cx={104} cy={634} r={4} fill="#FFF2B5" opacity={0.95} />
+          {/* warm light glow around lantern */}
+          <circle cx={104} cy={634} r={26} fill="#FFE89A" opacity={0.18} />
+
+          {/* small rocks at the cave mouth ground */}
+          <ellipse cx={-14} cy={740} rx={22} ry={6} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.2} />
+          <ellipse cx={-12} cy={736} rx={14} ry={3} fill="#A89D8A" />
+          <ellipse cx={32} cy={740} rx={14} ry={5} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.1} />
+          {/* ferns growing out of the rocks at the entrance */}
+          <g transform="translate(40, 738)">
+            <path d="M 0 0 Q -4 -10 -8 -16" stroke="#6B8E5A" strokeWidth={1.4} fill="none" strokeLinecap="round" />
+            <path d="M 0 0 Q 0 -12 -2 -20" stroke="#6B8E5A" strokeWidth={1.4} fill="none" strokeLinecap="round" />
+            <path d="M 0 0 Q 4 -10 6 -16" stroke="#6B8E5A" strokeWidth={1.4} fill="none" strokeLinecap="round" />
+          </g>
         </g>
 
-        {/* ── 6d. RIVER — single horizontal river y:692-718 ──
-             Flows out of the waterfall (stream from lake) eastward across
-             the entire scene. BIG BRIDGE at (540, 700) and SKIP BRIDGE
-             at (1320, 700) both span THIS river. Beaver dam at center
-             (820, 705) is the visual anchor. River exits stage-right.
-             Stays ABOVE the bottom buffer (top of buffer = y:760). */}
+        {/* ── 6d. RIVER — emerges from cave, meanders naturally east ──
+             Starts at the cave mouth (x:215, y:706) and bends through
+             the meadow with varying width, like a real watercourse.
+             BIG BRIDGE at (540, 700), SKIP BRIDGE at (1320, 700).
+             Log-jam dam at midpoint (820, 705). */}
         <g pointerEvents="none">
-          {/* wet-earth bank, follows river silhouette */}
+          {/* wet-earth bank — irregular, follows the river's curves */}
           <path
-            d="M 270 686 C 350 692, 480 696, 600 698 C 760 700, 920 700, 1080 699
-               C 1240 697, 1360 695, 1440 694
-               L 1440 728 C 1360 728, 1240 730, 1080 730
-               C 920 731, 760 730, 600 729 C 480 728, 350 726, 270 720 Z"
+            d="M 215 706
+               C 270 698, 320 690, 380 686
+               C 460 686, 540 696, 620 702
+               C 720 706, 820 700, 920 696
+               C 1020 692, 1120 696, 1220 700
+               C 1320 702, 1400 696, 1440 694
+               L 1440 730
+               C 1400 732, 1320 734, 1220 732
+               C 1120 730, 1020 732, 920 734
+               C 820 736, 720 734, 620 728
+               C 540 724, 460 720, 380 720
+               C 320 722, 270 728, 230 730
+               C 220 728, 216 720, 215 706 Z"
             fill="#6B8E5A" opacity={0.30}
           />
-          {/* primary water body */}
+          {/* primary water body — narrower at source, wider mid-scene */}
           <path
-            d="M 286 692 C 360 698, 482 702, 602 704 C 760 706, 920 706, 1080 705
-               C 1240 703, 1360 701, 1440 700
-               L 1440 720 C 1360 720, 1240 722, 1080 722
-               C 920 723, 760 722, 602 721 C 482 720, 360 718, 286 712 Z"
+            d="M 218 708
+               C 272 702, 326 696, 386 692
+               C 466 692, 544 700, 624 706
+               C 724 708, 822 704, 922 700
+               C 1022 696, 1122 700, 1222 704
+               C 1320 706, 1400 702, 1440 700
+               L 1440 722
+               C 1400 724, 1320 726, 1222 724
+               C 1122 722, 1022 724, 922 724
+               C 822 726, 724 724, 624 720
+               C 544 718, 466 716, 386 716
+               C 326 718, 272 720, 232 722
+               C 224 718, 220 714, 218 708 Z"
             fill="#A8CDD2"
           />
-          {/* depth channel */}
+          {/* deeper channel — meanders through the river */}
           <path
-            d="M 300 706 C 460 712, 660 712, 880 712 C 1100 712, 1300 708, 1438 706"
+            d="M 240 712 C 320 706, 410 700, 500 706
+               C 600 712, 700 716, 800 712
+               C 900 708, 1000 710, 1100 712
+               C 1200 714, 1320 712, 1438 710"
             stroke="#7FA9B0" strokeWidth={3} fill="none" strokeLinecap="round" opacity={0.6}
           />
-          {/* shimmer ripples spread along the river */}
-          {[360, 460, 660, 740, 920, 1000, 1180, 1260, 1400].map((rx, i) => (
+          {/* shimmer ripples — denser where river is wider */}
+          {[
+            { x: 280, y: 708 }, { x: 360, y: 700 }, { x: 460, y: 706 },
+            { x: 580, y: 712 }, { x: 720, y: 710 }, { x: 880, y: 706 },
+            { x: 980, y: 706 }, { x: 1100, y: 710 }, { x: 1240, y: 712 },
+            { x: 1380, y: 706 },
+          ].map((p, i) => (
             <path
               key={`mmrr-${i}`}
-              d={`M ${rx - 8} 708 Q ${rx} 704 ${rx + 8} 708`}
-              stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.55 - (i % 2) * 0.08} strokeLinecap="round"
+              d={`M ${p.x - 7} ${p.y} Q ${p.x} ${p.y - 4} ${p.x + 7} ${p.y}`}
+              stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.55 - (i % 3) * 0.08} strokeLinecap="round"
             />
           ))}
 
-          {/* DAM at river midpoint (820, 705) — just stacked logs, no
-              cartoon beaver. Reads as a beaver dam without the cringe. */}
+          {/* foam at the cave-mouth source — water emerges */}
+          <ellipse cx={222} cy={708} rx={14} ry={4} fill="#FFFFFF" opacity={0.45} />
+          <ellipse cx={234} cy={714} rx={9} ry={3} fill="#FFFFFF" opacity={0.36} />
+          <path d="M 220 702 Q 226 700 234 704" stroke="#FFFFFF" strokeWidth={1.1} fill="none" opacity={0.6} strokeLinecap="round" />
+
+          {/* small reeds along the bank */}
+          {[[300, 690], [430, 686], [690, 692], [970, 692], [1140, 696], [1380, 692]].map(([rx, ry], i) => (
+            <g key={`mmrd-${i}`} transform={`translate(${rx},${ry})`}>
+              <line x1={0} y1={0} x2={-1} y2={-12} stroke="#6B8E5A" strokeWidth={1.4} strokeLinecap="round" />
+              <line x1={0} y1={0} x2={2} y2={-14} stroke="#6B8E5A" strokeWidth={1.4} strokeLinecap="round" />
+              <line x1={0} y1={0} x2={-3} y2={-8} stroke="#6B8E5A" strokeWidth={1.2} strokeLinecap="round" />
+            </g>
+          ))}
+
+          {/* LOG-JAM DAM at river midpoint (820, 706) — three logs at
+              natural angles + protruding twigs. Reads as a beaver dam
+              without any cringy cartoon creature. */}
           <g transform="translate(820, 706)">
-            {/* shadow on water */}
             <ellipse cx={0} cy={6} rx={42} ry={5} fill="#000" opacity={0.18} />
-            {/* stacked logs at slight angles, like a real jam */}
             <g transform="rotate(-3)">
               <rect x={-40} y={-1} width={80} height={5} rx={2.5} fill="#8B5A2B" stroke="#5A3B1F" strokeWidth={1.1} />
             </g>
@@ -445,137 +534,123 @@ export default function MathMountainScene({
             <g transform="rotate(-2)">
               <rect x={-26} y={-13} width={52} height={5} rx={2.5} fill="#B47845" stroke="#5A3B1F" strokeWidth={1.0} />
             </g>
-            {/* small twigs sticking out */}
             <line x1={-32} y1={-1} x2={-44} y2={-6} stroke="#5A3B1F" strokeWidth={1.2} strokeLinecap="round" />
             <line x1={36} y1={-6} x2={48} y2={-12} stroke="#5A3B1F" strokeWidth={1.2} strokeLinecap="round" />
             <line x1={-8} y1={-14} x2={-2} y2={-22} stroke="#5A3B1F" strokeWidth={1} strokeLinecap="round" />
-            {/* end-grain rings on protruding logs */}
             <circle cx={-40} cy={1.5} r={2.2} fill="#7A4A1F" stroke="#5A3B1F" strokeWidth={0.7} />
             <circle cx={40} cy={1.5} r={2.2} fill="#7A4A1F" stroke="#5A3B1F" strokeWidth={0.7} />
+            {/* small foam where water piles up against the dam */}
+            <ellipse cx={-30} cy={6} rx={10} ry={2.5} fill="#FFFFFF" opacity={0.4} />
+            <ellipse cx={28} cy={4} rx={8} ry={2} fill="#FFFFFF" opacity={0.32} />
           </g>
 
-          {/* River-bank stones near each bridge */}
-          <ellipse cx={476} cy={722} rx={9} ry={5} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.1} />
-          <ellipse cx={604} cy={722} rx={9} ry={5} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.1} />
-          <ellipse cx={1262} cy={724} rx={9} ry={5} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.1} />
-          <ellipse cx={1382} cy={724} rx={9} ry={5} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.1} />
+          {/* River-bank stones near each bridge approach */}
+          <ellipse cx={476} cy={724} rx={9} ry={5} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.1} />
+          <ellipse cx={604} cy={724} rx={9} ry={5} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.1} />
+          <ellipse cx={1262} cy={726} rx={9} ry={5} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.1} />
+          <ellipse cx={1382} cy={726} rx={9} ry={5} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.1} />
         </g>
 
         {/* ── 8. PATH SYSTEM ──
-             Winding bezier curves only — no horizontal straight runs.
-             Organic mountain trail logic: trails meander, climbs zig
-             gently, the lake has a path looping AROUND it (figure-8
-             with the cottage trail). Stays above the bottom buffer. */}
+             Holistic redesign:
+             • Path enters from the LEFT EDGE (offscreen) and ends at
+               the RIGHT EDGE (garden exit) — a complete trail across.
+             • Plateau is a CLOSED LOOP: Compare Trees → Ten More →
+               Round 10 → Round 100 → Mountain Heights → Three-Digit →
+               Tens Tower → back to Compare Trees.
+             • Twin Blossoms ↔ Cottage connector.
+             • Big Bridge bridges cave-side north bank to measurement
+               (south bank), giving it a real destination.
+             • Skip Bridge bridges orchard (south bank) to garden-exit
+               on right edge, giving it a real destination.
+             All curves; no straight horizontal runs. */}
         {(() => {
-          // SINGLE WINDING TRAIL split into chained segments. Each segment
-          // ends where the next begins so the eye reads it as one path.
-
-          // Cottage cluster — soft S between the 3 stories
-          const cottageInterD = `M 80 460
-            C 70 472, 78 488, 90 510
-            M 100 480
-            C 130 472, 158 466, 175 470`;
-          // Cottage → loops around lake's NORTH shore
-          const lakeLoopNorthD = `M 175 470
-            C 200 444, 240 416, 290 408
-            C 350 402, 410 412, 462 426
-            C 482 432, 500 434, 510 432`;
-          // Berry → undulates down to Compare Trees
+          // Path enters from left edge, climbs to cottage habitat
+          const leftEntryD = `M -20 470
+            C 20 466, 60 472, 110 480`;
+          // Cottage → Twin Blossoms (above lake, climbs gently NE)
+          const cottageToTwinD = `M 110 480
+            C 160 460, 220 432, 280 400`;
+          // Twin Blossoms → over lake's north shore → Berry Basket
+          const lakeNorthD = `M 280 400
+            C 340 406, 400 416, 460 424
+            C 480 428, 500 432, 510 432`;
+          // Berry → descends to Compare Trees
           const berryToCompareD = `M 510 432
-            C 532 444, 552 458, 568 466
-            C 578 470, 586 470, 590 470`;
-          // Lower ridge — three soft humps Compare → Ten More → Round 10
-          const lowerRidgeD = `M 590 470
-            C 624 462, 658 478, 692 472
+            C 534 446, 558 460, 580 466
+            C 586 468, 590 470, 590 470`;
+
+          // Plateau LOOP — closed circuit
+          // (a) lower ridge: Compare → Ten More → Round 10 (undulating)
+          const loopLowerD = `M 590 470
+            C 626 462, 660 478, 692 472
             C 720 466, 748 478, 778 472
-            C 808 466, 840 478, 880 470`;
-          // West climb — Compare Trees winds NW up to Tens Tower
-          const climbWestD = `M 590 470
-            C 584 446, 590 422, 572 410
-            C 562 404, 558 402, 560 400`;
-          // Plateau ridge — Tens dips down to Three-Digit, climbs to Mountain, descends to Round 100
-          const plateauRidgeD = `M 560 400
-            C 588 388, 620 376, 652 360
-            C 668 352, 678 350, 680 350
-            C 712 360, 740 376, 770 380
-            C 786 382, 794 384, 800 380
-            C 832 372, 866 364, 902 360
-            C 916 360, 920 360, 920 360`;
-          // East climb — winds NE
-          const climbEastD = `M 880 470
-            C 894 444, 906 416, 916 388
-            C 918 376, 920 366, 920 360`;
-          // Glen connector — Round 100 → Sharing → Division → Missing (loops)
+            C 810 466, 850 478, 880 470`;
+          // (b) east climb: Round 10 → Round 100 (winds NE)
+          const loopEastClimbD = `M 880 470
+            C 902 444, 916 410, 920 380
+            C 920 370, 920 364, 920 360`;
+          // (c) plateau ridge: Round 100 → Mountain Heights → Three-Digit → Tens (going W)
+          const loopRidgeD = `M 920 360
+            C 880 372, 840 376, 800 380
+            C 760 372, 720 360, 680 350
+            C 640 360, 600 380, 560 400`;
+          // (d) west climb: Tens → back down to Compare Trees (CLOSES THE LOOP)
+          const loopWestClimbD = `M 560 400
+            C 568 422, 580 446, 590 470`;
+
+          // Glen connector: Round 100 → Sharing → Division Facts → Missing Number
           const glenConnectD = `M 920 360
-            C 956 388, 996 414, 1042 422
-            C 1070 422, 1090 416, 1102 408
-            C 1126 388, 1156 372, 1186 364
-            C 1196 360, 1200 360, 1200 360
+            C 956 386, 1000 410, 1042 420
+            C 1066 422, 1086 418, 1102 410
+            C 1130 388, 1160 370, 1198 362
             C 1230 366, 1262 372, 1296 376
             C 1312 380, 1320 380, 1320 380`;
-          // Round 10 → Time Row — winding south
-          const roundToTimeD = `M 880 470
-            C 882 498, 876 520, 866 534
-            C 862 540, 860 540, 860 540`;
-          // Time row — undulating between 3 time pieces
-          const timeRowD = `M 660 540
-            C 692 532, 724 548, 760 540
-            C 794 532, 826 548, 860 540`;
-          // Time → Measurement — soft S
-          const timeToMeasureD = `M 760 540
-            C 754 562, 738 588, 718 608
-            C 706 616, 700 620, 700 620`;
-          // Measurement row — undulating
-          const measureRowD = `M 700 620
-            C 740 612, 778 626, 802 620
-            C 836 612, 866 628, 902 620
-            C 938 614, 970 626, 990 620`;
-          // Equal Garden → Array (curve down)
-          const orchardUpperD = `M 1080 530
-            C 1106 540, 1140 552, 1168 564
-            C 1176 568, 1180 570, 1180 570`;
-          // Array → Times-5 (curve down-left)
-          const orchardMidD = `M 1180 570
-            C 1162 588, 1130 604, 1106 614
-            C 1096 618, 1090 620, 1090 620`;
-          // Times-5 → Times-10 (curve right)
-          const orchardLowerD = `M 1090 620
-            C 1130 626, 1170 634, 1206 638
-            C 1220 640, 1230 640, 1230 640`;
-          // Measurement → Orchard (Bigger Slice → Times-5, curve)
-          const measureToOrchardD = `M 990 620
-            C 1020 614, 1056 622, 1090 620`;
-          // (Cave loop path removed — the cave SVG itself is the cluster
-          //  marker; no need to draw a path circling it.)
-          // North-bank trail — runs east across the meadow to Big Bridge
-          const riverNorthBankD = `M 360 670
-            C 400 666, 430 670, 462 678
-            C 470 684, 478 692, 480 700`;
-          // Big Bridge plank (gentle arch over river)
+
+          // Round 10 → Measurement habitat (drops south, winding)
+          const round10ToMeasureD = `M 880 470
+            C 882 498, 870 524, 856 544
+            C 842 562, 828 574, 820 580`;
+
+          // Cave east → Big Bridge approach (path on north bank of river)
+          const caveToBridgeD = `M 215 706
+            C 250 696, 290 686, 340 680
+            C 400 678, 450 686, 480 700`;
+
+          // Big Bridge plank (slight arch, span the river)
           const bigBridgeD = `M 480 700
-            C 504 696, 540 694, 600 700`;
-          // East of Big Bridge → up to measurement row
-          const bridgeEastUpD = `M 600 700
-            C 622 670, 656 640, 692 624
-            C 698 622, 700 620, 700 620`;
-          // Times-10 → Skip Bridge approach
-          const timesToSkipD = `M 1230 640
-            C 1268 658, 1298 680, 1316 696
-            C 1320 700, 1320 700, 1320 700`;
+            C 504 694, 540 692, 600 700`;
+
+          // Big Bridge south → Measurement habitat (climbs through south bank)
+          const bridgeToMeasureD = `M 600 700
+            C 644 678, 700 654, 752 624
+            C 790 604, 814 588, 820 580`;
+
+          // Measurement → Orchard (south bank, east-flowing curve)
+          const measureToOrchardD = `M 820 580
+            C 920 580, 1020 580, 1100 580
+            C 1130 580, 1146 580, 1150 580`;
+
+          // Orchard → Skip Bridge approach (drops south to bridge)
+          const orchardToSkipD = `M 1150 580
+            C 1196 612, 1248 660, 1296 692
+            C 1308 698, 1316 700, 1320 700`;
+
           // Skip Bridge plank (gentle arch)
           const skipBridgeD = `M 1260 700
-            C 1290 696, 1326 694, 1380 700`;
+            C 1290 694, 1326 692, 1380 700`;
 
-          // Non-bridge trails. Habitat-internal paths (cottage interconnect,
-          // orchard chain, time row, measurement row) ALSO removed — when
-          // a habitat is collapsed, those internal connectors look like
-          // floating spaghetti. The habitat marker is the destination;
-          // structures fan out on tap.
+          // Skip Bridge → garden exit on right edge
+          const skipToExitD = `M 1380 700
+            C 1408 690, 1428 676, 1440 660`;
+
+          // All non-bridge trails
           const trails = [
-            lakeLoopNorthD, berryToCompareD, lowerRidgeD,
-            climbWestD, plateauRidgeD, climbEastD, glenConnectD,
-            roundToTimeD, timeToMeasureD,
-            riverNorthBankD, bridgeEastUpD, timesToSkipD,
+            leftEntryD, cottageToTwinD, lakeNorthD, berryToCompareD,
+            loopLowerD, loopEastClimbD, loopRidgeD, loopWestClimbD,
+            glenConnectD, round10ToMeasureD,
+            caveToBridgeD, bridgeToMeasureD, measureToOrchardD,
+            orchardToSkipD, skipToExitD,
           ];
           return (
             <g pointerEvents="none">
@@ -608,32 +683,36 @@ export default function MathMountainScene({
 
               {/* Stepping stones — sparse, only on key approaches */}
               {[
-                // cottage to lake-north
-                { x: 220, y: 444 }, { x: 290, y: 418 }, { x: 380, y: 410 }, { x: 460, y: 420 },
+                // left entry → cottage
+                { x: 30, y: 470 }, { x: 70, y: 476 },
+                // cottage → twin blossoms
+                { x: 160, y: 462 }, { x: 220, y: 432 },
+                // twin to lake-north
+                { x: 320, y: 408 }, { x: 400, y: 416 }, { x: 480, y: 428 },
                 // berry to compare
                 { x: 540, y: 450 }, { x: 570, y: 462 },
-                // lower ridge
+                // loop lower ridge
                 { x: 660, y: 470 }, { x: 800, y: 470 },
-                // climbs
-                { x: 580, y: 442 }, { x: 902, y: 420 },
-                // plateau ridge
-                { x: 620, y: 384 }, { x: 720, y: 360 }, { x: 850, y: 376 },
+                // loop east climb
+                { x: 902, y: 420 },
+                // loop ridge
+                { x: 850, y: 376 }, { x: 740, y: 360 }, { x: 620, y: 380 },
+                // loop west climb
+                { x: 580, y: 442 },
                 // glen connector
-                { x: 990, y: 388 }, { x: 1140, y: 388 }, { x: 1260, y: 376 },
-                // round to time
-                { x: 868, y: 506 },
-                // time row
-                { x: 720, y: 540 }, { x: 810, y: 540 },
-                // time to measurement
-                { x: 740, y: 580 },
-                // measurement row
-                { x: 750, y: 620 }, { x: 940, y: 620 },
-                // orchard
-                { x: 1130, y: 555 }, { x: 1140, y: 600 }, { x: 1180, y: 632 },
-                // cave loop
-                { x: 150, y: 678 }, { x: 220, y: 692 },
-                // north-bank trail
-                { x: 330, y: 670 }, { x: 410, y: 670 }, { x: 460, y: 686 },
+                { x: 990, y: 388 }, { x: 1140, y: 386 }, { x: 1260, y: 376 },
+                // round 10 → measurement
+                { x: 866, y: 510 }, { x: 838, y: 558 },
+                // cave east → big bridge
+                { x: 280, y: 692 }, { x: 360, y: 680 }, { x: 440, y: 686 },
+                // bridge → measurement (south bank)
+                { x: 660, y: 678 }, { x: 740, y: 632 }, { x: 800, y: 596 },
+                // measurement → orchard
+                { x: 920, y: 580 }, { x: 1040, y: 580 },
+                // orchard → skip bridge
+                { x: 1216, y: 632 }, { x: 1280, y: 680 },
+                // skip → exit
+                { x: 1410, y: 686 }, { x: 1430, y: 670 },
                 // bridge approaches
                 { x: 620, y: 680 }, { x: 660, y: 650 },
                 { x: 1280, y: 680 }, { x: 1310, y: 698 },
@@ -853,24 +932,78 @@ export default function MathMountainScene({
               : 'drop-shadow(0 2px 3px rgba(107,68,35,0.42))';
 
             if (key === 'cottage') {
+              // Woodland cabin — weathered wood plank walls, mossy
+              // forest-green roof, warm lit windows, stone chimney.
+              // Less twee than pink cottagecore.
               return (
                 <g style={{ filter, opacity: tone }}>
-                  <ellipse cx={0} cy={36} rx={36} ry={6} fill="#000" opacity={0.14} />
-                  <rect x={-28} y={0} width={56} height={36} rx={3} fill="#F5EBDC" stroke="#5A3B1F" strokeWidth={2} />
-                  <rect x={-6} y={14} width={12} height={22} rx={3} fill="#8B5A2B" stroke="#5A3B1F" strokeWidth={1.5} />
-                  <circle cx={4} cy={26} r={1.5} fill="#5A3B1F" />
-                  <rect x={-23} y={8} width={11} height={9} rx={1.5} fill="#BDE3EC" stroke="#5A3B1F" strokeWidth={1.2} />
-                  <line x1={-18} y1={8} x2={-18} y2={17} stroke="#5A3B1F" strokeWidth={0.8} />
-                  <line x1={-23} y1={13} x2={-12} y2={13} stroke="#5A3B1F" strokeWidth={0.8} />
-                  <rect x={12} y={8} width={11} height={9} rx={1.5} fill="#BDE3EC" stroke="#5A3B1F" strokeWidth={1.2} />
-                  <line x1={17} y1={8} x2={17} y2={17} stroke="#5A3B1F" strokeWidth={0.8} />
-                  <line x1={12} y1={13} x2={23} y2={13} stroke="#5A3B1F" strokeWidth={0.8} />
-                  <path d="M -34 2 L 0 -28 L 34 2 Z" fill="#C38D9E" stroke="#5A3B1F" strokeWidth={2} strokeLinejoin="round" />
-                  <path d="M -16 -10 L 0 -26 L 16 -10" stroke="#D4A8B4" strokeWidth={1} fill="none" opacity={0.6} />
-                  <rect x={8} y={-26} width={8} height={16} rx={1} fill="#B8A090" stroke="#5A3B1F" strokeWidth={1.5} />
-                  <ellipse cx={12} cy={-30} rx={5} ry={4} fill="#E8E0D3" opacity={0.60} />
-                  <ellipse cx={15} cy={-36} rx={4} ry={3.5} fill="#E8E0D3" opacity={0.40} />
-                  <ellipse cx={11} cy={-42} rx={3.5} ry={3} fill="#E8E0D3" opacity={0.24} />
+                  {/* ground shadow */}
+                  <ellipse cx={0} cy={36} rx={38} ry={6} fill="#000" opacity={0.16} />
+
+                  {/* stone foundation */}
+                  <rect x={-30} y={32} width={60} height={6} rx={1} fill="#8A7E6C" stroke="#5A3B1F" strokeWidth={1.2} />
+                  <line x1={-20} y1={32} x2={-20} y2={38} stroke="#5A3B1F" strokeWidth={0.6} />
+                  <line x1={-8} y1={32} x2={-8} y2={38} stroke="#5A3B1F" strokeWidth={0.6} />
+                  <line x1={6} y1={32} x2={6} y2={38} stroke="#5A3B1F" strokeWidth={0.6} />
+                  <line x1={20} y1={32} x2={20} y2={38} stroke="#5A3B1F" strokeWidth={0.6} />
+
+                  {/* wood plank walls — warm weathered brown */}
+                  <rect x={-28} y={0} width={56} height={32} fill="#B47845" stroke="#5A3B1F" strokeWidth={2} />
+                  {/* vertical plank seams */}
+                  <line x1={-18} y1={2} x2={-18} y2={32} stroke="#5A3B1F" strokeWidth={0.8} opacity={0.6} />
+                  <line x1={-8} y1={2} x2={-8} y2={32} stroke="#5A3B1F" strokeWidth={0.8} opacity={0.6} />
+                  <line x1={2} y1={2} x2={2} y2={32} stroke="#5A3B1F" strokeWidth={0.8} opacity={0.6} />
+                  <line x1={12} y1={2} x2={12} y2={32} stroke="#5A3B1F" strokeWidth={0.8} opacity={0.6} />
+                  <line x1={22} y1={2} x2={22} y2={32} stroke="#5A3B1F" strokeWidth={0.8} opacity={0.6} />
+                  {/* knot details on the planks */}
+                  <circle cx={-14} cy={14} r={0.9} fill="#5A3B1F" opacity={0.7} />
+                  <circle cx={6} cy={22} r={0.8} fill="#5A3B1F" opacity={0.6} />
+                  <circle cx={18} cy={10} r={0.9} fill="#5A3B1F" opacity={0.7} />
+
+                  {/* door — heavy planks with iron hinges */}
+                  <rect x={-6} y={12} width={12} height={20} rx={1} fill="#5A3B1F" stroke="#3F2614" strokeWidth={1.2} />
+                  <line x1={0} y1={14} x2={0} y2={30} stroke="#3F2614" strokeWidth={0.8} />
+                  <rect x={-5} y={15} width={3} height={1.4} fill="#2A1810" />
+                  <rect x={-5} y={28} width={3} height={1.4} fill="#2A1810" />
+                  <rect x={2} y={15} width={3} height={1.4} fill="#2A1810" />
+                  <rect x={2} y={28} width={3} height={1.4} fill="#2A1810" />
+                  <circle cx={3} cy={22} r={0.8} fill="#FFD93D" />
+
+                  {/* warm-lit windows — gold panes */}
+                  <rect x={-23} y={8} width={11} height={11} fill="#FFD06B" stroke="#5A3B1F" strokeWidth={1.3} />
+                  <line x1={-17.5} y1={8} x2={-17.5} y2={19} stroke="#5A3B1F" strokeWidth={0.8} />
+                  <line x1={-23} y1={13.5} x2={-12} y2={13.5} stroke="#5A3B1F" strokeWidth={0.8} />
+                  {/* warm glow inside */}
+                  <rect x={-22} y={9} width={9} height={9} fill="#FFE89A" opacity={0.6} />
+
+                  <rect x={12} y={8} width={11} height={11} fill="#FFD06B" stroke="#5A3B1F" strokeWidth={1.3} />
+                  <line x1={17.5} y1={8} x2={17.5} y2={19} stroke="#5A3B1F" strokeWidth={0.8} />
+                  <line x1={12} y1={13.5} x2={23} y2={13.5} stroke="#5A3B1F" strokeWidth={0.8} />
+                  <rect x={13} y={9} width={9} height={9} fill="#FFE89A" opacity={0.6} />
+
+                  {/* mossy forest-green roof — pitched, with shingles */}
+                  <path d="M -34 2 L 0 -28 L 34 2 Z"
+                        fill="#5C7E4F" stroke="#3F5A30" strokeWidth={2} strokeLinejoin="round" />
+                  {/* roof shingle rows */}
+                  <path d="M -28 -4 L 28 -4" stroke="#3F5A30" strokeWidth={0.7} opacity={0.6} />
+                  <path d="M -22 -10 L 22 -10" stroke="#3F5A30" strokeWidth={0.7} opacity={0.6} />
+                  <path d="M -16 -16 L 16 -16" stroke="#3F5A30" strokeWidth={0.7} opacity={0.6} />
+                  {/* moss patches */}
+                  <ellipse cx={-14} cy={-2} rx={6} ry={2} fill="#7BA46F" opacity={0.7} />
+                  <ellipse cx={8} cy={-8} rx={5} ry={2} fill="#7BA46F" opacity={0.7} />
+                  <ellipse cx={-4} cy={-16} rx={4} ry={1.6} fill="#7BA46F" opacity={0.6} />
+
+                  {/* stone chimney */}
+                  <rect x={10} y={-26} width={8} height={16} fill="#8A7E6C" stroke="#5A3B1F" strokeWidth={1.4} />
+                  {/* mortar lines on chimney */}
+                  <line x1={10} y1={-22} x2={18} y2={-22} stroke="#5A3B1F" strokeWidth={0.6} />
+                  <line x1={10} y1={-16} x2={18} y2={-16} stroke="#5A3B1F" strokeWidth={0.6} />
+                  <line x1={14} y1={-26} x2={14} y2={-10} stroke="#5A3B1F" strokeWidth={0.5} opacity={0.5} />
+                  {/* curling chimney smoke */}
+                  <path d="M 14 -28 Q 18 -32 16 -36 Q 14 -40 18 -44 Q 22 -48 19 -52"
+                        stroke="#E8E0D3" strokeWidth={3} fill="none" strokeLinecap="round" opacity={0.7} />
+                  <path d="M 14 -30 Q 11 -34 14 -38 Q 17 -42 14 -46"
+                        stroke="#E8E0D3" strokeWidth={2.4} fill="none" strokeLinecap="round" opacity={0.45} />
                 </g>
               );
             }
