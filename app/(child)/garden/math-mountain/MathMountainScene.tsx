@@ -313,51 +313,54 @@ export default function MathMountainScene({
         </g>
 
         {/* ── 8. PATH SYSTEM ──
-             ONE coherent trail. Reads left-to-right like the central
-             garden: Cottage → Measurement Meadow spine across the bottom
-             → branches: NW into Operations Hollow → over BIG BRIDGE →
-             N into Place-Value Heights plateau → NE through Multiplication
-             Orchard → over SKIP COUNT BRIDGE → up into Division Glen.
-             Both bridges visibly cross water bodies drawn above. */}
+             Winds from the lower-left cottage UP through Hollow → over
+             BIG BRIDGE → climbs the plateau where Place-Value Heights
+             sit on the rolling hills (y:340-470) → drifts right across
+             the upper hill band → over SKIP COUNT BRIDGE → glen ridge
+             at the top-right. Reads as a real mountain trail that
+             actually CLIMBS — not a horizontal stripe at the bottom. */}
         {(() => {
-          // Spine across the bottom — narrows at edges, fattest mid
-          const spineD = `M 210 758 C 320 738, 480 728, 640 724 C 800 720, 920 716, 1060 720 C 1190 724, 1320 716, 1402 720`;
-          // Left fork up into Operations Hollow (bypasses brook to its east)
-          const leftForkD = `M 340 730 C 332 700, 326 672, 332 644 C 340 616, 360 600, 386 596`;
-          // OVER BIG BRIDGE: short flat segment crossing the stream at x:400, y:660
+          // Lower spine across foreground meadow — connects cottage
+          // and the time/fraction structures
+          const lowerSpineD = `M 180 738 C 280 728, 380 720, 480 716 C 580 712, 680 710, 800 710 C 900 716, 980 720, 1060 728`;
+          // Cottage approach into Hollow — climbs up-left
+          const hollowApproachD = `M 280 718 C 290 690, 300 660, 308 630 C 314 604, 320 580, 328 560`;
+          // OVER BIG BRIDGE — flat plank crossing at y:678
           const bigBridgeD = `M 332 678 C 360 678, 380 678, 400 678 C 420 678, 440 678, 470 678`;
-          // From bridge → climbs N to plateau (Tens Tower at 560,540)
-          const plateauClimbD = `M 470 678 C 500 644, 520 600, 540 560 C 552 540, 558 538, 560 540`;
-          // Plateau ridge: connects Tens → Three-Digit → Mountain Heights → Round 100
-          const plateauRidgeD = `M 560 540 C 620 530, 680 528, 740 530 C 800 532, 860 534, 920 532 C 950 530, 968 528, 970 528`;
-          // Plateau spur south: Compare Trees & Ten More/Less (lower row)
-          const plateauSpurD = `M 620 540 C 640 570, 660 600, 680 612 C 710 618, 730 614, 730 612`;
-          // Right fork from spine into Multiplication Orchard
-          const rightForkD = `M 1080 720 C 1090 700, 1100 680, 1100 660 C 1100 640, 1095 620, 1090 600 C 1085 584, 1080 572, 1080 562`;
-          // OVER SKIP COUNT BRIDGE: short flat segment crossing stream at 1320, 540
+          // Plateau climb — Big Bridge → Big Falls → Tens Tower (long climb)
+          const plateauClimbD = `M 470 678 C 490 640, 510 580, 528 520 C 540 480, 552 440, 560 410`;
+          // Plateau ridge — Tens (560,400) → Three-Digit (680,350) → Mountain (800,380) → Round 100 (920,360)
+          const plateauRidgeD = `M 560 410 C 600 380, 640 360, 680 358 C 730 360, 770 372, 800 386 C 850 380, 890 368, 920 366`;
+          // Glen connector — Round 100 → Sharing Squirrels → Division Facts → Missing Number
+          const glenConnectD = `M 920 366 C 970 380, 1020 408, 1080 422 C 1140 410, 1180 380, 1200 366 C 1240 372, 1290 384, 1320 386`;
+          // Lower plateau row — Compare Trees (600,470) → Ten More (740,470) → Round 10 (880,470)
+          const lowerRidgeD = `M 600 472 C 670 470, 740 472, 810 470 C 850 470, 870 470, 880 470`;
+          // Right fork — lower spine → orchard → Skip Bridge approach
+          const orchardClimbD = `M 1060 728 C 1090 690, 1110 650, 1120 620 C 1130 590, 1130 568, 1130 558`;
+          // OVER SKIP BRIDGE — flat plank crossing at y:558
           const skipBridgeD = `M 1268 558 C 1290 558, 1310 558, 1320 558 C 1340 558, 1360 558, 1372 558`;
-          // From skip bridge → up into Division Glen
-          const glenClimbD = `M 1320 558 C 1308 528, 1300 500, 1300 480 C 1304 470, 1310 466, 1320 462`;
-          // Glen ridge: Sharing → Division Facts → Missing Number
-          const glenRidgeD = `M 1090 462 C 1140 460, 1180 466, 1220 470 C 1260 472, 1300 466, 1320 462`;
           return (
             <g pointerEvents="none">
               {/* Shadow */}
-              {[spineD, leftForkD, plateauClimbD, plateauRidgeD, plateauSpurD, rightForkD, glenClimbD, glenRidgeD].map((d, i) => (
-                <path key={`mmsh-${i}`} d={d} stroke="#A99878" strokeWidth={32} fill="none" strokeLinecap="round" opacity={0.18} />
+              {[lowerSpineD, hollowApproachD, plateauClimbD, plateauRidgeD, glenConnectD, lowerRidgeD, orchardClimbD].map((d, i) => (
+                <path key={`mmsh-${i}`} d={d} stroke="#A99878" strokeWidth={26} fill="none" strokeLinecap="round" opacity={0.18} />
               ))}
-              {/* Bridge segments slightly fatter (wood plank look) */}
+              {/* Bridges (wood plank shadow) */}
               <path d={bigBridgeD}  stroke="#7A5A3A" strokeWidth={26} fill="none" strokeLinecap="round" opacity={0.78} />
               <path d={skipBridgeD} stroke="#7A5A3A" strokeWidth={20} fill="none" strokeLinecap="round" opacity={0.78} />
 
-              {/* Surface */}
-              {[spineD, leftForkD, plateauClimbD, plateauRidgeD, plateauSpurD, rightForkD, glenClimbD, glenRidgeD].map((d, i) => (
-                <path key={`mmsu-${i}`} d={d} stroke="#EAD2A8" strokeWidth={22} fill="none" strokeLinecap="round" opacity={0.88} />
-              ))}
+              {/* Surface — narrows as it climbs (mountain-trail effect) */}
+              <path d={lowerSpineD}    stroke="#EAD2A8" strokeWidth={20} fill="none" strokeLinecap="round" opacity={0.88} />
+              <path d={hollowApproachD} stroke="#EAD2A8" strokeWidth={18} fill="none" strokeLinecap="round" opacity={0.85} />
+              <path d={plateauClimbD}  stroke="#EAD2A8" strokeWidth={16} fill="none" strokeLinecap="round" opacity={0.82} />
+              <path d={plateauRidgeD}  stroke="#EAD2A8" strokeWidth={14} fill="none" strokeLinecap="round" opacity={0.78} />
+              <path d={glenConnectD}   stroke="#EAD2A8" strokeWidth={13} fill="none" strokeLinecap="round" opacity={0.76} />
+              <path d={lowerRidgeD}    stroke="#EAD2A8" strokeWidth={14} fill="none" strokeLinecap="round" opacity={0.78} />
+              <path d={orchardClimbD}  stroke="#EAD2A8" strokeWidth={16} fill="none" strokeLinecap="round" opacity={0.84} />
+
               {/* Bridge plank surface */}
               <path d={bigBridgeD}  stroke="#C8A57A" strokeWidth={20} fill="none" strokeLinecap="round" opacity={0.94} />
               <path d={skipBridgeD} stroke="#C8A57A" strokeWidth={14} fill="none" strokeLinecap="round" opacity={0.94} />
-              {/* Plank cross-lines */}
               {[346, 366, 386, 406, 426, 446, 466].map(px => (
                 <line key={`bbp-${px}`} x1={px} y1={668} x2={px} y2={688} stroke="#7A5A3A" strokeWidth={1.4} opacity={0.7} />
               ))}
@@ -366,34 +369,36 @@ export default function MathMountainScene({
               ))}
 
               {/* Highlight ribbon */}
-              {[spineD, leftForkD, plateauClimbD, plateauRidgeD, plateauSpurD, rightForkD, glenClimbD, glenRidgeD].map((d, i) => (
-                <path key={`mmhi-${i}`} d={d} stroke="#F7E6C4" strokeWidth={8} fill="none" strokeLinecap="round" opacity={0.50} />
-              ))}
+              <path d={lowerSpineD}    stroke="#F7E6C4" strokeWidth={7} fill="none" strokeLinecap="round" opacity={0.52} />
+              <path d={hollowApproachD} stroke="#F7E6C4" strokeWidth={6} fill="none" strokeLinecap="round" opacity={0.48} />
+              <path d={plateauClimbD}  stroke="#F7E6C4" strokeWidth={5} fill="none" strokeLinecap="round" opacity={0.46} />
+              <path d={plateauRidgeD}  stroke="#F7E6C4" strokeWidth={5} fill="none" strokeLinecap="round" opacity={0.44} />
+              <path d={glenConnectD}   stroke="#F7E6C4" strokeWidth={4} fill="none" strokeLinecap="round" opacity={0.42} />
+              <path d={lowerRidgeD}    stroke="#F7E6C4" strokeWidth={5} fill="none" strokeLinecap="round" opacity={0.44} />
+              <path d={orchardClimbD}  stroke="#F7E6C4" strokeWidth={6} fill="none" strokeLinecap="round" opacity={0.50} />
 
-              {/* Stepping stones — sparser, only on softer-tread sections */}
+              {/* Stepping stones — fewer, only on key approaches */}
               {[
-                // spine
-                { x: 260, y: 750 }, { x: 410, y: 730 }, { x: 560, y: 724 },
-                { x: 720, y: 720 }, { x: 880, y: 718 }, { x: 1040, y: 720 },
-                { x: 1200, y: 718 }, { x: 1340, y: 718 },
-                // left fork → bridge approach
-                { x: 336, y: 706 }, { x: 332, y: 672 }, { x: 348, y: 644 },
-                // plateau climb (after bridge)
-                { x: 484, y: 656 }, { x: 506, y: 622 }, { x: 526, y: 588 }, { x: 546, y: 558 },
+                // lower spine
+                { x: 240, y: 730 }, { x: 380, y: 720 }, { x: 540, y: 714 },
+                { x: 720, y: 710 }, { x: 880, y: 712 }, { x: 1020, y: 720 },
+                // hollow approach
+                { x: 290, y: 700 }, { x: 308, y: 640 }, { x: 326, y: 580 },
+                // plateau climb (long)
+                { x: 488, y: 644 }, { x: 504, y: 590 }, { x: 524, y: 528 }, { x: 548, y: 460 },
                 // plateau ridge
-                { x: 600, y: 538 }, { x: 660, y: 532 }, { x: 720, y: 530 },
-                { x: 780, y: 530 }, { x: 840, y: 530 }, { x: 900, y: 528 }, { x: 940, y: 528 },
-                // plateau spur south
-                { x: 640, y: 568 }, { x: 670, y: 596 }, { x: 700, y: 612 },
-                // right fork up to skip bridge
-                { x: 1090, y: 692 }, { x: 1100, y: 660 }, { x: 1094, y: 622 }, { x: 1086, y: 588 },
-                // glen ridge
-                { x: 1140, y: 462 }, { x: 1200, y: 466 }, { x: 1260, y: 466 }, { x: 1310, y: 462 },
+                { x: 614, y: 386 }, { x: 720, y: 366 }, { x: 850, y: 376 },
+                // glen connector
+                { x: 980, y: 380 }, { x: 1060, y: 416 }, { x: 1140, y: 396 }, { x: 1260, y: 376 },
+                // lower ridge
+                { x: 670, y: 472 }, { x: 810, y: 470 },
+                // orchard climb
+                { x: 1080, y: 690 }, { x: 1100, y: 644 }, { x: 1120, y: 600 },
               ].map((s, i) => (
                 <g key={`mmstn-${i}`}>
-                  <ellipse cx={s.x + 1} cy={s.y + 2} rx={9} ry={5} fill="#000" opacity={0.16} />
-                  <ellipse cx={s.x} cy={s.y} rx={9} ry={5} fill="#C9B489" stroke="#8A7050" strokeWidth={1.1} />
-                  <ellipse cx={s.x - 2} cy={s.y - 1.2} rx={4} ry={1.6} fill="#E0CBA1" opacity={0.8} />
+                  <ellipse cx={s.x + 1} cy={s.y + 2} rx={8} ry={4.5} fill="#000" opacity={0.16} />
+                  <ellipse cx={s.x} cy={s.y} rx={8} ry={4.5} fill="#C9B489" stroke="#8A7050" strokeWidth={1} />
+                  <ellipse cx={s.x - 2} cy={s.y - 1.2} rx={3.5} ry={1.4} fill="#E0CBA1" opacity={0.8} />
                 </g>
               ))}
             </g>
@@ -401,10 +406,10 @@ export default function MathMountainScene({
         })()}
 
         {/* ── 9. WORD STORIES COTTAGE — lower-left corner ──
-             Structures (mm_stories_plus/minus/long_stories) sit to the
-             RIGHT of this cottage at x:70-200, y:720-760. Cottage sits
-             to the left at x:30-90, y:690. */}
-        <g transform="translate(38, 692)" pointerEvents="none">
+             Stories structures now at (70,690), (170,720), (80,760).
+             Cottage shifted up so its foundation sits BEHIND mm_stories_plus
+             at (70, 690). */}
+        <g transform="translate(20, 660)" pointerEvents="none">
           <ellipse cx={28} cy={66} rx={34} ry={6} fill="#000" opacity={0.12} />
           <rect x={0} y={30} width={56} height={36} rx={3} fill="#F5EBDC" stroke="#5A3B1F" strokeWidth={2} />
           <rect x={22} y={44} width={12} height={22} rx={3} fill="#8B5A2B" stroke="#5A3B1F" strokeWidth={1.5} />
@@ -423,81 +428,68 @@ export default function MathMountainScene({
           <ellipse cx={40} cy={0}  rx={5} ry={4}   fill="#E8E0D3" opacity={0.60} />
           <ellipse cx={43} cy={-6} rx={4} ry={3.5} fill="#E8E0D3" opacity={0.40} />
           <ellipse cx={39} cy={-12} rx={3.5} ry={3} fill="#E8E0D3" opacity={0.24} />
-          {/* Cottage garden flowers */}
-          <circle cx={17} cy={66} r={3.5} fill="#C38D9E" stroke="#5A3B1F" strokeWidth={0.8} />
-          <circle cx={14} cy={64} r={1} fill="#FFD93D" />
-          <circle cx={18} cy={64} r={1} fill="#FFD93D" />
-          <circle cx={16} cy={62.5} r={1} fill="#FFD93D" />
-          <path d="M 17 66 L 17 72" stroke="#6B8E5A" strokeWidth={1.2} strokeLinecap="round" />
-          <circle cx={42} cy={66} r={3.5} fill="#E8A87C" stroke="#5A3B1F" strokeWidth={0.8} />
-          <circle cx={39} cy={64} r={1} fill="#FFD93D" />
-          <circle cx={43} cy={64} r={1} fill="#FFD93D" />
-          <circle cx={41} cy={62.5} r={1} fill="#FFD93D" />
-          <path d="M 42 66 L 42 72" stroke="#6B8E5A" strokeWidth={1.2} strokeLinecap="round" />
         </g>
 
-        {/* ── 10. APPLE ORCHARD ROWS — Multiplication Orchard (right foreground) ──
-             Structures: mm_equal_garden (1080,560), mm_array_orchard (1200,580),
-             mm_times_to_5 (1100,660), mm_times_to_10 (1240,680).
-             (Skip Count Bridge sits ABOVE this, spanning its own stream.)
-             Tree rows flank the cluster without hitting structures. The
-             yellow row-marker rects were removed — they read as "weird
-             shaded rectangles" rather than apple rows. */}
-        {[1010, 1140, 1380].map((tx, i) => (
-          <Tree key={`orch-back-${i}`} x={tx} y={606} size={42} variant={i % 2 === 0 ? 1 : 2} />
+        {/* ── 10. APPLE ORCHARD ROWS — Multiplication Orchard ──
+             Structures: mm_equal_garden (1080,530), mm_array_orchard (1200,580),
+             mm_times_to_5 (1100,620), mm_times_to_10 (1240,640).
+             Tree rows sit BELOW the structures only, freeing the upper
+             orchard band for the path & Skip Bridge approach. */}
+        {[1020, 1380].map((tx, i) => (
+          <Tree key={`orch-back-${i}`} x={tx} y={630} size={40} variant={i % 2 === 0 ? 1 : 2} />
         ))}
-        {[1042, 1170, 1280, 1390].map((tx, i) => (
-          <Tree key={`orch-mid-${i}`} x={tx} y={720} size={46} variant={i % 3 === 0 ? 2 : i % 3 === 1 ? 1 : 3} />
+        {[1040, 1170, 1280, 1390].map((tx, i) => (
+          <Tree key={`orch-mid-${i}`} x={tx} y={730} size={44} variant={i % 3 === 0 ? 2 : i % 3 === 1 ? 1 : 3} />
         ))}
 
-        {/* ── 11. DIVISION GLEN — mossy boulders + pine framing ──
-             Glen structures now at y:462-470 (mid-meadow band).
-             Boulders sit BELOW each structure as a base, not on top. */}
+        {/* ── 11. DIVISION GLEN — pine clearing on the upper hills ──
+             Glen structures at y:360-420. Pines flank the clearing
+             behind/between, and a few small boulders sit at the foot. */}
+        <PineTree x={1030} y={328} size={46} />
+        <PineTree x={1140} y={328} size={50} />
+        <PineTree x={1260} y={332} size={48} />
+        <PineTree x={1370} y={328} size={48} />
         <g pointerEvents="none">
-          <ellipse cx={1090} cy={500} rx={20} ry={9} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.4} />
-          <ellipse cx={1088} cy={496} rx={14} ry={4} fill="#A89D8A" />
-          <ellipse cx={1090} cy={494} rx={16} ry={2.8} fill="#7BA46F" opacity={0.84} />
-          <ellipse cx={1320} cy={500} rx={17} ry={9} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.4} />
-          <ellipse cx={1318} cy={496} rx={11} ry={4} fill="#A89D8A" />
-          <ellipse cx={1320} cy={494} rx={13} ry={2.8} fill="#7BA46F" opacity={0.84} />
-          <ellipse cx={1210} cy={508} rx={14} ry={7} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.3} />
-          <ellipse cx={1208} cy={504} rx={9} ry={3} fill="#A89D8A" />
+          <ellipse cx={1080} cy={460} rx={14} ry={6} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.2} />
+          <ellipse cx={1078} cy={456} rx={9} ry={2.6} fill="#A89D8A" />
+          <ellipse cx={1080} cy={454} rx={11} ry={2} fill="#7BA46F" opacity={0.84} />
+          <ellipse cx={1320} cy={420} rx={12} ry={5} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.1} />
+          <ellipse cx={1318} cy={417} rx={8} ry={2.4} fill="#A89D8A" />
         </g>
 
         {/* ── 12. FRAMING TREES ──
              Rules: no tree within 60px of any structure; trees only at
              edges and mid-distance. */}
 
-        {/* Distant ridge above the plateau */}
-        <PineTree x={400} y={344} size={48} />
-        <PineTree x={1010} y={344} size={48} />
+        {/* Distant ridge between peaks (NW between Peak 5 & Peak 3) */}
+        <PineTree x={130} y={300} size={44} />
+        <PineTree x={460} y={300} size={42} />
 
         {/* Left edge — hollow entrance framing */}
-        <Tree x={70} y={482} size={58} variant={2} />
-        <Tree x={250} y={500} size={48} variant={1} />
+        <Tree x={50} y={520} size={56} variant={2} />
+        <Tree x={300} y={460} size={50} variant={3} />
 
-        {/* Between plateau and orchard */}
-        <PineTree x={1010} y={540} size={48} />
+        {/* Between plateau and Compare Trees row */}
+        <Tree x={420} y={580} size={48} variant={1} />
 
         {/* Bottom-left cottage nook */}
-        <Tree x={62} y={648} size={60} variant={2} />
+        <Tree x={250} y={760} size={50} variant={2} />
 
-        {/* Far-right edge */}
-        <Tree x={1402} y={420} size={56} variant={3} />
+        {/* Far-right edge — separates Glen from frame */}
+        <Tree x={1402} y={500} size={50} variant={3} />
 
-        {/* ── 13. GRASS TUFTS + FLOWERS — meadow level only (y > 640) ── */}
-        <GrassTuft x={220} y={752} size={20} />
-        <GrassTuft x={460} y={764} size={22} />
-        <GrassTuft x={740} y={772} size={20} />
-        <GrassTuft x={1020} y={764} size={20} />
-        <GrassTuft x={1340} y={756} size={22} />
-        <Flower x={310} y={762} size={15} />
-        <Flower x={420} y={756} size={14} />
-        <Flower x={600} y={768} size={15} />
-        <Flower x={860} y={760} size={14} />
-        <Flower x={1160} y={762} size={15} />
-        <Flower x={1280} y={752} size={14} />
-        <Flower x={1398} y={766} size={13} />
+        {/* ── 13. GRASS TUFTS + FLOWERS — meadow band, between structures ── */}
+        <GrassTuft x={460} y={668} size={20} />
+        <GrassTuft x={620} y={672} size={20} />
+        <GrassTuft x={1010} y={672} size={20} />
+        <GrassTuft x={420} y={780} size={20} />
+        <GrassTuft x={1140} y={780} size={22} />
+        <Flower x={510} y={680} size={14} />
+        <Flower x={580} y={678} size={13} />
+        <Flower x={930} y={672} size={14} />
+        <Flower x={510} y={780} size={13} />
+        <Flower x={800} y={780} size={14} />
+        <Flower x={1080} y={780} size={13} />
 
         {/* ── Foreground grass silhouette ── */}
         <g opacity={0.40} pointerEvents="none">
