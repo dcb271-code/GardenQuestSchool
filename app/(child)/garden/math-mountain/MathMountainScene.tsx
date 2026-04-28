@@ -78,12 +78,46 @@ const ILLUSTRATION_ALIAS: Record<string, string> = {
   mm_long_stories:     'math_word_stories',
 };
 
+// HABITAT GROUPS — clusters that consolidate into ONE icon by default.
+// Click the habitat icon → its skills fan out and become individually
+// clickable. Click again (or anywhere outside) → collapses back.
+// This is the "container habitat" pattern — like Bunny Burrow on the
+// central garden, but inline (no route navigation needed).
+const HABITAT_GROUPS: Record<string, {
+  codes: string[]; x: number; y: number; label: string; icon: string;
+}> = {
+  cottage: {
+    codes: ['mm_stories_plus', 'mm_stories_minus', 'mm_long_stories'],
+    x: 110, y: 470, label: 'Stories Cottage', icon: '📖',
+  },
+  cave: {
+    codes: ['mm_hundreds_hollow', 'mm_fast_facts', 'mm_regroup_ridge'],
+    x: 190, y: 680, label: 'Operations Cave', icon: '🕳️',
+  },
+  orchard: {
+    codes: ['mm_equal_garden', 'mm_array_orchard', 'mm_times_to_5', 'mm_times_to_10'],
+    x: 1150, y: 580, label: 'Apple Orchard', icon: '🍎',
+  },
+  glen: {
+    codes: ['mm_sharing_squirrels', 'mm_division_facts', 'mm_missing_number'],
+    x: 1200, y: 390, label: 'Division Glen', icon: '🐿️',
+  },
+  measurement: {
+    codes: ['mm_even_odd', 'mm_garden_clock', 'mm_sundial', 'mm_hourglass',
+            'mm_pebble_coins', 'mm_pie_slices', 'mm_bigger_slice'],
+    x: 820, y: 580, label: 'Measurement Meadow', icon: '⏳',
+  },
+};
+const HABITAT_BY_SKILL: Record<string, string> = Object.entries(HABITAT_GROUPS)
+  .reduce((acc, [k, g]) => { g.codes.forEach(c => { acc[c] = k; }); return acc; }, {} as Record<string, string>);
+
 export default function MathMountainScene({
   learnerId, structures, clusters, structureStates,
 }: MathMountainSceneProps) {
   const router = useRouter();
   const [tappedLocked, setTappedLocked] = useState<string | null>(null);
   const [starting, setStarting] = useState(false);
+  const [expandedHabitat, setExpandedHabitat] = useState<string | null>(null);
 
   const startSkill = async (skillCode: string) => {
     if (starting) return;
@@ -437,69 +471,122 @@ export default function MathMountainScene({
         </g>
 
         {/* ── 8. PATH SYSTEM ──
-             Designed as parallel strips at distinct y-levels so paths
-             never cross. Bottom buffer is y > 760 (clean).
-             • Plateau ridge       y:350-400  (upper hills)
-             • Glen connector      y:360-420  (continues from plateau)
-             • Lower ridge         y:470      (Compare/TenMore/Round10)
-             • Two climbs at the ridge ends (W: Compare→Tens, E: R10→R100)
-             • Time row            y:540
-             • Measurement row     y:620      (Even/Pebble/Pie/Bigger)
-             • Cave loop           y:660-700
-             • Orchard right cluster (vertical interconnect)
-             • North-bank river trail y:680   (cave east → Big Bridge)
-             • Big & Skip bridge planks y:700 (over the river)
-             • Cottage interconnect y:460-510 (3 stories)
-             Connectors are explicit single drops — no zig-zags. */}
+             Winding bezier curves only — no horizontal straight runs.
+             Organic mountain trail logic: trails meander, climbs zig
+             gently, the lake has a path looping AROUND it (figure-8
+             with the cottage trail). Stays above the bottom buffer. */}
         {(() => {
-          // 1. COTTAGE: 3 stories interconnected (top-left)
-          const cottageInterD = `M 80 470 C 90 488, 100 502, 90 510 M 100 470 C 130 472, 160 470, 175 470`;
-          // 2. COTTAGE → LAKE NORTH SHORE (curves over the lake's top)
-          const cottageToBerryD = `M 175 470 C 220 442, 280 412, 350 408 C 410 410, 460 422, 510 432`;
-          // 3. BERRY → COMPARE TREES (descends to lower ridge)
-          const berryToCompareD = `M 510 432 C 540 448, 570 460, 590 470`;
-          // 4. LOWER RIDGE
-          const lowerRidgeD = `M 590 470 C 660 470, 720 470, 780 470 C 840 470, 870 470, 880 470`;
-          // 5. WEST CLIMB — Compare Trees up to Tens Tower
-          const climbWestD = `M 590 470 C 580 444, 568 420, 560 400`;
-          // 6. PLATEAU RIDGE — Tens → Three-Digit → Mountain Heights → Round 100
-          const plateauRidgeD = `M 560 400 C 600 376, 640 356, 680 350 C 720 358, 760 372, 800 380 C 850 376, 890 368, 920 360`;
-          // 7. EAST CLIMB — Round 10 up to Round 100
-          const climbEastD = `M 880 470 C 900 430, 916 396, 920 360`;
-          // 8. GLEN CONNECTOR — Round 100 → Sharing → Division → Missing
-          const glenConnectD = `M 920 360 C 970 380, 1020 408, 1060 416 C 1090 420, 1106 416, 1116 410 C 1150 384, 1180 366, 1200 360 C 1240 366, 1290 374, 1320 380`;
-          // 9. ROUND 10 → TIME ROW (south drop at x:870)
-          const roundToTimeD = `M 880 470 C 870 498, 866 524, 860 540`;
-          // 10. TIME ROW
-          const timeRowD = `M 660 540 C 710 540, 760 540, 810 540 C 840 540, 856 540, 860 540`;
-          // 11. TIME → MEASUREMENT (south drop at x:760)
-          const timeToMeasureD = `M 760 540 C 740 568, 720 596, 700 620`;
-          // 12. MEASUREMENT ROW
-          const measureRowD = `M 700 620 C 750 620, 800 620, 850 620 C 900 620, 950 620, 990 620`;
-          // 13. ORCHARD VERTICAL CONNECT — Equal → Array → Times-5 → Times-10
-          const orchardConnectD = `M 1080 530 C 1110 540, 1150 555, 1180 570 C 1140 590, 1110 610, 1090 620 C 1140 632, 1190 638, 1230 640`;
-          // 14. MEASUREMENT → ORCHARD bridge (Bigger Slice → Times-5)
-          const measureToOrchardD = `M 990 620 C 1030 620, 1070 620, 1090 620`;
-          // 15. CAVE LOOP — Hundred's, Fast Facts, Regroup interconnect
-          const caveLoopD = `M 110 660 C 145 670, 165 690, 180 700 M 180 700 C 215 695, 245 685, 270 670 M 110 660 C 175 658, 230 660, 270 670`;
-          // 16. NORTH-BANK RIVER TRAIL — Cave east → Big Bridge approach
-          const riverNorthBankD = `M 270 670 C 330 668, 380 666, 420 668 C 450 672, 470 686, 480 700`;
-          // 17. BIG BRIDGE plank (crosses river)
-          const bigBridgeD = `M 480 700 L 540 700 L 600 700`;
-          // 18. EAST OF BIG BRIDGE → measurement row (climb back up)
-          const bridgeEastUpD = `M 600 700 C 620 670, 660 640, 700 622`;
-          // 19. TIMES-10 → SKIP BRIDGE approach (drops east-south)
-          const timesToSkipD = `M 1230 640 C 1280 660, 1310 680, 1320 700`;
-          // 20. SKIP BRIDGE plank
-          const skipBridgeD = `M 1260 700 L 1320 700 L 1380 700`;
+          // SINGLE WINDING TRAIL split into chained segments. Each segment
+          // ends where the next begins so the eye reads it as one path.
 
-          // All "trail" paths (NOT bridges, NOT cave loop which is special)
+          // Cottage cluster — soft S between the 3 stories
+          const cottageInterD = `M 80 460
+            C 70 472, 78 488, 90 510
+            M 100 480
+            C 130 472, 158 466, 175 470`;
+          // Cottage → loops around lake's NORTH shore
+          const lakeLoopNorthD = `M 175 470
+            C 200 444, 240 416, 290 408
+            C 350 402, 410 412, 462 426
+            C 482 432, 500 434, 510 432`;
+          // Berry → undulates down to Compare Trees
+          const berryToCompareD = `M 510 432
+            C 532 444, 552 458, 568 466
+            C 578 470, 586 470, 590 470`;
+          // Lower ridge — three soft humps Compare → Ten More → Round 10
+          const lowerRidgeD = `M 590 470
+            C 624 462, 658 478, 692 472
+            C 720 466, 748 478, 778 472
+            C 808 466, 840 478, 880 470`;
+          // West climb — Compare Trees winds NW up to Tens Tower
+          const climbWestD = `M 590 470
+            C 584 446, 590 422, 572 410
+            C 562 404, 558 402, 560 400`;
+          // Plateau ridge — Tens dips down to Three-Digit, climbs to Mountain, descends to Round 100
+          const plateauRidgeD = `M 560 400
+            C 588 388, 620 376, 652 360
+            C 668 352, 678 350, 680 350
+            C 712 360, 740 376, 770 380
+            C 786 382, 794 384, 800 380
+            C 832 372, 866 364, 902 360
+            C 916 360, 920 360, 920 360`;
+          // East climb — winds NE
+          const climbEastD = `M 880 470
+            C 894 444, 906 416, 916 388
+            C 918 376, 920 366, 920 360`;
+          // Glen connector — Round 100 → Sharing → Division → Missing (loops)
+          const glenConnectD = `M 920 360
+            C 956 388, 996 414, 1042 422
+            C 1070 422, 1090 416, 1102 408
+            C 1126 388, 1156 372, 1186 364
+            C 1196 360, 1200 360, 1200 360
+            C 1230 366, 1262 372, 1296 376
+            C 1312 380, 1320 380, 1320 380`;
+          // Round 10 → Time Row — winding south
+          const roundToTimeD = `M 880 470
+            C 882 498, 876 520, 866 534
+            C 862 540, 860 540, 860 540`;
+          // Time row — undulating between 3 time pieces
+          const timeRowD = `M 660 540
+            C 692 532, 724 548, 760 540
+            C 794 532, 826 548, 860 540`;
+          // Time → Measurement — soft S
+          const timeToMeasureD = `M 760 540
+            C 754 562, 738 588, 718 608
+            C 706 616, 700 620, 700 620`;
+          // Measurement row — undulating
+          const measureRowD = `M 700 620
+            C 740 612, 778 626, 802 620
+            C 836 612, 866 628, 902 620
+            C 938 614, 970 626, 990 620`;
+          // Equal Garden → Array (curve down)
+          const orchardUpperD = `M 1080 530
+            C 1106 540, 1140 552, 1168 564
+            C 1176 568, 1180 570, 1180 570`;
+          // Array → Times-5 (curve down-left)
+          const orchardMidD = `M 1180 570
+            C 1162 588, 1130 604, 1106 614
+            C 1096 618, 1090 620, 1090 620`;
+          // Times-5 → Times-10 (curve right)
+          const orchardLowerD = `M 1090 620
+            C 1130 626, 1170 634, 1206 638
+            C 1220 640, 1230 640, 1230 640`;
+          // Measurement → Orchard (Bigger Slice → Times-5, curve)
+          const measureToOrchardD = `M 990 620
+            C 1020 614, 1056 622, 1090 620`;
+          // Cave loop — loops around the 3 cave structures
+          const caveLoopD = `M 110 660
+            C 130 642, 158 638, 180 644
+            C 220 650, 246 660, 270 670
+            C 244 690, 214 700, 180 700
+            C 144 700, 122 686, 110 660 Z`;
+          // North-bank trail — cave east meanders to Big Bridge
+          const riverNorthBankD = `M 270 670
+            C 308 660, 350 660, 386 666
+            C 420 672, 446 686, 470 696
+            C 478 698, 480 700, 480 700`;
+          // Big Bridge plank (gentle arch over river)
+          const bigBridgeD = `M 480 700
+            C 504 696, 540 694, 600 700`;
+          // East of Big Bridge → up to measurement row
+          const bridgeEastUpD = `M 600 700
+            C 622 670, 656 640, 692 624
+            C 698 622, 700 620, 700 620`;
+          // Times-10 → Skip Bridge approach
+          const timesToSkipD = `M 1230 640
+            C 1268 658, 1298 680, 1316 696
+            C 1320 700, 1320 700, 1320 700`;
+          // Skip Bridge plank (gentle arch)
+          const skipBridgeD = `M 1260 700
+            C 1290 696, 1326 694, 1380 700`;
+
+          // All non-bridge trails (cave loop is included; bridges drawn separately)
           const trails = [
-            cottageInterD, cottageToBerryD, berryToCompareD, lowerRidgeD,
+            cottageInterD, lakeLoopNorthD, berryToCompareD, lowerRidgeD,
             climbWestD, plateauRidgeD, climbEastD, glenConnectD,
             roundToTimeD, timeRowD, timeToMeasureD, measureRowD,
-            orchardConnectD, measureToOrchardD, caveLoopD,
-            riverNorthBankD, bridgeEastUpD, timesToSkipD,
+            orchardUpperD, orchardMidD, orchardLowerD, measureToOrchardD,
+            caveLoopD, riverNorthBankD, bridgeEastUpD, timesToSkipD,
           ];
           return (
             <g pointerEvents="none">
@@ -572,40 +659,14 @@ export default function MathMountainScene({
           );
         })()}
 
-        {/* ── 9. WORD STORIES COTTAGE — top-left corner ──
-             Stories now at (70,480), (60,530), (160,510). Cottage SVG
-             sits above the structures so it reads as a small reading
-             nook anchoring the cluster. */}
-        <g transform="translate(20, 410)" pointerEvents="none">
-          <ellipse cx={28} cy={66} rx={34} ry={6} fill="#000" opacity={0.12} />
-          <rect x={0} y={30} width={56} height={36} rx={3} fill="#F5EBDC" stroke="#5A3B1F" strokeWidth={2} />
-          <rect x={22} y={44} width={12} height={22} rx={3} fill="#8B5A2B" stroke="#5A3B1F" strokeWidth={1.5} />
-          <circle cx={32} cy={56} r={1.5} fill="#5A3B1F" />
-          <rect x={5} y={38} width={11} height={9} rx={1.5} fill="#BDE3EC" stroke="#5A3B1F" strokeWidth={1.2} />
-          <line x1={10} y1={38} x2={10} y2={47} stroke="#5A3B1F" strokeWidth={0.8} />
-          <line x1={5} y1={43} x2={16} y2={43} stroke="#5A3B1F" strokeWidth={0.8} />
-          <rect x={40} y={38} width={11} height={9} rx={1.5} fill="#BDE3EC" stroke="#5A3B1F" strokeWidth={1.2} />
-          <line x1={45} y1={38} x2={45} y2={47} stroke="#5A3B1F" strokeWidth={0.8} />
-          <line x1={40} y1={43} x2={51} y2={43} stroke="#5A3B1F" strokeWidth={0.8} />
-          {/* Gabled roof */}
-          <path d="M -6 32 L 28 2 L 62 32 Z" fill="#C38D9E" stroke="#5A3B1F" strokeWidth={2} strokeLinejoin="round" />
-          <path d="M 12 20 L 28 4 L 44 20" stroke="#D4A8B4" strokeWidth={1} fill="none" opacity={0.6} />
-          <rect x={36} y={4} width={8} height={16} rx={1} fill="#B8A090" stroke="#5A3B1F" strokeWidth={1.5} />
-          {/* Chimney smoke */}
-          <ellipse cx={40} cy={0}  rx={5} ry={4}   fill="#E8E0D3" opacity={0.60} />
-          <ellipse cx={43} cy={-6} rx={4} ry={3.5} fill="#E8E0D3" opacity={0.40} />
-          <ellipse cx={39} cy={-12} rx={3.5} ry={3} fill="#E8E0D3" opacity={0.24} />
-        </g>
+        {/* Cottage SVG removed — the cottage habitat icon now anchors
+            the cluster on its own. */}
 
-        {/* ── 10. APPLE ORCHARD ROWS — flank Multiplication Orchard ──
-             Trees ABOVE the cluster (between hills and structures) so
-             they don't violate the bottom buffer. */}
+        {/* ── 10. APPLE ORCHARD trees — flank the Orchard habitat ── */}
         <Tree x={1010} y={460} size={40} variant={1} />
         <Tree x={1380} y={460} size={42} variant={2} />
 
-        {/* ── 11. DIVISION GLEN — pine clearing on the upper hills ──
-             Glen structures at y:360-420. Pines flank the clearing
-             behind, and small boulders sit at the foot of each. */}
+        {/* ── 11. DIVISION GLEN — pine clearing flanks the Glen habitat ── */}
         <PineTree x={1030} y={324} size={46} />
         <PineTree x={1140} y={324} size={50} />
         <PineTree x={1260} y={328} size={48} />
@@ -666,12 +727,17 @@ export default function MathMountainScene({
                         plateau structures don't form a single beige band
                         — that was the "weird block shadows" problem. */}
         {(() => {
-          const UNIFORM = 44;
-          const HIT = 36;
-          const LABEL_Y = 30;
-          const LABEL_W = 92;
-          const LABEL_H = 17;
+          // Smaller, less clip-arty icons (was 44 → now 30)
+          const UNIFORM = 30;
+          const HIT = 30;
+          const LABEL_Y = 22;
+          const LABEL_W = 88;
+          const LABEL_H = 15;
           return structures.map(s => {
+            // Skip individual structures that belong to a collapsed habitat
+            const habitatKey = HABITAT_BY_SKILL[s.code];
+            if (habitatKey && expandedHabitat !== habitatKey) return null;
+
             const state = structureStates[s.code];
             const completed = state?.completed ?? false;
             const unlocked = state?.unlocked ?? false;
@@ -689,18 +755,15 @@ export default function MathMountainScene({
               >
                 <circle r={HIT} fill="transparent" />
 
-                {/* Unlocked-pulse halo (active stops feel alive) */}
                 {unlocked && !completed && (
-                  <circle r={UNIFORM * 0.78} fill="#FFE89A" opacity={0.22} />
+                  <circle r={UNIFORM * 0.7} fill="#FFE89A" opacity={0.20} />
                 )}
 
-                {/* Illustration — always rendered; locked just gets a
-                    grayscale/opacity treatment the way the garden does. */}
                 <g style={{
                   filter: completed
-                    ? 'drop-shadow(0 0 6px rgba(255, 217, 61, 0.60))'
+                    ? 'drop-shadow(0 0 5px rgba(255, 217, 61, 0.55))'
                     : unlocked
-                      ? 'drop-shadow(0 1.5px 2px rgba(107,68,35,0.42))'
+                      ? 'drop-shadow(0 1px 1.5px rgba(107,68,35,0.40))'
                       : 'grayscale(1) brightness(0.92)',
                   opacity: unlocked ? 1 : 0.58,
                 }}>
@@ -708,7 +771,7 @@ export default function MathMountainScene({
                     <text
                       textAnchor="middle"
                       dominantBaseline="central"
-                      fontSize={36}
+                      fontSize={24}
                       y={0}
                     >
                       {s.themeEmoji}
@@ -716,62 +779,57 @@ export default function MathMountainScene({
                   )}
                 </g>
 
-                {/* Lock badge — small white circle in upper-right
-                    (matches central garden Structure component) */}
                 {!unlocked && (
                   <g pointerEvents="none">
-                    <circle cx={UNIFORM * 0.4} cy={-UNIFORM * 0.4} r={9}
-                            fill="#FFFFFF" stroke="#8A7E6C" strokeWidth={1.3} />
+                    <circle cx={UNIFORM * 0.42} cy={-UNIFORM * 0.42} r={7}
+                            fill="#FFFFFF" stroke="#8A7E6C" strokeWidth={1.1} />
                     <text
-                      x={UNIFORM * 0.4} y={-UNIFORM * 0.4 + 3.4}
-                      fontSize={11} textAnchor="middle"
+                      x={UNIFORM * 0.42} y={-UNIFORM * 0.42 + 2.6}
+                      fontSize={9} textAnchor="middle"
                       style={{ userSelect: 'none' }}
                     >🔒</text>
                   </g>
                 )}
 
-                {/* Completed checkmark badge */}
                 {completed && (
                   <g pointerEvents="none">
-                    <circle cx={UNIFORM * 0.4} cy={-UNIFORM * 0.4} r={9}
-                            fill="#6B8E5A" stroke="#4F6F42" strokeWidth={1.3} />
+                    <circle cx={UNIFORM * 0.42} cy={-UNIFORM * 0.42} r={7}
+                            fill="#6B8E5A" stroke="#4F6F42" strokeWidth={1.1} />
                     <path
-                      d={`M ${UNIFORM * 0.4 - 4} ${-UNIFORM * 0.4 + 0.5}
-                          L ${UNIFORM * 0.4 - 1} ${-UNIFORM * 0.4 + 3.5}
-                          L ${UNIFORM * 0.4 + 4} ${-UNIFORM * 0.4 - 2.5}`}
-                      stroke="#FFFFFF" strokeWidth={1.8} fill="none"
+                      d={`M ${UNIFORM * 0.42 - 3} ${-UNIFORM * 0.42 + 0.4}
+                          L ${UNIFORM * 0.42 - 0.8} ${-UNIFORM * 0.42 + 2.6}
+                          L ${UNIFORM * 0.42 + 3} ${-UNIFORM * 0.42 - 2}`}
+                      stroke="#FFFFFF" strokeWidth={1.6} fill="none"
                       strokeLinecap="round" strokeLinejoin="round"
                     />
                   </g>
                 )}
 
-                {/* Label pill — refined, rounded, soft hairline */}
+                {/* Label pill — softer, smaller */}
                 <rect
                   x={-LABEL_W / 2} y={LABEL_Y} width={LABEL_W} height={LABEL_H} rx={LABEL_H / 2}
-                  fill={completed ? '#FFF6CC' : unlocked ? '#FFFAF2' : '#EFE7D4'}
+                  fill={completed ? '#FFF6CC' : unlocked ? 'rgba(255,250,242,0.92)' : 'rgba(239,231,212,0.78)'}
                   stroke={completed ? '#D4B43E' : unlocked ? '#E8A87C' : '#C7B89A'}
-                  strokeWidth={1.2}
-                  opacity={unlocked || completed ? 0.96 : 0.78}
+                  strokeWidth={0.9}
                 />
                 <text
-                  x={0} y={LABEL_Y + 12} textAnchor="middle"
-                  fontSize={9.5} fontWeight={700}
+                  x={0} y={LABEL_Y + 11} textAnchor="middle"
+                  fontSize={8.5} fontWeight={600}
                   fill={unlocked ? '#6b4423' : '#8a7050'}
                   style={{ userSelect: 'none' }}
                 >
                   {s.label}
                 </text>
 
-                {/* Lock hint tooltip on tap */}
                 {isTappedLocked && state && (
                   <g pointerEvents="none">
                     <rect
-                      x={-90} y={-UNIFORM * 1.1} width={180} height={28} rx={8}
-                      fill="#fffaf2" stroke="#c38d9e" strokeWidth={1.5}
+                      x={-86} y={-UNIFORM * 1.4} width={172} height={26} rx={8}
+                      fill="#fffaf2" stroke="#c38d9e" strokeWidth={1.3}
                     />
                     <text
-                      x={0} y={-UNIFORM * 0.85} textAnchor="middle"
-                      fontSize={10} fontStyle="italic" fill="#6b4423"
+                      x={0} y={-UNIFORM * 1.1} textAnchor="middle"
+                      fontSize={9.5} fontStyle="italic" fill="#6b4423"
                     >
                       {state.prereqDisplay}
                     </text>
@@ -781,6 +839,118 @@ export default function MathMountainScene({
             );
           });
         })()}
+
+        {/* ── HABITATS ── single-icon clusters that expand on tap.
+             Each habitat shows the cluster name + progress badge.
+             Tapping reveals the individual skills inside; tapping a
+             skill (or anywhere) to start a lesson, tapping the habitat
+             icon again collapses back. */}
+        {Object.entries(HABITAT_GROUPS).map(([key, group]) => {
+          const isExpanded = expandedHabitat === key;
+          const states = group.codes.map(c => structureStates[c]).filter(Boolean);
+          const total = group.codes.length;
+          const completedCount = states.filter(s => s?.completed).length;
+          const unlockedCount = states.filter(s => s?.unlocked).length;
+          const anyUnlocked = unlockedCount > 0;
+          const allCompleted = completedCount === total;
+
+          return (
+            <g key={`habitat-${key}`} pointerEvents="auto">
+              <g
+                transform={`translate(${group.x}, ${group.y})`}
+                style={{ cursor: 'pointer', touchAction: 'manipulation' }}
+                onClick={() => setExpandedHabitat(isExpanded ? null : key)}
+              >
+                {/* big circular hit target + soft hover ring */}
+                <circle r={42} fill="transparent" />
+                {!isExpanded && anyUnlocked && (
+                  <circle r={36} fill="#FFE89A" opacity={0.22} />
+                )}
+
+                {/* hand-drawn habitat marker — wood-stake banner */}
+                {!isExpanded && (
+                  <g style={{
+                    filter: allCompleted
+                      ? 'drop-shadow(0 0 6px rgba(255,217,61,0.55))'
+                      : 'drop-shadow(0 2px 3px rgba(107,68,35,0.42))',
+                    opacity: anyUnlocked ? 1 : 0.62,
+                  }}>
+                    {/* wooden plinth */}
+                    <ellipse cx={0} cy={28} rx={32} ry={5} fill="#000" opacity={0.20} />
+                    <ellipse cx={0} cy={26} rx={30} ry={6} fill="#A87B4A" stroke="#5A3B1F" strokeWidth={1.2} />
+                    <ellipse cx={0} cy={24} rx={26} ry={3} fill="#C9A270" />
+                    {/* round emblem disk */}
+                    <circle r={26} fill="#FFFAF2" stroke="#5A3B1F" strokeWidth={1.8} />
+                    <circle r={22} fill="#F5EBDC" />
+                    <text
+                      textAnchor="middle"
+                      dominantBaseline="central"
+                      fontSize={26}
+                      y={2}
+                      style={{ userSelect: 'none', filter: anyUnlocked ? '' : 'grayscale(1)' }}
+                    >
+                      {group.icon}
+                    </text>
+                    {/* progress arc — fraction of completed skills */}
+                    {total > 0 && (() => {
+                      const angle = (completedCount / total) * 360;
+                      const rad = (a: number) => (a - 90) * Math.PI / 180;
+                      const endX = 23 * Math.cos(rad(angle));
+                      const endY = 23 * Math.sin(rad(angle));
+                      const large = angle > 180 ? 1 : 0;
+                      if (completedCount === 0) return null;
+                      return (
+                        <path
+                          d={`M 0 -23 A 23 23 0 ${large} 1 ${endX.toFixed(1)} ${endY.toFixed(1)}`}
+                          stroke="#6B8E5A" strokeWidth={3.5} fill="none" strokeLinecap="round"
+                        />
+                      );
+                    })()}
+                  </g>
+                )}
+
+                {/* Collapsed-state label banner */}
+                {!isExpanded && (
+                  <>
+                    <rect x={-58} y={42} width={116} height={18} rx={9}
+                          fill="#FFFAF2" stroke="#E8A87C" strokeWidth={1.3} />
+                    <text x={0} y={55} textAnchor="middle" fontSize={10}
+                          fontWeight={700} fill="#6b4423"
+                          style={{ userSelect: 'none' }}>
+                      {group.label}
+                    </text>
+                    <rect x={-22} y={62} width={44} height={14} rx={7}
+                          fill={allCompleted ? '#6B8E5A' : '#FDF6E8'}
+                          stroke={allCompleted ? '#4F6F42' : '#C7B89A'}
+                          strokeWidth={1} />
+                    <text x={0} y={72} textAnchor="middle" fontSize={9}
+                          fontWeight={700}
+                          fill={allCompleted ? '#FFFFFF' : '#6b4423'}
+                          style={{ userSelect: 'none', fontFamily: 'ui-monospace, SFMono-Regular, monospace' }}>
+                      {completedCount}/{total}
+                    </text>
+                  </>
+                )}
+
+                {/* Expanded-state — show small dim ring + close hint */}
+                {isExpanded && (
+                  <g>
+                    <circle r={36} fill="rgba(255,250,242,0.42)" stroke="#E8A87C" strokeWidth={1.5} strokeDasharray="3 4" />
+                    <text textAnchor="middle" dominantBaseline="central"
+                          fontSize={20} y={-1} opacity={0.6}>{group.icon}</text>
+                    <rect x={-46} y={28} width={92} height={14} rx={7}
+                          fill="rgba(255,250,242,0.85)" stroke="#E8A87C" strokeWidth={1} />
+                    <text x={0} y={38} textAnchor="middle" fontSize={9}
+                          fontStyle="italic" fill="#6b4423"
+                          style={{ userSelect: 'none' }}>
+                      tap to close
+                    </text>
+                  </g>
+                )}
+              </g>
+            </g>
+          );
+        })}
       </svg>
     </BranchSceneLayout>
   );
