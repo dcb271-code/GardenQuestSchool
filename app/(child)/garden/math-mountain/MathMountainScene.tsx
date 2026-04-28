@@ -367,105 +367,105 @@ export default function MathMountainScene({
           onClick={() => setExpandedHabitat(expandedHabitat === 'cave' ? null : 'cave')}
         >
           {/* invisible hit target covering the cave area */}
-          <rect x={-20} y={580} width={210} height={170} fill="transparent" />
+          <rect x={-12} y={616} width={172} height={136} fill="transparent" />
 
-          {/* outer rocky face — smaller and more organic. Extends just
-              past the left edge, more whimsical curve (Miyazaki-soft,
-              not architectural). Open at bottom-right for river. */}
+          {/* outer rocky face — smaller (~15% reduction). Extends just
+              past the left edge with a whimsical curve (Miyazaki-soft).
+              Open at bottom-right for river. */}
           <path
-            d="M -20 740
-               L -20 700
-               C -14 670, -4 638, 12 614
-               C 30 596, 60 586, 92 586
-               C 124 588, 150 600, 168 622
-               C 180 642, 184 666, 180 686
-               C 178 696, 176 700, 176 706
-               L 176 740
+            d="M -12 740
+               L -12 706
+               C -8 682, 0 656, 14 638
+               C 30 622, 54 614, 80 614
+               C 108 616, 130 626, 144 644
+               C 154 660, 158 680, 154 696
+               C 152 702, 150 706, 150 710
+               L 150 740
                Z"
             fill="#7A6B58" stroke="#3F3026" strokeWidth={2}
           />
           {/* darker rock shading on the right (depth) */}
           <path
-            d="M 144 600 C 162 618, 178 644, 178 670 L 176 706 L 164 706
-               C 168 670, 164 624, 150 608 Z"
+            d="M 124 624 C 138 638, 152 658, 152 680 L 150 710 L 142 710
+               C 146 680, 140 644, 130 632 Z"
             fill="#5C4F3F" opacity={0.5}
           />
 
           {/* inner cave shadow — soft organic opening, opens at the
               bottom-right where river emerges. */}
           <path
-            d="M 4 740
-               C -2 712, 0 678, 18 650
-               C 36 626, 64 614, 92 614
-               C 120 618, 144 628, 160 650
-               C 172 670, 174 696, 168 712
-               C 164 720, 160 730, 158 740
+            d="M 0 740
+               C -4 716, 0 686, 14 664
+               C 30 644, 54 634, 78 634
+               C 102 636, 122 644, 136 662
+               C 146 680, 148 700, 142 712
+               C 138 720, 134 730, 132 740
                Z"
             fill="#1A1208" opacity={0.86}
           />
           {/* deeper pocket */}
-          <ellipse cx={84} cy={696} rx={48} ry={24} fill="#000" opacity={0.32} />
+          <ellipse cx={70} cy={700} rx={40} ry={20} fill="#000" opacity={0.32} />
 
           {/* mossy rim along the top of the arch */}
           <path
-            d="M 4 632 C 24 614, 52 604, 86 602 C 118 602, 146 614, 164 630"
+            d="M 4 648 C 22 632, 46 624, 76 622 C 102 622, 124 632, 140 646"
             stroke="#7BA46F" strokeWidth={5} fill="none" strokeLinecap="round" opacity={0.82}
           />
           <path
-            d="M 18 622 C 38 612, 60 606, 86 608 C 116 612, 138 622, 152 630"
+            d="M 16 638 C 32 630, 52 624, 76 626 C 100 630, 118 638, 130 646"
             stroke="#A2C794" strokeWidth={2.4} fill="none" strokeLinecap="round" opacity={0.68}
           />
           {/* moss tufts on the rock face */}
-          <circle cx={-8} cy={672} r={4} fill="#7BA46F" opacity={0.7} />
-          <circle cx={-2} cy={694} r={3} fill="#7BA46F" opacity={0.6} />
-          <circle cx={166} cy={650} r={3.5} fill="#7BA46F" opacity={0.7} />
-          <circle cx={180} cy={678} r={3} fill="#7BA46F" opacity={0.6} />
+          <circle cx={-4} cy={690} r={4} fill="#7BA46F" opacity={0.7} />
+          <circle cx={2} cy={708} r={3} fill="#7BA46F" opacity={0.6} />
+          <circle cx={146} cy={668} r={3.5} fill="#7BA46F" opacity={0.7} />
+          <circle cx={154} cy={690} r={3} fill="#7BA46F" opacity={0.6} />
 
           {/* atmospheric warm glow inside (no lantern) — soft suggestion
               of warmth deep in the cave, not a discrete light source. */}
-          <ellipse cx={70} cy={684} rx={56} ry={26} fill="#FFE89A" opacity={0.14} />
-          <ellipse cx={62} cy={696} rx={36} ry={16} fill="#FFD06B" opacity={0.10} />
+          <ellipse cx={60} cy={696} rx={46} ry={20} fill="#FFE89A" opacity={0.14} />
+          <ellipse cx={54} cy={706} rx={28} ry={12} fill="#FFD06B" opacity={0.10} />
 
           {/* HANGING VINES at the cave mouth — Miyazaki-soft */}
           <g pointerEvents="none">
             <path
-              d="M 24 600 C 24 614, 22 628, 26 642 C 28 658, 24 670, 22 682"
-              stroke="#5C7E4F" strokeWidth={1.6} fill="none" strokeLinecap="round" opacity={0.85}
+              d="M 20 622 C 20 634, 18 646, 22 658 C 24 672, 20 682, 18 692"
+              stroke="#5C7E4F" strokeWidth={1.4} fill="none" strokeLinecap="round" opacity={0.85}
             />
-            <ellipse cx={26} cy={624} rx={3} ry={2} fill="#7BA46F" opacity={0.85} transform="rotate(-30 26 624)" />
-            <ellipse cx={24} cy={638} rx={2.6} ry={1.7} fill="#A2C794" opacity={0.78} transform="rotate(20 24 638)" />
-            <ellipse cx={22} cy={668} rx={3} ry={2} fill="#7BA46F" opacity={0.85} transform="rotate(-10 22 668)" />
+            <ellipse cx={22} cy={642} rx={2.6} ry={1.7} fill="#7BA46F" opacity={0.85} transform="rotate(-30 22 642)" />
+            <ellipse cx={20} cy={656} rx={2.3} ry={1.5} fill="#A2C794" opacity={0.78} transform="rotate(20 20 656)" />
+            <ellipse cx={18} cy={680} rx={2.6} ry={1.7} fill="#7BA46F" opacity={0.85} transform="rotate(-10 18 680)" />
 
             <path
-              d="M 88 588 C 86 602, 90 616, 86 632 C 84 648, 88 660, 86 676"
-              stroke="#5C7E4F" strokeWidth={1.4} fill="none" strokeLinecap="round" opacity={0.78}
+              d="M 76 614 C 74 628, 78 640, 74 654 C 72 668, 76 678, 74 692"
+              stroke="#5C7E4F" strokeWidth={1.3} fill="none" strokeLinecap="round" opacity={0.78}
             />
-            <ellipse cx={87} cy={612} rx={2.6} ry={1.7} fill="#7BA46F" opacity={0.8} transform="rotate(15 87 612)" />
-            <ellipse cx={86} cy={642} rx={2.4} ry={1.5} fill="#A2C794" opacity={0.74} transform="rotate(-25 86 642)" />
-            <ellipse cx={87} cy={668} rx={2.5} ry={1.6} fill="#7BA46F" opacity={0.78} transform="rotate(10 87 668)" />
+            <ellipse cx={75} cy={634} rx={2.4} ry={1.6} fill="#7BA46F" opacity={0.8} transform="rotate(15 75 634)" />
+            <ellipse cx={74} cy={660} rx={2.2} ry={1.4} fill="#A2C794" opacity={0.74} transform="rotate(-25 74 660)" />
+            <ellipse cx={75} cy={682} rx={2.3} ry={1.5} fill="#7BA46F" opacity={0.78} transform="rotate(10 75 682)" />
 
             <path
-              d="M 168 600 C 170 614, 168 628, 172 642 C 174 656, 170 668, 172 682"
-              stroke="#5C7E4F" strokeWidth={1.5} fill="none" strokeLinecap="round" opacity={0.82}
+              d="M 142 622 C 144 634, 142 646, 146 658 C 148 672, 144 682, 146 692"
+              stroke="#5C7E4F" strokeWidth={1.3} fill="none" strokeLinecap="round" opacity={0.82}
             />
-            <ellipse cx={170} cy={620} rx={2.8} ry={1.8} fill="#7BA46F" opacity={0.85} transform="rotate(-15 170 620)" />
-            <ellipse cx={172} cy={650} rx={2.4} ry={1.5} fill="#A2C794" opacity={0.78} transform="rotate(20 172 650)" />
-            <ellipse cx={170} cy={672} rx={2.6} ry={1.6} fill="#7BA46F" opacity={0.82} transform="rotate(-5 170 672)" />
+            <ellipse cx={144} cy={640} rx={2.5} ry={1.6} fill="#7BA46F" opacity={0.85} transform="rotate(-15 144 640)" />
+            <ellipse cx={146} cy={664} rx={2.2} ry={1.4} fill="#A2C794" opacity={0.78} transform="rotate(20 146 664)" />
+            <ellipse cx={144} cy={684} rx={2.3} ry={1.5} fill="#7BA46F" opacity={0.82} transform="rotate(-5 144 684)" />
           </g>
 
           {/* small rocks at the cave mouth ground */}
-          <ellipse cx={-10} cy={740} rx={18} ry={5} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.1} />
-          <ellipse cx={-8} cy={737} rx={11} ry={2.6} fill="#A89D8A" />
-          <ellipse cx={166} cy={740} rx={14} ry={4.5} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.1} />
+          <ellipse cx={-6} cy={740} rx={14} ry={4} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.1} />
+          <ellipse cx={-4} cy={737} rx={9} ry={2.2} fill="#A89D8A" />
+          <ellipse cx={142} cy={740} rx={12} ry={4} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.1} />
           {/* ferns at the entrance */}
-          <g transform="translate(-2, 740)">
-            <path d="M 0 0 Q -3 -10 -7 -16" stroke="#6B8E5A" strokeWidth={1.4} fill="none" strokeLinecap="round" />
-            <path d="M 0 0 Q 0 -12 -2 -20" stroke="#6B8E5A" strokeWidth={1.4} fill="none" strokeLinecap="round" />
-            <path d="M 0 0 Q 3 -10 5 -16" stroke="#6B8E5A" strokeWidth={1.3} fill="none" strokeLinecap="round" />
+          <g transform="translate(2, 740)">
+            <path d="M 0 0 Q -3 -10 -7 -16" stroke="#6B8E5A" strokeWidth={1.3} fill="none" strokeLinecap="round" />
+            <path d="M 0 0 Q 0 -12 -2 -20" stroke="#6B8E5A" strokeWidth={1.3} fill="none" strokeLinecap="round" />
+            <path d="M 0 0 Q 3 -10 5 -16" stroke="#6B8E5A" strokeWidth={1.2} fill="none" strokeLinecap="round" />
           </g>
-          <g transform="translate(170, 740)">
-            <path d="M 0 0 Q -3 -10 -6 -16" stroke="#6B8E5A" strokeWidth={1.4} fill="none" strokeLinecap="round" />
-            <path d="M 0 0 Q 0 -10 1 -18" stroke="#6B8E5A" strokeWidth={1.4} fill="none" strokeLinecap="round" />
+          <g transform="translate(146, 740)">
+            <path d="M 0 0 Q -3 -10 -6 -16" stroke="#6B8E5A" strokeWidth={1.3} fill="none" strokeLinecap="round" />
+            <path d="M 0 0 Q 0 -10 1 -18" stroke="#6B8E5A" strokeWidth={1.3} fill="none" strokeLinecap="round" />
           </g>
         </g>
 
@@ -477,8 +477,8 @@ export default function MathMountainScene({
         <g pointerEvents="none">
           {/* wet-earth bank — emerges from cave (right edge x:172) */}
           <path
-            d="M 172 706
-               C 230 698, 290 690, 360 686
+            d="M 148 708
+               C 220 700, 290 690, 360 686
                C 440 686, 530 696, 620 702
                C 720 706, 820 700, 920 696
                C 1020 692, 1120 696, 1220 700
@@ -488,14 +488,14 @@ export default function MathMountainScene({
                C 1120 730, 1020 732, 920 734
                C 820 736, 720 734, 620 728
                C 530 724, 440 720, 360 720
-               C 290 722, 230 728, 190 730
-               C 180 728, 174 720, 172 706 Z"
+               C 290 722, 220 728, 178 730
+               C 162 728, 152 720, 148 708 Z"
             fill="#6B8E5A" opacity={0.30}
           />
-          {/* primary water body — emerges from cave at x:175 */}
+          {/* primary water body — emerges from cave at x:150 */}
           <path
-            d="M 175 708
-               C 232 702, 296 696, 366 692
+            d="M 150 710
+               C 222 704, 296 696, 366 692
                C 446 692, 534 700, 624 706
                C 724 708, 822 704, 922 700
                C 1022 696, 1122 700, 1222 704
@@ -505,8 +505,8 @@ export default function MathMountainScene({
                C 1122 722, 1022 724, 922 724
                C 822 726, 724 724, 624 720
                C 534 718, 446 716, 366 716
-               C 296 718, 232 720, 192 722
-               C 184 718, 178 714, 175 708 Z"
+               C 296 718, 222 722, 184 724
+               C 168 720, 156 716, 150 710 Z"
             fill="#A8CDD2"
           />
           {/* deeper channel — meanders through the river */}
@@ -532,10 +532,10 @@ export default function MathMountainScene({
           ))}
 
           {/* foam at the cave-mouth source — water emerges */}
-          <ellipse cx={184} cy={708} rx={14} ry={4} fill="#FFFFFF" opacity={0.50} />
-          <ellipse cx={196} cy={714} rx={9} ry={3} fill="#FFFFFF" opacity={0.40} />
-          <path d="M 180 702 Q 188 700 198 704" stroke="#FFFFFF" strokeWidth={1.1} fill="none" opacity={0.65} strokeLinecap="round" />
-          <path d="M 188 718 Q 196 716 204 718" stroke="#FFFFFF" strokeWidth={0.9} fill="none" opacity={0.5} strokeLinecap="round" />
+          <ellipse cx={158} cy={710} rx={12} ry={4} fill="#FFFFFF" opacity={0.55} />
+          <ellipse cx={172} cy={716} rx={8} ry={3} fill="#FFFFFF" opacity={0.40} />
+          <path d="M 154 704 Q 162 702 172 706" stroke="#FFFFFF" strokeWidth={1.1} fill="none" opacity={0.65} strokeLinecap="round" />
+          <path d="M 164 720 Q 172 718 180 720" stroke="#FFFFFF" strokeWidth={0.9} fill="none" opacity={0.5} strokeLinecap="round" />
 
           {/* small reeds along the bank */}
           {[[300, 690], [430, 686], [690, 692], [970, 692], [1140, 696], [1380, 692]].map(([rx, ry], i) => (
@@ -632,23 +632,26 @@ export default function MathMountainScene({
             C 1130 388, 1160 370, 1198 362
             C 1230 366, 1262 372, 1296 376
             C 1312 380, 1320 380, 1320 380`;
+          // Glen → right edge (garden exit on the upper-right corner)
+          const glenToEdgeD = `M 1320 380
+            C 1356 376, 1390 374, 1418 374
+            C 1430 374, 1438 374, 1440 374`;
 
           // Round 10 → Measurement habitat (drops south, winding)
           const round10ToMeasureD = `M 880 470
             C 882 498, 870 524, 856 544
             C 842 562, 828 574, 820 580`;
 
-          // Cave east → Big Bridge approach (path on north bank of river)
-          const caveToBridgeD = `M 175 706
-            C 220 696, 280 684, 340 678
-            C 400 678, 450 686, 480 700`;
+          // Cave east → Big Bridge WEST end (476, 700)
+          const caveToBridgeD = `M 148 708
+            C 200 698, 270 686, 340 678
+            C 400 680, 444 690, 476 700`;
 
-          // Big Bridge plank (slight arch, span the river)
-          const bigBridgeD = `M 480 700
-            C 504 694, 540 692, 600 700`;
+          // (Big Bridge plank rendered separately as a clickable structure;
+          //  the bridge SVG sits between (476, 700) and (604, 700).)
 
-          // Big Bridge south → Measurement habitat (climbs through south bank)
-          const bridgeToMeasureD = `M 600 700
+          // Big Bridge EAST end (604, 700) → Measurement habitat
+          const bridgeToMeasureD = `M 604 700
             C 644 678, 700 654, 752 624
             C 790 604, 814 588, 820 580`;
 
@@ -657,24 +660,23 @@ export default function MathMountainScene({
             C 920 580, 1020 580, 1100 580
             C 1130 580, 1146 580, 1150 580`;
 
-          // Orchard → Skip Bridge approach (drops south to bridge)
+          // Orchard → Skip Bridge WEST end (1264, 700)
           const orchardToSkipD = `M 1150 580
-            C 1196 612, 1248 660, 1296 692
-            C 1308 698, 1316 700, 1320 700`;
+            C 1188 610, 1224 644, 1248 678
+            C 1256 690, 1262 696, 1264 700`;
 
-          // Skip Bridge plank (gentle arch)
-          const skipBridgeD = `M 1260 700
-            C 1290 694, 1326 692, 1380 700`;
+          // (Skip Bridge plank rendered separately; sits between
+          //  (1264, 700) and (1376, 700).)
 
-          // Skip Bridge → garden exit on right edge
-          const skipToExitD = `M 1380 700
-            C 1408 690, 1428 676, 1440 660`;
+          // Skip Bridge EAST end (1376, 700) → garden exit on right edge
+          const skipToExitD = `M 1376 700
+            C 1402 690, 1422 676, 1440 660`;
 
           // All non-bridge trails
           const trails = [
             leftEntryD, cottageToTwinD, lakeNorthD, berryToCompareD,
             loopLowerD, loopEastClimbD, loopRidgeD, loopWestClimbD,
-            glenConnectD, round10ToMeasureD,
+            glenConnectD, glenToEdgeD, round10ToMeasureD,
             caveToBridgeD, bridgeToMeasureD, measureToOrchardD,
             orchardToSkipD, skipToExitD,
           ];
@@ -1145,9 +1147,11 @@ export default function MathMountainScene({
             if (key === 'cottage') {
               // Woodland cabin — weathered wood plank walls, mossy
               // forest-green roof, warm lit windows, stone chimney.
-              // Less twee than pink cottagecore.
+              // Wrapped in scale(1.1) so it reads ~10% larger than the
+              // other habitat markers (it's the visual anchor of the
+              // top-left corner).
               return (
-                <g style={{ filter, opacity: tone }}>
+                <g style={{ filter, opacity: tone }} transform="scale(1.1)">
                   {/* ground shadow */}
                   <ellipse cx={0} cy={36} rx={38} ry={6} fill="#000" opacity={0.16} />
 
