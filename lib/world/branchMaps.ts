@@ -28,43 +28,48 @@ export interface BranchCluster {
 // cottage in the bottom-left corner.
 
 export const MATH_MOUNTAIN_STRUCTURES: MapStructure[] = [
-  // ─── Operations Hollow (left, mid-foreground) ───────────────────
-  // Distributed across y:430-660 (mid-low band) instead of all bottom.
-  // Quiet Pond / Twin Bonds sit highest, Big Bridge at the foot for the
-  // stream crossing.
+  // ─── Operations Hollow (cave + lake clusters, left half) ────────
+  // Now visually anchored by two features:
+  //  • CAVE entrance at bottom-left (x:80-260, y:540-620) holds the
+  //    "tunnel" structures: Hundred's Hollow, Fast Facts, Regroup Ridge.
+  //  • LAKE in the mid-left (x:280-540, y:430-560) holds the water-
+  //    themed structures: Quiet Pond, Big Falls, Berry Basket, Rushing
+  //    Stream, Big Bridge (which spans the river outflow).
+  // Twin Bonds + Butterfly sit on the upper bank.
+  // Nothing here below y:625 — bottom buffer lives at y:640+.
   { code: 'mm_butterfly_make10', kind: 'skill', skillCode: 'math.add.within_20.crossing_ten',
     label: 'Butterfly Clusters', subLabel: 'make-10 add', themeEmoji: '🦋',
-    x: 220, y: 520, size: 64, zone: 'math' },
+    x: 250, y: 470, size: 64, zone: 'math' },
   { code: 'mm_fast_facts', kind: 'skill', skillCode: 'math.add.fluency_within_20',
     label: 'Fast Facts', subLabel: 'quick recall', themeEmoji: '⚡',
-    x: 330, y: 580, size: 60, zone: 'math' },
+    x: 200, y: 600, size: 60, zone: 'math' },
   { code: 'mm_hundreds_hollow', kind: 'skill', skillCode: 'math.add.within_100.no_regrouping',
     label: "Hundred's Hollow", subLabel: '2-digit add', themeEmoji: '🌳',
-    x: 130, y: 590, size: 64, zone: 'math' },
+    x: 100, y: 560, size: 64, zone: 'math' },
   { code: 'mm_regroup_ridge', kind: 'skill', skillCode: 'math.add.within_100.with_regrouping',
     label: 'Regrouping Ridge', subLabel: '2-digit regroup', themeEmoji: '⛰️',
-    x: 240, y: 620, size: 64, zone: 'math' },
+    x: 280, y: 600, size: 64, zone: 'math' },
   { code: 'mm_big_bridge', kind: 'skill', skillCode: 'math.add.within_1000',
     label: 'Big Number Bridge', subLabel: '3-digit add', themeEmoji: '🌉',
-    x: 400, y: 660, size: 60, zone: 'math' },
+    x: 540, y: 590, size: 60, zone: 'math' },
   { code: 'mm_leaf_drops', kind: 'skill', skillCode: 'math.subtract.within_20.no_crossing',
     label: 'Leaf Drops', subLabel: 'subtract within 20', themeEmoji: '🍂',
-    x: 470, y: 540, size: 60, zone: 'math' },
+    x: 540, y: 460, size: 60, zone: 'math' },
   { code: 'mm_berry_basket', kind: 'skill', skillCode: 'math.subtract.within_20.crossing_ten',
     label: 'Berry Basket', subLabel: 'subtract make-10', themeEmoji: '🫐',
-    x: 380, y: 510, size: 60, zone: 'math' },
+    x: 470, y: 460, size: 60, zone: 'math' },
   { code: 'mm_quiet_pond', kind: 'skill', skillCode: 'math.subtract.within_100.no_regrouping',
     label: 'Quiet Pond', subLabel: '2-digit subtract', themeEmoji: '🪷',
-    x: 480, y: 450, size: 60, zone: 'math' },
+    x: 350, y: 510, size: 60, zone: 'math' },
   { code: 'mm_rushing_stream', kind: 'skill', skillCode: 'math.subtract.within_100.with_regrouping',
     label: 'Rushing Stream', subLabel: '2-digit regroup', themeEmoji: '🌊',
-    x: 470, y: 600, size: 60, zone: 'math' },
+    x: 460, y: 540, size: 60, zone: 'math' },
   { code: 'mm_big_falls', kind: 'skill', skillCode: 'math.subtract.within_1000',
     label: 'Big Number Falls', subLabel: '3-digit subtract', themeEmoji: '🏞️',
-    x: 530, y: 500, size: 60, zone: 'math' },
+    x: 380, y: 540, size: 60, zone: 'math' },
   { code: 'mm_twin_bonds', kind: 'skill', skillCode: 'math.number_bond.within_20',
     label: 'Twin Blossoms', subLabel: 'bonds to 20', themeEmoji: '🌷',
-    x: 360, y: 450, size: 56, zone: 'math' },
+    x: 360, y: 430, size: 56, zone: 'math' },
 
   // ─── Place-Value Heights (center, ON the hill silhouettes) ───────
   // Sits on the rolling-hill band y:340-470 — the mist ends at y:320
@@ -95,21 +100,23 @@ export const MATH_MOUNTAIN_STRUCTURES: MapStructure[] = [
     x: 920, y: 360, size: 60, zone: 'math' },
 
   // ─── Multiplication Orchard (right, mid-foreground) ─────────────
+  // Skip Bridge spans a river outflow on the right. Orchard structures
+  // tucked above and below the bridge crossing. All y < 625.
   { code: 'mm_equal_garden', kind: 'skill', skillCode: 'math.multiply.equal_groups',
     label: 'Equal Gardens', subLabel: 'equal groups', themeEmoji: '🌻',
-    x: 1080, y: 530, size: 60, zone: 'math' },
+    x: 1080, y: 510, size: 60, zone: 'math' },
   { code: 'mm_array_orchard', kind: 'skill', skillCode: 'math.multiply.arrays',
     label: 'Array Orchard', subLabel: 'rows × columns', themeEmoji: '🍎',
-    x: 1200, y: 580, size: 64, zone: 'math' },
+    x: 1200, y: 540, size: 64, zone: 'math' },
   { code: 'mm_skip_bridge', kind: 'skill', skillCode: 'math.multiply.skip_count_bridge',
     label: 'Skip Count Bridge', subLabel: 'skip → multiply', themeEmoji: '🌉',
-    x: 1320, y: 540, size: 60, zone: 'math' },
+    x: 1320, y: 510, size: 60, zone: 'math' },
   { code: 'mm_times_to_5', kind: 'skill', skillCode: 'math.multiply.facts_to_5',
     label: 'Times Tables ×0–×5', subLabel: 'multiplication facts', themeEmoji: '✖️',
-    x: 1100, y: 620, size: 60, zone: 'math' },
+    x: 1100, y: 600, size: 60, zone: 'math' },
   { code: 'mm_times_to_10', kind: 'skill', skillCode: 'math.multiply.facts_to_10',
     label: 'Times Tables ×0–×10', subLabel: 'all the facts', themeEmoji: '✖️',
-    x: 1240, y: 640, size: 60, zone: 'math' },
+    x: 1230, y: 610, size: 60, zone: 'math' },
 
   // ─── Division Glen (right, ON the hill silhouettes) ─────────────
   // Sits in the upper hill band — pine-shaded clearing y:360-420.
@@ -125,42 +132,41 @@ export const MATH_MOUNTAIN_STRUCTURES: MapStructure[] = [
     label: 'Missing Number', subLabel: 'find the factor', themeEmoji: '🧩',
     x: 1320, y: 380, size: 60, zone: 'math' },
 
-  // ─── Measurement Meadow (two staggered rows, NOT one dense band) ─
-  // Upper row sits at y:600 (time-related), lower row at y:720
-  // (concrete things). Splits the meadow visually so the bottom of
-  // the scene doesn't read as a single horizontal stripe of icons.
+  // ─── Measurement Meadow (mid-band, distributed loosely) ─────────
+  // Lifted entirely out of the bottom buffer. Time pieces in upper row
+  // (y:540), Even/Odd + fractions/coins in lower row (y:610-625).
   { code: 'mm_even_odd', kind: 'skill', skillCode: 'math.even_odd.recognize',
     label: 'Even & Odd Stones', subLabel: 'even or odd?', themeEmoji: '🪨',
-    x: 560, y: 720, size: 56, zone: 'math' },
+    x: 720, y: 620, size: 56, zone: 'math' },
   { code: 'mm_garden_clock', kind: 'skill', skillCode: 'math.time.read_hour_half',
     label: 'Garden Clock', subLabel: 'hour & half', themeEmoji: '🕐',
-    x: 660, y: 600, size: 60, zone: 'math' },
+    x: 680, y: 540, size: 60, zone: 'math' },
   { code: 'mm_sundial', kind: 'skill', skillCode: 'math.time.read_to_5_min',
     label: 'Sundial', subLabel: 'to 5 minutes', themeEmoji: '🕰️',
-    x: 760, y: 600, size: 60, zone: 'math' },
+    x: 800, y: 540, size: 60, zone: 'math' },
   { code: 'mm_hourglass', kind: 'skill', skillCode: 'math.time.elapsed_intervals',
     label: 'Hourglass', subLabel: 'time passed', themeEmoji: '⌛',
-    x: 860, y: 600, size: 60, zone: 'math' },
+    x: 920, y: 540, size: 60, zone: 'math' },
   { code: 'mm_pebble_coins', kind: 'skill', skillCode: 'math.money.coin_count',
     label: 'Pebble Coins', subLabel: 'count coins', themeEmoji: '🪙',
-    x: 700, y: 740, size: 60, zone: 'math' },
+    x: 820, y: 620, size: 60, zone: 'math' },
   { code: 'mm_pie_slices', kind: 'skill', skillCode: 'math.fractions.identify',
     label: 'Pie Slices', subLabel: 'name the fraction', themeEmoji: '🥧',
-    x: 870, y: 740, size: 60, zone: 'math' },
+    x: 940, y: 620, size: 60, zone: 'math' },
   { code: 'mm_bigger_slice', kind: 'skill', skillCode: 'math.fractions.compare_visual',
     label: 'Bigger Slice', subLabel: 'which is bigger?', themeEmoji: '🍰',
-    x: 970, y: 720, size: 60, zone: 'math' },
+    x: 1010, y: 620, size: 60, zone: 'math' },
 
-  // ─── Word Stories Cottage (bottom-left tucked) ─────────────────
+  // ─── Word Stories Cottage (cluster around cottage SVG, all y<625) ─
   { code: 'mm_stories_plus', kind: 'skill', skillCode: 'math.word_problem.add_within_20',
     label: 'Garden Stories +', subLabel: 'add in a story', themeEmoji: '📖',
-    x: 70, y: 690, size: 56, zone: 'math' },
+    x: 70, y: 480, size: 56, zone: 'math' },
   { code: 'mm_stories_minus', kind: 'skill', skillCode: 'math.word_problem.subtract_within_20',
     label: 'Garden Stories −', subLabel: 'subtract in a story', themeEmoji: '📖',
-    x: 170, y: 720, size: 56, zone: 'math' },
+    x: 60, y: 530, size: 56, zone: 'math' },
   { code: 'mm_long_stories', kind: 'skill', skillCode: 'math.word_problem.two_step',
     label: 'Long Stories', subLabel: 'two-step', themeEmoji: '📜',
-    x: 80, y: 760, size: 56, zone: 'math' },
+    x: 160, y: 510, size: 56, zone: 'math' },
 ];
 
 export const MATH_MOUNTAIN_CLUSTERS: BranchCluster[] = [

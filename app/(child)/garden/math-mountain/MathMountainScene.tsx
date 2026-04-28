@@ -51,7 +51,7 @@ import type { BranchCluster } from '@/lib/world/branchMaps';
 import { BRANCH_MAP_WIDTH, BRANCH_MAP_HEIGHT } from '@/lib/world/branchMaps';
 import BranchSceneLayout from '@/components/child/garden/BranchSceneLayout';
 import {
-  Tree, PineTree, Flower, GrassTuft, StructureIllustration,
+  Tree, PineTree, StructureIllustration,
 } from '@/components/child/garden/illustrations';
 import type { MathMountainStructureState } from './page';
 
@@ -276,140 +276,268 @@ export default function MathMountainScene({
             which read as "the sky has grass in it." */}
         <rect x={0} y={320} width={W} height={H - 320} fill="url(#mmGrass)" />
 
-        {/* ── 6. WATER FOR THE BRIDGES ──
-             Two small streams ONLY where the structure illustrations
-             demand them: under mm_big_bridge (400, 660) and under
-             mm_skip_bridge (1320, 540). No more decorative-only ponds
-             that floated under unrelated structures. */}
+        {/* ── 6. CAVE ENTRANCE — Operations Hollow anchor ──
+             A mountain cave at lower-left (x:60-340, y:520-635) that
+             gathers Hundred's Hollow, Fast Facts, and Regroup Ridge into
+             one visual feature. Reduces the scene's "loose icon" feel —
+             these structures read as INSIDE the cave clearing. */}
         <g pointerEvents="none">
-          {/* Big Number Bridge stream — runs SE through the meadow
-              hollow, narrow body so the bridge spans it cleanly. */}
-          <ellipse cx={400} cy={678} rx={92} ry={14} fill="#6B8E5A" opacity={0.26} />
-          <ellipse cx={400} cy={678} rx={82} ry={9} fill="#B2D4D9" />
+          {/* outer rocky base */}
           <path
-            d="M 332 680 Q 400 676 468 680"
-            stroke="#8FB7C2" strokeWidth={3} fill="none" strokeLinecap="round" opacity={0.6}
+            d="M 40 638 Q 60 600 80 580 Q 110 540 160 525
+               Q 220 515 270 525 Q 320 540 348 580 Q 360 610 358 638 Z"
+            fill="#7A6B58" stroke="#3F3026" strokeWidth={2}
           />
-          <path d="M 350 678 Q 360 675 372 678" stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.65} strokeLinecap="round" />
-          <path d="M 420 680 Q 432 677 446 680" stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.6} strokeLinecap="round" />
-          {/* bank stones flanking the bridge approaches */}
-          <ellipse cx={326} cy={690} rx={9} ry={5} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.1} />
-          <ellipse cx={324} cy={687} rx={6} ry={2.4} fill="#A89D8A" />
-          <ellipse cx={478} cy={690} rx={9} ry={5} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.1} />
-          <ellipse cx={476} cy={687} rx={6} ry={2.4} fill="#A89D8A" />
+          {/* cave inner shadow (the dark mouth) */}
+          <path
+            d="M 100 632 Q 110 600 130 580 Q 165 555 200 555 Q 240 558 270 580
+               Q 290 605 295 632 Z"
+            fill="#2C2018" opacity={0.78}
+          />
+          {/* moss along top edge */}
+          <path
+            d="M 70 580 Q 100 568 140 562 Q 200 558 250 564 Q 300 570 332 584"
+            stroke="#7BA46F" strokeWidth={5} fill="none" strokeLinecap="round" opacity={0.74}
+          />
+          {/* lantern hanging in the cave mouth — a warm beacon */}
+          <line x1={200} y1={555} x2={200} y2={580} stroke="#5A3B1F" strokeWidth={1.4} />
+          <ellipse cx={200} cy={588} rx={6} ry={8} fill="#FFD06B" stroke="#5A3B1F" strokeWidth={1.2} />
+          <circle cx={200} cy={588} r={3} fill="#FFF2B5" opacity={0.92} />
+          {/* base rocks at the mouth */}
+          <ellipse cx={70} cy={638} rx={20} ry={6} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.2} />
+          <ellipse cx={340} cy={636} rx={18} ry={6} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.2} />
+        </g>
 
-          {/* Skip Count Bridge mountain stream — short tumbling watercourse
-              between orchard rows so the bridge actually spans water. */}
-          <ellipse cx={1320} cy={558} rx={68} ry={11} fill="#6B8E5A" opacity={0.24} />
-          <ellipse cx={1320} cy={558} rx={58} ry={7} fill="#B2D4D9" />
+        {/* ── 6b. LAKE — center-left mid-band, gathers water structures ──
+             Quiet Pond, Big Falls, Berry Basket, Rushing Stream all
+             cluster around / on this lake, so the cluster reads as one
+             coherent water feature instead of four floating icons. */}
+        <g pointerEvents="none">
+          {/* outer wet-earth bank */}
+          <ellipse cx={420} cy={510} rx={170} ry={68} fill="#6B8E5A" opacity={0.32} />
+          {/* primary water body */}
+          <ellipse cx={420} cy={510} rx={155} ry={56} fill="#A8CDD2" />
+          {/* deeper center */}
+          <ellipse cx={420} cy={510} rx={120} ry={40} fill="#92BEC4" opacity={0.6} />
+          {/* lily pads */}
+          <ellipse cx={330} cy={500} rx={12} ry={6} fill="#5C8A5A" stroke="#3F5A30" strokeWidth={1} opacity={0.86} />
+          <ellipse cx={328} cy={498} rx={4} ry={2} fill="#7BA46F" />
+          <ellipse cx={490} cy={494} rx={10} ry={5} fill="#5C8A5A" stroke="#3F5A30" strokeWidth={1} opacity={0.86} />
+          <ellipse cx={488} cy={492} rx={3.5} ry={1.8} fill="#7BA46F" />
+          <ellipse cx={398} cy={530} rx={9} ry={4.5} fill="#5C8A5A" stroke="#3F5A30" strokeWidth={1} opacity={0.86} />
+          {/* shimmer ripples */}
+          <path d="M 358 506 Q 372 502 388 506" stroke="#FFFFFF" strokeWidth={1.2} fill="none" opacity={0.66} strokeLinecap="round" />
+          <path d="M 444 514 Q 460 510 476 514" stroke="#FFFFFF" strokeWidth={1.2} fill="none" opacity={0.62} strokeLinecap="round" />
+          <path d="M 396 524 Q 408 520 422 524" stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.55} strokeLinecap="round" />
+          {/* small fish silhouette */}
+          <path d="M 460 520 q 4 -3 8 0 q -2 2 -2 4 q -4 0 -6 -4 z" fill="#5C7E4F" opacity={0.5} />
+          <path d="M 360 516 q 4 -3 8 0 q -2 2 -2 4 q -4 0 -6 -4 z" fill="#5C7E4F" opacity={0.45} />
+          {/* moss-topped boulders on the lake banks */}
+          <ellipse cx={282} cy={520} rx={11} ry={6} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.2} />
+          <ellipse cx={280} cy={517} rx={7} ry={2.6} fill="#A89D8A" />
+          <ellipse cx={282} cy={515} rx={9} ry={2} fill="#7BA46F" opacity={0.84} />
+          <ellipse cx={560} cy={500} rx={11} ry={6} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.2} />
+          <ellipse cx={558} cy={497} rx={7} ry={2.6} fill="#A89D8A" />
+          <ellipse cx={560} cy={495} rx={9} ry={2} fill="#7BA46F" opacity={0.84} />
+          {/* cattails along left bank */}
+          {[[270, 480], [294, 478], [288, 462]].map(([cx, cy], i) => (
+            <g key={`mmcat-${i}`}>
+              <line x1={cx} y1={cy} x2={cx} y2={cy + 22} stroke="#6B8E5A" strokeWidth={1.4} />
+              <rect x={cx - 1.5} y={cy - 4} width={3} height={9} rx={1.5} fill="#5A3B1F" />
+            </g>
+          ))}
+        </g>
+
+        {/* ── 6c. RIVER + BEAVER DAM — central horizontal accent ──
+             Flows from the lake outflow (right of lake) eastward through
+             the mid-meadow corridor at y:572-588. Big Number Bridge spans
+             its source; the river meanders across the scene with a small
+             beaver dam mid-way, and exits stage-right under the orchard.
+             Sits ABOVE the bottom buffer (no river below y:600). */}
+        <g pointerEvents="none">
+          {/* lake outflow → main river body */}
           <path
-            d="M 1268 558 Q 1320 556 1372 558"
-            stroke="#8FB7C2" strokeWidth={2.4} fill="none" strokeLinecap="round" opacity={0.6}
+            d="M 568 524 C 600 540, 620 562, 640 576
+               C 720 580, 800 582, 880 580
+               C 960 578, 1040 580, 1100 582
+               C 1180 584, 1260 580, 1330 574
+               C 1380 570, 1420 568, 1440 568
+               L 1440 596 C 1420 596, 1380 598, 1330 600
+               C 1260 604, 1180 608, 1100 606
+               C 1040 605, 960 602, 880 604
+               C 800 605, 720 604, 640 600
+               C 620 590, 600 568, 568 552 Z"
+            fill="#6B8E5A" opacity={0.28}
           />
-          <path d="M 1284 558 Q 1294 556 1304 558" stroke="#FFFFFF" strokeWidth={0.9} fill="none" opacity={0.6} strokeLinecap="round" />
-          <path d="M 1338 558 Q 1348 556 1358 558" stroke="#FFFFFF" strokeWidth={0.9} fill="none" opacity={0.55} strokeLinecap="round" />
-          <ellipse cx={1264} cy={566} rx={7} ry={4} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1} />
-          <ellipse cx={1378} cy={566} rx={7} ry={4} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1} />
+          <path
+            d="M 580 532 C 612 548, 632 568, 650 580
+               C 728 584, 808 586, 884 584
+               C 962 582, 1042 584, 1102 586
+               C 1180 587, 1258 583, 1326 578
+               C 1378 574, 1418 572, 1440 572
+               L 1440 592 C 1418 592, 1378 594, 1326 596
+               C 1258 600, 1180 604, 1102 602
+               C 1042 601, 962 599, 884 600
+               C 808 601, 728 600, 650 596
+               C 632 588, 612 572, 580 558 Z"
+            fill="#A8CDD2"
+          />
+          {/* depth channel */}
+          <path
+            d="M 600 560 C 700 588, 900 590, 1100 590 C 1280 588, 1400 580, 1438 580"
+            stroke="#7FA9B0" strokeWidth={3.4} fill="none" strokeLinecap="round" opacity={0.6}
+          />
+          {/* shimmer ripples spread along the river */}
+          {[680, 760, 920, 1000, 1180, 1260, 1380].map((rx, i) => (
+            <path
+              key={`mmrr-${i}`}
+              d={`M ${rx - 9} 584 Q ${rx} 580 ${rx + 9} 584`}
+              stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.55 - (i % 2) * 0.08} strokeLinecap="round"
+            />
+          ))}
+
+          {/* BEAVER DAM at the river midpoint (x:840, y:580) — small log
+              pile crossing the river. The path does NOT cross here — it
+              crosses upstream at Big Bridge and downstream at Skip Bridge.
+              This is a pure visual anchor. */}
+          <g transform="translate(840, 580)">
+            {/* shadow on water */}
+            <ellipse cx={0} cy={6} rx={42} ry={5} fill="#000" opacity={0.18} />
+            {/* logs (stacked) */}
+            <rect x={-38} y={-2}  width={76} height={6} rx={3} fill="#8B5A2B" stroke="#5A3B1F" strokeWidth={1.2} />
+            <rect x={-32} y={-8}  width={64} height={6} rx={3} fill="#A06B36" stroke="#5A3B1F" strokeWidth={1.2} />
+            <rect x={-24} y={-14} width={48} height={6} rx={3} fill="#B47845" stroke="#5A3B1F" strokeWidth={1.1} />
+            {/* end-grain rings on protruding logs */}
+            <circle cx={-38} cy={1} r={2.4} fill="#7A4A1F" stroke="#5A3B1F" strokeWidth={0.8} />
+            <circle cx={38}  cy={1} r={2.4} fill="#7A4A1F" stroke="#5A3B1F" strokeWidth={0.8} />
+            {/* a small beaver perched on top */}
+            <g transform="translate(8, -22)">
+              <ellipse cx={0} cy={0} rx={9} ry={6.5} fill="#7A4E2C" stroke="#3F2614" strokeWidth={1.2} />
+              <circle cx={6} cy={-2} r={4} fill="#8B5A2B" stroke="#3F2614" strokeWidth={1.1} />
+              <circle cx={5.4} cy={-3} r={0.9} fill="#1A0E08" />
+              <circle cx={7.5} cy={-3.5} r={0.4} fill="#1A0E08" />
+              <ellipse cx={9.4} cy={-1.5} rx={1.3} ry={0.8} fill="#3F2614" />
+              {/* tiny ear */}
+              <circle cx={4.2} cy={-5} r={1.2} fill="#3F2614" />
+              {/* paddle tail */}
+              <ellipse cx={-9} cy={2} rx={4} ry={2} fill="#3F2614" stroke="#1A0E08" strokeWidth={0.8} />
+            </g>
+          </g>
+
+          {/* SKIP COUNT BRIDGE crossing — small spillway from upper-right
+              that meets the river. The bridge spans this stream cleanly. */}
+          <ellipse cx={1320} cy={530} rx={64} ry={11} fill="#6B8E5A" opacity={0.24} />
+          <ellipse cx={1320} cy={530} rx={54} ry={7} fill="#A8CDD2" />
+          <path
+            d="M 1270 530 Q 1320 526 1370 530"
+            stroke="#7FA9B0" strokeWidth={2.4} fill="none" strokeLinecap="round" opacity={0.6}
+          />
+          <ellipse cx={1264} cy={538} rx={7} ry={4} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1} />
+          <ellipse cx={1378} cy={538} rx={7} ry={4} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1} />
         </g>
 
         {/* ── 8. PATH SYSTEM ──
-             Winds from the lower-left cottage UP through Hollow → over
-             BIG BRIDGE → climbs the plateau where Place-Value Heights
-             sit on the rolling hills (y:340-470) → drifts right across
-             the upper hill band → over SKIP COUNT BRIDGE → glen ridge
-             at the top-right. Reads as a real mountain trail that
-             actually CLIMBS — not a horizontal stripe at the bottom. */}
+             Stays ENTIRELY ABOVE y:625 — bottom 22% of the scene is a
+             clean meadow buffer with no path or icons.
+             Trail: cottage cluster → cave → climbs the lake bank →
+             over BIG BRIDGE (river source) → up the plateau → ridges →
+             over SKIP BRIDGE (orchard stream) → glen.
+             Path NEVER crosses the river except at the two bridges. */}
         {(() => {
-          // Lower spine across foreground meadow — connects cottage
-          // and the time/fraction structures
-          const lowerSpineD = `M 180 738 C 280 728, 380 720, 480 716 C 580 712, 680 710, 800 710 C 900 716, 980 720, 1060 728`;
-          // Cottage approach into Hollow — climbs up-left
-          const hollowApproachD = `M 280 718 C 290 690, 300 660, 308 630 C 314 604, 320 580, 328 560`;
-          // OVER BIG BRIDGE — flat plank crossing at y:678
-          const bigBridgeD = `M 332 678 C 360 678, 380 678, 400 678 C 420 678, 440 678, 470 678`;
-          // Plateau climb — Big Bridge → Big Falls → Tens Tower (long climb)
-          const plateauClimbD = `M 470 678 C 490 640, 510 580, 528 520 C 540 480, 552 440, 560 410`;
-          // Plateau ridge — Tens (560,400) → Three-Digit (680,350) → Mountain (800,380) → Round 100 (920,360)
-          const plateauRidgeD = `M 560 410 C 600 380, 640 360, 680 358 C 730 360, 770 372, 800 386 C 850 380, 890 368, 920 366`;
-          // Glen connector — Round 100 → Sharing Squirrels → Division Facts → Missing Number
-          const glenConnectD = `M 920 366 C 970 380, 1020 408, 1080 422 C 1140 410, 1180 380, 1200 366 C 1240 372, 1290 384, 1320 386`;
-          // Lower plateau row — Compare Trees (600,470) → Ten More (740,470) → Round 10 (880,470)
-          const lowerRidgeD = `M 600 472 C 670 470, 740 472, 810 470 C 850 470, 870 470, 880 470`;
-          // Right fork — lower spine → orchard → Skip Bridge approach
-          const orchardClimbD = `M 1060 728 C 1090 690, 1110 650, 1120 620 C 1130 590, 1130 568, 1130 558`;
-          // OVER SKIP BRIDGE — flat plank crossing at y:558
-          const skipBridgeD = `M 1268 558 C 1290 558, 1310 558, 1320 558 C 1340 558, 1360 558, 1372 558`;
+          // Cottage approach (top-left corner, around story books)
+          const cottageApproachD = `M 130 530 C 180 528, 240 524, 300 514`;
+          // Around the cave clearing into the lake bank
+          const caveToLakeD = `M 240 600 C 220 580, 240 560, 260 548 C 282 540, 308 538, 332 538`;
+          // Lake-bank climb (north shore) → up to plateau
+          const lakeNorthD = `M 332 538 C 380 470, 430 432, 480 416 C 520 408, 548 408, 558 408`;
+          // Plateau ridge — Tens → Three-Digit → Mountain Heights → Round 100
+          const plateauRidgeD = `M 560 400 C 610 372, 650 354, 690 352 C 730 356, 770 372, 800 384 C 850 380, 890 368, 920 364`;
+          // Glen connector — Round 100 → Sharing → Division Facts → Missing
+          const glenConnectD = `M 920 364 C 970 376, 1020 400, 1060 416 C 1090 420, 1110 416, 1120 408 C 1150 376, 1180 362, 1200 362 C 1240 366, 1290 376, 1320 380`;
+          // Lower-plateau row — Compare Trees → Ten More → Round 10
+          const lowerRidgeD = `M 596 462 C 668 466, 740 466, 812 468 C 850 468, 872 470, 880 470`;
+          // OVER BIG BRIDGE — flat plank crossing the lake-outflow river
+          const bigBridgeD = `M 480 590 C 510 590, 530 590, 540 590 C 560 590, 580 590, 600 590`;
+          // From Big Bridge → climbs back to lower ridge
+          const bigBridgeApproachD = `M 600 590 C 614 560, 600 510, 596 462`;
+          // Right fork — lower ridge → through Time pieces → orchard climb
+          const timeRowConnectD = `M 880 470 C 880 500, 800 528, 760 532 C 720 536, 690 536, 680 540`;
+          const orchardClimbD = `M 880 470 C 940 480, 1010 498, 1060 510 C 1080 514, 1080 510, 1080 510`;
+          // OVER SKIP BRIDGE — flat plank crossing the orchard stream
+          const skipBridgeD = `M 1270 530 C 1296 530, 1310 530, 1320 530 C 1340 530, 1360 530, 1370 530`;
+          // From orchard climb → up to Skip Bridge
+          const orchardToSkipD = `M 1080 510 C 1140 514, 1200 530, 1268 530`;
           return (
             <g pointerEvents="none">
               {/* Shadow */}
-              {[lowerSpineD, hollowApproachD, plateauClimbD, plateauRidgeD, glenConnectD, lowerRidgeD, orchardClimbD].map((d, i) => (
-                <path key={`mmsh-${i}`} d={d} stroke="#A99878" strokeWidth={26} fill="none" strokeLinecap="round" opacity={0.18} />
+              {[cottageApproachD, caveToLakeD, lakeNorthD, plateauRidgeD, glenConnectD, lowerRidgeD, bigBridgeApproachD, timeRowConnectD, orchardClimbD, orchardToSkipD].map((d, i) => (
+                <path key={`mmsh-${i}`} d={d} stroke="#A99878" strokeWidth={20} fill="none" strokeLinecap="round" opacity={0.18} />
               ))}
               {/* Bridges (wood plank shadow) */}
-              <path d={bigBridgeD}  stroke="#7A5A3A" strokeWidth={26} fill="none" strokeLinecap="round" opacity={0.78} />
-              <path d={skipBridgeD} stroke="#7A5A3A" strokeWidth={20} fill="none" strokeLinecap="round" opacity={0.78} />
+              <path d={bigBridgeD}  stroke="#7A5A3A" strokeWidth={24} fill="none" strokeLinecap="round" opacity={0.78} />
+              <path d={skipBridgeD} stroke="#7A5A3A" strokeWidth={18} fill="none" strokeLinecap="round" opacity={0.78} />
 
-              {/* Surface — narrows as it climbs (mountain-trail effect) */}
-              <path d={lowerSpineD}    stroke="#EAD2A8" strokeWidth={20} fill="none" strokeLinecap="round" opacity={0.88} />
-              <path d={hollowApproachD} stroke="#EAD2A8" strokeWidth={18} fill="none" strokeLinecap="round" opacity={0.85} />
-              <path d={plateauClimbD}  stroke="#EAD2A8" strokeWidth={16} fill="none" strokeLinecap="round" opacity={0.82} />
-              <path d={plateauRidgeD}  stroke="#EAD2A8" strokeWidth={14} fill="none" strokeLinecap="round" opacity={0.78} />
-              <path d={glenConnectD}   stroke="#EAD2A8" strokeWidth={13} fill="none" strokeLinecap="round" opacity={0.76} />
-              <path d={lowerRidgeD}    stroke="#EAD2A8" strokeWidth={14} fill="none" strokeLinecap="round" opacity={0.78} />
-              <path d={orchardClimbD}  stroke="#EAD2A8" strokeWidth={16} fill="none" strokeLinecap="round" opacity={0.84} />
+              {/* Surface — narrows as it climbs */}
+              <path d={cottageApproachD} stroke="#EAD2A8" strokeWidth={14} fill="none" strokeLinecap="round" opacity={0.84} />
+              <path d={caveToLakeD}      stroke="#EAD2A8" strokeWidth={14} fill="none" strokeLinecap="round" opacity={0.84} />
+              <path d={lakeNorthD}       stroke="#EAD2A8" strokeWidth={14} fill="none" strokeLinecap="round" opacity={0.82} />
+              <path d={plateauRidgeD}    stroke="#EAD2A8" strokeWidth={12} fill="none" strokeLinecap="round" opacity={0.78} />
+              <path d={glenConnectD}     stroke="#EAD2A8" strokeWidth={11} fill="none" strokeLinecap="round" opacity={0.76} />
+              <path d={lowerRidgeD}      stroke="#EAD2A8" strokeWidth={13} fill="none" strokeLinecap="round" opacity={0.80} />
+              <path d={bigBridgeApproachD} stroke="#EAD2A8" strokeWidth={14} fill="none" strokeLinecap="round" opacity={0.82} />
+              <path d={timeRowConnectD}  stroke="#EAD2A8" strokeWidth={12} fill="none" strokeLinecap="round" opacity={0.74} />
+              <path d={orchardClimbD}    stroke="#EAD2A8" strokeWidth={13} fill="none" strokeLinecap="round" opacity={0.78} />
+              <path d={orchardToSkipD}   stroke="#EAD2A8" strokeWidth={13} fill="none" strokeLinecap="round" opacity={0.80} />
 
-              {/* Bridge plank surface */}
-              <path d={bigBridgeD}  stroke="#C8A57A" strokeWidth={20} fill="none" strokeLinecap="round" opacity={0.94} />
-              <path d={skipBridgeD} stroke="#C8A57A" strokeWidth={14} fill="none" strokeLinecap="round" opacity={0.94} />
-              {[346, 366, 386, 406, 426, 446, 466].map(px => (
-                <line key={`bbp-${px}`} x1={px} y1={668} x2={px} y2={688} stroke="#7A5A3A" strokeWidth={1.4} opacity={0.7} />
+              {/* Bridge plank surfaces */}
+              <path d={bigBridgeD}  stroke="#C8A57A" strokeWidth={18} fill="none" strokeLinecap="round" opacity={0.94} />
+              <path d={skipBridgeD} stroke="#C8A57A" strokeWidth={12} fill="none" strokeLinecap="round" opacity={0.94} />
+              {[488, 506, 524, 542, 560, 578, 596].map(px => (
+                <line key={`bbp-${px}`} x1={px} y1={580} x2={px} y2={600} stroke="#7A5A3A" strokeWidth={1.3} opacity={0.7} />
               ))}
               {[1280, 1296, 1312, 1328, 1344, 1360].map(px => (
-                <line key={`sbp-${px}`} x1={px} y1={550} x2={px} y2={566} stroke="#7A5A3A" strokeWidth={1.2} opacity={0.7} />
+                <line key={`sbp-${px}`} x1={px} y1={522} x2={px} y2={538} stroke="#7A5A3A" strokeWidth={1.2} opacity={0.7} />
               ))}
 
               {/* Highlight ribbon */}
-              <path d={lowerSpineD}    stroke="#F7E6C4" strokeWidth={7} fill="none" strokeLinecap="round" opacity={0.52} />
-              <path d={hollowApproachD} stroke="#F7E6C4" strokeWidth={6} fill="none" strokeLinecap="round" opacity={0.48} />
-              <path d={plateauClimbD}  stroke="#F7E6C4" strokeWidth={5} fill="none" strokeLinecap="round" opacity={0.46} />
-              <path d={plateauRidgeD}  stroke="#F7E6C4" strokeWidth={5} fill="none" strokeLinecap="round" opacity={0.44} />
-              <path d={glenConnectD}   stroke="#F7E6C4" strokeWidth={4} fill="none" strokeLinecap="round" opacity={0.42} />
-              <path d={lowerRidgeD}    stroke="#F7E6C4" strokeWidth={5} fill="none" strokeLinecap="round" opacity={0.44} />
-              <path d={orchardClimbD}  stroke="#F7E6C4" strokeWidth={6} fill="none" strokeLinecap="round" opacity={0.50} />
+              {[cottageApproachD, caveToLakeD, lakeNorthD, plateauRidgeD, glenConnectD, lowerRidgeD, bigBridgeApproachD, timeRowConnectD, orchardClimbD, orchardToSkipD].map((d, i) => (
+                <path key={`mmhi-${i}`} d={d} stroke="#F7E6C4" strokeWidth={5} fill="none" strokeLinecap="round" opacity={0.46} />
+              ))}
 
-              {/* Stepping stones — fewer, only on key approaches */}
+              {/* Stepping stones — sparse, only on key approaches */}
               {[
-                // lower spine
-                { x: 240, y: 730 }, { x: 380, y: 720 }, { x: 540, y: 714 },
-                { x: 720, y: 710 }, { x: 880, y: 712 }, { x: 1020, y: 720 },
-                // hollow approach
-                { x: 290, y: 700 }, { x: 308, y: 640 }, { x: 326, y: 580 },
-                // plateau climb (long)
-                { x: 488, y: 644 }, { x: 504, y: 590 }, { x: 524, y: 528 }, { x: 548, y: 460 },
+                // cottage approach
+                { x: 200, y: 528 }, { x: 270, y: 520 },
+                // cave-to-lake
+                { x: 250, y: 580 }, { x: 282, y: 552 },
+                // lake-north climb
+                { x: 360, y: 500 }, { x: 410, y: 444 }, { x: 470, y: 416 },
                 // plateau ridge
-                { x: 614, y: 386 }, { x: 720, y: 366 }, { x: 850, y: 376 },
+                { x: 620, y: 376 }, { x: 720, y: 358 }, { x: 850, y: 380 },
                 // glen connector
-                { x: 980, y: 380 }, { x: 1060, y: 416 }, { x: 1140, y: 396 }, { x: 1260, y: 376 },
+                { x: 990, y: 386 }, { x: 1080, y: 414 }, { x: 1180, y: 372 }, { x: 1260, y: 376 },
                 // lower ridge
-                { x: 670, y: 472 }, { x: 810, y: 470 },
+                { x: 660, y: 466 }, { x: 800, y: 468 },
+                // big-bridge approach (going back up after bridge crossing)
+                { x: 600, y: 562 }, { x: 596, y: 524 },
                 // orchard climb
-                { x: 1080, y: 690 }, { x: 1100, y: 644 }, { x: 1120, y: 600 },
+                { x: 940, y: 480 }, { x: 1020, y: 500 },
               ].map((s, i) => (
                 <g key={`mmstn-${i}`}>
-                  <ellipse cx={s.x + 1} cy={s.y + 2} rx={8} ry={4.5} fill="#000" opacity={0.16} />
-                  <ellipse cx={s.x} cy={s.y} rx={8} ry={4.5} fill="#C9B489" stroke="#8A7050" strokeWidth={1} />
-                  <ellipse cx={s.x - 2} cy={s.y - 1.2} rx={3.5} ry={1.4} fill="#E0CBA1" opacity={0.8} />
+                  <ellipse cx={s.x + 1} cy={s.y + 2} rx={7} ry={4} fill="#000" opacity={0.16} />
+                  <ellipse cx={s.x} cy={s.y} rx={7} ry={4} fill="#C9B489" stroke="#8A7050" strokeWidth={1} />
+                  <ellipse cx={s.x - 1.5} cy={s.y - 1} rx={3} ry={1.3} fill="#E0CBA1" opacity={0.8} />
                 </g>
               ))}
             </g>
           );
         })()}
 
-        {/* ── 9. WORD STORIES COTTAGE — lower-left corner ──
-             Stories structures now at (70,690), (170,720), (80,760).
-             Cottage shifted up so its foundation sits BEHIND mm_stories_plus
-             at (70, 690). */}
-        <g transform="translate(20, 660)" pointerEvents="none">
+        {/* ── 9. WORD STORIES COTTAGE — top-left corner ──
+             Stories now at (70,480), (60,530), (160,510). Cottage SVG
+             sits above the structures so it reads as a small reading
+             nook anchoring the cluster. */}
+        <g transform="translate(20, 410)" pointerEvents="none">
           <ellipse cx={28} cy={66} rx={34} ry={6} fill="#000" opacity={0.12} />
           <rect x={0} y={30} width={56} height={36} rx={3} fill="#F5EBDC" stroke="#5A3B1F" strokeWidth={2} />
           <rect x={22} y={44} width={12} height={22} rx={3} fill="#8B5A2B" stroke="#5A3B1F" strokeWidth={1.5} />
@@ -430,81 +558,34 @@ export default function MathMountainScene({
           <ellipse cx={39} cy={-12} rx={3.5} ry={3} fill="#E8E0D3" opacity={0.24} />
         </g>
 
-        {/* ── 10. APPLE ORCHARD ROWS — Multiplication Orchard ──
-             Structures: mm_equal_garden (1080,530), mm_array_orchard (1200,580),
-             mm_times_to_5 (1100,620), mm_times_to_10 (1240,640).
-             Tree rows sit BELOW the structures only, freeing the upper
-             orchard band for the path & Skip Bridge approach. */}
-        {[1020, 1380].map((tx, i) => (
-          <Tree key={`orch-back-${i}`} x={tx} y={630} size={40} variant={i % 2 === 0 ? 1 : 2} />
-        ))}
-        {[1040, 1170, 1280, 1390].map((tx, i) => (
-          <Tree key={`orch-mid-${i}`} x={tx} y={730} size={44} variant={i % 3 === 0 ? 2 : i % 3 === 1 ? 1 : 3} />
-        ))}
+        {/* ── 10. APPLE ORCHARD ROWS — flank Multiplication Orchard ──
+             Trees ABOVE the cluster (between hills and structures) so
+             they don't violate the bottom buffer. */}
+        <Tree x={1010} y={460} size={40} variant={1} />
+        <Tree x={1380} y={460} size={42} variant={2} />
 
         {/* ── 11. DIVISION GLEN — pine clearing on the upper hills ──
              Glen structures at y:360-420. Pines flank the clearing
-             behind/between, and a few small boulders sit at the foot. */}
-        <PineTree x={1030} y={328} size={46} />
-        <PineTree x={1140} y={328} size={50} />
-        <PineTree x={1260} y={332} size={48} />
-        <PineTree x={1370} y={328} size={48} />
-        <g pointerEvents="none">
-          <ellipse cx={1080} cy={460} rx={14} ry={6} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.2} />
-          <ellipse cx={1078} cy={456} rx={9} ry={2.6} fill="#A89D8A" />
-          <ellipse cx={1080} cy={454} rx={11} ry={2} fill="#7BA46F" opacity={0.84} />
-          <ellipse cx={1320} cy={420} rx={12} ry={5} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.1} />
-          <ellipse cx={1318} cy={417} rx={8} ry={2.4} fill="#A89D8A" />
-        </g>
+             behind, and small boulders sit at the foot of each. */}
+        <PineTree x={1030} y={324} size={46} />
+        <PineTree x={1140} y={324} size={50} />
+        <PineTree x={1260} y={328} size={48} />
+        <PineTree x={1380} y={324} size={48} />
 
         {/* ── 12. FRAMING TREES ──
              Rules: no tree within 60px of any structure; trees only at
-             edges and mid-distance. */}
+             edges and mid-distance. NONE below y:600 (bottom buffer). */}
 
         {/* Distant ridge between peaks (NW between Peak 5 & Peak 3) */}
         <PineTree x={130} y={300} size={44} />
         <PineTree x={460} y={300} size={42} />
 
-        {/* Left edge — hollow entrance framing */}
-        <Tree x={50} y={520} size={56} variant={2} />
-        <Tree x={300} y={460} size={50} variant={3} />
-
-        {/* Between plateau and Compare Trees row */}
-        <Tree x={420} y={580} size={48} variant={1} />
-
-        {/* Bottom-left cottage nook */}
-        <Tree x={250} y={760} size={50} variant={2} />
+        {/* Mid-distance pines on the upper hills (between plateau structures) */}
+        <PineTree x={620} y={310} size={40} />
+        <PineTree x={860} y={310} size={42} />
 
         {/* Far-right edge — separates Glen from frame */}
-        <Tree x={1402} y={500} size={50} variant={3} />
-
-        {/* ── 13. GRASS TUFTS + FLOWERS — meadow band, between structures ── */}
-        <GrassTuft x={460} y={668} size={20} />
-        <GrassTuft x={620} y={672} size={20} />
-        <GrassTuft x={1010} y={672} size={20} />
-        <GrassTuft x={420} y={780} size={20} />
-        <GrassTuft x={1140} y={780} size={22} />
-        <Flower x={510} y={680} size={14} />
-        <Flower x={580} y={678} size={13} />
-        <Flower x={930} y={672} size={14} />
-        <Flower x={510} y={780} size={13} />
-        <Flower x={800} y={780} size={14} />
-        <Flower x={1080} y={780} size={13} />
-
-        {/* ── Foreground grass silhouette ── */}
-        <g opacity={0.40} pointerEvents="none">
-          <path
-            d={`M 0 ${H} L 0 ${H - 18} Q 90 ${H - 30} 180 ${H - 20} T 360 ${H - 24} T 540 ${H - 18} T 720 ${H - 26} T 900 ${H - 20} T 1080 ${H - 28} T 1260 ${H - 20} T ${W} ${H - 18} L ${W} ${H} Z`}
-            fill="#6B8E5A"
-          />
-          {[60, 180, 320, 480, 640, 800, 970, 1140, 1310, 1420].map((gx, i) => (
-            <path
-              key={`mmfg-${i}`}
-              d={`M ${gx} ${H - 16} Q ${gx + (i % 2 === 0 ? 3 : -3)} ${H - 36} ${gx + (i % 2 === 0 ? 5 : -5)} ${H - 54}`}
-              stroke="#5C7E4F" strokeWidth={2} fill="none" strokeLinecap="round"
-            />
-          ))}
-        </g>
+        <Tree x={1402} y={460} size={50} variant={3} />
 
         {/* ── CLUSTER LABELS — softened italic name-tags ── */}
         {clusters.map(c => {
