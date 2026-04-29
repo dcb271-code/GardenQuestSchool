@@ -151,13 +151,16 @@ export default function MathMountainScene({
         style={{ touchAction: 'manipulation' }}
       >
         <defs>
-          {/* Alpine sky — cooler than the central garden, reads as mountain morning */}
+          {/* Miyazaki sky — soft pastel blue at top, fades through cream
+              and a hint of warm peach near the horizon. NO greens here:
+              the meadow underneath provides the green; the sky should
+              feel like watercolor air, not a wash of vegetation. */}
           <linearGradient id="mmSky" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"  stopColor="#C8D8EC" />
-            <stop offset="22%" stopColor="#D9E6F0" />
-            <stop offset="40%" stopColor="#EDE5D2" />
-            <stop offset="60%" stopColor="#E0DDB8" stopOpacity="0.85" />
-            <stop offset="100%" stopColor="#CEE3B4" stopOpacity="0" />
+            <stop offset="0%"  stopColor="#B8D2E8" />
+            <stop offset="28%" stopColor="#CFE0EE" />
+            <stop offset="55%" stopColor="#E8E4D8" />
+            <stop offset="78%" stopColor="#F4DCC0" stopOpacity="0.92" />
+            <stop offset="100%" stopColor="#F8D6B5" stopOpacity="0" />
           </linearGradient>
           <linearGradient id="mmMeadow" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%"  stopColor="#D7EFB9" />
@@ -209,6 +212,53 @@ export default function MathMountainScene({
         {/* ── 1. SKY + MEADOW BASE ── */}
         <rect width={W} height={H * 0.58} fill="url(#mmSky)" />
         <rect width={W} height={H} fill="url(#mmMeadow)" opacity="0.95" />
+
+        {/* ── 1b. SOFT MIYAZAKI CLOUDS — billowy painterly puffs ──
+             Sit in the gaps BETWEEN the painted Fuji peaks (so they
+             don't visually compete). Three layers of soft white shapes
+             with gentle lavender-gray shadow underneath each. */}
+        <g pointerEvents="none" opacity={0.92}>
+          {/* upper-mid cloud (between Peak 3 and Peak 1) */}
+          <g>
+            <ellipse cx={300} cy={108} rx={64} ry={11} fill="#C8C4D8" opacity={0.35} />
+            <ellipse cx={296} cy={94} rx={32} ry={16} fill="#FFFFFF" />
+            <ellipse cx={324} cy={92} rx={26} ry={14} fill="#FFFFFF" />
+            <ellipse cx={272} cy={92} rx={24} ry={14} fill="#FFFFFF" />
+            <ellipse cx={306} cy={98} rx={42} ry={12} fill="#FFFFFF" />
+            <ellipse cx={290} cy={86} rx={14} ry={8} fill="#F8FAFD" opacity={0.92} />
+          </g>
+          {/* tall cloud (above the big peak, drifts to the right) */}
+          <g>
+            <ellipse cx={580} cy={62} rx={70} ry={10} fill="#C8C4D8" opacity={0.30} />
+            <ellipse cx={566} cy={48} rx={28} ry={14} fill="#FFFFFF" />
+            <ellipse cx={596} cy={44} rx={32} ry={16} fill="#FFFFFF" />
+            <ellipse cx={624} cy={50} rx={24} ry={13} fill="#FFFFFF" />
+            <ellipse cx={544} cy={52} rx={20} ry={12} fill="#FFFFFF" />
+            <ellipse cx={584} cy={56} rx={48} ry={11} fill="#FFFFFF" />
+            <ellipse cx={580} cy={40} rx={16} ry={8} fill="#F8FAFD" opacity={0.92} />
+          </g>
+          {/* mid-right cloud (between big peak and Peak 2) */}
+          <g>
+            <ellipse cx={988} cy={96} rx={56} ry={9} fill="#C8C4D8" opacity={0.30} />
+            <ellipse cx={974} cy={84} rx={26} ry={13} fill="#FFFFFF" />
+            <ellipse cx={1004} cy={80} rx={28} ry={14} fill="#FFFFFF" />
+            <ellipse cx={1030} cy={86} rx={20} ry={11} fill="#FFFFFF" />
+            <ellipse cx={994} cy={88} rx={40} ry={10} fill="#FFFFFF" />
+          </g>
+          {/* far-right small cloud */}
+          <g>
+            <ellipse cx={1340} cy={132} rx={42} ry={7} fill="#C8C4D8" opacity={0.28} />
+            <ellipse cx={1330} cy={122} rx={20} ry={10} fill="#FFFFFF" />
+            <ellipse cx={1352} cy={120} rx={22} ry={11} fill="#FFFFFF" />
+            <ellipse cx={1340} cy={126} rx={28} ry={9} fill="#FFFFFF" />
+          </g>
+          {/* small wisp upper-far-left */}
+          <g>
+            <ellipse cx={120} cy={146} rx={34} ry={6} fill="#C8C4D8" opacity={0.25} />
+            <ellipse cx={114} cy={138} rx={18} ry={9} fill="#FFFFFF" opacity={0.92} />
+            <ellipse cx={130} cy={136} rx={16} ry={8} fill="#FFFFFF" opacity={0.92} />
+          </g>
+        </g>
 
         {/* ── 2. FUJI PEAKS — five across the back ──
              Compressed vertically: peaks now sit in the upper third
