@@ -95,6 +95,25 @@ const ILLUSTRATION_ALIAS: Record<string, string> = {
   rf_paragraph:      'reading_book_stump',
 };
 
+// HABITAT GROUPS — same pattern Math Mountain uses to consolidate
+// dense skill clusters into a single tap-to-expand marker. The
+// Phonics Path was 8 emoji clip-art structures across x:480-1200; now
+// they collapse to one bespoke trail-signpost marker, expanding when
+// tapped. Cuts the upper canopy from "8 structures + a path" down to
+// "one place sign + a path" until the kid wants to dive in.
+const HABITAT_GROUPS: Record<string, {
+  codes: string[]; x: number; y: number; label: string;
+}> = {
+  phonics_band: {
+    codes: ['rf_digraphs', 'rf_initial_blends', 'rf_silent_e',
+            'rf_vowel_ee_ea', 'rf_vowel_ai_ay', 'rf_vowel_oa_ow',
+            'rf_r_controlled', 'rf_diphthongs'],
+    x: 840, y: 200, label: 'Phonics Path',
+  },
+};
+const HABITAT_BY_SKILL: Record<string, string> = Object.entries(HABITAT_GROUPS)
+  .reduce((acc, [k, g]) => { g.codes.forEach(c => { acc[c] = k; }); return acc; }, {} as Record<string, string>);
+
 export default function ReadingForestScene({
   learnerId, structures, clusters, structureStates,
 }: ReadingForestSceneProps) {
@@ -105,6 +124,9 @@ export default function ReadingForestScene({
   const [starting, setStarting] = useState(false);
   // Selected structure → preview modal, parity with garden tap UX.
   const [selected, setSelected] = useState<MapStructure | null>(null);
+  // Which habitat group is currently expanded. Tapping the marker
+  // toggles; tapping again collapses back to the marker.
+  const [expandedHabitat, setExpandedHabitat] = useState<string | null>(null);
 
   const startSkill = async (skillCode: string) => {
     if (starting) return;
@@ -658,6 +680,13 @@ export default function ReadingForestScene({
           const LABEL_W = 92;
           const LABEL_H = 17;
           return structures.map(s => {
+            // Skip rendering if this skill belongs to a habitat group
+            // that isn't currently expanded. Mountain uses the same
+            // pattern; the habitat marker takes the visual place of
+            // the dense cluster until tapped.
+            const habitatKey = HABITAT_BY_SKILL[s.code];
+            if (habitatKey && expandedHabitat !== habitatKey) return null;
+
             const state = structureStates[s.code];
             const completed = state?.completed ?? false;
             const unlocked = state?.unlocked ?? false;
@@ -759,6 +788,123 @@ export default function ReadingForestScene({
             );
           });
         })()}
+
+        {/* ── HABITAT MARKERS — collapse dense clusters into one icon ── */}
+        {Object.entries(HABITAT_GROUPS).map(([key, group]) => {
+          const isExpanded = expandedHabitat === key;
+          const states = group.codes.map(c => structureStates[c]).filter(Boolean);
+          const total = group.codes.length;
+          const completedCount = states.filter(s => s?.completed).length;
+          const unlockedCount = states.filter(s => s?.unlocked).length;
+          const anyUnlocked = unlockedCount > 0;
+          const allCompleted = completedCount === total;
+
+          // Bespoke phonics-trail signpost — a wooden post with three
+          // hand-painted arrow-boards (ch / ee / ai) pointing different
+          // ways. Reads as "phonics trail crossroad" without competing
+          // with any of the structure illustrations.
+          const illustration = (() => {
+            const tone = !anyUnlocked ? 0.62 : 1;
+            const filter = allCompleted
+              ? 'drop-shadow(0 0 6px rgba(255,217,61,0.55))'
+              : 'drop-shadow(0 2px 3px rgba(107,68,35,0.42))';
+            return (
+              <g style={{ filter, opacity: tone }}>
+                {/* ground shadow */}
+                <ellipse cx={0} cy={42} rx={22} ry={4} fill="#000" opacity={0.20} />
+                {/* base rocks */}
+                <ellipse cx={-8} cy={40} rx={9} ry={3} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1} />
+                <ellipse cx={9} cy={40} rx={7} ry={2.6} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1} />
+                {/* main wooden post */}
+                <rect x={-3} y={-22} width={6} height={62} rx={1.4} fill="#8B5A2B" stroke="#5A3B1F" strokeWidth={1.4} />
+                {/* knot detail on post */}
+                <circle cx={0} cy={6} r={1} fill="#5A3B1F" opacity={0.7} />
+                {/* arrow-board 1 — points NW, "ch" */}
+                <path
+                  d="M -32 -16 L -10 -14 L -10 -4 L -32 -2 L -36 -8 Z"
+                  fill="#FFFAF2" stroke="#5A3B1F" strokeWidth={1.4} strokeLinejoin="round"
+                />
+                <text x={-22} y={-7} fontSize={9} fontWeight={700}
+                      fill="#6b4423" textAnchor="middle"
+                      fontFamily="ui-serif, Georgia, serif" fontStyle="italic"
+                      style={{ userSelect: 'none' }}>ch</text>
+                {/* arrow-board 2 — points E, "ee" (slightly lower) */}
+                <path
+                  d="M 4 -8 L 30 -10 L 36 -4 L 30 2 L 4 0 Z"
+                  fill="#FDF6E8" stroke="#5A3B1F" strokeWidth={1.4} strokeLinejoin="round"
+                />
+                <text x={20} y={-1} fontSize={9} fontWeight={700}
+                      fill="#6b4423" textAnchor="middle"
+                      fontFamily="ui-serif, Georgia, serif" fontStyle="italic"
+                      style={{ userSelect: 'none' }}>ee</text>
+                {/* arrow-board 3 — points W, "ai" (lowest, peeling) */}
+                <path
+                  d="M -30 8 L -8 6 L -8 18 L -30 20 L -34 14 Z"
+                  fill="#FFFAF2" stroke="#5A3B1F" strokeWidth={1.4} strokeLinejoin="round"
+                />
+                <text x={-20} y={15} fontSize={9} fontWeight={700}
+                      fill="#6b4423" textAnchor="middle"
+                      fontFamily="ui-serif, Georgia, serif" fontStyle="italic"
+                      style={{ userSelect: 'none' }}>ai</text>
+                {/* tiny rope wrapping the post */}
+                <path d="M -3 -14 Q 0 -14 3 -16" stroke="#8A6635" strokeWidth={1.1} fill="none" strokeLinecap="round" />
+                <path d="M -3 -10 Q 0 -10 3 -12" stroke="#8A6635" strokeWidth={1.1} fill="none" strokeLinecap="round" />
+              </g>
+            );
+          })();
+
+          return (
+            <g key={`rfhab-${key}`} pointerEvents="auto">
+              <g
+                transform={`translate(${group.x}, ${group.y})`}
+                style={{ cursor: 'pointer', touchAction: 'manipulation' }}
+                onClick={() => setExpandedHabitat(isExpanded ? null : key)}
+              >
+                <rect x={-50} y={-30} width={100} height={92} fill="transparent" />
+                {!isExpanded && anyUnlocked && (
+                  <ellipse cx={0} cy={20} rx={48} ry={28} fill="#FFE89A" opacity={0.16} />
+                )}
+                {!isExpanded && illustration}
+
+                {/* Label + progress pill — only when collapsed */}
+                {!isExpanded && (
+                  <>
+                    <rect x={-58} y={50} width={116} height={17} rx={8.5}
+                          fill="#FFFAF2" stroke="#E8A87C" strokeWidth={1.1} />
+                    <text x={0} y={62} textAnchor="middle" fontSize={10}
+                          fontWeight={700} fill="#6b4423"
+                          style={{ userSelect: 'none' }}>
+                      {group.label}
+                    </text>
+                    <rect x={-22} y={69} width={44} height={13} rx={6.5}
+                          fill={allCompleted ? '#6B8E5A' : '#FDF6E8'}
+                          stroke={allCompleted ? '#4F6F42' : '#C7B89A'}
+                          strokeWidth={0.9} />
+                    <text x={0} y={78.5} textAnchor="middle" fontSize={9}
+                          fontWeight={700}
+                          fill={allCompleted ? '#FFFFFF' : '#6b4423'}
+                          style={{ userSelect: 'none', fontFamily: 'ui-monospace, SFMono-Regular, monospace' }}>
+                      {completedCount}/{total}
+                    </text>
+                  </>
+                )}
+
+                {/* "tap to close" hint when expanded */}
+                {isExpanded && (
+                  <g>
+                    <rect x={-46} y={28} width={92} height={14} rx={7}
+                          fill="rgba(255,250,242,0.85)" stroke="#E8A87C" strokeWidth={1} />
+                    <text x={0} y={38} textAnchor="middle" fontSize={9}
+                          fontStyle="italic" fill="#6b4423"
+                          style={{ userSelect: 'none' }}>
+                      tap signpost to close
+                    </text>
+                  </g>
+                )}
+              </g>
+            </g>
+          );
+        })}
       </svg>
 
       {/* ── PREVIEW MODAL ──
