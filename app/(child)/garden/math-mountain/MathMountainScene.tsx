@@ -195,8 +195,8 @@ export default function MathMountainScene({
             <stop offset="0%" stopColor="#E8A87C" stopOpacity="0.18" />
             <stop offset="100%" stopColor="#E8A87C" stopOpacity="0" />
           </radialGradient>
-          <radialGradient id="mmGlenTint" cx="82%" cy="50%" r="20%">
-            <stop offset="0%" stopColor="#95B88F" stopOpacity="0.20" />
+          <radialGradient id="mmGlenTint" cx="82%" cy="62%" r="14%">
+            <stop offset="0%" stopColor="#95B88F" stopOpacity="0.18" />
             <stop offset="100%" stopColor="#95B88F" stopOpacity="0" />
           </radialGradient>
           <radialGradient id="mmMeadowTint" cx="55%" cy="92%" r="28%">
@@ -209,9 +209,13 @@ export default function MathMountainScene({
           </radialGradient>
         </defs>
 
-        {/* ── 1. SKY + MEADOW BASE ── */}
-        <rect width={W} height={H * 0.58} fill="url(#mmSky)" />
-        <rect width={W} height={H} fill="url(#mmMeadow)" opacity="0.95" />
+        {/* ── 1. SKY + MEADOW BASE ──
+             Sky covers the full viewport. Meadow rect is RESTRICTED to
+             the foreground band (y:320+) — previously meadow spanned
+             y:0-800 at opacity 0.95, which painted a green wash over
+             the sky behind the mountains. */}
+        <rect width={W} height={H} fill="url(#mmSky)" />
+        <rect x={0} y={320} width={W} height={H - 320} fill="url(#mmMeadow)" opacity="0.95" />
 
         {/* ── 1b. SOFT MIYAZAKI CLOUDS — billowy painterly puffs ──
              Sit in the gaps BETWEEN the painted Fuji peaks (so they
