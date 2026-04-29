@@ -524,59 +524,66 @@ export default function MathMountainScene({
         </g>
 
         {/* ── 6d. RIVER — emerges from cave, meanders naturally east ──
-             Starts at the cave mouth (x:215, y:706) and bends through
-             the meadow with varying width, like a real watercourse.
-             BIG BRIDGE at (540, 700), SKIP BRIDGE at (1320, 700).
-             Log-jam dam at midpoint (820, 705). */}
+             The river center-line BENDS: starts high near the cave
+             (y:686), descends to its lowest point at the log-jam
+             (y:740), climbs back up toward the right-edge garden exit
+             (y:680). That gentle 60-pixel vertical wander turns a
+             "horizontal strip" into a watercourse with a destination.
+             BIG BRIDGE at (540, 700), SKIP BRIDGE at (1320, 700) —
+             both bridge decks sit just above the river surface where
+             it dips beneath them. Log-jam dam at midpoint (820, 740). */}
         <g pointerEvents="none">
-          {/* wet-earth bank — emerges from cave (right edge x:172) */}
+          {/* wet-earth bank — emerges from cave at left edge */}
           <path
-            d="M 148 708
-               C 220 700, 290 690, 360 686
-               C 440 686, 530 696, 620 702
-               C 720 706, 820 700, 920 696
-               C 1020 692, 1120 696, 1220 700
-               C 1320 702, 1400 696, 1440 694
-               L 1440 730
-               C 1400 732, 1320 734, 1220 732
-               C 1120 730, 1020 732, 920 734
-               C 820 736, 720 734, 620 728
-               C 530 724, 440 720, 360 720
-               C 290 722, 220 728, 178 730
-               C 162 728, 152 720, 148 708 Z"
+            d="M 148 675
+               C 220 681, 290 686, 360 689
+               C 440 692, 500 700, 540 708
+               C 620 720, 720 728, 820 734
+               C 920 730, 1010 716, 1100 711
+               C 1200 706, 1280 700, 1320 695
+               C 1380 689, 1420 680, 1440 673
+               L 1440 707
+               C 1420 711, 1380 716, 1320 729
+               C 1280 734, 1200 740, 1100 746
+               C 1010 750, 920 766, 820 770
+               C 720 766, 620 758, 540 742
+               C 500 738, 440 730, 360 723
+               C 290 720, 220 716, 148 711 Z"
             fill="#6B8E5A" opacity={0.30}
           />
-          {/* primary water body — emerges from cave at x:150 */}
+          {/* primary water body — bends with the bank */}
           <path
-            d="M 150 710
-               C 222 704, 296 696, 366 692
-               C 446 692, 534 700, 624 706
-               C 724 708, 822 704, 922 700
-               C 1022 696, 1122 700, 1222 704
-               C 1320 706, 1400 702, 1440 700
-               L 1440 722
-               C 1400 724, 1320 726, 1222 724
-               C 1122 722, 1022 724, 922 724
-               C 822 726, 724 724, 624 720
-               C 534 718, 446 716, 366 716
-               C 296 718, 222 722, 184 724
-               C 168 720, 156 716, 150 710 Z"
+            d="M 150 681
+               C 220 685, 290 690, 360 693
+               C 440 696, 500 706, 540 714
+               C 620 724, 720 734, 820 740
+               C 920 736, 1010 720, 1100 717
+               C 1200 712, 1280 706, 1320 701
+               C 1380 695, 1420 686, 1440 679
+               L 1440 701
+               C 1420 705, 1380 708, 1320 723
+               C 1280 728, 1200 734, 1100 740
+               C 1010 744, 920 760, 820 762
+               C 720 758, 620 750, 540 736
+               C 500 730, 440 723, 360 717
+               C 290 713, 220 709, 150 703 Z"
             fill="#A8CDD2"
           />
-          {/* deeper channel — meanders through the river */}
+          {/* deeper channel — follows the dip */}
           <path
-            d="M 240 712 C 320 706, 410 700, 500 706
-               C 600 712, 700 716, 800 712
-               C 900 708, 1000 710, 1100 712
-               C 1200 714, 1320 712, 1438 710"
+            d="M 240 692
+               C 320 700, 410 714, 500 720
+               C 600 730, 700 738, 800 742
+               C 900 738, 1000 728, 1100 720
+               C 1200 712, 1320 700, 1438 686"
             stroke="#7FA9B0" strokeWidth={3} fill="none" strokeLinecap="round" opacity={0.6}
           />
-          {/* shimmer ripples — denser where river is wider */}
+          {/* shimmer ripples — track the bend */}
           {[
-            { x: 280, y: 708 }, { x: 360, y: 700 }, { x: 460, y: 706 },
-            { x: 580, y: 712 }, { x: 720, y: 710 }, { x: 880, y: 706 },
-            { x: 980, y: 706 }, { x: 1100, y: 710 }, { x: 1240, y: 712 },
-            { x: 1380, y: 706 },
+            { x: 280, y: 690 }, { x: 360, y: 698 }, { x: 460, y: 710 },
+            { x: 580, y: 722 }, { x: 720, y: 732 }, { x: 880, y: 744 },
+            { x: 980, y: 736 }, { x: 1100, y: 726 }, { x: 1240, y: 712 },
+            { x: 1380, y: 692 },
           ].map((p, i) => (
             <path
               key={`mmrr-${i}`}
@@ -585,14 +592,14 @@ export default function MathMountainScene({
             />
           ))}
 
-          {/* foam at the cave-mouth source — water emerges */}
-          <ellipse cx={158} cy={710} rx={12} ry={4} fill="#FFFFFF" opacity={0.55} />
-          <ellipse cx={172} cy={716} rx={8} ry={3} fill="#FFFFFF" opacity={0.40} />
-          <path d="M 154 704 Q 162 702 172 706" stroke="#FFFFFF" strokeWidth={1.1} fill="none" opacity={0.65} strokeLinecap="round" />
-          <path d="M 164 720 Q 172 718 180 720" stroke="#FFFFFF" strokeWidth={0.9} fill="none" opacity={0.5} strokeLinecap="round" />
+          {/* foam at the cave-mouth source — water emerges high */}
+          <ellipse cx={158} cy={690} rx={12} ry={4} fill="#FFFFFF" opacity={0.55} />
+          <ellipse cx={172} cy={696} rx={8} ry={3} fill="#FFFFFF" opacity={0.40} />
+          <path d="M 154 684 Q 162 682 172 686" stroke="#FFFFFF" strokeWidth={1.1} fill="none" opacity={0.65} strokeLinecap="round" />
+          <path d="M 164 700 Q 172 698 180 700" stroke="#FFFFFF" strokeWidth={0.9} fill="none" opacity={0.5} strokeLinecap="round" />
 
-          {/* small reeds along the bank */}
-          {[[300, 690], [430, 686], [690, 692], [970, 692], [1140, 696], [1380, 692]].map(([rx, ry], i) => (
+          {/* small reeds along the top bank — y values track the curve */}
+          {[[300, 686], [430, 696], [690, 724], [970, 716], [1140, 706], [1380, 686]].map(([rx, ry], i) => (
             <g key={`mmrd-${i}`} transform={`translate(${rx},${ry})`}>
               <line x1={0} y1={0} x2={-1} y2={-12} stroke="#6B8E5A" strokeWidth={1.4} strokeLinecap="round" />
               <line x1={0} y1={0} x2={2} y2={-14} stroke="#6B8E5A" strokeWidth={1.4} strokeLinecap="round" />
@@ -600,10 +607,10 @@ export default function MathMountainScene({
             </g>
           ))}
 
-          {/* LOG-JAM DAM at river midpoint (820, 706) — three logs at
-              natural angles + protruding twigs. Reads as a beaver dam
-              without any cringy cartoon creature. */}
-          <g transform="translate(820, 706)">
+          {/* LOG-JAM DAM at the river's deepest point (820, 740) —
+              three logs at natural angles + protruding twigs. Sits
+              half-submerged where water piles up against it. */}
+          <g transform="translate(820, 740)">
             <ellipse cx={0} cy={6} rx={42} ry={5} fill="#000" opacity={0.18} />
             <g transform="rotate(-3)">
               <rect x={-40} y={-1} width={80} height={5} rx={2.5} fill="#8B5A2B" stroke="#5A3B1F" strokeWidth={1.1} />
@@ -624,11 +631,12 @@ export default function MathMountainScene({
             <ellipse cx={28} cy={4} rx={8} ry={2} fill="#FFFFFF" opacity={0.32} />
           </g>
 
-          {/* River-bank stones near each bridge approach */}
-          <ellipse cx={476} cy={724} rx={9} ry={5} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.1} />
-          <ellipse cx={604} cy={724} rx={9} ry={5} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.1} />
-          <ellipse cx={1262} cy={726} rx={9} ry={5} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.1} />
-          <ellipse cx={1382} cy={726} rx={9} ry={5} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.1} />
+          {/* River-bank stones near each bridge approach — north bank
+              just before/after the deck. Y values follow the new bend. */}
+          <ellipse cx={476} cy={702} rx={9} ry={5} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.1} />
+          <ellipse cx={604} cy={744} rx={9} ry={5} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.1} />
+          <ellipse cx={1262} cy={702} rx={9} ry={5} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.1} />
+          <ellipse cx={1382} cy={689} rx={9} ry={5} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.1} />
         </g>
 
         {/* ── 8. PATH SYSTEM ──
@@ -751,41 +759,42 @@ export default function MathMountainScene({
               {/* (Bridges drawn separately — they're clickable as their
                   own skill structures now, not part of the path block.) */}
 
-              {/* Stepping stones — sparse, only on key approaches */}
+              {/* Stepping stones — sparse, only at meaningful approaches.
+                  Cut from ~40 to ~20 so the trail reads as a path with
+                  occasional stones, not a chain of beads. */}
               {[
                 // left entry → cottage
-                { x: 30, y: 470 }, { x: 70, y: 476 },
+                { x: 30, y: 470 },
                 // cottage → twin blossoms
                 { x: 160, y: 462 }, { x: 220, y: 432 },
                 // twin to lake-north
-                { x: 320, y: 408 }, { x: 400, y: 416 }, { x: 480, y: 428 },
+                { x: 400, y: 416 },
                 // berry to compare
-                { x: 540, y: 450 }, { x: 570, y: 462 },
-                // loop lower ridge
-                { x: 660, y: 470 }, { x: 800, y: 470 },
+                { x: 540, y: 450 },
+                // loop lower ridge (one mid-stone reads as plateau)
+                { x: 720, y: 470 },
                 // loop east climb
                 { x: 902, y: 420 },
                 // loop ridge
-                { x: 850, y: 376 }, { x: 740, y: 360 }, { x: 620, y: 380 },
+                { x: 740, y: 360 },
                 // loop west climb
                 { x: 580, y: 442 },
-                // glen connector
-                { x: 990, y: 388 }, { x: 1140, y: 386 }, { x: 1260, y: 376 },
-                // round 10 → measurement
-                { x: 866, y: 510 }, { x: 838, y: 558 },
+                // glen connector — two stones across the long span
+                { x: 1080, y: 388 }, { x: 1260, y: 376 },
+                // round 10 → measurement (single mid-stone is enough)
+                { x: 850, y: 530 },
                 // cave east → big bridge
-                { x: 280, y: 692 }, { x: 360, y: 680 }, { x: 440, y: 686 },
+                { x: 360, y: 680 },
                 // bridge → measurement (south bank)
-                { x: 660, y: 678 }, { x: 740, y: 632 }, { x: 800, y: 596 },
+                { x: 740, y: 632 },
                 // measurement → orchard
-                { x: 920, y: 580 }, { x: 1040, y: 580 },
+                { x: 980, y: 580 },
                 // orchard → skip bridge
-                { x: 1216, y: 632 }, { x: 1280, y: 680 },
+                { x: 1216, y: 632 },
                 // skip → exit
-                { x: 1410, y: 686 }, { x: 1430, y: 670 },
-                // bridge approaches
-                { x: 620, y: 680 }, { x: 660, y: 650 },
-                { x: 1280, y: 680 }, { x: 1310, y: 698 },
+                { x: 1410, y: 686 },
+                // bridge approaches (the bridges themselves are landmarks)
+                { x: 620, y: 680 }, { x: 1310, y: 698 },
               ].map((s, i) => (
                 <g key={`mmstn-${i}`}>
                   <ellipse cx={s.x + 1} cy={s.y + 2} rx={7} ry={4} fill="#000" opacity={0.16} />

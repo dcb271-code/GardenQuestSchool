@@ -156,15 +156,60 @@ export default function ReadingForestScene({
         <rect width={W} height={H} fill="url(#rfSky)" />
         <rect width={W} height={H} fill="url(#rfDappleTop)" />
 
+        {/* ── 1b. PERIWINKLE DISTANCE WASH ──
+             Soft cool-blue band sitting BEHIND the mid-trees. Garden
+             hills are tinted #B8C4DB at low opacity to push the eye
+             back; the forest had no equivalent depth cue, so the
+             middle distance felt flat. This rect lives between the
+             tree-line silhouette and the mid-canopy band. */}
+        <rect x={0} y={170} width={W} height={140} fill="#B8C4DB" opacity={0.18} />
+
+        {/* ── 1c. CREAM DRIFT CLOUDS ──
+             Two soft puffs sitting in the sky-gaps between treeline
+             dips so the canopy ceiling has somewhere light for the eye
+             to rest. Painterly, no animation — these are static
+             watercolor-style shapes (AmbientLayer adds drifters). */}
+        <g pointerEvents="none" opacity={0.78}>
+          <g>
+            <ellipse cx={232} cy={108} rx={42} ry={9} fill="#F8EFD2" opacity={0.35} />
+            <ellipse cx={222} cy={96}  rx={20} ry={11} fill="#FFF8E2" />
+            <ellipse cx={244} cy={94}  rx={22} ry={12} fill="#FFF8E2" />
+            <ellipse cx={232} cy={102} rx={32} ry={10} fill="#FFF8E2" />
+          </g>
+          <g>
+            <ellipse cx={1180} cy={104} rx={46} ry={9} fill="#F8EFD2" opacity={0.35} />
+            <ellipse cx={1166} cy={92}  rx={22} ry={12} fill="#FFF8E2" />
+            <ellipse cx={1196} cy={90}  rx={24} ry={13} fill="#FFF8E2" />
+            <ellipse cx={1180} cy={98}  rx={36} ry={10} fill="#FFF8E2" />
+          </g>
+        </g>
+
         {/* ── 2. FAR TREE-LINE — organic crenellated band at y:85-175 ──
-             NO structures ever placed inside this band. */}
+             NO structures ever placed inside this band.
+             Dips deeply to y:168 around x:230, x:720, x:1180 so the
+             warm amber sky breathes through the canopy in three places.
+             Without these gaps the green sky/canopy felt airless. */}
         <g opacity={0.54}>
           <path
-            d={`M 0 178 Q 60 146 110 156 Q 145 128 175 146 Q 210 116 250 138 Q 285 106 320 130
-                Q 358 102 395 126 Q 430 96 468 120 Q 510 93 552 116 Q 592 98 630 116
-                Q 668 88 708 110 Q 748 94 788 112 Q 828 90 868 108 Q 910 94 948 112
-                Q 990 98 1028 118 Q 1068 102 1110 122 Q 1148 104 1190 126 Q 1228 106 1272 128
-                Q 1310 110 1350 136 Q 1388 116 1420 140 Q 1440 146 1440 158 L 1440 178 L 0 178 Z`}
+            d={`M 0 178
+                Q 60 146 110 156
+                Q 145 128 175 146
+                Q 200 158 230 168
+                Q 270 158 305 138
+                Q 350 110 395 126
+                Q 430 96 468 120
+                Q 510 93 552 116
+                Q 600 130 660 158
+                Q 700 168 740 158
+                Q 790 132 840 118
+                Q 880 102 920 110
+                Q 970 118 1020 124
+                Q 1080 148 1140 166
+                Q 1180 168 1220 152
+                Q 1280 132 1330 124
+                Q 1388 116 1420 140
+                Q 1440 146 1440 158
+                L 1440 178 L 0 178 Z`}
             fill="#4F6F42"
           />
         </g>
@@ -331,33 +376,26 @@ export default function ReadingForestScene({
               <path d={loopBackD}  stroke="#F7E6C4" strokeWidth={7}  fill="none" strokeLinecap="round" opacity={0.48} />
               <path d={gardenExitLowerD} stroke="#F7E6C4" strokeWidth={7} fill="none" strokeLinecap="round" opacity={0.48} />
               <path d={gardenExitUpperD} stroke="#F7E6C4" strokeWidth={4} fill="none" strokeLinecap="round" opacity={0.40} />
-              {/* Stepping stones */}
+              {/* Stepping stones — pared down from ~50 to ~22 so the
+                  path reads as a trail with occasional stones, not a
+                  chain of beads. Stones cluster at approaches and at
+                  the bridge crossing. */}
               {[
-                // seg 1 — Glade edge → flat over Digraph Bridge crossing → climb to upper phonics band
-                { x: 408, y: 366 }, { x: 440, y: 362 },
-                // path is flat at y:360 across the pond/bridge crossing
-                { x: 470, y: 360 }, { x: 490, y: 360 }, { x: 510, y: 360 }, { x: 540, y: 358 },
-                // climbs out of the crossing into the upper phonics band
-                { x: 578, y: 348 }, { x: 614, y: 322 }, { x: 650, y: 296 },
-                { x: 686, y: 268 }, { x: 722, y: 248 }, { x: 760, y: 234 },
-                { x: 800, y: 232 }, { x: 838, y: 244 }, { x: 876, y: 254 },
-                { x: 914, y: 250 }, { x: 952, y: 232 }, { x: 990, y: 228 },
-                { x: 1030, y: 232 }, { x: 1068, y: 252 }, { x: 1108, y: 260 },
-                { x: 1148, y: 250 }, { x: 1186, y: 232 }, { x: 1224, y: 232 },
-                { x: 1262, y: 248 }, { x: 1278, y: 264 },
-                // seg 2 — drop to Story Rocks
-                { x: 1298, y: 320 }, { x: 1268, y: 390 }, { x: 1238, y: 452 },
-                { x: 1200, y: 510 }, { x: 1162, y: 546 }, { x: 1110, y: 582 },
-                { x: 1052, y: 612 }, { x: 988, y: 636 }, { x: 918, y: 656 },
-                { x: 848, y: 668 }, { x: 784, y: 680 }, { x: 740, y: 686 },
-                // loop-back
-                { x: 706, y: 696 }, { x: 628, y: 716 }, { x: 538, y: 724 },
-                { x: 448, y: 720 }, { x: 364, y: 702 }, { x: 294, y: 678 },
-                { x: 238, y: 646 }, { x: 196, y: 610 }, { x: 168, y: 570 },
-                { x: 164, y: 524 }, { x: 186, y: 482 }, { x: 230, y: 450 },
-                { x: 280, y: 424 }, { x: 332, y: 400 }, { x: 364, y: 382 },
+                // seg 1 — bridge crossing + climb into phonics band
+                { x: 440, y: 362 }, { x: 510, y: 360 },
+                { x: 614, y: 322 }, { x: 686, y: 268 },
+                { x: 760, y: 234 }, { x: 838, y: 244 },
+                { x: 914, y: 250 }, { x: 990, y: 228 },
+                { x: 1068, y: 252 }, { x: 1148, y: 250 },
+                { x: 1224, y: 232 }, { x: 1278, y: 264 },
+                // seg 2 — drop to Story Rocks (sparse)
+                { x: 1238, y: 452 }, { x: 1110, y: 582 },
+                { x: 988, y: 636 }, { x: 848, y: 668 },
+                // loop-back (sparse, just enough to suggest direction)
+                { x: 538, y: 724 }, { x: 294, y: 678 },
+                { x: 168, y: 570 }, { x: 230, y: 450 },
                 // garden exit
-                { x: 1322, y: 263 }, { x: 1370, y: 260 }, { x: 1412, y: 260 },
+                { x: 1370, y: 260 }, { x: 1412, y: 260 },
               ].map((s, i) => (
                 <g key={`rfph-${i}`}>
                   <ellipse cx={s.x + 1} cy={s.y + 2} rx={9} ry={5} fill="#000" opacity={0.17} />
