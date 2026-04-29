@@ -371,84 +371,70 @@ export default function ReadingForestScene({
             "bridge" visual at the structure's own position. */}
 
         {/* ── 10. PHONICS PATH ──
-             Complete loop: Glade edge → phonics band → Grove → Story Rocks →
-             loop-back → Glade edge. Garden-exit spur exits right at y:260.
-             Path dips south at ~x:450 to cross the brook ford (bridge above). */}
+             Two long ribbons, no closed loop. The previous loop-back
+             from Story Rocks → SW arc → glade entry made the trail
+             read as a track / racing circuit. Now:
+               A. PHONICS SPINE — pulls into the glade from rf_dolch_third,
+                  winds NE over the Digraph Bridge, climbs the phonics
+                  band, exits at the right edge garden-exit. One
+                  continuous S-flowing meander.
+               B. STORY DROP — branches from spine A near Diphthong
+                  Cove, falls SE through Morphology Grove, ends at
+                  Story Rocks. Dead-end scenic spur.
+             Glade structures are accessed by stepping off spine A
+             (they're a clearing, not waypoints). */}
         {(() => {
-          // Segment 1: Glade edge → OVER the Digraph Bridge → through
-          // the rest of the phonics structures → Diphthong Cove. The
-          // path is held flat at y:360 from x:430-530 so the Digraph
-          // Bridge structure (480, 360) sits ON the path crossing the
-          // pond directly below it — the bridge is the river-crossing.
-          // From the bridge it climbs north into the upper phonics band.
-          const seg1D = `M 380 370
-            C 410 366, 440 362, 470 360
-            C 490 360, 510 360, 540 358
-            C 580 350, 620 320, 660 295
+          // ── A. PHONICS SPINE — glade → bridge → phonics → exit ──
+          const phonicsSpineD = `M 160 494
+            C 220 478, 280 446, 340 410
+            C 380 380, 410 370, 470 360
+            C 500 360, 530 358, 540 358
+            C 580 348, 620 320, 660 295
             C 700 270, 740 240, 780 232
             C 820 226, 858 248, 890 254
             C 924 262, 956 232, 990 228
             C 1030 226, 1064 254, 1104 260
             C 1144 266, 1180 232, 1218 230
-            C 1252 230, 1280 250, 1280 268`;
-          // Segment 2: Diphthong Cove → drops SE → loops back SW to Story Rocks
-          const seg2D = `M 1280 268
-            C 1308 278, 1268 364, 1230 430
-            C 1192 494, 1162 518, 1142 548
+            C 1252 230, 1280 250, 1290 268
+            C 1340 262, 1390 260, 1440 260`;
+
+          // ── B. STORY DROP — Diphthong → Grove → Story Rocks ──
+          const storyDropD = `M 1290 268
+            C 1310 290, 1280 360, 1230 430
+            C 1190 494, 1160 518, 1140 548
             C 1118 576, 1054 608, 984 638
-            C 904 666, 832 676, 778 684
-            C 748 690, 726 692, 732 684`;
-          // Loop-back: Story Rocks → south-west arc → Glade edge
-          const loopBackD = `M 732 684
-            C 702 698, 642 714, 562 722
-            C 482 728, 412 722, 342 704
-            C 282 688, 222 664, 182 632
-            C 150 604, 142 572, 162 534
-            C 182 498, 220 466, 270 436
-            C 312 410, 350 392, 380 370`;
-          // Garden exit: from Diphthong Cove (1280, 268) east → right edge at y:260
-          const gardenExitLowerD = `M 1280 268 C 1318 264, 1362 260, 1400 260`;
-          const gardenExitUpperD = `M 1400 260 C 1420 260, 1432 260, 1440 260`;
+            C 904 666, 832 676, 778 684`;
+
           return (
             <g pointerEvents="none">
               {/* Shadow */}
-              <path d={seg1D}      stroke="#A99878" strokeWidth={36} fill="none" strokeLinecap="round" opacity={0.19} />
-              <path d={seg2D}      stroke="#A99878" strokeWidth={36} fill="none" strokeLinecap="round" opacity={0.19} />
-              <path d={loopBackD}  stroke="#A99878" strokeWidth={32} fill="none" strokeLinecap="round" opacity={0.17} />
-              <path d={gardenExitLowerD} stroke="#A99878" strokeWidth={30} fill="none" strokeLinecap="round" opacity={0.17} />
-              <path d={gardenExitUpperD} stroke="#A99878" strokeWidth={20} fill="none" strokeLinecap="round" opacity={0.13} />
+              <path d={phonicsSpineD} stroke="#A99878" strokeWidth={36} fill="none" strokeLinecap="round" opacity={0.19} />
+              <path d={storyDropD}    stroke="#A99878" strokeWidth={32} fill="none" strokeLinecap="round" opacity={0.17} />
               {/* Surface */}
-              <path d={seg1D}      stroke="#EAD2A8" strokeWidth={24} fill="none" strokeLinecap="round" opacity={0.86} />
-              <path d={seg2D}      stroke="#EAD2A8" strokeWidth={24} fill="none" strokeLinecap="round" opacity={0.86} />
-              <path d={loopBackD}  stroke="#EAD2A8" strokeWidth={20} fill="none" strokeLinecap="round" opacity={0.80} />
-              <path d={gardenExitLowerD} stroke="#EAD2A8" strokeWidth={20} fill="none" strokeLinecap="round" opacity={0.80} />
-              <path d={gardenExitUpperD} stroke="#EAD2A8" strokeWidth={13} fill="none" strokeLinecap="round" opacity={0.72} />
+              <path d={phonicsSpineD} stroke="#EAD2A8" strokeWidth={24} fill="none" strokeLinecap="round" opacity={0.86} />
+              <path d={storyDropD}    stroke="#EAD2A8" strokeWidth={20} fill="none" strokeLinecap="round" opacity={0.80} />
               {/* Highlight ribbon */}
-              <path d={seg1D}      stroke="#F7E6C4" strokeWidth={9}  fill="none" strokeLinecap="round" opacity={0.56} />
-              <path d={seg2D}      stroke="#F7E6C4" strokeWidth={9}  fill="none" strokeLinecap="round" opacity={0.56} />
-              <path d={loopBackD}  stroke="#F7E6C4" strokeWidth={7}  fill="none" strokeLinecap="round" opacity={0.48} />
-              <path d={gardenExitLowerD} stroke="#F7E6C4" strokeWidth={7} fill="none" strokeLinecap="round" opacity={0.48} />
-              <path d={gardenExitUpperD} stroke="#F7E6C4" strokeWidth={4} fill="none" strokeLinecap="round" opacity={0.40} />
-              {/* Stepping stones — pared down from ~50 to ~22 so the
-                  path reads as a trail with occasional stones, not a
-                  chain of beads. Stones cluster at approaches and at
-                  the bridge crossing. */}
+              <path d={phonicsSpineD} stroke="#F7E6C4" strokeWidth={9} fill="none" strokeLinecap="round" opacity={0.56} />
+              <path d={storyDropD}    stroke="#F7E6C4" strokeWidth={7} fill="none" strokeLinecap="round" opacity={0.48} />
+              {/* Stepping stones — meaningful approaches only, ~18 total */}
               {[
-                // seg 1 — bridge crossing + climb into phonics band
-                { x: 440, y: 362 }, { x: 510, y: 360 },
-                { x: 614, y: 322 }, { x: 686, y: 268 },
-                { x: 760, y: 234 }, { x: 838, y: 244 },
-                { x: 914, y: 250 }, { x: 990, y: 228 },
-                { x: 1068, y: 252 }, { x: 1148, y: 250 },
-                { x: 1224, y: 232 }, { x: 1278, y: 264 },
-                // seg 2 — drop to Story Rocks (sparse)
-                { x: 1238, y: 452 }, { x: 1110, y: 582 },
-                { x: 988, y: 636 }, { x: 848, y: 668 },
-                // loop-back (sparse, just enough to suggest direction)
-                { x: 538, y: 724 }, { x: 294, y: 678 },
-                { x: 168, y: 570 }, { x: 230, y: 450 },
-                // garden exit
-                { x: 1370, y: 260 }, { x: 1412, y: 260 },
+                // A. spine (glade entry → bridge → phonics → exit)
+                { x: 240, y: 460 },         // glade-to-bridge climb
+                { x: 360, y: 396 },
+                { x: 470, y: 360 },         // on the bridge
+                { x: 614, y: 322 },         // climbing out of crossing
+                { x: 740, y: 240 },         // upper phonics
+                { x: 860, y: 248 },
+                { x: 980, y: 230 },
+                { x: 1100, y: 258 },
+                { x: 1218, y: 230 },        // r-controlled / diphthong area
+                { x: 1310, y: 268 },        // spine-spur junction
+                { x: 1380, y: 260 },        // garden exit approach
+                // B. story drop
+                { x: 1230, y: 430 },        // entry to morphology grove
+                { x: 1140, y: 548 },        // grove mid
+                { x: 984, y: 638 },         // approach story rocks
+                { x: 850, y: 670 },         // story rocks edge
               ].map((s, i) => (
                 <g key={`rfph-${i}`}>
                   <ellipse cx={s.x + 1} cy={s.y + 2} rx={9} ry={5} fill="#000" opacity={0.17} />

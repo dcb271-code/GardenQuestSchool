@@ -703,108 +703,68 @@ export default function MathMountainScene({
         </g>
 
         {/* ── 8. PATH SYSTEM ──
-             Holistic redesign:
-             • Path enters from the LEFT EDGE (offscreen) and ends at
-               the RIGHT EDGE (garden exit) — a complete trail across.
-             • Plateau is a CLOSED LOOP: Compare Trees → Ten More →
-               Round 10 → Round 100 → Mountain Heights → Three-Digit →
-               Tens Tower → back to Compare Trees.
-             • Twin Blossoms ↔ Cottage connector.
-             • Big Bridge bridges cave-side north bank to measurement
-               (south bank), giving it a real destination.
-             • Skip Bridge bridges orchard (south bank) to garden-exit
-               on right edge, giving it a real destination.
-             All curves; no straight horizontal runs. */}
+             Holistic redesign #2: 16 stitched-together segments
+             collapsed into 4 long ribbons. The previous geometry had
+             every join read as a kink — the central garden's main
+             path uses ~2 long meanders so you feel like you're on a
+             single trail, not navigating a maze. The four ribbons:
+               A. UPPER SPINE — left edge entry → cottage → twin →
+                  lake-north → berry → compare → ten-more → round-10
+                  → round-100 → glen → right-edge exit. One sweep.
+               B. PLATEAU SPUR — round-100 → heights → three-digit →
+                  tens → drops back to compare. Scenic detour, not a
+                  closed circuit (the spine already connects).
+               C. LOWER SPINE — cave → big-bridge → climb to
+                  measurement → orchard → skip-bridge → exit. Drawn as
+                  one continuous path that runs UNDER the bridge SVGs;
+                  bridges visually cover their stretch on top.
+               D. RIDGE DROP — round-10 down to measurement, the only
+                  way between upper and lower trails.
+             Each curve hands off cleanly to the next, so the eye
+             reads one ribbon, not many. */}
         {(() => {
-          // Path enters from left edge, climbs to cottage habitat
-          const leftEntryD = `M -20 470
-            C 20 466, 60 472, 110 480`;
-          // Cottage → Twin Blossoms (above lake, climbs gently NE)
-          const cottageToTwinD = `M 110 480
-            C 160 460, 220 432, 280 400`;
-          // Twin Blossoms → over lake's north shore → Berry Basket
-          const lakeNorthD = `M 280 400
-            C 340 406, 400 416, 460 424
-            C 480 428, 500 432, 510 432`;
-          // Berry → descends to Compare Trees
-          const berryToCompareD = `M 510 432
-            C 534 446, 558 460, 580 466
-            C 586 468, 590 470, 590 470`;
+          // ── A. UPPER SPINE — one long S-flowing meander ──
+          const upperSpineD = `M -20 470
+            C 30 472, 80 480, 110 480
+            C 180 470, 240 430, 280 400
+            C 380 412, 460 426, 510 432
+            C 560 450, 588 466, 600 470
+            C 660 478, 710 470, 740 470
+            C 810 478, 855 472, 880 470
+            C 905 425, 920 390, 920 360
+            C 985 380, 1050 392, 1100 388
+            C 1170 380, 1240 374, 1280 372
+            C 1330 370, 1380 372, 1440 374`;
 
-          // Plateau LOOP — closed circuit
-          // (a) lower ridge: Compare → Ten More → Round 10 (undulating)
-          const loopLowerD = `M 590 470
-            C 626 462, 660 478, 692 472
-            C 720 466, 748 478, 778 472
-            C 810 466, 850 478, 880 470`;
-          // (b) east climb: Round 10 → Round 100 (winds NE)
-          const loopEastClimbD = `M 880 470
-            C 902 444, 916 410, 920 380
-            C 920 370, 920 364, 920 360`;
-          // (c) plateau ridge: Round 100 → Mountain Heights → Three-Digit → Tens (going W)
-          const loopRidgeD = `M 920 360
-            C 880 372, 840 376, 800 380
-            C 760 372, 720 360, 680 350
-            C 640 360, 600 380, 560 400`;
-          // (d) west climb: Tens → back down to Compare Trees (CLOSES THE LOOP)
-          const loopWestClimbD = `M 560 400
-            C 568 422, 580 446, 590 470`;
+          // ── B. PLATEAU SPUR — scenic detour through the W plateau ──
+          const plateauSpurD = `M 920 360
+            C 890 374, 850 380, 800 380
+            C 760 360, 720 348, 680 350
+            C 640 360, 600 380, 560 400
+            C 580 432, 592 460, 600 470`;
 
-          // Glen connector: Round 100 → Sharing → Division Facts → Missing Number
-          const glenConnectD = `M 920 360
-            C 956 386, 1000 410, 1042 420
-            C 1066 422, 1086 418, 1102 410
-            C 1130 388, 1160 370, 1198 362
-            C 1230 366, 1262 372, 1296 376
-            C 1312 380, 1320 380, 1320 380`;
-          // Glen → right edge (garden exit on the upper-right corner)
-          const glenToEdgeD = `M 1320 380
-            C 1356 376, 1390 374, 1418 374
-            C 1430 374, 1438 374, 1440 374`;
-
-          // Round 10 → Measurement habitat (drops south, winding)
-          const round10ToMeasureD = `M 880 470
-            C 882 498, 870 524, 856 544
-            C 842 562, 828 574, 820 580`;
-
-          // Cave east → Big Bridge WEST end (476, 700)
-          const caveToBridgeD = `M 148 708
-            C 200 698, 270 686, 340 678
-            C 400 680, 444 690, 476 700`;
-
-          // (Big Bridge plank rendered separately as a clickable structure;
-          //  the bridge SVG sits between (476, 700) and (604, 700).)
-
-          // Big Bridge EAST end (604, 700) → Measurement habitat
-          const bridgeToMeasureD = `M 604 700
-            C 644 678, 700 654, 752 624
-            C 790 604, 814 588, 820 580`;
-
-          // Measurement → Orchard (south bank, east-flowing curve)
-          const measureToOrchardD = `M 820 580
+          // ── C. LOWER SPINE — cave through both bridges to exit ──
+          // Path runs under the Big Bridge (476-604) and Skip Bridge
+          // (1264-1376). The bridge SVGs render later in the file and
+          // visually cover those stretches, so the path reads as one
+          // continuous trail with bridges fitted onto it.
+          const lowerSpineD = `M 148 708
+            C 220 700, 290 686, 360 680
+            C 420 678, 460 690, 510 700
+            C 540 706, 560 706, 590 700
+            C 620 692, 660 670, 700 644
+            C 760 612, 808 588, 820 580
             C 920 580, 1020 580, 1100 580
-            C 1130 580, 1146 580, 1150 580`;
+            C 1170 596, 1224 640, 1264 700
+            C 1290 706, 1320 706, 1356 700
+            C 1390 690, 1420 680, 1440 660`;
 
-          // Orchard → Skip Bridge WEST end (1264, 700)
-          const orchardToSkipD = `M 1150 580
-            C 1188 610, 1224 644, 1248 678
-            C 1256 690, 1262 696, 1264 700`;
+          // ── D. RIDGE DROP — round-10 to measurement ──
+          const ridgeDropD = `M 880 470
+            C 884 510, 870 540, 856 560
+            C 842 575, 828 578, 820 580`;
 
-          // (Skip Bridge plank rendered separately; sits between
-          //  (1264, 700) and (1376, 700).)
-
-          // Skip Bridge EAST end (1376, 700) → garden exit on right edge
-          const skipToExitD = `M 1376 700
-            C 1402 690, 1422 676, 1440 660`;
-
-          // All non-bridge trails
-          const trails = [
-            leftEntryD, cottageToTwinD, lakeNorthD, berryToCompareD,
-            loopLowerD, loopEastClimbD, loopRidgeD, loopWestClimbD,
-            glenConnectD, glenToEdgeD, round10ToMeasureD,
-            caveToBridgeD, bridgeToMeasureD, measureToOrchardD,
-            orchardToSkipD, skipToExitD,
-          ];
+          const trails = [upperSpineD, plateauSpurD, lowerSpineD, ridgeDropD];
           return (
             <g pointerEvents="none">
               {/* Shadow */}
@@ -822,42 +782,36 @@ export default function MathMountainScene({
               {/* (Bridges drawn separately — they're clickable as their
                   own skill structures now, not part of the path block.) */}
 
-              {/* Stepping stones — sparse, only at meaningful approaches.
-                  Cut from ~40 to ~20 so the trail reads as a path with
-                  occasional stones, not a chain of beads. */}
+              {/* Stepping stones — placed on the new 4-ribbon
+                  geometry: A (upper), B (plateau spur), C (lower
+                  through both bridges), D (ridge drop). Sparse on
+                  purpose — ~20 total. */}
               {[
-                // left entry → cottage
-                { x: 30, y: 470 },
-                // cottage → twin blossoms
-                { x: 160, y: 462 }, { x: 220, y: 432 },
-                // twin to lake-north
-                { x: 400, y: 416 },
-                // berry to compare
-                { x: 540, y: 450 },
-                // loop lower ridge (one mid-stone reads as plateau)
-                { x: 720, y: 470 },
-                // loop east climb
-                { x: 902, y: 420 },
-                // loop ridge
-                { x: 740, y: 360 },
-                // loop west climb
-                { x: 580, y: 442 },
-                // glen connector — two stones across the long span
-                { x: 1080, y: 388 }, { x: 1260, y: 376 },
-                // round 10 → measurement (single mid-stone is enough)
-                { x: 850, y: 530 },
-                // cave east → big bridge
-                { x: 360, y: 680 },
-                // bridge → measurement (south bank)
-                { x: 740, y: 632 },
-                // measurement → orchard
-                { x: 980, y: 580 },
-                // orchard → skip bridge
-                { x: 1216, y: 632 },
-                // skip → exit
-                { x: 1410, y: 686 },
-                // bridge approaches (the bridges themselves are landmarks)
-                { x: 620, y: 680 }, { x: 1310, y: 698 },
+                // A. upper spine
+                { x: 60, y: 478 },          // cottage approach
+                { x: 200, y: 436 },         // climb to twin
+                { x: 430, y: 422 },         // lake-north mid
+                { x: 588, y: 468 },         // compare approach
+                { x: 700, y: 472 },         // ten-more approach
+                { x: 840, y: 476 },         // round-10 approach
+                { x: 905, y: 400 },         // round-100 climb
+                { x: 1080, y: 388 },        // glen connector mid
+                { x: 1330, y: 372 },        // glen-to-edge
+                // B. plateau spur
+                { x: 760, y: 374 },         // heights
+                { x: 580, y: 432 },         // tens descent
+                // C. lower spine
+                { x: 290, y: 686 },         // cave-to-bridge mid
+                { x: 770, y: 612 },         // bridge to measurement climb
+                { x: 980, y: 580 },         // measurement to orchard
+                { x: 1224, y: 640 },        // orchard-to-skip mid
+                { x: 1410, y: 680 },        // skip-to-exit
+                // C. bridge approach landmarks
+                { x: 460, y: 692 },         // big-bridge W approach
+                { x: 660, y: 668 },         // big-bridge E exit (climbs north)
+                { x: 1290, y: 706 },        // skip-bridge W approach
+                // D. ridge drop
+                { x: 855, y: 540 },         // round-10 to measurement
               ].map((s, i) => (
                 <g key={`mmstn-${i}`}>
                   <ellipse cx={s.x + 1} cy={s.y + 2} rx={7} ry={4} fill="#000" opacity={0.16} />
