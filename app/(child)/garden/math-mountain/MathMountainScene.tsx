@@ -46,14 +46,40 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 import type { MapStructure } from '@/lib/world/gardenMap';
 import type { BranchCluster } from '@/lib/world/branchMaps';
 import { BRANCH_MAP_WIDTH, BRANCH_MAP_HEIGHT } from '@/lib/world/branchMaps';
 import BranchSceneLayout from '@/components/child/garden/BranchSceneLayout';
+import AmbientLayer from '@/components/child/garden/AmbientLayer';
+import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
 import {
   Tree, PineTree, StructureIllustration,
 } from '@/components/child/garden/illustrations';
 import type { MathMountainStructureState } from './page';
+
+// Local Sway helper — same shape as GardenScene's private Sway: a
+// gentle infinite rocking that brings static trees alive. Doesn't gate
+// on reducedMotion (it's tiny ambient motion, not a pulse); the
+// AmbientLayer handles the user-toggleable reduced-motion behaviour.
+function Sway({
+  x, y, delay = 0, children,
+}: {
+  x: number;
+  y: number;
+  delay?: number;
+  children: React.ReactNode;
+}) {
+  return (
+    <motion.g
+      style={{ transformOrigin: `${x}px ${y}px`, transformBox: 'fill-box' as any }}
+      animate={{ rotate: [-1.2, 1.2, -1.2] }}
+      transition={{ duration: 6 + (delay % 1.2), delay, repeat: Infinity, ease: 'easeInOut' }}
+    >
+      {children}
+    </motion.g>
+  );
+}
 
 interface MathMountainSceneProps {
   learnerId: string;
@@ -116,6 +142,8 @@ export default function MathMountainScene({
   learnerId, structures, clusters, structureStates,
 }: MathMountainSceneProps) {
   const router = useRouter();
+  const { settings } = useAccessibilitySettings();
+  const reducedMotion = settings.reducedMotion;
   const [tappedLocked, setTappedLocked] = useState<string | null>(null);
   const [starting, setStarting] = useState(false);
   const [expandedHabitat, setExpandedHabitat] = useState<string | null>(null);
@@ -338,7 +366,11 @@ export default function MathMountainScene({
         {/* ── 4. LAYERED HILL SILHOUETTES ──
              Pulled up so they sit between the peaks (y:280) and the
              meadow band (y:430+). Reads as proper recession from peaks
-             → distant hills → foreground meadow. */}
+             → distant hills → foreground meadow.
+             Right-side foreground also gets a pale periwinkle veil
+             behind the orchard so the cool-distance contrast carries
+             into the foreground (matches the way the garden lets its
+             farthest hill colour bleed forward). */}
         <path
           d={`M 0 ${H * 0.40} Q 220 ${H * 0.33} 460 ${H * 0.38} T 900 ${H * 0.35} T ${W} ${H * 0.39} L ${W} ${H * 0.50} L 0 ${H * 0.50} Z`}
           fill="#B8C4DB" opacity={0.50}
@@ -349,7 +381,15 @@ export default function MathMountainScene({
         />
         <path
           d={`M 0 ${H * 0.52} Q 320 ${H * 0.46} 680 ${H * 0.50} T ${W} ${H * 0.48} L ${W} ${H * 0.62} L 0 ${H * 0.62} Z`}
-          fill="#8AAF84" opacity={0.60}
+          fill="#8AAF84" opacity={0.55}
+        />
+        {/* fourth layer — pale periwinkle veil behind the orchard
+            foreground (right half only). Pushes the right side back a
+            half-step so the warm orchard apples pop against cool
+            distance. */}
+        <path
+          d={`M 700 ${H * 0.62} Q 920 ${H * 0.56} 1120 ${H * 0.60} T ${W} ${H * 0.58} L ${W} ${H * 0.74} L 700 ${H * 0.74} Z`}
+          fill="#C8D0E3" opacity={0.22}
         />
 
         {/* ── 5. CLUSTER REGION TINTS ── */}
@@ -387,6 +427,29 @@ export default function MathMountainScene({
           <path d="M 372 466 Q 384 462 396 466" stroke="#FFFFFF" strokeWidth={1.1} fill="none" opacity={0.66} strokeLinecap="round" />
           <path d="M 410 478 Q 422 474 434 478" stroke="#FFFFFF" strokeWidth={1.1} fill="none" opacity={0.6} strokeLinecap="round" />
           <path d="M 354 482 Q 364 478 374 482" stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.5} strokeLinecap="round" />
+          {/* slow shimmer highlights — same ellipse-pulse the garden's
+              pond uses. Two pulses out of phase so the lake never stops
+              shifting, but never feels busy. */}
+          <motion.ellipse
+            cx={356} cy={462} rx={20} ry={5} fill="#FFFFFF"
+            animate={reducedMotion ? undefined : { opacity: [0.15, 0.45, 0.15], scaleX: [1, 1.12, 1] }}
+            transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut' }}
+            style={{ transformOrigin: '356px 462px', opacity: 0.32 }}
+          />
+          <motion.ellipse
+            cx={410} cy={482} rx={14} ry={4} fill="#FFFFFF"
+            animate={reducedMotion ? undefined : { opacity: [0.1, 0.4, 0.1], scaleX: [1, 1.18, 1] }}
+            transition={{ duration: 6.5, delay: 1.2, repeat: Infinity, ease: 'easeInOut' }}
+            style={{ transformOrigin: '410px 482px', opacity: 0.28 }}
+          />
+          {/* concentric ripple — occasional, like a fish surfacing */}
+          {!reducedMotion && (
+            <motion.ellipse
+              cx={390} cy={472} rx={14} ry={5} fill="none" stroke="#FFFFFF" strokeWidth={0.9}
+              animate={{ rx: [8, 36], ry: [3, 11], opacity: [0.7, 0] }}
+              transition={{ duration: 4.5, repeat: Infinity, ease: 'easeOut', repeatDelay: 4 }}
+            />
+          )}
           {/* small fish silhouettes */}
           <path d="M 410 470 q 4 -3 8 0 q -2 2 -2 4 q -4 0 -6 -4 z" fill="#5C7E4F" opacity={0.5} />
           <path d="M 340 488 q 4 -3 8 0 q -2 2 -2 4 q -4 0 -6 -4 z" fill="#5C7E4F" opacity={0.42} />
@@ -953,30 +1016,40 @@ export default function MathMountainScene({
           );
         })()}
 
-        {/* ── 10. APPLE ORCHARD trees — flank the Orchard habitat ── */}
-        <Tree x={1010} y={460} size={40} variant={1} />
-        <Tree x={1380} y={460} size={42} variant={2} />
+        {/* ── 10. APPLE ORCHARD trees — flank the Orchard habitat ──
+             Sway-wrapped so the canopy breathes; staggered delays so
+             they don't all rock in sync. */}
+        <Sway x={1010} y={460} delay={0.2}><Tree x={1010} y={460} size={40} variant={1} /></Sway>
+        <Sway x={1380} y={460} delay={1.4}><Tree x={1380} y={460} size={42} variant={2} /></Sway>
 
         {/* ── 11. DIVISION GLEN — pine clearing flanks the Glen habitat ── */}
-        <PineTree x={1030} y={324} size={46} />
-        <PineTree x={1140} y={324} size={50} />
-        <PineTree x={1260} y={328} size={48} />
-        <PineTree x={1380} y={324} size={48} />
+        <Sway x={1030} y={324} delay={0.6}><PineTree x={1030} y={324} size={46} /></Sway>
+        <Sway x={1140} y={324} delay={1.8}><PineTree x={1140} y={324} size={50} /></Sway>
+        <Sway x={1260} y={328} delay={0.0}><PineTree x={1260} y={328} size={48} /></Sway>
+        <Sway x={1380} y={324} delay={2.4}><PineTree x={1380} y={324} size={48} /></Sway>
 
         {/* ── 12. FRAMING TREES ──
              Rules: no tree within 60px of any structure; trees only at
              edges and mid-distance. NONE below y:600 (bottom buffer). */}
 
         {/* Distant ridge between peaks (NW between Peak 5 & Peak 3) */}
-        <PineTree x={130} y={300} size={44} />
-        <PineTree x={460} y={300} size={42} />
+        <Sway x={130} y={300} delay={1.0}><PineTree x={130} y={300} size={44} /></Sway>
+        <Sway x={460} y={300} delay={2.1}><PineTree x={460} y={300} size={42} /></Sway>
 
         {/* Mid-distance pines on the upper hills (between plateau structures) */}
-        <PineTree x={620} y={310} size={40} />
-        <PineTree x={860} y={310} size={42} />
+        <Sway x={620} y={310} delay={0.4}><PineTree x={620} y={310} size={40} /></Sway>
+        <Sway x={860} y={310} delay={1.6}><PineTree x={860} y={310} size={42} /></Sway>
 
         {/* Far-right edge — separates Glen from frame */}
-        <Tree x={1402} y={460} size={50} variant={3} />
+        <Sway x={1402} y={460} delay={0.8}><Tree x={1402} y={460} size={50} variant={3} /></Sway>
+
+        {/* ── AMBIENT LIFE ──
+             Same shared component the central garden uses: clouds,
+             sakura petals, leaves, pollen, an occasional bird, and
+             fireflies after dusk. Honours the user's reduced-motion
+             toggle internally. Without this layer the mountain felt
+             dead next to the central garden's living scene. */}
+        <AmbientLayer reducedMotion={reducedMotion} />
 
         {/* ── CLUSTER LABELS — softened italic name-tags ── */}
         {clusters.map(c => {

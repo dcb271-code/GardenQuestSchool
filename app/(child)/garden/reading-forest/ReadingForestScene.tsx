@@ -41,12 +41,37 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
 import type { MapStructure } from '@/lib/world/gardenMap';
 import type { BranchCluster } from '@/lib/world/branchMaps';
 import { BRANCH_MAP_WIDTH, BRANCH_MAP_HEIGHT } from '@/lib/world/branchMaps';
 import BranchSceneLayout from '@/components/child/garden/BranchSceneLayout';
+import AmbientLayer from '@/components/child/garden/AmbientLayer';
+import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
 import { Tree, PineTree, Flower, GrassTuft, StructureIllustration } from '@/components/child/garden/illustrations';
 import type { ReadingForestStructureState } from './page';
+
+// Local Sway helper — same shape as GardenScene's private Sway. Gentle
+// infinite rocking that brings static trees alive. Doesn't gate on
+// reducedMotion (it's tiny ambient motion, not a pulse).
+function Sway({
+  x, y, delay = 0, children,
+}: {
+  x: number;
+  y: number;
+  delay?: number;
+  children: React.ReactNode;
+}) {
+  return (
+    <motion.g
+      style={{ transformOrigin: `${x}px ${y}px`, transformBox: 'fill-box' as any }}
+      animate={{ rotate: [-1.2, 1.2, -1.2] }}
+      transition={{ duration: 6 + (delay % 1.2), delay, repeat: Infinity, ease: 'easeInOut' }}
+    >
+      {children}
+    </motion.g>
+  );
+}
 
 interface ReadingForestSceneProps {
   learnerId: string;
@@ -74,6 +99,8 @@ export default function ReadingForestScene({
   learnerId, structures, clusters, structureStates,
 }: ReadingForestSceneProps) {
   const router = useRouter();
+  const { settings } = useAccessibilitySettings();
+  const reducedMotion = settings.reducedMotion;
   const [tappedLocked, setTappedLocked] = useState<string | null>(null);
   const [starting, setStarting] = useState(false);
 
@@ -216,18 +243,20 @@ export default function ReadingForestScene({
 
         {/* ── 3. MID TREE-LINE — Tree/PineTree at y:232-262, distant canopy ──
              All placed well above the Glade (y:360+) and Phonics Path (y:220+).
-             30px edge buffer from both sides. */}
-        <Tree  x={58}   y={246} size={76} variant={1} />
-        <PineTree x={108}  y={236} size={70} />
-        <PineTree x={170}  y={250} size={64} />
-        <Tree  x={234}  y={240} size={70} variant={2} />
-        <PineTree x={304}  y={248} size={62} />
-        <Tree  x={370}  y={242} size={68} variant={3} />
-        <PineTree x={440}  y={254} size={58} />
+             30px edge buffer from both sides. Sway-wrapped with
+             staggered delays so the canopy whole breathes without
+             rocking in unison. */}
+        <Sway x={58}   y={246} delay={0.0}><Tree  x={58}   y={246} size={76} variant={1} /></Sway>
+        <Sway x={108}  y={236} delay={1.1}><PineTree x={108}  y={236} size={70} /></Sway>
+        <Sway x={170}  y={250} delay={2.2}><PineTree x={170}  y={250} size={64} /></Sway>
+        <Sway x={234}  y={240} delay={0.6}><Tree  x={234}  y={240} size={70} variant={2} /></Sway>
+        <Sway x={304}  y={248} delay={1.7}><PineTree x={304}  y={248} size={62} /></Sway>
+        <Sway x={370}  y={242} delay={0.3}><Tree  x={370}  y={242} size={68} variant={3} /></Sway>
+        <Sway x={440}  y={254} delay={2.4}><PineTree x={440}  y={254} size={58} /></Sway>
         {/* gap at phonics path entry ~x:480 */}
-        <PineTree x={1252} y={248} size={62} />
-        <Tree  x={1320} y={242} size={68} variant={2} />
-        <PineTree x={1384} y={250} size={70} />
+        <Sway x={1252} y={248} delay={1.4}><PineTree x={1252} y={248} size={62} /></Sway>
+        <Sway x={1320} y={242} delay={0.8}><Tree  x={1320} y={242} size={68} variant={2} /></Sway>
+        <Sway x={1384} y={250} delay={2.0}><PineTree x={1384} y={250} size={70} /></Sway>
 
         {/* ── 4. MIST BAND ── */}
         <path
@@ -284,6 +313,30 @@ export default function ReadingForestScene({
           <path d="M 502 388 Q 516 384 532 388" stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.62} strokeLinecap="round" />
           <path d="M 622 402 Q 636 398 652 402" stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.55} strokeLinecap="round" />
           <path d="M 712 412 Q 726 408 742 412" stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.50} strokeLinecap="round" />
+          {/* slow shimmer pulse — the brook breathes. Two ellipses at
+              different rhythms keep it alive without ever looking
+              busy. Gates on reducedMotion via animate={undefined}. */}
+          <motion.ellipse
+            cx={478} cy={394} rx={20} ry={4} fill="#FFFFFF"
+            animate={reducedMotion ? undefined : { opacity: [0.12, 0.42, 0.12], scaleX: [1, 1.14, 1] }}
+            transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut' }}
+            style={{ transformOrigin: '478px 394px', opacity: 0.28 }}
+          />
+          <motion.ellipse
+            cx={680} cy={410} rx={16} ry={3.5} fill="#FFFFFF"
+            animate={reducedMotion ? undefined : { opacity: [0.1, 0.36, 0.1], scaleX: [1, 1.18, 1] }}
+            transition={{ duration: 6.8, delay: 1.5, repeat: Infinity, ease: 'easeInOut' }}
+            style={{ transformOrigin: '680px 410px', opacity: 0.22 }}
+          />
+          {/* concentric ripple — occasional, like a leaf falling onto
+              the water under the bridge */}
+          {!reducedMotion && (
+            <motion.ellipse
+              cx={520} cy={398} rx={10} ry={3} fill="none" stroke="#FFFFFF" strokeWidth={0.9}
+              animate={{ rx: [6, 28], ry: [2, 8], opacity: [0.7, 0] }}
+              transition={{ duration: 4.2, repeat: Infinity, ease: 'easeOut', repeatDelay: 4.5 }}
+            />
+          )}
           {/* moss-topped boulders on bank either side of bridge */}
           <g>
             <ellipse cx={398} cy={416} rx={10} ry={5.5} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.2} />
@@ -432,10 +485,10 @@ export default function ReadingForestScene({
           <Flower key={`glade-fl-${i}`} x={f.x} y={f.y} size={12} />
         ))}
         {/* Framing trees around glade — all above y:490 to clear brook */}
-        <Tree x={72}  y={358} size={66} variant={2} />
-        <Tree x={358} y={328} size={60} variant={1} />
-        <Tree x={70}  y={478} size={62} variant={3} />
-        <Tree x={360} y={472} size={58} variant={2} />
+        <Sway x={72}  y={358} delay={0.5}><Tree x={72}  y={358} size={66} variant={2} /></Sway>
+        <Sway x={358} y={328} delay={1.6}><Tree x={358} y={328} size={60} variant={1} /></Sway>
+        <Sway x={70}  y={478} delay={2.3}><Tree x={70}  y={478} size={62} variant={3} /></Sway>
+        <Sway x={360} y={472} delay={0.9}><Tree x={360} y={472} size={58} variant={2} /></Sway>
 
         {/* ── 12. ANCIENT OAK — Morphology Grove anchor (NE) ──
              Centre at x:1382, y:440 — flanks the grove on the right. */}
@@ -478,8 +531,8 @@ export default function ReadingForestScene({
         </g>
 
         {/* Grove framing trees */}
-        <Tree x={1182} y={428} size={60} variant={2} />
-        <PineTree x={1320} y={432} size={56} />
+        <Sway x={1182} y={428} delay={1.2}><Tree x={1182} y={428} size={60} variant={2} /></Sway>
+        <Sway x={1320} y={432} delay={2.5}><PineTree x={1320} y={432} size={56} /></Sway>
 
         {/* ── 13. STORY ROCKS — semicircle of mossy boulders ──
              rf_longer_words (660,620), rf_sentence (800,660), rf_paragraph (740,720).
@@ -511,21 +564,21 @@ export default function ReadingForestScene({
              All x values 30px+ from scene edges. */}
 
         {/* South glade edge — must clear brook zone so x>430 or y<490 */}
-        <Tree x={494} y={482} size={54} variant={1} />
+        <Sway x={494} y={482} delay={0.7}><Tree x={494} y={482} size={54} variant={1} /></Sway>
 
         {/* Below Phonics Path band — between structure positions */}
-        <Tree x={534} y={454} size={52} variant={2} />
-        <Tree x={756} y={464} size={50} variant={3} />
-        <Tree x={956} y={454} size={50} variant={1} />
+        <Sway x={534} y={454} delay={1.9}><Tree x={534} y={454} size={52} variant={2} /></Sway>
+        <Sway x={756} y={464} delay={0.2}><Tree x={756} y={464} size={50} variant={3} /></Sway>
+        <Sway x={956} y={454} delay={2.1}><Tree x={956} y={454} size={50} variant={1} /></Sway>
 
         {/* Between Story Rocks and Morphology Grove */}
-        <Tree x={1056} y={506} size={64} variant={2} />
+        <Sway x={1056} y={506} delay={1.0}><Tree x={1056} y={506} size={64} variant={2} /></Sway>
 
         {/* Bottom corners — all outside brook zone */}
-        <Tree x={60}   y={638} size={70} variant={2} />
-        <Tree x={316}  y={648} size={56} variant={3} />
-        <Tree x={1340} y={674} size={64} variant={1} />
-        <PineTree x={1382} y={668} size={70} />
+        <Sway x={60}   y={638} delay={0.4}><Tree x={60}   y={638} size={70} variant={2} /></Sway>
+        <Sway x={316}  y={648} delay={1.5}><Tree x={316}  y={648} size={56} variant={3} /></Sway>
+        <Sway x={1340} y={674} delay={2.6}><Tree x={1340} y={674} size={64} variant={1} /></Sway>
+        <Sway x={1382} y={668} delay={0.1}><PineTree x={1382} y={668} size={70} /></Sway>
 
         {/* ── 15. DAPPLED LIGHT SHAFTS ── */}
         <g opacity={0.38} pointerEvents="none">
@@ -569,6 +622,14 @@ export default function ReadingForestScene({
             />
           ))}
         </g>
+
+        {/* ── AMBIENT LIFE ──
+             Same shared component the central garden uses: clouds,
+             sakura petals, leaves, pollen, an occasional bird, and
+             fireflies after dusk. The forest's tree-line dips at
+             x:230 / 720 / 1180 give the clouds visible space to drift
+             through. */}
+        <AmbientLayer reducedMotion={reducedMotion} />
 
         {/* ── CLUSTER LABELS — softened italic name-tags ── */}
         {clusters.map(c => {
