@@ -41,7 +41,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import type { MapStructure } from '@/lib/world/gardenMap';
 import type { BranchCluster } from '@/lib/world/branchMaps';
 import { BRANCH_MAP_WIDTH, BRANCH_MAP_HEIGHT } from '@/lib/world/branchMaps';
@@ -103,6 +103,8 @@ export default function ReadingForestScene({
   const reducedMotion = settings.reducedMotion;
   const [tappedLocked, setTappedLocked] = useState<string | null>(null);
   const [starting, setStarting] = useState(false);
+  // Selected structure → preview modal, parity with garden tap UX.
+  const [selected, setSelected] = useState<MapStructure | null>(null);
 
   const startSkill = async (skillCode: string) => {
     if (starting) return;
@@ -123,7 +125,8 @@ export default function ReadingForestScene({
       window.setTimeout(() => setTappedLocked(null), 2500);
       return;
     }
-    if (s.skillCode) startSkill(s.skillCode);
+    // Unlocked → preview modal first (parity with garden).
+    setSelected(s);
   };
 
   return (
@@ -757,6 +760,68 @@ export default function ReadingForestScene({
           });
         })()}
       </svg>
+
+      {/* ── PREVIEW MODAL ──
+           Same look + ergonomics as the central garden's modal so the
+           three scenes share one tap-language. */}
+      <AnimatePresence>
+        {selected && (
+          <motion.div
+            className="absolute inset-0 flex items-center justify-center p-6 z-20"
+            style={{ background: 'radial-gradient(circle at 50% 40%, rgba(20, 25, 40, 0.3), rgba(20, 25, 40, 0.5))' }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            onClick={() => setSelected(null)}
+          >
+            <motion.div
+              className="bg-cream border-4 border-terracotta rounded-3xl max-w-sm w-full p-6 space-y-4 text-center shadow-2xl"
+              initial={{ scale: 0.9, y: 12, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              exit={{ scale: 0.95, y: 8, opacity: 0 }}
+              transition={{ duration: 0.35, ease: [0.22, 0.9, 0.34, 1] }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="text-6xl">{selected.themeEmoji}</div>
+              <div>
+                <h3
+                  className="font-display text-[24px] text-bark leading-tight"
+                  style={{ fontWeight: 600, letterSpacing: '-0.01em' }}
+                >
+                  {selected.label}
+                </h3>
+                {selected.subLabel && (
+                  <div className="font-display italic text-[13px] text-bark/55 mt-0.5 tracking-wider">
+                    {selected.subLabel}
+                  </div>
+                )}
+              </div>
+
+              {selected.skillCode && (
+                <motion.button
+                  onClick={() => startSkill(selected.skillCode!)}
+                  disabled={starting}
+                  className="w-full bg-forest text-white rounded-full py-4 font-display disabled:opacity-50"
+                  style={{ touchAction: 'manipulation', minHeight: 60, fontWeight: 600 }}
+                  whileTap={{ scale: 0.97 }}
+                >
+                  {starting ? 'starting…' : '🔍 start exploring'}
+                </motion.button>
+              )}
+
+              <motion.button
+                onClick={() => setSelected(null)}
+                className="w-full bg-white border-2 border-ochre rounded-full py-3 font-display italic text-bark/70"
+                style={{ touchAction: 'manipulation', minHeight: 52 }}
+                whileTap={{ scale: 0.97 }}
+              >
+                not yet
+              </motion.button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </BranchSceneLayout>
   );
 }
