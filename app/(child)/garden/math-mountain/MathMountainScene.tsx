@@ -976,6 +976,89 @@ export default function MathMountainScene({
           );
         })()}
 
+        {/* ── 9b. TEA-HOUSE PAVILION ──
+             Warm character anchor on the plateau ridge. Pure
+             decoration — nothing to tap, just a place for the eye to
+             rest. Matches Bachan's Japanese-garden vocabulary back at
+             the central scene (torii / stone lantern / bamboo). The
+             pavilion sits in the gap above mm_three_digit_tower, in
+             the empty band between the painted peaks and the plateau
+             structures. */}
+        <g transform="translate(680, 296)" pointerEvents="none">
+          {/* ground shadow */}
+          <ellipse cx={0} cy={20} rx={30} ry={4} fill="#000" opacity={0.20} />
+          {/* wooden platform / floor */}
+          <rect x={-24} y={14} width={48} height={6} rx={1} fill="#8B5A2B" stroke="#5A3B1F" strokeWidth={1.2} />
+          {/* support posts */}
+          <rect x={-20} y={-2} width={3} height={16} fill="#5A3B1F" />
+          <rect x={17} y={-2} width={3} height={16} fill="#5A3B1F" />
+          {/* upturned thatched roof */}
+          <path d="M -28 -2 Q -32 -8 -22 -10 L 22 -10 Q 32 -8 28 -2 Z"
+                fill="#A06B36" stroke="#5A3B1F" strokeWidth={1.4} strokeLinejoin="round" />
+          <path d="M -22 -10 L -8 -22 L 8 -22 L 22 -10 Z"
+                fill="#B47845" stroke="#5A3B1F" strokeWidth={1.4} strokeLinejoin="round" />
+          {/* roof shingle hint */}
+          <path d="M -16 -14 L 16 -14" stroke="#5A3B1F" strokeWidth={0.6} opacity={0.5} />
+          <path d="M -10 -18 L 10 -18" stroke="#5A3B1F" strokeWidth={0.6} opacity={0.5} />
+          {/* roof finial */}
+          <circle cx={0} cy={-23} r={1.6} fill="#5A3B1F" />
+          {/* paper lantern hanging under the eaves */}
+          <line x1={0} y1={-10} x2={0} y2={-4} stroke="#5A3B1F" strokeWidth={0.8} />
+          <ellipse cx={0} cy={-1} rx={4} ry={4.5} fill="#FFD06B" stroke="#5A3B1F" strokeWidth={1} />
+          <line x1={-3.5} y1={-1} x2={3.5} y2={-1} stroke="#5A3B1F" strokeWidth={0.5} opacity={0.5} />
+          {/* warm glow */}
+          <ellipse cx={0} cy={-1} rx={10} ry={9} fill="#FFE89A" opacity={0.25} />
+          {/* low railing across the open front */}
+          <line x1={-18} y1={9} x2={18} y2={9} stroke="#5A3B1F" strokeWidth={1} />
+          <line x1={-12} y1={9} x2={-12} y2={14} stroke="#5A3B1F" strokeWidth={0.6} />
+          <line x1={0} y1={9} x2={0} y2={14} stroke="#5A3B1F" strokeWidth={0.6} />
+          <line x1={12} y1={9} x2={12} y2={14} stroke="#5A3B1F" strokeWidth={0.6} />
+          {/* tiny tea-bowl on the floor */}
+          <ellipse cx={-6} cy={11} rx={2.4} ry={1} fill="#FFFAF2" stroke="#5A3B1F" strokeWidth={0.6} />
+          {/* steam wisp */}
+          {!reducedMotion && (
+            <motion.path
+              d="M -6 9 Q -4 4 -7 -1 Q -8 -5 -5 -8"
+              stroke="#E8E0D3" strokeWidth={1.3} fill="none" strokeLinecap="round"
+              animate={{ opacity: [0.2, 0.7, 0.2] }}
+              transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+            />
+          )}
+          {reducedMotion && (
+            <path d="M -6 9 Q -4 4 -7 -1 Q -8 -5 -5 -8"
+                  stroke="#E8E0D3" strokeWidth={1.3} fill="none" strokeLinecap="round" opacity={0.5} />
+          )}
+        </g>
+
+        {/* ── 9c. STONE CAIRN + INARI MARKER ──
+             Tiny shrine-cairn on the orchard's southeastern edge.
+             Stacked stones with a small vermilion mini-torii on top —
+             reads as "this place has been here a long time." Same
+             vocabulary as the central garden's torii at the path
+             terminus. Pure decoration. */}
+        <g transform="translate(1380, 540)" pointerEvents="none">
+          {/* ground shadow */}
+          <ellipse cx={0} cy={22} rx={20} ry={3} fill="#000" opacity={0.18} />
+          {/* moss patch under the cairn */}
+          <ellipse cx={0} cy={21} rx={18} ry={3} fill="#7BA46F" opacity={0.62} />
+          {/* base stone */}
+          <ellipse cx={0} cy={16} rx={14} ry={6} fill="#A89D8A" stroke="#5A3B1F" strokeWidth={1.2} />
+          <ellipse cx={-2} cy={13} rx={8} ry={2.4} fill="#C2B4A0" />
+          {/* mid stone */}
+          <ellipse cx={-1} cy={6} rx={10} ry={4.5} fill="#8A7E6C" stroke="#5A3B1F" strokeWidth={1.1} />
+          <ellipse cx={-3} cy={3.5} rx={5} ry={1.8} fill="#A89D8A" />
+          {/* top stone */}
+          <ellipse cx={1} cy={-2} rx={7} ry={3.2} fill="#9B948A" stroke="#5A3B1F" strokeWidth={1} />
+          {/* tiny mini-torii balanced on top */}
+          <rect x={-6} y={-12} width={1.6} height={8} fill="#B8563A" stroke="#5A2818" strokeWidth={0.6} />
+          <rect x={4.4} y={-12} width={1.6} height={8} fill="#B8563A" stroke="#5A2818" strokeWidth={0.6} />
+          <rect x={-7.5} y={-13} width={15} height={1.4} fill="#8A3F2B" stroke="#5A2818" strokeWidth={0.5} />
+          <path d="M -9 -16 Q -10 -18 -7 -18 L 7 -18 Q 10 -18 9 -16 L 7 -14 L -7 -14 Z"
+                fill="#B8563A" stroke="#5A2818" strokeWidth={0.6} strokeLinejoin="round" />
+          {/* tiny pebble offering at the base */}
+          <ellipse cx={9} cy={20} rx={2} ry={0.9} fill="#C2B4A0" stroke="#5A3B1F" strokeWidth={0.5} />
+        </g>
+
         {/* ── 10. APPLE ORCHARD trees — flank the Orchard habitat ──
              Sway-wrapped so the canopy breathes; staggered delays so
              they don't all rock in sync. */}

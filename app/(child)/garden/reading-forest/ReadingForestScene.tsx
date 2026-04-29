@@ -591,6 +591,122 @@ export default function ReadingForestScene({
         <Sway x={1340} y={674} delay={2.6}><Tree x={1340} y={674} size={64} variant={1} /></Sway>
         <Sway x={1382} y={668} delay={0.1}><PineTree x={1382} y={668} size={70} /></Sway>
 
+        {/* ── 14b. READING NOOK ──
+             Warm character anchor tucked under the SW framing tree.
+             Tartan blanket on the moss with an open book, a small
+             lantern hanging from a low branch, and a steaming teacup.
+             Pure decoration; the kind of moment that says "someone
+             reads here." Same role the cozy-house porch plays in the
+             central garden. */}
+        <g transform="translate(160, 690)" pointerEvents="none">
+          {/* shadow under the blanket */}
+          <ellipse cx={0} cy={20} rx={32} ry={5} fill="#000" opacity={0.18} />
+          {/* tartan blanket — soft red base with cross-hatch */}
+          <path d="M -28 4 L 30 8 L 28 22 L -30 18 Z"
+                fill="#C38D9E" stroke="#5A3B1F" strokeWidth={1.2} strokeLinejoin="round" />
+          {/* tartan stripes */}
+          <line x1={-12} y1={5} x2={-14} y2={20} stroke="#FFFAF2" strokeWidth={1.1} opacity={0.75} />
+          <line x1={2} y1={6} x2={0} y2={21} stroke="#FFFAF2" strokeWidth={1.1} opacity={0.75} />
+          <line x1={16} y1={7} x2={14} y2={21} stroke="#FFFAF2" strokeWidth={1.1} opacity={0.75} />
+          <line x1={-26} y1={11} x2={28} y2={14} stroke="#FFFAF2" strokeWidth={1} opacity={0.65} />
+          {/* open book — two leaves */}
+          <path d="M -10 0 L 0 -2 L 0 8 L -10 10 Z"
+                fill="#FFFAF2" stroke="#5A3B1F" strokeWidth={1.1} strokeLinejoin="round" />
+          <path d="M 0 -2 L 10 0 L 10 10 L 0 8 Z"
+                fill="#FDF6E8" stroke="#5A3B1F" strokeWidth={1.1} strokeLinejoin="round" />
+          {/* book spine */}
+          <line x1={0} y1={-2} x2={0} y2={8} stroke="#5A3B1F" strokeWidth={0.8} />
+          {/* page-line hints */}
+          <line x1={-7} y1={2} x2={-3} y2={1.2} stroke="#8A7E6C" strokeWidth={0.4} />
+          <line x1={-7} y1={4} x2={-3} y2={3.4} stroke="#8A7E6C" strokeWidth={0.4} />
+          <line x1={-7} y1={6} x2={-3} y2={5.4} stroke="#8A7E6C" strokeWidth={0.4} />
+          <line x1={3} y1={1.5} x2={7} y2={2} stroke="#8A7E6C" strokeWidth={0.4} />
+          <line x1={3} y1={3.6} x2={7} y2={4.1} stroke="#8A7E6C" strokeWidth={0.4} />
+          <line x1={3} y1={5.7} x2={7} y2={6.2} stroke="#8A7E6C" strokeWidth={0.4} />
+          {/* teacup at the corner */}
+          <path d="M 18 6 Q 18 12 23 12 Q 28 12 28 6 Z"
+                fill="#FFFAF2" stroke="#5A3B1F" strokeWidth={0.9} strokeLinejoin="round" />
+          {/* cup handle */}
+          <path d="M 28 7 Q 30.5 7.5 30 10 Q 28 10 28 9.5"
+                stroke="#5A3B1F" strokeWidth={0.9} fill="none" />
+          {/* tea inside */}
+          <ellipse cx={23} cy={7} rx={4} ry={1} fill="#8B5A2B" opacity={0.85} />
+          {/* steam */}
+          {!reducedMotion && (
+            <motion.path
+              d="M 21 5 Q 19 0 22 -4 Q 24 -7 22 -10"
+              stroke="#E8E0D3" strokeWidth={1.1} fill="none" strokeLinecap="round"
+              animate={{ opacity: [0.2, 0.7, 0.2] }}
+              transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
+            />
+          )}
+          {reducedMotion && (
+            <path d="M 21 5 Q 19 0 22 -4 Q 24 -7 22 -10"
+                  stroke="#E8E0D3" strokeWidth={1.1} fill="none" strokeLinecap="round" opacity={0.5} />
+          )}
+          {/* lantern hanging from above (string + small lantern) */}
+          <line x1={-22} y1={-30} x2={-22} y2={-12} stroke="#5A3B1F" strokeWidth={0.7} />
+          <ellipse cx={-22} cy={-9} rx={4} ry={4.5} fill="#FFD06B" stroke="#5A3B1F" strokeWidth={1} />
+          <line x1={-25.5} y1={-9} x2={-18.5} y2={-9} stroke="#5A3B1F" strokeWidth={0.5} opacity={0.5} />
+          {/* warm glow */}
+          <ellipse cx={-22} cy={-9} rx={11} ry={10} fill="#FFE89A" opacity={0.22} />
+        </g>
+
+        {/* ── 14c. OWL PERCH IN MORPHOLOGY GROVE ──
+             A small owl on a mossy stump just below the ancient oak,
+             with stacked acorns at the base. Awake at dusk/night via
+             time-of-day tint (just a static figure though — full
+             alertness logic is overkill here). */}
+        <g transform="translate(1382, 540)" pointerEvents="none">
+          {/* shadow */}
+          <ellipse cx={0} cy={36} rx={16} ry={3} fill="#000" opacity={0.2} />
+          {/* mossy stump */}
+          <ellipse cx={0} cy={32} rx={14} ry={5} fill="#6B4423" stroke="#3F2614" strokeWidth={1.2} />
+          <rect x={-12} y={20} width={24} height={14} fill="#8B5A2B" stroke="#5A3B1F" strokeWidth={1.4} />
+          <ellipse cx={0} cy={20} rx={12} ry={3.5} fill="#A06B36" stroke="#5A3B1F" strokeWidth={1.2} />
+          {/* concentric ring on the stump top (tree rings) */}
+          <ellipse cx={0} cy={20} rx={9} ry={2.6} fill="none" stroke="#5A3B1F" strokeWidth={0.5} opacity={0.55} />
+          <ellipse cx={0} cy={20} rx={5} ry={1.5} fill="none" stroke="#5A3B1F" strokeWidth={0.5} opacity={0.55} />
+          {/* moss on the stump's edge */}
+          <ellipse cx={-9} cy={19} rx={5} ry={1.6} fill="#7BA46F" opacity={0.85} />
+          <ellipse cx={6} cy={19.5} rx={4} ry={1.4} fill="#7BA46F" opacity={0.78} />
+          {/* OWL — body */}
+          <ellipse cx={0} cy={9} rx={8} ry={11} fill="#A89D8A" stroke="#3F2614" strokeWidth={1.3} />
+          {/* belly-feather highlight */}
+          <ellipse cx={0} cy={12} rx={5} ry={6} fill="#C8BCAA" />
+          {/* wing markings */}
+          <path d="M -7 6 Q -3 10 -7 14" stroke="#3F2614" strokeWidth={0.6} fill="none" />
+          <path d="M 7 6 Q 3 10 7 14" stroke="#3F2614" strokeWidth={0.6} fill="none" />
+          {/* head */}
+          <ellipse cx={0} cy={1} rx={7} ry={6} fill="#A89D8A" stroke="#3F2614" strokeWidth={1.3} />
+          {/* ear-tufts */}
+          <path d="M -6 -3 L -7 -7 L -4 -4 Z" fill="#3F2614" />
+          <path d="M 6 -3 L 7 -7 L 4 -4 Z" fill="#3F2614" />
+          {/* facial disc — pale heart-shape */}
+          <path d="M -4 -1 Q -5 4 -1 5 Q 1 5 4 4 Q 5 -1 4 -3 Q 0 -2 -4 -1 Z"
+                fill="#FFFAF2" stroke="#3F2614" strokeWidth={0.7} />
+          {/* eyes — big round, golden */}
+          <circle cx={-2.4} cy={1} r={1.7} fill="#FFD93D" stroke="#3F2614" strokeWidth={0.5} />
+          <circle cx={2.4} cy={1} r={1.7} fill="#FFD93D" stroke="#3F2614" strokeWidth={0.5} />
+          <circle cx={-2.4} cy={1} r={0.7} fill="#3F2614" />
+          <circle cx={2.4} cy={1} r={0.7} fill="#3F2614" />
+          {/* beak */}
+          <path d="M 0 3 L -1 5 L 1 5 Z" fill="#5A3B1F" />
+          {/* feet */}
+          <line x1={-3} y1={20} x2={-3} y2={22} stroke="#5A3B1F" strokeWidth={1.2} strokeLinecap="round" />
+          <line x1={3} y1={20} x2={3} y2={22} stroke="#5A3B1F" strokeWidth={1.2} strokeLinecap="round" />
+          {/* stacked acorns at the base */}
+          <g transform="translate(-15, 33)">
+            <ellipse cx={0} cy={-1} rx={2.4} ry={3} fill="#7A4A1F" stroke="#3F2614" strokeWidth={0.7} />
+            <path d="M -2.4 -3 Q 0 -5 2.4 -3" stroke="#3F2614" strokeWidth={0.7} fill="#5A3B1F" />
+            <line x1={0} y1={-5} x2={0} y2={-6.5} stroke="#3F2614" strokeWidth={0.7} />
+          </g>
+          <g transform="translate(-12, 30)">
+            <ellipse cx={0} cy={-1} rx={2.2} ry={2.8} fill="#7A4A1F" stroke="#3F2614" strokeWidth={0.7} />
+            <path d="M -2.2 -2.8 Q 0 -4.6 2.2 -2.8" stroke="#3F2614" strokeWidth={0.7} fill="#5A3B1F" />
+          </g>
+        </g>
+
         {/* ── 15. DAPPLED LIGHT SHAFTS ── */}
         <g opacity={0.38} pointerEvents="none">
           {[0, 1, 2, 3, 4].map(i => (
