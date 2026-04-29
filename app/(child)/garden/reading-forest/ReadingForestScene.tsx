@@ -279,9 +279,12 @@ export default function ReadingForestScene({
         <Sway x={370}  y={242} delay={0.3}><Tree  x={370}  y={242} size={68} variant={3} /></Sway>
         <Sway x={440}  y={254} delay={2.4}><PineTree x={440}  y={254} size={58} /></Sway>
         {/* gap at phonics path entry ~x:480 */}
-        <Sway x={1252} y={248} delay={1.4}><PineTree x={1252} y={248} size={62} /></Sway>
-        <Sway x={1320} y={242} delay={0.8}><Tree  x={1320} y={242} size={68} variant={2} /></Sway>
-        <Sway x={1384} y={250} delay={2.0}><PineTree x={1384} y={250} size={70} /></Sway>
+        {/* The right-side mid-tree-line previously held three trees at
+            x:1252 / 1320 / 1384 — the new spine A path runs through
+            (1218, 230) → (1290, 268) → (1440, 260), so the path was
+            painting on top of those trees. Trees removed here; the
+            far tree-line silhouette + morphology grove + bottom corner
+            still anchor the right side. */}
 
         {/* ── 4. MIST BAND ── */}
         <path
@@ -311,74 +314,114 @@ export default function ReadingForestScene({
         <rect width={W} height={H} fill="url(#rfGroveTint)" />
         <rect width={W} height={H} fill="url(#rfRocksTint)" />
 
-        {/* ── 8. BROOK — winds through the forest UNDER the Digraph Bridge.
-             The bridge structure itself sits at (480, 360); the water body
-             passes directly beneath the path crossing so the bridge is
-             literally spanning water (no orphan bridge). Two extra pools
-             give the brook a shape that reads as a real watercourse, not
-             a single floating puddle. */}
+        {/* ── 8. BROOK — flows the full width of the forest ──
+             Was a short pool from x:380-836 sitting only beneath the
+             Digraph Bridge. Now enters from the left edge, gently
+             descends as it flows east (a real watercourse), passes
+             UNDER the bridge at x:480, continues past the morphology
+             grove, exits off the right edge. Same Miyazaki-stream
+             vocabulary the central garden's brook uses, just longer. */}
         <g pointerEvents="none">
-          {/* wet-earth bank along the brook trajectory */}
+          {/* wet-earth bank — top edge then bottom edge */}
           <path
-            d="M 380 388 Q 480 376 580 388 Q 640 396 700 410 Q 760 418 800 412 Q 824 414 836 422 L 836 442 Q 800 444 760 438 Q 700 432 640 418 Q 580 408 480 408 Q 380 412 360 410 Z"
+            d="M -10 376
+               C 80 380, 180 384, 280 384
+               C 360 384, 420 378, 480 380
+               C 540 384, 600 392, 660 404
+               C 740 416, 820 428, 920 436
+               C 1000 442, 1080 446, 1160 450
+               C 1240 452, 1340 454, 1450 458
+               L 1450 478
+               C 1340 474, 1240 472, 1160 470
+               C 1080 466, 1000 462, 920 456
+               C 820 448, 740 436, 660 420
+               C 600 408, 540 400, 480 396
+               C 420 394, 360 400, 280 404
+               C 180 404, 80 400, -10 396 Z"
             fill="#6B8E5A" opacity={0.26}
           />
-          {/* primary water body — passes UNDER the bridge at x:430-540 */}
+          {/* primary water body — slightly inside the bank */}
           <path
-            d="M 388 384 Q 480 372 572 384 Q 632 392 692 406 Q 752 414 792 408 Q 818 408 824 416 L 824 432 Q 792 436 752 432 Q 692 426 632 412 Q 572 402 480 402 Q 388 406 372 402 Z"
+            d="M -10 380
+               C 80 384, 180 388, 280 388
+               C 360 388, 420 382, 480 384
+               C 540 388, 600 396, 660 408
+               C 740 420, 820 432, 920 440
+               C 1000 446, 1080 450, 1160 454
+               C 1240 456, 1340 458, 1450 462
+               L 1450 472
+               C 1340 470, 1240 468, 1160 466
+               C 1080 462, 1000 458, 920 452
+               C 820 444, 740 432, 660 416
+               C 600 404, 540 396, 480 392
+               C 420 390, 360 396, 280 400
+               C 180 400, 80 396, -10 392 Z"
             fill="#B2D4D9"
           />
-          {/* depth channel */}
+          {/* depth channel — winds the full length */}
           <path
-            d="M 396 388 Q 480 380 564 388 Q 632 396 696 410 Q 760 418 800 412"
+            d="M 60 384
+               C 200 388, 360 392, 500 388
+               C 620 396, 760 416, 920 432
+               C 1080 442, 1240 450, 1440 460"
             stroke="#8FB7C2" strokeWidth={4} fill="none" strokeLinecap="round" opacity={0.58}
           />
-          {/* shimmer ripples — under bridge + downstream */}
+          {/* shimmer ripples — distributed along the new full length */}
+          <path d="M 132 386 Q 146 382 162 386" stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.6} strokeLinecap="round" />
+          <path d="M 332 388 Q 346 384 362 388" stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.62} strokeLinecap="round" />
           <path d="M 432 384 Q 446 380 462 384" stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.66} strokeLinecap="round" />
           <path d="M 502 388 Q 516 384 532 388" stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.62} strokeLinecap="round" />
           <path d="M 622 402 Q 636 398 652 402" stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.55} strokeLinecap="round" />
-          <path d="M 712 412 Q 726 408 742 412" stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.50} strokeLinecap="round" />
-          {/* slow shimmer pulse — the brook breathes. Two ellipses at
-              different rhythms keep it alive without ever looking
-              busy. Gates on reducedMotion via animate={undefined}. */}
+          <path d="M 762 422 Q 776 418 792 422" stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.5} strokeLinecap="round" />
+          <path d="M 902 436 Q 916 432 932 436" stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.5} strokeLinecap="round" />
+          <path d="M 1062 448 Q 1076 444 1092 448" stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.48} strokeLinecap="round" />
+          <path d="M 1232 454 Q 1246 450 1262 454" stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.48} strokeLinecap="round" />
+          <path d="M 1372 460 Q 1386 456 1402 460" stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.46} strokeLinecap="round" />
+          {/* slow shimmer pulses — three across the new length so the
+              whole brook breathes, never in unison */}
           <motion.ellipse
-            cx={478} cy={394} rx={20} ry={4} fill="#FFFFFF"
+            cx={260} cy={388} rx={18} ry={4} fill="#FFFFFF"
             animate={reducedMotion ? undefined : { opacity: [0.12, 0.42, 0.12], scaleX: [1, 1.14, 1] }}
             transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut' }}
-            style={{ transformOrigin: '478px 394px', opacity: 0.28 }}
+            style={{ transformOrigin: '260px 388px', opacity: 0.28 }}
           />
           <motion.ellipse
-            cx={680} cy={410} rx={16} ry={3.5} fill="#FFFFFF"
-            animate={reducedMotion ? undefined : { opacity: [0.1, 0.36, 0.1], scaleX: [1, 1.18, 1] }}
-            transition={{ duration: 6.8, delay: 1.5, repeat: Infinity, ease: 'easeInOut' }}
-            style={{ transformOrigin: '680px 410px', opacity: 0.22 }}
+            cx={760} cy={420} rx={20} ry={4} fill="#FFFFFF"
+            animate={reducedMotion ? undefined : { opacity: [0.1, 0.4, 0.1], scaleX: [1, 1.16, 1] }}
+            transition={{ duration: 6.5, delay: 1.2, repeat: Infinity, ease: 'easeInOut' }}
+            style={{ transformOrigin: '760px 420px', opacity: 0.26 }}
           />
-          {/* concentric ripple — occasional, like a leaf falling onto
-              the water under the bridge */}
+          <motion.ellipse
+            cx={1200} cy={454} rx={18} ry={4} fill="#FFFFFF"
+            animate={reducedMotion ? undefined : { opacity: [0.1, 0.36, 0.1], scaleX: [1, 1.18, 1] }}
+            transition={{ duration: 7.2, delay: 2.6, repeat: Infinity, ease: 'easeInOut' }}
+            style={{ transformOrigin: '1200px 454px', opacity: 0.22 }}
+          />
+          {/* concentric ripple — leaf falling under the bridge */}
           {!reducedMotion && (
             <motion.ellipse
-              cx={520} cy={398} rx={10} ry={3} fill="none" stroke="#FFFFFF" strokeWidth={0.9}
+              cx={520} cy={388} rx={10} ry={3} fill="none" stroke="#FFFFFF" strokeWidth={0.9}
               animate={{ rx: [6, 28], ry: [2, 8], opacity: [0.7, 0] }}
               transition={{ duration: 4.2, repeat: Infinity, ease: 'easeOut', repeatDelay: 4.5 }}
             />
           )}
-          {/* moss-topped boulders on bank either side of bridge */}
-          <g>
-            <ellipse cx={398} cy={416} rx={10} ry={5.5} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.2} />
-            <ellipse cx={396} cy={413} rx={7} ry={2.6} fill="#A89D8A" />
-            <ellipse cx={398} cy={411} rx={8} ry={2} fill="#7BA46F" opacity={0.88} />
-          </g>
-          <g>
-            <ellipse cx={566} cy={416} rx={10} ry={5.5} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.2} />
-            <ellipse cx={564} cy={413} rx={7} ry={2.6} fill="#A89D8A" />
-            <ellipse cx={566} cy={411} rx={8} ry={2} fill="#7BA46F" opacity={0.88} />
-          </g>
-          <g>
-            <ellipse cx={748} cy={426} rx={9} ry={5} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.1} />
-            <ellipse cx={746} cy={423} rx={6} ry={2.4} fill="#A89D8A" />
-          </g>
-          {/* bank grass tufts on either side of the brook */}
-          {[[396, 432], [480, 436], [556, 432], [660, 442], [780, 442]].map(([gx, gy], i) => (
+          {/* moss-topped boulders along the top bank, at irregular
+              intervals so the watercourse reads as natural */}
+          {[
+            { x: 138, y: 372 }, { x: 398, y: 380 }, { x: 566, y: 396 },
+            { x: 820, y: 422 }, { x: 1100, y: 446 }, { x: 1320, y: 454 },
+          ].map((b, i) => (
+            <g key={`rfbb-${i}`}>
+              <ellipse cx={b.x} cy={b.y + 4} rx={10} ry={5.5} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.2} />
+              <ellipse cx={b.x - 2} cy={b.y + 1} rx={7} ry={2.6} fill="#A89D8A" />
+              <ellipse cx={b.x} cy={b.y - 1} rx={8} ry={2} fill="#7BA46F" opacity={0.88} />
+            </g>
+          ))}
+          {/* bank grass tufts — bottom bank, distributed full length */}
+          {[
+            [80, 408], [240, 412], [400, 414], [560, 414],
+            [720, 432], [880, 450], [1040, 462], [1220, 470], [1380, 472],
+          ].map(([gx, gy], i) => (
             <g key={`rfbt-${i}`} transform={`translate(${gx},${gy})`}>
               <path d="M 0 0 Q -1 -6 -2 -10" stroke="#5C7E4F" strokeWidth={1.2} fill="none" strokeLinecap="round" />
               <path d="M 0 0 Q 1 -7 3 -11" stroke="#5C7E4F" strokeWidth={1.2} fill="none" strokeLinecap="round" />
@@ -585,11 +628,15 @@ export default function ReadingForestScene({
         {/* Between Story Rocks and Morphology Grove */}
         <Sway x={1056} y={506} delay={1.0}><Tree x={1056} y={506} size={64} variant={2} /></Sway>
 
-        {/* Bottom corners — all outside brook zone */}
-        <Sway x={60}   y={638} delay={0.4}><Tree x={60}   y={638} size={70} variant={2} /></Sway>
+        {/* Bottom corners — all outside brook zone.
+            SW: one corner Tree only, to balance the SE pine.
+            SE: a single PineTree at the corner, sized to match its
+            siblings (was size:70 with another Tree size:64 only 42px
+            away — read as a giant tree with a small one inside it).
+            Now one corner anchor at x:1390 size:58. */}
+        <Sway x={60}   y={638} delay={0.4}><Tree x={60}   y={638} size={68} variant={2} /></Sway>
         <Sway x={316}  y={648} delay={1.5}><Tree x={316}  y={648} size={56} variant={3} /></Sway>
-        <Sway x={1340} y={674} delay={2.6}><Tree x={1340} y={674} size={64} variant={1} /></Sway>
-        <Sway x={1382} y={668} delay={0.1}><PineTree x={1382} y={668} size={70} /></Sway>
+        <Sway x={1390} y={672} delay={0.1}><PineTree x={1390} y={672} size={58} /></Sway>
 
         {/* ── 14b. READING NOOK ──
              Warm character anchor tucked under the SW framing tree.
