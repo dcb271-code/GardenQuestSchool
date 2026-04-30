@@ -475,10 +475,68 @@ export default function MathMountainScene({
           ))}
         </g>
 
-        {/* (Waterfall removed — was a single thin blue line that read
-            as a defect, not a cascade. Big Falls structure sits on the
-            lake's south bank instead, at (300, 510), part of the lake
-            cluster's water-themed group.) */}
+        {/* ── 6b. LAKE-TO-RIVER OUTFLOW CHANNEL ──
+             Without this, the lake at (380, 470) and the river along
+             the bottom edge read as two unrelated water features. The
+             channel makes the lake the river's headwater: water spills
+             from the lake's south bank, descends through the meadow
+             past the Rushing Stream skill (which IS this stream
+             narratively), and joins the river top edge at x:392. The
+             channel narrows as it descends to suggest a tumbling
+             current, then widens at the river junction. */}
+        <g pointerEvents="none">
+          {/* wet-earth bank along the channel — narrow at the top,
+              widens slightly at the river junction */}
+          <path
+            d="M 366 506
+               C 360 540, 354 580, 358 620
+               C 362 658, 374 686, 378 698
+               L 408 700
+               C 412 686, 422 656, 416 618
+               C 414 580, 406 540, 396 506 Z"
+            fill="#6B8E5A" opacity={0.30}
+          />
+          {/* primary water body — slightly inside the bank */}
+          <path
+            d="M 370 510
+               C 366 542, 360 580, 364 618
+               C 368 654, 378 682, 382 696
+               L 404 698
+               C 408 684, 416 654, 410 618
+               C 408 580, 402 542, 392 510 Z"
+            fill="#A8CDD2"
+          />
+          {/* darker depth ribbon down the channel center */}
+          <path
+            d="M 380 514
+               C 378 548, 374 590, 378 628
+               C 382 666, 388 692, 392 700"
+            stroke="#7FA9B0" strokeWidth={2.4} fill="none" strokeLinecap="round" opacity={0.62}
+          />
+          {/* downstream shimmer scallops — five along the descent */}
+          <path d="M 372 540 Q 380 536 388 540" stroke="#FFFFFF" strokeWidth={0.9} fill="none" opacity={0.6} strokeLinecap="round" />
+          <path d="M 370 588 Q 378 584 386 588" stroke="#FFFFFF" strokeWidth={0.9} fill="none" opacity={0.55} strokeLinecap="round" />
+          <path d="M 372 632 Q 382 628 392 632" stroke="#FFFFFF" strokeWidth={0.9} fill="none" opacity={0.5} strokeLinecap="round" />
+          <path d="M 376 670 Q 386 666 396 670" stroke="#FFFFFF" strokeWidth={0.9} fill="none" opacity={0.48} strokeLinecap="round" />
+          {/* foam at the lake outlet — water spilling over the bank */}
+          <ellipse cx={380} cy={512} rx={14} ry={3} fill="#FFFFFF" opacity={0.55} />
+          <ellipse cx={376} cy={518} rx={9} ry={2.4} fill="#FFFFFF" opacity={0.4} />
+          {/* foam at the river junction — where it meets the river */}
+          <ellipse cx={392} cy={702} rx={16} ry={3.5} fill="#FFFFFF" opacity={0.55} />
+          <ellipse cx={388} cy={696} rx={10} ry={2.6} fill="#FFFFFF" opacity={0.4} />
+          {/* slow shimmer pulse — keeps the channel alive without the
+              channel ever feeling busy */}
+          <motion.ellipse
+            cx={384} cy={580} rx={9} ry={3} fill="#FFFFFF"
+            animate={reducedMotion ? undefined : { opacity: [0.12, 0.4, 0.12], scaleY: [1, 1.18, 1] }}
+            transition={{ duration: 5.2, repeat: Infinity, ease: 'easeInOut' }}
+            style={{ transformOrigin: '384px 580px', opacity: 0.26 }}
+          />
+          {/* small bank stones */}
+          <ellipse cx={356} cy={584} rx={6} ry={3} fill="#8A7E6C" stroke="#3F3026" strokeWidth={0.9} />
+          <ellipse cx={420} cy={646} rx={7} ry={3.4} fill="#8A7E6C" stroke="#3F3026" strokeWidth={0.9} />
+          <ellipse cx={418} cy={643} rx={4} ry={1.4} fill="#A89D8A" />
+        </g>
 
         {/* ── 6c. CAVE — natural rocky archway at the far-left edge ──
              The river flows OUT of the cave mouth on the right side,
