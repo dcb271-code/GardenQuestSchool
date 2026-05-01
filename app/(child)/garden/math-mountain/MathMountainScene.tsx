@@ -475,67 +475,136 @@ export default function MathMountainScene({
           ))}
         </g>
 
-        {/* ── 6b. LAKE-TO-RIVER OUTFLOW CHANNEL ──
-             Without this, the lake at (380, 470) and the river along
-             the bottom edge read as two unrelated water features. The
-             channel makes the lake the river's headwater: water spills
-             from the lake's south bank, descends through the meadow
-             past the Rushing Stream skill (which IS this stream
-             narratively), and joins the river top edge at x:392. The
-             channel narrows as it descends to suggest a tumbling
-             current, then widens at the river junction. */}
+        {/* ── 6b. LAKE-TO-RIVER OUTFLOW STREAM ──
+             A real Miyazaki stream, not a vertical strip. Water spills
+             over a rocky lip at the lake's southern edge (small
+             cascade with foam + spray), pools in a small basin below,
+             then meanders SE → SW → joins the river as a widening
+             pool. Bank stones, ferns, an in-stream rock with water
+             splitting around it. The stream IS the Rushing Stream
+             skill at (380, 660) — that structure sits beside the
+             middle of the descent. */}
         <g pointerEvents="none">
-          {/* wet-earth bank along the channel — narrow at the top,
-              widens slightly at the river junction */}
+          {/* CASCADE LIP — rocky outcrop where water spills over */}
+          <ellipse cx={332} cy={518} rx={11} ry={4} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.2} />
+          <ellipse cx={330} cy={515} rx={7} ry={2.2} fill="#A89D8A" />
+          <ellipse cx={364} cy={520} rx={9} ry={3.5} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.1} />
+          <ellipse cx={362} cy={517} rx={6} ry={2} fill="#A89D8A" />
+          {/* moss on the cascade lip */}
+          <ellipse cx={332} cy={513} rx={9} ry={1.6} fill="#7BA46F" opacity={0.85} />
+          <ellipse cx={364} cy={515} rx={7} ry={1.4} fill="#7BA46F" opacity={0.78} />
+
+          {/* WET-EARTH BANK — full meander outline */}
           <path
-            d="M 366 506
-               C 360 540, 354 580, 358 620
-               C 362 658, 374 686, 378 698
-               L 408 700
-               C 412 686, 422 656, 416 618
-               C 414 580, 406 540, 396 506 Z"
+            d="M 326 524
+               C 320 548, 320 568, 328 584
+               C 336 600, 348 612, 348 632
+               C 348 654, 336 670, 348 688
+               C 358 700, 372 706, 380 706
+               L 422 706
+               C 422 696, 414 680, 410 664
+               C 410 644, 422 624, 422 604
+               C 420 586, 408 568, 408 548
+               C 410 532, 410 524, 408 520
+               L 372 524
+               C 364 526, 348 526, 326 524 Z"
             fill="#6B8E5A" opacity={0.30}
           />
-          {/* primary water body — slightly inside the bank */}
+
+          {/* PRIMARY WATER BODY — slightly inside the bank, with a
+              meandering S-curve and a wider mid-stream pool */}
           <path
-            d="M 370 510
-               C 366 542, 360 580, 364 618
-               C 368 654, 378 682, 382 696
-               L 404 698
-               C 408 684, 416 654, 410 618
-               C 408 580, 402 542, 392 510 Z"
+            d="M 330 526
+               C 324 548, 326 566, 332 580
+               C 340 596, 350 608, 352 628
+               C 354 650, 344 666, 354 684
+               C 364 696, 376 700, 384 700
+               L 418 700
+               C 418 692, 410 678, 408 664
+               C 408 644, 418 624, 418 604
+               C 416 586, 406 570, 406 552
+               C 408 538, 408 528, 406 524
+               L 372 528
+               C 360 530, 348 530, 330 526 Z"
             fill="#A8CDD2"
           />
-          {/* darker depth ribbon down the channel center */}
+
+          {/* DARKER DEPTH CHANNEL — flows the meander */}
           <path
-            d="M 380 514
-               C 378 548, 374 590, 378 628
-               C 382 666, 388 692, 392 700"
-            stroke="#7FA9B0" strokeWidth={2.4} fill="none" strokeLinecap="round" opacity={0.62}
+            d="M 340 532
+               C 338 552, 344 572, 352 592
+               C 360 612, 364 632, 360 652
+               C 358 672, 366 690, 384 696"
+            stroke="#7FA9B0" strokeWidth={3} fill="none" strokeLinecap="round" opacity={0.65}
           />
-          {/* downstream shimmer scallops — five along the descent */}
-          <path d="M 372 540 Q 380 536 388 540" stroke="#FFFFFF" strokeWidth={0.9} fill="none" opacity={0.6} strokeLinecap="round" />
-          <path d="M 370 588 Q 378 584 386 588" stroke="#FFFFFF" strokeWidth={0.9} fill="none" opacity={0.55} strokeLinecap="round" />
-          <path d="M 372 632 Q 382 628 392 632" stroke="#FFFFFF" strokeWidth={0.9} fill="none" opacity={0.5} strokeLinecap="round" />
-          <path d="M 376 670 Q 386 666 396 670" stroke="#FFFFFF" strokeWidth={0.9} fill="none" opacity={0.48} strokeLinecap="round" />
-          {/* foam at the lake outlet — water spilling over the bank */}
-          <ellipse cx={380} cy={512} rx={14} ry={3} fill="#FFFFFF" opacity={0.55} />
-          <ellipse cx={376} cy={518} rx={9} ry={2.4} fill="#FFFFFF" opacity={0.4} />
-          {/* foam at the river junction — where it meets the river */}
-          <ellipse cx={392} cy={702} rx={16} ry={3.5} fill="#FFFFFF" opacity={0.55} />
-          <ellipse cx={388} cy={696} rx={10} ry={2.6} fill="#FFFFFF" opacity={0.4} />
-          {/* slow shimmer pulse — keeps the channel alive without the
-              channel ever feeling busy */}
+
+          {/* CASCADE — three white falling-water strokes from the lip */}
+          <path d="M 332 524 Q 330 532 332 542" stroke="#FFFFFF" strokeWidth={2.2} fill="none" strokeLinecap="round" opacity={0.85} />
+          <path d="M 344 522 Q 343 532 346 544" stroke="#FFFFFF" strokeWidth={1.6} fill="none" strokeLinecap="round" opacity={0.7} />
+          <path d="M 358 524 Q 358 534 360 544" stroke="#FFFFFF" strokeWidth={2} fill="none" strokeLinecap="round" opacity={0.78} />
+          {/* spray below the cascade */}
+          <ellipse cx={344} cy={550} rx={20} ry={4} fill="#FFFFFF" opacity={0.55} />
+          <ellipse cx={340} cy={556} rx={14} ry={2.6} fill="#FFFFFF" opacity={0.42} />
+          <circle cx={324} cy={550} r={1.6} fill="#FFFFFF" opacity={0.7} />
+          <circle cx={362} cy={552} r={1.4} fill="#FFFFFF" opacity={0.65} />
+
+          {/* IN-STREAM ROCK — water splits around it at the mid pool */}
+          <ellipse cx={384} cy={618} rx={9} ry={5.5} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.2} />
+          <ellipse cx={382} cy={615} rx={6} ry={2.4} fill="#A89D8A" />
+          <ellipse cx={384} cy={613} rx={7} ry={1.6} fill="#7BA46F" opacity={0.86} />
+          {/* white wash where water hits the rock */}
+          <path d="M 376 614 Q 374 618 376 622" stroke="#FFFFFF" strokeWidth={1.2} fill="none" strokeLinecap="round" opacity={0.6} />
+          <path d="M 392 614 Q 394 618 392 622" stroke="#FFFFFF" strokeWidth={1.2} fill="none" strokeLinecap="round" opacity={0.6} />
+
+          {/* SHIMMER SCALLOPS — distributed along the meander */}
+          <path d="M 332 564 Q 340 560 348 564" stroke="#FFFFFF" strokeWidth={0.9} fill="none" opacity={0.6} strokeLinecap="round" />
+          <path d="M 348 596 Q 358 592 366 596" stroke="#FFFFFF" strokeWidth={0.9} fill="none" opacity={0.55} strokeLinecap="round" />
+          <path d="M 360 644 Q 370 640 378 644" stroke="#FFFFFF" strokeWidth={0.9} fill="none" opacity={0.5} strokeLinecap="round" />
+          <path d="M 364 678 Q 374 674 384 678" stroke="#FFFFFF" strokeWidth={0.9} fill="none" opacity={0.5} strokeLinecap="round" />
+
+          {/* FOAM at the river junction — wider pool where it joins */}
+          <ellipse cx={398} cy={702} rx={20} ry={4} fill="#FFFFFF" opacity={0.55} />
+          <ellipse cx={394} cy={696} rx={12} ry={2.8} fill="#FFFFFF" opacity={0.42} />
+          <circle cx={406} cy={700} r={1.4} fill="#FFFFFF" opacity={0.7} />
+
+          {/* SLOW SHIMMER PULSES — two out of phase */}
           <motion.ellipse
-            cx={384} cy={580} rx={9} ry={3} fill="#FFFFFF"
+            cx={344} cy={580} rx={10} ry={3} fill="#FFFFFF"
             animate={reducedMotion ? undefined : { opacity: [0.12, 0.4, 0.12], scaleY: [1, 1.18, 1] }}
             transition={{ duration: 5.2, repeat: Infinity, ease: 'easeInOut' }}
-            style={{ transformOrigin: '384px 580px', opacity: 0.26 }}
+            style={{ transformOrigin: '344px 580px', opacity: 0.24 }}
           />
-          {/* small bank stones */}
-          <ellipse cx={356} cy={584} rx={6} ry={3} fill="#8A7E6C" stroke="#3F3026" strokeWidth={0.9} />
-          <ellipse cx={420} cy={646} rx={7} ry={3.4} fill="#8A7E6C" stroke="#3F3026" strokeWidth={0.9} />
-          <ellipse cx={418} cy={643} rx={4} ry={1.4} fill="#A89D8A" />
+          <motion.ellipse
+            cx={372} cy={660} rx={11} ry={3} fill="#FFFFFF"
+            animate={reducedMotion ? undefined : { opacity: [0.1, 0.36, 0.1], scaleY: [1, 1.14, 1] }}
+            transition={{ duration: 6.4, delay: 1.4, repeat: Infinity, ease: 'easeInOut' }}
+            style={{ transformOrigin: '372px 660px', opacity: 0.22 }}
+          />
+
+          {/* BANK STONES — multiple sizes, on alternating sides */}
+          <ellipse cx={320} cy={580} rx={6} ry={3} fill="#8A7E6C" stroke="#3F3026" strokeWidth={0.9} />
+          <ellipse cx={420} cy={596} rx={7} ry={3.4} fill="#8A7E6C" stroke="#3F3026" strokeWidth={0.9} />
+          <ellipse cx={418} cy={593} rx={4} ry={1.4} fill="#A89D8A" />
+          <ellipse cx={336} cy={638} rx={5} ry={2.6} fill="#8A7E6C" stroke="#3F3026" strokeWidth={0.8} />
+          <ellipse cx={426} cy={672} rx={8} ry={4} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1} />
+          <ellipse cx={424} cy={668} rx={5} ry={1.8} fill="#A89D8A" />
+
+          {/* FERNS along the bank — left side near cascade, right side
+              at the meander */}
+          <g transform="translate(310, 558)">
+            <path d="M 0 0 Q -3 -10 -8 -16" stroke="#5C7E4F" strokeWidth={1.3} fill="none" strokeLinecap="round" />
+            <path d="M 0 0 Q 0 -12 -2 -22" stroke="#5C7E4F" strokeWidth={1.3} fill="none" strokeLinecap="round" />
+            <path d="M 0 0 Q 4 -10 7 -16" stroke="#5C7E4F" strokeWidth={1.2} fill="none" strokeLinecap="round" />
+          </g>
+          <g transform="translate(434, 624)">
+            <path d="M 0 0 Q 3 -10 7 -16" stroke="#5C7E4F" strokeWidth={1.3} fill="none" strokeLinecap="round" />
+            <path d="M 0 0 Q 0 -12 2 -22" stroke="#5C7E4F" strokeWidth={1.3} fill="none" strokeLinecap="round" />
+            <path d="M 0 0 Q -3 -10 -6 -16" stroke="#5C7E4F" strokeWidth={1.2} fill="none" strokeLinecap="round" />
+          </g>
+          <g transform="translate(312, 670)">
+            <path d="M 0 0 Q -2 -8 -5 -14" stroke="#5C7E4F" strokeWidth={1.2} fill="none" strokeLinecap="round" />
+            <path d="M 0 0 Q 1 -10 2 -18" stroke="#5C7E4F" strokeWidth={1.2} fill="none" strokeLinecap="round" />
+          </g>
         </g>
 
         {/* ── 6c. CAVE — natural rocky archway at the far-left edge ──

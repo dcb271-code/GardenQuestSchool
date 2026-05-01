@@ -514,11 +514,78 @@ export default function ReadingForestScene({
           );
         })()}
 
-        {/* ── Garden exit signpost at right edge ── */}
-        <g transform="translate(1422, 258)" pointerEvents="none">
-          <rect x={-3} y={-22} width={6} height={30} rx={2} fill="#8B5A2B" stroke="#5A3B1F" strokeWidth={1.2} />
-          <rect x={-28} y={-34} width={56} height={16} rx={3} fill="#F5EBDC" stroke="#8B5A2B" strokeWidth={1.5} />
-          <text x={-20} y={-22} fontSize={8} fill="#6b4423" fontWeight={600} fontFamily="serif">← garden</text>
+        {/* ── 10b. FOOTBRIDGES — where path A crosses the brook ──
+             Path A descends from the glade NE toward the Digraph
+             Bridge; in doing so it crosses the brook around x:380.
+             Path B drops from Diphthong Cove SE through the morphology
+             grove and crosses the brook around x:1210. Without bridges
+             the tan path painted directly over the blue brook —
+             readable to an adult, but a kid asked "where's the bridge?"
+             Two small wooden footbridges now span those crossings. */}
+        {([
+          { cx: 380, cy: 386, halfW: 30, key: 'fb-glade' },
+          { cx: 1210, cy: 452, halfW: 30, key: 'fb-grove' },
+        ] as const).map(b => (
+          <g key={b.key} pointerEvents="none">
+            {/* under-arch shadow on the water */}
+            <path
+              d={`M ${b.cx - b.halfW} ${b.cy + 6}
+                  C ${b.cx - b.halfW * 0.5} ${b.cy + 12}, ${b.cx + b.halfW * 0.5} ${b.cy + 12}, ${b.cx + b.halfW} ${b.cy + 6}`}
+              stroke="#000" strokeWidth={2.5} fill="none" opacity={0.22} strokeLinecap="round"
+            />
+            {/* abutment posts at each end */}
+            <rect x={b.cx - b.halfW - 3} y={b.cy - 4} width={5} height={12} fill="#5A3B1F" stroke="#3F2614" strokeWidth={0.9} />
+            <rect x={b.cx + b.halfW - 2} y={b.cy - 4} width={5} height={12} fill="#5A3B1F" stroke="#3F2614" strokeWidth={0.9} />
+            {/* deck — slight arch */}
+            <path
+              d={`M ${b.cx - b.halfW} ${b.cy}
+                  Q ${b.cx} ${b.cy - 6} ${b.cx + b.halfW} ${b.cy}
+                  L ${b.cx + b.halfW} ${b.cy + 4}
+                  Q ${b.cx} ${b.cy - 2} ${b.cx - b.halfW} ${b.cy + 4} Z`}
+              fill="#A06B36" stroke="#5A3B1F" strokeWidth={1.4} strokeLinejoin="round"
+            />
+            {/* plank lines */}
+            <line x1={b.cx - b.halfW * 0.5} y1={b.cy - 3.5} x2={b.cx - b.halfW * 0.5} y2={b.cy + 3} stroke="#5A3B1F" strokeWidth={0.6} opacity={0.6} />
+            <line x1={b.cx} y1={b.cy - 5} x2={b.cx} y2={b.cy + 2} stroke="#5A3B1F" strokeWidth={0.6} opacity={0.6} />
+            <line x1={b.cx + b.halfW * 0.5} y1={b.cy - 3.5} x2={b.cx + b.halfW * 0.5} y2={b.cy + 3} stroke="#5A3B1F" strokeWidth={0.6} opacity={0.6} />
+            {/* railing posts (4) */}
+            <line x1={b.cx - b.halfW * 0.7} y1={b.cy - 2} x2={b.cx - b.halfW * 0.7} y2={b.cy - 9} stroke="#5A3B1F" strokeWidth={1.1} strokeLinecap="round" />
+            <line x1={b.cx - b.halfW * 0.25} y1={b.cy - 4} x2={b.cx - b.halfW * 0.25} y2={b.cy - 11} stroke="#5A3B1F" strokeWidth={1.1} strokeLinecap="round" />
+            <line x1={b.cx + b.halfW * 0.25} y1={b.cy - 4} x2={b.cx + b.halfW * 0.25} y2={b.cy - 11} stroke="#5A3B1F" strokeWidth={1.1} strokeLinecap="round" />
+            <line x1={b.cx + b.halfW * 0.7} y1={b.cy - 2} x2={b.cx + b.halfW * 0.7} y2={b.cy - 9} stroke="#5A3B1F" strokeWidth={1.1} strokeLinecap="round" />
+            {/* railing top rail — gentle arch */}
+            <path
+              d={`M ${b.cx - b.halfW * 0.7} ${b.cy - 9}
+                  Q ${b.cx} ${b.cy - 12} ${b.cx + b.halfW * 0.7} ${b.cy - 9}`}
+              stroke="#5A3B1F" strokeWidth={1.3} fill="none" strokeLinecap="round"
+            />
+          </g>
+        ))}
+
+        {/* ── Garden exit signpost at right edge ──
+             Arrow points RIGHT — the central garden is east of the
+             forest, so to walk back to it you walk right off the
+             screen. Sign uses the same font family + weight as the
+             structure labels so it reads as part of the same world,
+             not a stranger label. */}
+        <g transform="translate(1408, 258)" pointerEvents="none">
+          {/* wooden post — slight shadow so it sits on the ground */}
+          <ellipse cx={0} cy={10} rx={9} ry={2.4} fill="#000" opacity={0.22} />
+          <rect x={-3} y={-22} width={6} height={32} rx={2} fill="#8B5A2B" stroke="#5A3B1F" strokeWidth={1.2} />
+          {/* sign board with the right-pointing arrow tab */}
+          <path
+            d="M -32 -34 L 26 -34 Q 30 -34 32 -32 L 38 -26 L 32 -20 Q 30 -18 26 -18 L -32 -18 Q -34 -18 -34 -20 L -34 -32 Q -34 -34 -32 -34 Z"
+            fill="#FFFAF2" stroke="#8B5A2B" strokeWidth={1.5} strokeLinejoin="round"
+          />
+          <text
+            x={-2} y={-23.5} textAnchor="middle"
+            fontSize={9.5} fontWeight={700} fill="#6b4423"
+            style={{ userSelect: 'none' }}
+          >
+            garden →
+          </text>
+          {/* tiny rope wrap on the post */}
+          <path d="M -3 -8 Q 0 -8 3 -10" stroke="#8A6635" strokeWidth={1} fill="none" strokeLinecap="round" />
         </g>
 
         {/* ── 11. SIGHT WORD GLADE — open clearing NW ──
