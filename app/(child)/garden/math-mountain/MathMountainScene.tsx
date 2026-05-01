@@ -425,12 +425,12 @@ export default function MathMountainScene({
             which read as "the sky has grass in it." */}
         <rect x={0} y={320} width={W} height={H - 320} fill="url(#mmGrass)" />
 
-        {/* ── 6. LAKE — upper-mid water feature ──
-             Centered at (380, 470), rx:108 ry:42. Structures sit AROUND
-             it, not inside: Quiet Pond at the western edge as the lily,
-             Berry Basket on the NE bank, Big Falls is the southern
-             waterfall outflow, Twin Bonds on the meadow above. */}
-        <g pointerEvents="none">
+        {/* ── 6. LAKE — moved DOWN 50px so it's clear of the upper
+             spine path (path passes near y:430-460 at the lake's x
+             range; lake now centered at y:520 instead of y:470). All
+             sub-elements still use the original coords inside this
+             group; the transform shifts the whole lake at once. */}
+        <g pointerEvents="none" transform="translate(0, 50)">
           {/* outer wet-earth bank */}
           <ellipse cx={380} cy={470} rx={120} ry={50} fill="#6B8E5A" opacity={0.30} />
           {/* primary water body */}
@@ -507,10 +507,11 @@ export default function MathMountainScene({
         <g
           style={{ cursor: 'pointer', touchAction: 'manipulation' }}
           onClick={() => router.push(`/garden/habitat/operations_cave?learner=${learnerId}`)}
-          // Cave at 50% size, hard-anchored to the LEFT edge of the
-          // scene. Right-edge mouth at x:71 — the river starts there,
-          // emerging directly from the cave's dark interior pool.
-          transform="translate(-4, 370) scale(0.5)"
+          // Cave at 50% size, anchored to the LEFT edge. Lifted up
+          // so the river's vertical center (~y:693) lines up with
+          // the cave's vertical center — water emerges from the
+          // middle of the cave mouth, not just the top edge.
+          transform="translate(-4, 354) scale(0.5)"
         >
           {/* invisible hit target covering the cave area */}
           <rect x={-12} y={616} width={172} height={136} fill="transparent" />
@@ -782,12 +783,15 @@ export default function MathMountainScene({
             C 1020 450, 1160 480, 1280 530
             C 1340 570, 1400 620, 1440 660`;
 
-          // ── B. LOWER LOOP — fork at Tens → south → meadow east → join exit ──
+          // ── B. LOWER LOOP — fork at Tens → DOWN to the stream →
+          // along the stream's north bank → joins the upper spine
+          // at the lower-right exit. The loop dips to y:650 in the
+          // middle so it's right alongside the river (top y:680). */}
           const lowerLoopD = `M 560 400
-            C 540 460, 540 530, 580 580
-            C 680 590, 780 580, 880 580
-            C 980 580, 1080 580, 1180 580
-            C 1260 580, 1320 590, 1380 610
+            C 540 480, 540 580, 600 640
+            C 700 660, 800 660, 900 660
+            C 1000 660, 1100 660, 1200 660
+            C 1280 660, 1340 640, 1380 620
             C 1410 630, 1430 650, 1440 660`;
 
           const trails = [upperSpineD, lowerLoopD];
@@ -821,13 +825,13 @@ export default function MathMountainScene({
                 { x: 1140, y: 478 },        // descending
                 { x: 1310, y: 552 },        // toward exit
                 { x: 1410, y: 632 },        // exit corner
-                // Lower loop, fork → meadow → exit
-                { x: 548, y: 470 },         // descent from fork
-                { x: 580, y: 562 },         // joining meadow band
-                { x: 760, y: 580 },         // through meadow
-                { x: 980, y: 580 },         // through meadow east
-                { x: 1180, y: 580 },        // past orchard
-                { x: 1330, y: 596 },        // climbing toward exit
+                // Lower loop, fork → stream → exit
+                { x: 548, y: 480 },         // descent from fork
+                { x: 580, y: 600 },         // dropping to stream
+                { x: 760, y: 658 },         // along stream
+                { x: 980, y: 660 },         // along stream
+                { x: 1180, y: 660 },        // along stream east
+                { x: 1340, y: 638 },        // climbing toward exit
               ].map((s, i) => (
                 <g key={`mmstn-${i}`}>
                   <ellipse cx={s.x + 1} cy={s.y + 2} rx={7} ry={4} fill="#000" opacity={0.16} />

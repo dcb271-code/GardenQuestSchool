@@ -686,9 +686,11 @@ export default function ReadingForestScene({
           <circle cx={14} cy={-55} r={3} fill="#FFFFFF" opacity={0.22} />
         </g>
 
-        {/* Grove framing trees */}
+        {/* Grove framing trees — only one on the west side, since
+            the ancient oak (now scaled 0.55 at 1340,470) covers the
+            east side of the grove. The previous pine at (1320, 432)
+            sat directly inside the oak's canopy. */}
         <Sway x={1182} y={428} delay={1.2}><Tree x={1182} y={428} size={60} variant={2} /></Sway>
-        <Sway x={1320} y={432} delay={2.5}><PineTree x={1320} y={432} size={56} /></Sway>
 
         {/* ── 13. STORY ROCKS — semicircle of mossy boulders ──
              rf_longer_words (660,620), rf_sentence (800,660), rf_paragraph (740,720).
