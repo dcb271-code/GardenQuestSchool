@@ -542,10 +542,15 @@ export default function MathMountainScene({
              The river flows OUT of the cave mouth on the right side,
              so it's clearly the source of the watercourse — not just
              a rectangle plopped in front of the river. Cave occupies
-             x:-30 to 230, y:570-740; river starts at x:230, y:705. */}
+             x:-30 to 230, y:570-740; river starts at x:230, y:705.
+             Tapping navigates to the cave's interior route — same
+             pattern as Bunny Burrow on the central garden. The three
+             cave skills (Hundred's Hollow, Fast Facts, Regroup Ridge)
+             live INSIDE the route, not as inline-expand pins on this
+             scene. */}
         <g
           style={{ cursor: 'pointer', touchAction: 'manipulation' }}
-          onClick={() => setExpandedHabitat(expandedHabitat === 'cave' ? null : 'cave')}
+          onClick={() => router.push(`/garden/habitat/operations_cave?learner=${learnerId}`)}
         >
           {/* invisible hit target covering the cave area */}
           <rect x={-12} y={616} width={172} height={136} fill="transparent" />
@@ -1592,15 +1597,20 @@ export default function MathMountainScene({
             return null;
           })();
 
-          // For cave: hide hover ring + skip illustration; cave SVG handles tapping
+          // For cave: hide hover ring + skip illustration; cave SVG
+          // handles tapping. Cave navigates to its route; other
+          // habitats toggle inline-expand.
           const drawTapTarget = key !== 'cave';
+          const handleHabitatTap = key === 'cave'
+            ? () => router.push(`/garden/habitat/operations_cave?learner=${learnerId}`)
+            : () => setExpandedHabitat(isExpanded ? null : key);
 
           return (
             <g key={`habitat-${key}`} pointerEvents="auto">
               <g
                 transform={`translate(${group.x}, ${group.y})`}
                 style={{ cursor: 'pointer', touchAction: 'manipulation' }}
-                onClick={() => setExpandedHabitat(isExpanded ? null : key)}
+                onClick={handleHabitatTap}
               >
                 {drawTapTarget && (
                   <rect x={-60} y={-46} width={120} height={108} fill="transparent" />

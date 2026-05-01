@@ -63,6 +63,20 @@ export const HABITAT_CATALOG: HabitatTypeData[] = [
     illustrationKey: 'log_pile',
     emoji: '🪵',
   },
+  {
+    // Math Mountain side-habitat — the cave at the foot of the
+    // mountain. Hosts three regrouping/operations skills inside,
+    // plus a friendly resident bear who sleeps near the lantern.
+    // Attracts cave-dwelling species in time (left empty for now;
+    // species catalog can grow into it).
+    code: 'operations_cave',
+    name: 'Operations Cave',
+    description: 'A deep, mossy cave at the foot of the mountain — where numbers regroup in the dark.',
+    attractsSpeciesCodes: [],
+    prereqSkillCodes: ['math.add.within_100.no_regrouping'],
+    illustrationKey: 'operations_cave',
+    emoji: '🕳️',
+  },
 ];
 
 export function getHabitatByCode(code: string): HabitatTypeData | undefined {
