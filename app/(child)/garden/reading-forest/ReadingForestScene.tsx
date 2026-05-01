@@ -83,13 +83,25 @@ interface ReadingForestSceneProps {
 const W = BRANCH_MAP_WIDTH;   // 1440
 const H = BRANCH_MAP_HEIGHT;  // 800
 
-// Maps branch structure codes → an existing StructureIllustration code
+// Maps branch structure codes → an existing StructureIllustration code.
+// Every Forest skill should resolve to a bespoke hand-drawn illustration
+// here; the themeEmoji fallback is only for emergencies.
 const ILLUSTRATION_ALIAS: Record<string, string> = {
   rf_dolch_first:    'reading_bee_words',
   rf_dolch_second:   'reading_bee_words',
   rf_dolch_third:    'reading_bee_words',
   rf_digraphs:       'reading_digraph_bridge',
   rf_initial_blends: 'reading_blending_beach',
+  rf_silent_e:       'reading_silent_e_spring',
+  rf_vowel_ee_ea:    'reading_vowel_team_ee',
+  rf_vowel_ai_ay:    'reading_vowel_team_ai',
+  rf_vowel_oa_ow:    'reading_vowel_team_oa',
+  rf_r_controlled:   'reading_r_controlled',
+  rf_diphthongs:     'reading_diphthong_shell',
+  rf_ed_ing:         'reading_word_endings',
+  rf_plurals:        'reading_plurals_patch',
+  rf_compounds:      'reading_compound_nest',
+  rf_prefixes:       'reading_prefix_acorns',
   rf_longer_words:   'reading_readaloud_log',
   rf_sentence:       'reading_book_stump',
   rf_paragraph:      'reading_book_stump',

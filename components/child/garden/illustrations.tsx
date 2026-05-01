@@ -1356,6 +1356,670 @@ export function ChimneySmoke({ x, y }: { x: number; y: number }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────
+// PHASE-3 BESPOKE ILLUSTRATIONS — replace clip-art emoji on the branches
+// All follow the same hand-drawn style: dark bark outline (#5A3B1F) at
+// strokeWidth 1.6-2.4, naturalist palette, slight asymmetry, rounded
+// joins. Sized around the (x,y) center for the structure-render pipeline.
+// ─────────────────────────────────────────────────────────────────────────
+
+// READING FOREST — phonics & morphology
+
+// Compound Nest — a twiggy bird's nest holding two paired eggs
+// (representing the two halves of a compound word like "back+yard").
+export function CompoundNest({ x, y, size = 60 }: IllustrationProps) {
+  const r = size / 2;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {/* shadow */}
+      <ellipse cx={0} cy={r * 0.55} rx={r * 0.78} ry={r * 0.12} fill="#000" opacity={0.22} />
+      {/* outer woven nest cup — overlapping twig arcs */}
+      <ellipse cx={0} cy={r * 0.18} rx={r * 0.78} ry={r * 0.36} fill="#8B5A2B" stroke={STROKE} strokeWidth={2} />
+      <path d={`M ${-r * 0.7} ${r * 0.14} Q ${-r * 0.4} ${r * 0.0} ${0} ${r * 0.06} Q ${r * 0.45} ${r * 0.0} ${r * 0.7} ${r * 0.14}`}
+            stroke="#5A3B1F" strokeWidth={1.4} fill="none" strokeLinecap="round" />
+      <path d={`M ${-r * 0.62} ${r * 0.32} Q ${-r * 0.2} ${r * 0.22} ${r * 0.2} ${r * 0.28} Q ${r * 0.5} ${r * 0.32} ${r * 0.62} ${r * 0.32}`}
+            stroke="#5A3B1F" strokeWidth={1.2} fill="none" strokeLinecap="round" opacity={0.65} />
+      {/* twig fragments around the rim */}
+      <line x1={-r * 0.78} y1={r * 0.04} x2={-r * 0.92} y2={-r * 0.04} stroke="#5A3B1F" strokeWidth={1.4} strokeLinecap="round" />
+      <line x1={r * 0.74} y1={r * 0.06} x2={r * 0.88} y2={-r * 0.04} stroke="#5A3B1F" strokeWidth={1.4} strokeLinecap="round" />
+      <line x1={-r * 0.2} y1={-r * 0.08} x2={-r * 0.32} y2={-r * 0.18} stroke="#5A3B1F" strokeWidth={1.2} strokeLinecap="round" />
+      {/* inner nest hollow — darker */}
+      <ellipse cx={0} cy={r * 0.05} rx={r * 0.58} ry={r * 0.22} fill="#5A3B1F" opacity={0.35} />
+      {/* TWO eggs — paired for compound words. Different tones. */}
+      <ellipse cx={-r * 0.18} cy={-r * 0.04} rx={r * 0.18} ry={r * 0.22} fill="#FFFAF2" stroke={STROKE} strokeWidth={1.4} />
+      <ellipse cx={-r * 0.2} cy={-r * 0.1} rx={r * 0.08} ry={r * 0.06} fill="#FFFFFF" opacity={0.9} />
+      <ellipse cx={r * 0.18} cy={-r * 0.02} rx={r * 0.18} ry={r * 0.22} fill="#D4DAE8" stroke={STROKE} strokeWidth={1.4} />
+      <ellipse cx={r * 0.16} cy={-r * 0.08} rx={r * 0.08} ry={r * 0.06} fill="#FFFFFF" opacity={0.85} />
+      {/* tiny speckle on the eggs */}
+      <circle cx={-r * 0.12} cy={r * 0.04} r={0.7} fill="#8A7050" opacity={0.7} />
+      <circle cx={r * 0.22} cy={r * 0.06} r={0.7} fill="#5A6A8A" opacity={0.7} />
+    </g>
+  );
+}
+
+// Plurals Patch — a brown earth patch with seedlings emerging in groups
+// (singles + clusters showing -s / -es plurality).
+export function PluralsPatch({ x, y, size = 60 }: IllustrationProps) {
+  const r = size / 2;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {/* shadow */}
+      <ellipse cx={0} cy={r * 0.7} rx={r * 0.8} ry={r * 0.1} fill="#000" opacity={0.2} />
+      {/* earth patch — irregular oval of tilled soil */}
+      <path
+        d={`M ${-r * 0.78} ${r * 0.4}
+            Q ${-r * 0.6} ${r * 0.14} ${-r * 0.2} ${r * 0.1}
+            Q ${r * 0.18} ${r * 0.06} ${r * 0.6} ${r * 0.18}
+            Q ${r * 0.86} ${r * 0.32} ${r * 0.78} ${r * 0.5}
+            Q ${r * 0.48} ${r * 0.66} ${0} ${r * 0.62}
+            Q ${-r * 0.5} ${r * 0.6} ${-r * 0.78} ${r * 0.4} Z`}
+        fill="#6B4423" stroke={STROKE} strokeWidth={1.8} strokeLinejoin="round"
+      />
+      {/* darker soil tilling lines */}
+      <path d={`M ${-r * 0.5} ${r * 0.32} Q ${-r * 0.1} ${r * 0.28} ${r * 0.4} ${r * 0.34}`}
+            stroke="#3F2614" strokeWidth={0.8} fill="none" opacity={0.55} />
+      <path d={`M ${-r * 0.4} ${r * 0.46} Q ${0} ${r * 0.44} ${r * 0.5} ${r * 0.5}`}
+            stroke="#3F2614" strokeWidth={0.8} fill="none" opacity={0.45} />
+      {/* SEEDLING 1 — single leaf (singular root) */}
+      <line x1={-r * 0.46} y1={r * 0.16} x2={-r * 0.46} y2={-r * 0.18} stroke="#5C7E4F" strokeWidth={1.6} strokeLinecap="round" />
+      <ellipse cx={-r * 0.46} cy={-r * 0.24} rx={r * 0.12} ry={r * 0.18} fill="#7BA46F" stroke={STROKE} strokeWidth={1.2} transform={`rotate(-12 ${-r * 0.46} ${-r * 0.24})`} />
+      {/* SEEDLING CLUSTER — 3 paired leaves (plural -s) */}
+      <line x1={-r * 0.04} y1={r * 0.1} x2={-r * 0.04} y2={-r * 0.32} stroke="#5C7E4F" strokeWidth={1.6} strokeLinecap="round" />
+      <ellipse cx={-r * 0.16} cy={-r * 0.32} rx={r * 0.12} ry={r * 0.16} fill="#7BA46F" stroke={STROKE} strokeWidth={1.2} transform={`rotate(-30 ${-r * 0.16} ${-r * 0.32})`} />
+      <ellipse cx={r * 0.08} cy={-r * 0.32} rx={r * 0.12} ry={r * 0.16} fill="#95B88F" stroke={STROKE} strokeWidth={1.2} transform={`rotate(30 ${r * 0.08} ${-r * 0.32})`} />
+      <ellipse cx={-r * 0.04} cy={-r * 0.42} rx={r * 0.08} ry={r * 0.12} fill="#A2C794" stroke={STROKE} strokeWidth={1} />
+      {/* SEEDLING PAIR — 2 leaves (plural -es) */}
+      <line x1={r * 0.46} y1={r * 0.18} x2={r * 0.46} y2={-r * 0.2} stroke="#5C7E4F" strokeWidth={1.6} strokeLinecap="round" />
+      <ellipse cx={r * 0.36} cy={-r * 0.24} rx={r * 0.1} ry={r * 0.14} fill="#7BA46F" stroke={STROKE} strokeWidth={1.2} transform={`rotate(-20 ${r * 0.36} ${-r * 0.24})`} />
+      <ellipse cx={r * 0.56} cy={-r * 0.24} rx={r * 0.1} ry={r * 0.14} fill="#95B88F" stroke={STROKE} strokeWidth={1.2} transform={`rotate(20 ${r * 0.56} ${-r * 0.24})`} />
+      {/* tiny pebbles for ground texture */}
+      <circle cx={-r * 0.7} cy={r * 0.5} r={1} fill="#8A7E6C" opacity={0.7} />
+      <circle cx={r * 0.66} cy={r * 0.46} r={1.2} fill="#8A7E6C" opacity={0.7} />
+    </g>
+  );
+}
+
+// Prefix Acorns — a cluster of acorns at the base of a stump, with
+// two of them lightly labeled "un" / "re" in italic serif. The
+// acorn-as-prefix metaphor: a small attachment on a larger root word.
+export function PrefixAcorns({ x, y, size = 60 }: IllustrationProps) {
+  const r = size / 2;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {/* shadow */}
+      <ellipse cx={0} cy={r * 0.78} rx={r * 0.78} ry={r * 0.1} fill="#000" opacity={0.22} />
+      {/* small mossy stump (the "root word") */}
+      <ellipse cx={0} cy={r * 0.74} rx={r * 0.52} ry={r * 0.14} fill="#6B4423" stroke={STROKE} strokeWidth={1.4} />
+      <rect x={-r * 0.46} y={r * 0.3} width={r * 0.92} height={r * 0.45} fill="#8B5A2B" stroke={STROKE} strokeWidth={1.6} />
+      <ellipse cx={0} cy={r * 0.3} rx={r * 0.46} ry={r * 0.12} fill="#A06B36" stroke={STROKE} strokeWidth={1.4} />
+      {/* growth rings on stump top */}
+      <ellipse cx={0} cy={r * 0.3} rx={r * 0.32} ry={r * 0.08} fill="none" stroke="#5A3B1F" strokeWidth={0.6} opacity={0.55} />
+      <ellipse cx={0} cy={r * 0.3} rx={r * 0.18} ry={r * 0.046} fill="none" stroke="#5A3B1F" strokeWidth={0.6} opacity={0.55} />
+      {/* moss patches on the stump rim */}
+      <ellipse cx={-r * 0.32} cy={r * 0.28} rx={r * 0.16} ry={r * 0.04} fill="#7BA46F" opacity={0.85} />
+      <ellipse cx={r * 0.18} cy={r * 0.3} rx={r * 0.12} ry={r * 0.035} fill="#7BA46F" opacity={0.78} />
+
+      {/* ACORN 1 — left, "un" prefix */}
+      <g transform={`translate(${-r * 0.42}, ${r * 0.08}) rotate(-12)`}>
+        <ellipse cx={0} cy={0} rx={r * 0.16} ry={r * 0.22} fill="#7A4A1F" stroke={STROKE} strokeWidth={1.4} />
+        <path d={`M ${-r * 0.16} ${-r * 0.18} Q ${0} ${-r * 0.32} ${r * 0.16} ${-r * 0.18}`}
+              stroke={STROKE} strokeWidth={1.4} fill="#5A3B1F" strokeLinejoin="round" />
+        <line x1={0} y1={-r * 0.32} x2={0} y2={-r * 0.4} stroke={STROKE} strokeWidth={1.2} strokeLinecap="round" />
+        <text x={0} y={r * 0.06} textAnchor="middle" fontSize={size * 0.14} fontStyle="italic" fontFamily="ui-serif, Georgia, serif" fill="#FFFAF2" fontWeight={700}>un</text>
+      </g>
+      {/* ACORN 2 — center-back (no label, generic) */}
+      <g transform={`translate(${0}, ${r * 0.02})`}>
+        <ellipse cx={0} cy={0} rx={r * 0.14} ry={r * 0.2} fill="#8A5A2B" stroke={STROKE} strokeWidth={1.3} />
+        <path d={`M ${-r * 0.14} ${-r * 0.16} Q ${0} ${-r * 0.28} ${r * 0.14} ${-r * 0.16}`}
+              stroke={STROKE} strokeWidth={1.3} fill="#5A3B1F" strokeLinejoin="round" />
+      </g>
+      {/* ACORN 3 — right, "re" prefix */}
+      <g transform={`translate(${r * 0.42}, ${r * 0.08}) rotate(14)`}>
+        <ellipse cx={0} cy={0} rx={r * 0.16} ry={r * 0.22} fill="#7A4A1F" stroke={STROKE} strokeWidth={1.4} />
+        <path d={`M ${-r * 0.16} ${-r * 0.18} Q ${0} ${-r * 0.32} ${r * 0.16} ${-r * 0.18}`}
+              stroke={STROKE} strokeWidth={1.4} fill="#5A3B1F" strokeLinejoin="round" />
+        <line x1={0} y1={-r * 0.32} x2={0} y2={-r * 0.4} stroke={STROKE} strokeWidth={1.2} strokeLinecap="round" />
+        <text x={0} y={r * 0.06} textAnchor="middle" fontSize={size * 0.14} fontStyle="italic" fontFamily="ui-serif, Georgia, serif" fill="#FFFAF2" fontWeight={700}>re</text>
+      </g>
+      {/* tiny leaf on the ground */}
+      <ellipse cx={r * 0.62} cy={r * 0.7} rx={r * 0.1} ry={r * 0.05} fill="#7BA46F" stroke="#5A3B1F" strokeWidth={0.8} transform={`rotate(20 ${r * 0.62} ${r * 0.7})`} />
+    </g>
+  );
+}
+
+// Silent-e Spring — a small bubbling spring with a sparkle floating
+// above (the "magic e" that transforms the vowel). Hand-drawn pool.
+export function SilentESpring({ x, y, size = 60 }: IllustrationProps) {
+  const r = size / 2;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={r * 0.6} rx={r * 0.78} ry={r * 0.12} fill="#000" opacity={0.22} />
+      {/* stones around the spring (cup) */}
+      <ellipse cx={-r * 0.5} cy={r * 0.42} rx={r * 0.18} ry={r * 0.1} fill="#8A7E6C" stroke={STROKE} strokeWidth={1.4} />
+      <ellipse cx={r * 0.5} cy={r * 0.44} rx={r * 0.18} ry={r * 0.1} fill="#8A7E6C" stroke={STROKE} strokeWidth={1.4} />
+      <ellipse cx={0} cy={r * 0.54} rx={r * 0.22} ry={r * 0.08} fill="#A89D8A" stroke={STROKE} strokeWidth={1.2} />
+      {/* spring water — basin */}
+      <ellipse cx={0} cy={r * 0.34} rx={r * 0.62} ry={r * 0.2} fill="#7FA9B0" stroke={STROKE} strokeWidth={1.6} />
+      <ellipse cx={0} cy={r * 0.3} rx={r * 0.5} ry={r * 0.14} fill="#A8CDD2" />
+      {/* shimmer ripples */}
+      <path d={`M ${-r * 0.32} ${r * 0.3} Q ${-r * 0.16} ${r * 0.26} ${0} ${r * 0.3}`} stroke="#FFFFFF" strokeWidth={1} fill="none" opacity={0.7} strokeLinecap="round" />
+      <path d={`M ${r * 0.04} ${r * 0.36} Q ${r * 0.2} ${r * 0.32} ${r * 0.32} ${r * 0.36}`} stroke="#FFFFFF" strokeWidth={0.9} fill="none" opacity={0.6} strokeLinecap="round" />
+      {/* magic-e sparkle floating above the spring */}
+      <g transform={`translate(0, ${-r * 0.2})`}>
+        <text x={0} y={r * 0.08} textAnchor="middle" fontSize={size * 0.36} fontStyle="italic" fontFamily="ui-serif, Georgia, serif" fontWeight={700} fill="#FFD93D" stroke={STROKE} strokeWidth={0.8}>e</text>
+        {/* sparkle rays */}
+        <line x1={-r * 0.42} y1={-r * 0.04} x2={-r * 0.5} y2={-r * 0.12} stroke="#FFD93D" strokeWidth={1.2} strokeLinecap="round" />
+        <line x1={r * 0.42} y1={-r * 0.04} x2={r * 0.5} y2={-r * 0.12} stroke="#FFD93D" strokeWidth={1.2} strokeLinecap="round" />
+        <line x1={0} y1={-r * 0.32} x2={0} y2={-r * 0.42} stroke="#FFD93D" strokeWidth={1.2} strokeLinecap="round" />
+        <circle cx={-r * 0.34} cy={-r * 0.28} r={1.2} fill="#FFFAF2" />
+        <circle cx={r * 0.34} cy={-r * 0.28} r={1.2} fill="#FFFAF2" />
+      </g>
+    </g>
+  );
+}
+
+// Vowel Team Leaves — two stacked leaves, each with a vowel pair
+// painted on it. Variant chooses which team (ee/ai/oa).
+export function VowelTeamLeaves({ x, y, size = 60, team = 'ee' }: IllustrationProps & { team?: 'ee' | 'ai' | 'oa' }) {
+  const r = size / 2;
+  const COLORS = {
+    ee: { a: '#7BA46F', b: '#A2C794' },
+    ai: { a: '#8FB7C2', b: '#B5DAE1' },
+    oa: { a: '#E8A87C', b: '#F4C9A0' },
+  } as const;
+  const c = COLORS[team];
+  const labelA = team[0];
+  const labelB = team[1];
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={r * 0.78} rx={r * 0.6} ry={r * 0.1} fill="#000" opacity={0.2} />
+      {/* leaf back (slightly larger, paler) */}
+      <g transform={`translate(${-r * 0.18}, ${r * 0.12}) rotate(-22)`}>
+        <path d={`M 0 ${-r * 0.5} Q ${r * 0.4} ${-r * 0.3} ${r * 0.36} ${r * 0.18} Q ${r * 0.18} ${r * 0.5} ${-r * 0.06} ${r * 0.46} Q ${-r * 0.32} ${r * 0.18} ${-r * 0.28} ${-r * 0.22} Q ${-r * 0.16} ${-r * 0.46} 0 ${-r * 0.5} Z`}
+              fill={c.b} stroke={STROKE} strokeWidth={1.6} strokeLinejoin="round" />
+        <line x1={0} y1={-r * 0.46} x2={r * 0.06} y2={r * 0.42} stroke={STROKE} strokeWidth={0.9} opacity={0.5} />
+        <text x={r * 0.04} y={r * 0.06} textAnchor="middle" fontSize={size * 0.28} fontStyle="italic" fontFamily="ui-serif, Georgia, serif" fontWeight={700} fill={STROKE}>{labelA}</text>
+      </g>
+      {/* leaf front */}
+      <g transform={`translate(${r * 0.16}, ${r * 0.08}) rotate(18)`}>
+        <path d={`M 0 ${-r * 0.5} Q ${r * 0.4} ${-r * 0.3} ${r * 0.36} ${r * 0.18} Q ${r * 0.18} ${r * 0.5} ${-r * 0.06} ${r * 0.46} Q ${-r * 0.32} ${r * 0.18} ${-r * 0.28} ${-r * 0.22} Q ${-r * 0.16} ${-r * 0.46} 0 ${-r * 0.5} Z`}
+              fill={c.a} stroke={STROKE} strokeWidth={1.8} strokeLinejoin="round" />
+        <line x1={0} y1={-r * 0.46} x2={r * 0.06} y2={r * 0.42} stroke={STROKE} strokeWidth={1} opacity={0.55} />
+        <text x={r * 0.04} y={r * 0.06} textAnchor="middle" fontSize={size * 0.3} fontStyle="italic" fontFamily="ui-serif, Georgia, serif" fontWeight={700} fill="#FFFAF2">{labelB}</text>
+      </g>
+    </g>
+  );
+}
+
+// R-Controlled Reins — a hand-drawn horseshoe + reins icon. (Reading
+// children remember /ar/, /er/, /ir/, /or/, /ur/ via "the bossy r".)
+export function RControlledReins({ x, y, size = 60 }: IllustrationProps) {
+  const r = size / 2;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={r * 0.7} rx={r * 0.6} ry={r * 0.1} fill="#000" opacity={0.22} />
+      {/* horseshoe — open-bottom U */}
+      <path
+        d={`M ${-r * 0.5} ${-r * 0.14}
+            Q ${-r * 0.5} ${-r * 0.55} ${0} ${-r * 0.6}
+            Q ${r * 0.5} ${-r * 0.55} ${r * 0.5} ${-r * 0.14}
+            L ${r * 0.5} ${r * 0.42}
+            L ${r * 0.32} ${r * 0.42}
+            L ${r * 0.32} ${-r * 0.1}
+            Q ${r * 0.32} ${-r * 0.42} ${0} ${-r * 0.46}
+            Q ${-r * 0.32} ${-r * 0.42} ${-r * 0.32} ${-r * 0.1}
+            L ${-r * 0.32} ${r * 0.42}
+            L ${-r * 0.5} ${r * 0.42} Z`}
+        fill="#A89D8A" stroke={STROKE} strokeWidth={1.8} strokeLinejoin="round"
+      />
+      {/* horseshoe nail holes */}
+      <circle cx={-r * 0.4} cy={-r * 0.3} r={r * 0.04} fill={STROKE} />
+      <circle cx={-r * 0.16} cy={-r * 0.5} r={r * 0.04} fill={STROKE} />
+      <circle cx={r * 0.16} cy={-r * 0.5} r={r * 0.04} fill={STROKE} />
+      <circle cx={r * 0.4} cy={-r * 0.3} r={r * 0.04} fill={STROKE} />
+      {/* big italic R painted on the shoe */}
+      <text x={0} y={r * 0.04} textAnchor="middle" fontSize={size * 0.4} fontStyle="italic" fontFamily="ui-serif, Georgia, serif" fontWeight={700} fill="#5A3B1F">R</text>
+      {/* highlight */}
+      <path d={`M ${-r * 0.42} ${-r * 0.14} Q ${-r * 0.4} ${-r * 0.42} ${-r * 0.14} ${-r * 0.5}`}
+            stroke="#C8BCAA" strokeWidth={1.2} fill="none" strokeLinecap="round" opacity={0.7} />
+    </g>
+  );
+}
+
+// Diphthong Shell — a small spiral seashell on the sand (oi/oy, ou/ow
+// theme — the "two sounds" of a diphthong like the spiral chambers
+// of a shell).
+export function DiphthongShell({ x, y, size = 60 }: IllustrationProps) {
+  const r = size / 2;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={r * 0.66} rx={r * 0.7} ry={r * 0.1} fill="#000" opacity={0.22} />
+      {/* sandy patch */}
+      <ellipse cx={0} cy={r * 0.6} rx={r * 0.7} ry={r * 0.16} fill="#F4DCC0" stroke={STROKE} strokeWidth={1.2} />
+      <circle cx={-r * 0.38} cy={r * 0.62} r={1} fill="#8A7050" opacity={0.6} />
+      <circle cx={r * 0.4} cy={r * 0.66} r={1.2} fill="#8A7050" opacity={0.6} />
+      {/* shell body — tear-drop spiral */}
+      <path
+        d={`M 0 ${-r * 0.6}
+            Q ${r * 0.46} ${-r * 0.42} ${r * 0.42} ${-r * 0.04}
+            Q ${r * 0.32} ${r * 0.4} 0 ${r * 0.46}
+            Q ${-r * 0.34} ${r * 0.4} ${-r * 0.44} ${-r * 0.04}
+            Q ${-r * 0.46} ${-r * 0.42} 0 ${-r * 0.6} Z`}
+        fill="#F4C9A0" stroke={STROKE} strokeWidth={1.8} strokeLinejoin="round"
+      />
+      {/* shell ribs — fan out from the apex */}
+      <path d={`M 0 ${-r * 0.58} Q ${-r * 0.04} ${-r * 0.18} ${-r * 0.32} ${r * 0.32}`} stroke={STROKE} strokeWidth={1.2} fill="none" opacity={0.7} />
+      <path d={`M 0 ${-r * 0.58} Q ${-r * 0.06} ${-r * 0.16} ${-r * 0.16} ${r * 0.4}`} stroke={STROKE} strokeWidth={1} fill="none" opacity={0.6} />
+      <path d={`M 0 ${-r * 0.58} Q ${0} ${-r * 0.08} ${0} ${r * 0.42}`} stroke={STROKE} strokeWidth={1} fill="none" opacity={0.6} />
+      <path d={`M 0 ${-r * 0.58} Q ${r * 0.06} ${-r * 0.16} ${r * 0.16} ${r * 0.4}`} stroke={STROKE} strokeWidth={1} fill="none" opacity={0.6} />
+      <path d={`M 0 ${-r * 0.58} Q ${r * 0.04} ${-r * 0.18} ${r * 0.32} ${r * 0.32}`} stroke={STROKE} strokeWidth={1.2} fill="none" opacity={0.7} />
+      {/* shell highlight */}
+      <path d={`M ${-r * 0.18} ${-r * 0.4} Q ${-r * 0.3} ${-r * 0.2} ${-r * 0.32} ${0}`} stroke="#FFFAF2" strokeWidth={1.2} fill="none" strokeLinecap="round" opacity={0.65} />
+    </g>
+  );
+}
+
+// Word Endings Leaf — a leaf with two endings ("-ed" and "-ing")
+// painted on either side of its central vein.
+export function WordEndingsLeaf({ x, y, size = 60 }: IllustrationProps) {
+  const r = size / 2;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={r * 0.7} rx={r * 0.66} ry={r * 0.1} fill="#000" opacity={0.22} />
+      {/* leaf */}
+      <path d={`M 0 ${-r * 0.6} Q ${r * 0.6} ${-r * 0.3} ${r * 0.5} ${r * 0.2} Q ${r * 0.3} ${r * 0.6} 0 ${r * 0.62} Q ${-r * 0.3} ${r * 0.6} ${-r * 0.5} ${r * 0.2} Q ${-r * 0.6} ${-r * 0.3} 0 ${-r * 0.6} Z`}
+            fill="#7BA46F" stroke={STROKE} strokeWidth={2} strokeLinejoin="round" />
+      {/* central vein */}
+      <line x1={0} y1={-r * 0.56} x2={0} y2={r * 0.58} stroke={STROKE} strokeWidth={1.2} opacity={0.65} />
+      {/* side veins */}
+      <path d={`M 0 ${-r * 0.3} L ${-r * 0.3} ${-r * 0.16}`} stroke={STROKE} strokeWidth={0.8} opacity={0.5} />
+      <path d={`M 0 ${-r * 0.3} L ${r * 0.3} ${-r * 0.16}`} stroke={STROKE} strokeWidth={0.8} opacity={0.5} />
+      <path d={`M 0 ${r * 0.1} L ${-r * 0.32} ${r * 0.26}`} stroke={STROKE} strokeWidth={0.8} opacity={0.5} />
+      <path d={`M 0 ${r * 0.1} L ${r * 0.32} ${r * 0.26}`} stroke={STROKE} strokeWidth={0.8} opacity={0.5} />
+      {/* labels — left -ed, right -ing */}
+      <text x={-r * 0.26} y={-r * 0.04} textAnchor="middle" fontSize={size * 0.22} fontStyle="italic" fontFamily="ui-serif, Georgia, serif" fontWeight={700} fill={STROKE}>-ed</text>
+      <text x={r * 0.28} y={r * 0.34} textAnchor="middle" fontSize={size * 0.18} fontStyle="italic" fontFamily="ui-serif, Georgia, serif" fontWeight={700} fill={STROKE}>-ing</text>
+      {/* stem */}
+      <path d={`M 0 ${r * 0.6} Q ${r * 0.04} ${r * 0.78} ${r * 0.02} ${r * 0.92}`} stroke="#5C7E4F" strokeWidth={1.6} fill="none" strokeLinecap="round" />
+    </g>
+  );
+}
+
+// MATH MOUNTAIN — bonds, drops, falls, and friends
+
+// Twin Blossoms — two flowers from the same stem (a "bond" of two
+// parts forming a whole). Replaces the 🌷 clip-art emoji.
+export function TwinBlossoms({ x, y, size = 60 }: IllustrationProps) {
+  const r = size / 2;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={r * 0.84} rx={r * 0.6} ry={r * 0.1} fill="#000" opacity={0.22} />
+      {/* main stem (the "whole") */}
+      <line x1={0} y1={r * 0.84} x2={0} y2={r * 0.16} stroke="#5C7E4F" strokeWidth={2.4} strokeLinecap="round" />
+      {/* split point — two stems branch out */}
+      <path d={`M 0 ${r * 0.16} Q ${-r * 0.06} ${-r * 0.04} ${-r * 0.32} ${-r * 0.18}`} stroke="#5C7E4F" strokeWidth={2} fill="none" strokeLinecap="round" />
+      <path d={`M 0 ${r * 0.16} Q ${r * 0.06} ${-r * 0.04} ${r * 0.32} ${-r * 0.18}`} stroke="#5C7E4F" strokeWidth={2} fill="none" strokeLinecap="round" />
+      {/* a leaf on the main stem */}
+      <ellipse cx={r * 0.18} cy={r * 0.46} rx={r * 0.18} ry={r * 0.08} fill="#7BA46F" stroke={STROKE} strokeWidth={1.2} transform={`rotate(20 ${r * 0.18} ${r * 0.46})`} />
+      {/* LEFT BLOSSOM — rose pink, 5 petals */}
+      <g transform={`translate(${-r * 0.36}, ${-r * 0.32})`}>
+        {[0, 72, 144, 216, 288].map(angle => (
+          <ellipse
+            key={`lp-${angle}`}
+            cx={0} cy={-r * 0.2}
+            rx={r * 0.14} ry={r * 0.2}
+            fill="#FFB7C5" stroke={STROKE} strokeWidth={1.4}
+            transform={`rotate(${angle})`}
+          />
+        ))}
+        <circle cx={0} cy={0} r={r * 0.1} fill="#FFD93D" stroke={STROKE} strokeWidth={1.2} />
+        <circle cx={0} cy={0} r={r * 0.04} fill="#5A3B1F" />
+      </g>
+      {/* RIGHT BLOSSOM — golden yellow, 5 petals */}
+      <g transform={`translate(${r * 0.36}, ${-r * 0.32})`}>
+        {[0, 72, 144, 216, 288].map(angle => (
+          <ellipse
+            key={`rp-${angle}`}
+            cx={0} cy={-r * 0.2}
+            rx={r * 0.14} ry={r * 0.2}
+            fill="#FFE89A" stroke={STROKE} strokeWidth={1.4}
+            transform={`rotate(${angle})`}
+          />
+        ))}
+        <circle cx={0} cy={0} r={r * 0.1} fill="#E89B6F" stroke={STROKE} strokeWidth={1.2} />
+        <circle cx={0} cy={0} r={r * 0.04} fill="#5A3B1F" />
+      </g>
+    </g>
+  );
+}
+
+// Leaf Drops — a branch with three leaves still attached and three
+// drifting down (visualises subtraction within 20).
+export function LeafDrops({ x, y, size = 60 }: IllustrationProps) {
+  const r = size / 2;
+  const LEAF_COLORS = ['#E8A87C', '#FFD93D', '#C38D9E'] as const;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={r * 0.86} rx={r * 0.7} ry={r * 0.08} fill="#000" opacity={0.22} />
+      {/* branch */}
+      <path d={`M ${-r * 0.78} ${-r * 0.42} Q ${-r * 0.2} ${-r * 0.46} ${r * 0.78} ${-r * 0.34}`}
+            stroke="#5A3B1F" strokeWidth={2.4} fill="none" strokeLinecap="round" />
+      {/* twigs */}
+      <line x1={-r * 0.5} y1={-r * 0.44} x2={-r * 0.56} y2={-r * 0.6} stroke="#5A3B1F" strokeWidth={1.4} strokeLinecap="round" />
+      <line x1={r * 0.2} y1={-r * 0.42} x2={r * 0.26} y2={-r * 0.58} stroke="#5A3B1F" strokeWidth={1.4} strokeLinecap="round" />
+      <line x1={r * 0.6} y1={-r * 0.36} x2={r * 0.66} y2={-r * 0.52} stroke="#5A3B1F" strokeWidth={1.4} strokeLinecap="round" />
+      {/* attached leaves on twigs */}
+      <ellipse cx={-r * 0.56} cy={-r * 0.66} rx={r * 0.16} ry={r * 0.1} fill="#E8A87C" stroke={STROKE} strokeWidth={1.4} transform={`rotate(-30 ${-r * 0.56} ${-r * 0.66})`} />
+      <ellipse cx={r * 0.26} cy={-r * 0.64} rx={r * 0.16} ry={r * 0.1} fill="#FFD93D" stroke={STROKE} strokeWidth={1.4} transform={`rotate(20 ${r * 0.26} ${-r * 0.64})`} />
+      <ellipse cx={r * 0.66} cy={-r * 0.58} rx={r * 0.14} ry={r * 0.09} fill="#7BA46F" stroke={STROKE} strokeWidth={1.4} transform={`rotate(-12 ${r * 0.66} ${-r * 0.58})`} />
+      {/* DRIFTING leaves below — three at different rotations */}
+      {[
+        { x: -r * 0.32, y: r * 0.12, rot: -25, c: LEAF_COLORS[0] },
+        { x: r * 0.04,  y: r * 0.5,  rot: 40,  c: LEAF_COLORS[1] },
+        { x: r * 0.42,  y: r * 0.3,  rot: -15, c: LEAF_COLORS[2] },
+      ].map((l, i) => (
+        <g key={`drift-${i}`} transform={`translate(${l.x}, ${l.y}) rotate(${l.rot})`}>
+          <path d={`M 0 ${-r * 0.18} Q ${r * 0.18} ${-r * 0.05} ${r * 0.12} ${r * 0.16} Q 0 ${r * 0.22} ${-r * 0.16} ${r * 0.1} Q ${-r * 0.18} ${-r * 0.06} 0 ${-r * 0.18} Z`}
+                fill={l.c} stroke={STROKE} strokeWidth={1.4} strokeLinejoin="round" />
+          <line x1={0} y1={-r * 0.16} x2={0} y2={r * 0.18} stroke={STROKE} strokeWidth={0.7} opacity={0.5} />
+        </g>
+      ))}
+      {/* tiny motion arcs hinting at the fall */}
+      <path d={`M ${-r * 0.18} ${-r * 0.18} Q ${-r * 0.28} 0 ${-r * 0.32} ${r * 0.06}`} stroke={STROKE} strokeWidth={0.8} fill="none" strokeLinecap="round" opacity={0.4} strokeDasharray="2 3" />
+      <path d={`M ${r * 0.16} ${-r * 0.18} Q ${r * 0.06} ${r * 0.16} ${r * 0.04} ${r * 0.42}`} stroke={STROKE} strokeWidth={0.8} fill="none" strokeLinecap="round" opacity={0.4} strokeDasharray="2 3" />
+    </g>
+  );
+}
+
+// Berry Basket — a small woven basket holding round berries.
+export function BerryBasket({ x, y, size = 60 }: IllustrationProps) {
+  const r = size / 2;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={r * 0.78} rx={r * 0.66} ry={r * 0.1} fill="#000" opacity={0.22} />
+      {/* basket — trapezoid with woven lines */}
+      <path d={`M ${-r * 0.55} ${r * 0.06} L ${r * 0.55} ${r * 0.06} L ${r * 0.45} ${r * 0.7} L ${-r * 0.45} ${r * 0.7} Z`}
+            fill="#A06B36" stroke={STROKE} strokeWidth={2} strokeLinejoin="round" />
+      <path d={`M ${-r * 0.5} ${r * 0.24} L ${r * 0.5} ${r * 0.24}`} stroke={STROKE} strokeWidth={0.9} opacity={0.65} />
+      <path d={`M ${-r * 0.48} ${r * 0.42} L ${r * 0.48} ${r * 0.42}`} stroke={STROKE} strokeWidth={0.9} opacity={0.65} />
+      <path d={`M ${-r * 0.46} ${r * 0.58} L ${r * 0.46} ${r * 0.58}`} stroke={STROKE} strokeWidth={0.9} opacity={0.65} />
+      {/* vertical weave hatches */}
+      <line x1={-r * 0.3} y1={r * 0.06} x2={-r * 0.34} y2={r * 0.7} stroke={STROKE} strokeWidth={0.7} opacity={0.5} />
+      <line x1={0} y1={r * 0.06} x2={0} y2={r * 0.7} stroke={STROKE} strokeWidth={0.7} opacity={0.5} />
+      <line x1={r * 0.3} y1={r * 0.06} x2={r * 0.34} y2={r * 0.7} stroke={STROKE} strokeWidth={0.7} opacity={0.5} />
+      {/* basket rim */}
+      <ellipse cx={0} cy={r * 0.06} rx={r * 0.55} ry={r * 0.1} fill="#B47845" stroke={STROKE} strokeWidth={1.6} />
+      {/* handle arc */}
+      <path d={`M ${-r * 0.5} ${r * 0.04} Q ${0} ${-r * 0.5} ${r * 0.5} ${r * 0.04}`}
+            stroke={STROKE} strokeWidth={2} fill="none" strokeLinecap="round" />
+      {/* berries — clusters of small purple/blue circles spilling out */}
+      <circle cx={-r * 0.22} cy={-r * 0.04} r={r * 0.12} fill="#5A4585" stroke={STROKE} strokeWidth={1.2} />
+      <circle cx={-r * 0.06} cy={-r * 0.12} r={r * 0.13} fill="#6B5A95" stroke={STROKE} strokeWidth={1.2} />
+      <circle cx={r * 0.14} cy={-r * 0.04} r={r * 0.12} fill="#5A4585" stroke={STROKE} strokeWidth={1.2} />
+      <circle cx={r * 0.28} cy={-r * 0.1} r={r * 0.11} fill="#6B5A95" stroke={STROKE} strokeWidth={1.2} />
+      {/* berry highlights */}
+      <circle cx={-r * 0.24} cy={-r * 0.08} r={r * 0.04} fill="#A89BC5" opacity={0.85} />
+      <circle cx={-r * 0.08} cy={-r * 0.16} r={r * 0.04} fill="#B5AAD0" opacity={0.85} />
+      <circle cx={r * 0.12} cy={-r * 0.08} r={r * 0.04} fill="#A89BC5" opacity={0.85} />
+      <circle cx={r * 0.26} cy={-r * 0.14} r={r * 0.035} fill="#B5AAD0" opacity={0.85} />
+      {/* tiny leaf garnish */}
+      <ellipse cx={r * 0.04} cy={-r * 0.22} rx={r * 0.06} ry={r * 0.04} fill="#7BA46F" stroke={STROKE} strokeWidth={0.8} transform={`rotate(-20 ${r * 0.04} ${-r * 0.22})`} />
+    </g>
+  );
+}
+
+// Quiet Pond — single lily pad with a soft pink bloom.
+export function QuietPond({ x, y, size = 60 }: IllustrationProps) {
+  const r = size / 2;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={r * 0.7} rx={r * 0.66} ry={r * 0.1} fill="#000" opacity={0.18} />
+      {/* water surface oval */}
+      <ellipse cx={0} cy={r * 0.5} rx={r * 0.78} ry={r * 0.22} fill="#A8CDD2" stroke={STROKE} strokeWidth={1.6} />
+      <ellipse cx={0} cy={r * 0.46} rx={r * 0.62} ry={r * 0.14} fill="#C5E0E4" />
+      {/* concentric ripples */}
+      <ellipse cx={r * 0.16} cy={r * 0.5} rx={r * 0.32} ry={r * 0.08} fill="none" stroke="#FFFFFF" strokeWidth={0.9} opacity={0.65} />
+      <ellipse cx={r * 0.16} cy={r * 0.5} rx={r * 0.18} ry={r * 0.05} fill="none" stroke="#FFFFFF" strokeWidth={0.9} opacity={0.55} />
+      {/* lily pad — flat dark green disk with notch */}
+      <path d={`M ${-r * 0.5} ${r * 0.34} Q ${-r * 0.5} ${r * 0.04} ${-r * 0.04} ${r * 0.0} Q ${r * 0.42} ${r * 0.04} ${r * 0.4} ${r * 0.36} Q ${0} ${r * 0.5} ${-r * 0.5} ${r * 0.34} Z`}
+            fill="#5C8A5A" stroke={STROKE} strokeWidth={1.6} strokeLinejoin="round" />
+      <path d={`M ${-r * 0.04} ${r * 0.26} L ${r * 0.04} ${r * 0.0}`} stroke={STROKE} strokeWidth={1} opacity={0.5} />
+      {/* lily flower */}
+      <g transform={`translate(${-r * 0.06}, ${-r * 0.18})`}>
+        {[0, 60, 120, 180, 240, 300].map(a => (
+          <ellipse key={`lily-${a}`} cx={0} cy={-r * 0.16} rx={r * 0.1} ry={r * 0.18} fill="#FFB7C5" stroke={STROKE} strokeWidth={1.2} transform={`rotate(${a})`} />
+        ))}
+        <circle cx={0} cy={0} r={r * 0.07} fill="#FFD93D" stroke={STROKE} strokeWidth={1.1} />
+      </g>
+    </g>
+  );
+}
+
+// Sharing Squirrels — a squirrel sitting beside three tidy stacks of
+// acorns (the "shares" of equal division).
+export function SharingSquirrels({ x, y, size = 60 }: IllustrationProps) {
+  const r = size / 2;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={r * 0.86} rx={r * 0.74} ry={r * 0.1} fill="#000" opacity={0.22} />
+      {/* SQUIRREL — body */}
+      <g transform={`translate(${-r * 0.32}, 0)`}>
+        {/* tail — big curling fluff */}
+        <path d={`M ${-r * 0.4} ${r * 0.06} Q ${-r * 0.7} ${-r * 0.4} ${-r * 0.36} ${-r * 0.6} Q ${-r * 0.04} ${-r * 0.4} ${-r * 0.08} ${-r * 0.04}`}
+              fill="#A06B36" stroke={STROKE} strokeWidth={1.8} strokeLinejoin="round" />
+        <path d={`M ${-r * 0.5} ${-r * 0.16} Q ${-r * 0.42} ${-r * 0.4} ${-r * 0.22} ${-r * 0.42}`}
+              stroke="#7A4A1F" strokeWidth={0.9} fill="none" opacity={0.6} />
+        {/* body */}
+        <ellipse cx={0} cy={r * 0.32} rx={r * 0.22} ry={r * 0.28} fill="#A06B36" stroke={STROKE} strokeWidth={1.8} />
+        {/* belly */}
+        <ellipse cx={r * 0.04} cy={r * 0.4} rx={r * 0.14} ry={r * 0.18} fill="#D4A88A" />
+        {/* head */}
+        <ellipse cx={r * 0.06} cy={r * 0.04} rx={r * 0.16} ry={r * 0.14} fill="#A06B36" stroke={STROKE} strokeWidth={1.6} />
+        {/* ear */}
+        <ellipse cx={r * 0.0} cy={-r * 0.08} rx={r * 0.05} ry={r * 0.06} fill="#A06B36" stroke={STROKE} strokeWidth={1.2} />
+        {/* eye */}
+        <circle cx={r * 0.1} cy={r * 0.0} r={r * 0.02} fill={STROKE} />
+        {/* nose */}
+        <circle cx={r * 0.18} cy={r * 0.06} r={r * 0.018} fill={STROKE} />
+        {/* paw holding an acorn */}
+        <ellipse cx={r * 0.18} cy={r * 0.32} rx={r * 0.06} ry={r * 0.04} fill="#A06B36" stroke={STROKE} strokeWidth={1} />
+        <ellipse cx={r * 0.22} cy={r * 0.3} rx={r * 0.05} ry={r * 0.07} fill="#7A4A1F" stroke={STROKE} strokeWidth={1} />
+      </g>
+      {/* THREE ACORN STACKS — equal shares */}
+      {[0.18, 0.42, 0.66].map((xPct, i) => (
+        <g key={`stack-${i}`} transform={`translate(${r * xPct}, ${r * 0.6})`}>
+          <ellipse cx={0} cy={r * 0.06} rx={r * 0.1} ry={r * 0.04} fill="#000" opacity={0.18} />
+          {/* base acorn */}
+          <ellipse cx={0} cy={0} rx={r * 0.08} ry={r * 0.1} fill="#7A4A1F" stroke={STROKE} strokeWidth={1.2} />
+          <path d={`M ${-r * 0.08} ${-r * 0.08} Q 0 ${-r * 0.16} ${r * 0.08} ${-r * 0.08}`}
+                stroke={STROKE} strokeWidth={1.1} fill="#5A3B1F" strokeLinejoin="round" />
+          {/* top acorn */}
+          <ellipse cx={0} cy={-r * 0.18} rx={r * 0.07} ry={r * 0.09} fill="#7A4A1F" stroke={STROKE} strokeWidth={1.1} />
+          <path d={`M ${-r * 0.07} ${-r * 0.24} Q 0 ${-r * 0.32} ${r * 0.07} ${-r * 0.24}`}
+                stroke={STROKE} strokeWidth={1} fill="#5A3B1F" strokeLinejoin="round" />
+        </g>
+      ))}
+    </g>
+  );
+}
+
+// Garden Clock — a hand-drawn clock face on a sunflower.
+export function GardenClock({ x, y, size = 60 }: IllustrationProps) {
+  const r = size / 2;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={r * 0.84} rx={r * 0.66} ry={r * 0.1} fill="#000" opacity={0.22} />
+      {/* sunflower petals around the back */}
+      {[0, 40, 80, 120, 160, 200, 240, 280, 320].map(a => (
+        <ellipse
+          key={`petal-${a}`}
+          cx={0} cy={-r * 0.5}
+          rx={r * 0.16} ry={r * 0.32}
+          fill="#FFD06B" stroke={STROKE} strokeWidth={1.4}
+          transform={`rotate(${a})`}
+        />
+      ))}
+      {/* clock face — cream disc on the sunflower's center */}
+      <circle cx={0} cy={0} r={r * 0.46} fill="#FFFAF2" stroke={STROKE} strokeWidth={2} />
+      {/* hour marks at 12, 3, 6, 9 */}
+      <line x1={0} y1={-r * 0.4} x2={0} y2={-r * 0.32} stroke={STROKE} strokeWidth={1.4} strokeLinecap="round" />
+      <line x1={r * 0.4} y1={0} x2={r * 0.32} y2={0} stroke={STROKE} strokeWidth={1.4} strokeLinecap="round" />
+      <line x1={0} y1={r * 0.4} x2={0} y2={r * 0.32} stroke={STROKE} strokeWidth={1.4} strokeLinecap="round" />
+      <line x1={-r * 0.4} y1={0} x2={-r * 0.32} y2={0} stroke={STROKE} strokeWidth={1.4} strokeLinecap="round" />
+      {/* hands — pointing to 2 o'clock-ish */}
+      <line x1={0} y1={0} x2={r * 0.18} y2={-r * 0.18} stroke={STROKE} strokeWidth={2.2} strokeLinecap="round" />
+      <line x1={0} y1={0} x2={r * 0.04} y2={-r * 0.32} stroke={STROKE} strokeWidth={1.4} strokeLinecap="round" />
+      {/* center dot */}
+      <circle cx={0} cy={0} r={r * 0.05} fill={STROKE} />
+      {/* tiny stem + leaf at the bottom */}
+      <line x1={0} y1={r * 0.46} x2={0} y2={r * 0.78} stroke="#5C7E4F" strokeWidth={2} strokeLinecap="round" />
+      <ellipse cx={r * 0.16} cy={r * 0.66} rx={r * 0.14} ry={r * 0.06} fill="#7BA46F" stroke={STROKE} strokeWidth={1.2} transform={`rotate(20 ${r * 0.16} ${r * 0.66})`} />
+    </g>
+  );
+}
+
+// Sundial — an angled stone gnomon casting a shadow on a flat plate.
+export function Sundial({ x, y, size = 60 }: IllustrationProps) {
+  const r = size / 2;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={r * 0.86} rx={r * 0.7} ry={r * 0.1} fill="#000" opacity={0.22} />
+      {/* base pillar */}
+      <rect x={-r * 0.18} y={r * 0.16} width={r * 0.36} height={r * 0.6} fill="#8A7E6C" stroke={STROKE} strokeWidth={1.6} />
+      <line x1={-r * 0.16} y1={r * 0.34} x2={r * 0.16} y2={r * 0.34} stroke={STROKE} strokeWidth={0.8} opacity={0.5} />
+      <line x1={-r * 0.16} y1={r * 0.54} x2={r * 0.16} y2={r * 0.54} stroke={STROKE} strokeWidth={0.8} opacity={0.5} />
+      {/* sundial plate — circular dial seen from above */}
+      <ellipse cx={0} cy={r * 0.16} rx={r * 0.6} ry={r * 0.18} fill="#A89D8A" stroke={STROKE} strokeWidth={1.8} />
+      <ellipse cx={0} cy={r * 0.12} rx={r * 0.5} ry={r * 0.14} fill="#C2B4A0" />
+      {/* hour ticks around the dial rim */}
+      {[-60, -30, 0, 30, 60].map(a => {
+        const rad = (a * Math.PI) / 180;
+        const x1 = Math.cos(rad) * r * 0.5;
+        const x2 = Math.cos(rad) * r * 0.42;
+        const y1 = r * 0.12 + Math.sin(rad) * r * 0.14;
+        const y2 = r * 0.12 + Math.sin(rad) * r * 0.118;
+        return <line key={`tick-${a}`} x1={x1} y1={y1} x2={x2} y2={y2} stroke={STROKE} strokeWidth={1} />;
+      })}
+      {/* gnomon — triangular shadow caster */}
+      <path d={`M ${-r * 0.1} ${r * 0.12} L ${r * 0.16} ${-r * 0.4} L ${r * 0.16} ${r * 0.12} Z`}
+            fill="#5A4533" stroke={STROKE} strokeWidth={1.6} strokeLinejoin="round" />
+      {/* shadow cast by the gnomon */}
+      <path d={`M ${-r * 0.06} ${r * 0.16} L ${-r * 0.36} ${r * 0.04} L ${-r * 0.42} ${r * 0.16} Z`}
+            fill="#5A4533" opacity={0.45} stroke={STROKE} strokeWidth={0.6} strokeLinejoin="round" />
+    </g>
+  );
+}
+
+// Hourglass — wooden frame with sand running through.
+export function Hourglass({ x, y, size = 60 }: IllustrationProps) {
+  const r = size / 2;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={r * 0.86} rx={r * 0.6} ry={r * 0.08} fill="#000" opacity={0.22} />
+      {/* top + bottom wooden caps */}
+      <rect x={-r * 0.5} y={-r * 0.7} width={r} height={r * 0.14} rx={r * 0.04} fill="#8B5A2B" stroke={STROKE} strokeWidth={1.6} />
+      <rect x={-r * 0.5} y={r * 0.56} width={r} height={r * 0.14} rx={r * 0.04} fill="#8B5A2B" stroke={STROKE} strokeWidth={1.6} />
+      {/* wooden side rails */}
+      <line x1={-r * 0.42} y1={-r * 0.56} x2={-r * 0.42} y2={r * 0.56} stroke={STROKE} strokeWidth={1.6} />
+      <line x1={r * 0.42} y1={-r * 0.56} x2={r * 0.42} y2={r * 0.56} stroke={STROKE} strokeWidth={1.6} />
+      {/* glass bulbs — two cones meeting at narrow waist */}
+      <path d={`M ${-r * 0.36} ${-r * 0.56} L ${r * 0.36} ${-r * 0.56} L ${r * 0.06} ${0} L ${-r * 0.06} ${0} Z`}
+            fill="#E0F0F4" stroke={STROKE} strokeWidth={1.6} fillOpacity={0.6} strokeLinejoin="round" />
+      <path d={`M ${-r * 0.06} ${0} L ${r * 0.06} ${0} L ${r * 0.36} ${r * 0.56} L ${-r * 0.36} ${r * 0.56} Z`}
+            fill="#E0F0F4" stroke={STROKE} strokeWidth={1.6} fillOpacity={0.6} strokeLinejoin="round" />
+      {/* upper sand pile (mostly drained) */}
+      <path d={`M ${-r * 0.32} ${-r * 0.5} L ${r * 0.32} ${-r * 0.5} L ${r * 0.06} ${-r * 0.18} L ${-r * 0.06} ${-r * 0.18} Z`}
+            fill="#E8C493" stroke={STROKE} strokeWidth={0.8} strokeLinejoin="round" />
+      {/* sand stream — thin yellow line through the waist */}
+      <line x1={0} y1={-r * 0.18} x2={0} y2={r * 0.32} stroke="#E8C493" strokeWidth={1.6} strokeLinecap="round" />
+      <line x1={0} y1={-r * 0.18} x2={0} y2={r * 0.32} stroke="#FFD06B" strokeWidth={0.7} strokeLinecap="round" />
+      {/* bottom sand pile (mostly filled) */}
+      <path d={`M ${-r * 0.32} ${r * 0.52} L ${r * 0.32} ${r * 0.52} L ${r * 0.32} ${r * 0.42} Q 0 ${r * 0.28} ${-r * 0.32} ${r * 0.42} Z`}
+            fill="#E8C493" stroke={STROKE} strokeWidth={0.8} strokeLinejoin="round" />
+    </g>
+  );
+}
+
+// Even & Odd Stones — paired and unpaired pebbles on a flat ground.
+export function EvenOddStones({ x, y, size = 60 }: IllustrationProps) {
+  const r = size / 2;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={r * 0.7} rx={r * 0.78} ry={r * 0.12} fill="#000" opacity={0.2} />
+      {/* ground band */}
+      <ellipse cx={0} cy={r * 0.6} rx={r * 0.82} ry={r * 0.14} fill="#A89D8A" opacity={0.55} />
+      {/* PAIRED stones (left) — even */}
+      <ellipse cx={-r * 0.5} cy={r * 0.4} rx={r * 0.18} ry={r * 0.12} fill="#8A7E6C" stroke={STROKE} strokeWidth={1.4} />
+      <ellipse cx={-r * 0.5} cy={r * 0.34} rx={r * 0.12} ry={r * 0.05} fill="#A89D8A" />
+      <ellipse cx={-r * 0.5} cy={r * 0.18} rx={r * 0.18} ry={r * 0.12} fill="#9B948A" stroke={STROKE} strokeWidth={1.4} />
+      <ellipse cx={-r * 0.5} cy={r * 0.12} rx={r * 0.12} ry={r * 0.05} fill="#B5ACA0" />
+      {/* MIDDLE stones — even pair */}
+      <ellipse cx={0} cy={r * 0.4} rx={r * 0.18} ry={r * 0.12} fill="#8A7E6C" stroke={STROKE} strokeWidth={1.4} />
+      <ellipse cx={0} cy={r * 0.34} rx={r * 0.12} ry={r * 0.05} fill="#A89D8A" />
+      {/* RIGHT stone — single (odd) */}
+      <ellipse cx={r * 0.5} cy={r * 0.4} rx={r * 0.18} ry={r * 0.12} fill="#7F7468" stroke={STROKE} strokeWidth={1.4} />
+      <ellipse cx={r * 0.5} cy={r * 0.34} rx={r * 0.12} ry={r * 0.05} fill="#9B948A" />
+      {/* tiny equality marks — paired stones get a "=" hint */}
+      <text x={-r * 0.5} y={-r * 0.12} textAnchor="middle" fontSize={size * 0.18} fontStyle="italic" fontFamily="ui-serif, Georgia, serif" fontWeight={700} fill={STROKE}>=</text>
+      <text x={r * 0.5} y={-r * 0.12} textAnchor="middle" fontSize={size * 0.2} fontStyle="italic" fontFamily="ui-serif, Georgia, serif" fontWeight={700} fill={STROKE}>?</text>
+    </g>
+  );
+}
+
+// Pebble Coins — a small leather pouch spilling little ringed pebbles.
+export function PebbleCoins({ x, y, size = 60 }: IllustrationProps) {
+  const r = size / 2;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={r * 0.84} rx={r * 0.7} ry={r * 0.1} fill="#000" opacity={0.22} />
+      {/* leather pouch */}
+      <path d={`M ${-r * 0.36} ${0} Q ${-r * 0.5} ${r * 0.5} ${0} ${r * 0.62} Q ${r * 0.5} ${r * 0.5} ${r * 0.36} ${0} Z`}
+            fill="#A06B36" stroke={STROKE} strokeWidth={2} strokeLinejoin="round" />
+      <path d={`M ${-r * 0.32} 0 L ${r * 0.32} 0`} stroke={STROKE} strokeWidth={1.2} opacity={0.6} />
+      {/* drawstring */}
+      <path d={`M ${-r * 0.18} ${-r * 0.04} Q 0 ${-r * 0.18} ${r * 0.18} ${-r * 0.04}`} stroke={STROKE} strokeWidth={1.4} fill="none" strokeLinecap="round" />
+      <circle cx={0} cy={-r * 0.16} r={r * 0.04} fill="#5A3B1F" />
+      {/* PEBBLE COINS — circular stones with a center hole, spilling */}
+      {[
+        { x: -r * 0.6, y: r * 0.66, rot: -10 },
+        { x: -r * 0.46, y: r * 0.78, rot: 14 },
+        { x: r * 0.5, y: r * 0.7, rot: 8 },
+        { x: r * 0.66, y: r * 0.78, rot: -16 },
+      ].map((p, i) => (
+        <g key={`pc-${i}`} transform={`translate(${p.x}, ${p.y}) rotate(${p.rot})`}>
+          <circle cx={0} cy={0} r={r * 0.13} fill="#C2B4A0" stroke={STROKE} strokeWidth={1.4} />
+          <circle cx={0} cy={0} r={r * 0.05} fill="#5A4533" />
+          <circle cx={-r * 0.04} cy={-r * 0.04} r={r * 0.04} fill="#D6C9B3" opacity={0.9} />
+        </g>
+      ))}
+    </g>
+  );
+}
+
+// Pie Slices — a pie viewed from above, sliced into equal pieces.
+export function PieSlices({ x, y, size = 60 }: IllustrationProps) {
+  const r = size / 2;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={r * 0.78} rx={r * 0.7} ry={r * 0.1} fill="#000" opacity={0.22} />
+      {/* outer crust */}
+      <ellipse cx={0} cy={r * 0.1} rx={r * 0.78} ry={r * 0.66} fill="#C68A4F" stroke={STROKE} strokeWidth={2} />
+      {/* filling */}
+      <ellipse cx={0} cy={r * 0.1} rx={r * 0.66} ry={r * 0.54} fill="#E8A87C" stroke={STROKE} strokeWidth={1.2} />
+      {/* slice lines (4 cuts, 8 pieces) */}
+      <line x1={0} y1={-r * 0.44} x2={0} y2={r * 0.64} stroke={STROKE} strokeWidth={1.4} />
+      <line x1={-r * 0.66} y1={r * 0.1} x2={r * 0.66} y2={r * 0.1} stroke={STROKE} strokeWidth={1.4} />
+      <line x1={-r * 0.46} y1={-r * 0.32} x2={r * 0.46} y2={r * 0.52} stroke={STROKE} strokeWidth={1.2} opacity={0.85} />
+      <line x1={r * 0.46} y1={-r * 0.32} x2={-r * 0.46} y2={r * 0.52} stroke={STROKE} strokeWidth={1.2} opacity={0.85} />
+      {/* fruit dollops on top */}
+      <circle cx={-r * 0.32} cy={-r * 0.2} r={r * 0.08} fill="#C38D9E" stroke={STROKE} strokeWidth={0.9} />
+      <circle cx={r * 0.28} cy={r * 0.0} r={r * 0.08} fill="#C38D9E" stroke={STROKE} strokeWidth={0.9} />
+      <circle cx={-r * 0.04} cy={r * 0.36} r={r * 0.08} fill="#C38D9E" stroke={STROKE} strokeWidth={0.9} />
+    </g>
+  );
+}
+
+
+// ─────────────────────────────────────────────────────────────────────────
 // ROUTER — pick the right illustration for a structure code
 // ─────────────────────────────────────────────────────────────────────────
 
@@ -1385,6 +2049,28 @@ export function StructureIllustration({
     case 'math_array_orchard':       return <ButterflyClusters x={x} y={y} size={size * 1.1} />;
     case 'math_compare_trees':       return <PartWholeFlower x={x} y={y} size={size * 1.05} />;
     case 'math_word_stories':        return <GardenStories x={x} y={y} size={size * 1.2} />;
+    // Phase-3 bespoke illustrations — replace clip-art emoji on branches
+    case 'reading_compound_nest':    return <CompoundNest x={x} y={y} size={size * 1.05} />;
+    case 'reading_plurals_patch':    return <PluralsPatch x={x} y={y} size={size * 1.1} />;
+    case 'reading_prefix_acorns':    return <PrefixAcorns x={x} y={y} size={size * 1.1} />;
+    case 'reading_silent_e_spring':  return <SilentESpring x={x} y={y} size={size * 1.05} />;
+    case 'reading_vowel_team_ee':    return <VowelTeamLeaves x={x} y={y} size={size} team="ee" />;
+    case 'reading_vowel_team_ai':    return <VowelTeamLeaves x={x} y={y} size={size} team="ai" />;
+    case 'reading_vowel_team_oa':    return <VowelTeamLeaves x={x} y={y} size={size} team="oa" />;
+    case 'reading_r_controlled':     return <RControlledReins x={x} y={y} size={size} />;
+    case 'reading_diphthong_shell':  return <DiphthongShell x={x} y={y} size={size} />;
+    case 'reading_word_endings':     return <WordEndingsLeaf x={x} y={y} size={size} />;
+    case 'math_twin_blossoms':       return <TwinBlossoms x={x} y={y} size={size * 1.05} />;
+    case 'math_leaf_drops':          return <LeafDrops x={x} y={y} size={size * 1.1} />;
+    case 'math_berry_basket':        return <BerryBasket x={x} y={y} size={size} />;
+    case 'math_quiet_pond':          return <QuietPond x={x} y={y} size={size} />;
+    case 'math_sharing_squirrels':   return <SharingSquirrels x={x} y={y} size={size * 1.05} />;
+    case 'math_garden_clock':        return <GardenClock x={x} y={y} size={size} />;
+    case 'math_sundial':             return <Sundial x={x} y={y} size={size} />;
+    case 'math_hourglass':           return <Hourglass x={x} y={y} size={size} />;
+    case 'math_even_odd_stones':     return <EvenOddStones x={x} y={y} size={size} />;
+    case 'math_pebble_coins':        return <PebbleCoins x={x} y={y} size={size} />;
+    case 'math_pie_slices':          return <PieSlices x={x} y={y} size={size} />;
     default:                         return null;
   }
 }

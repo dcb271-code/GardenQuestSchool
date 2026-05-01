@@ -91,17 +91,31 @@ interface MathMountainSceneProps {
 const W = BRANCH_MAP_WIDTH;   // 1440
 const H = BRANCH_MAP_HEIGHT;  // 800
 
-// Maps branch structure codes → an existing StructureIllustration code
-// when the underlying skill is the same or thematically equivalent.
+// Maps branch structure codes → an existing StructureIllustration code.
+// Every Mountain skill should resolve to a bespoke hand-drawn
+// illustration here; the themeEmoji fallback is only for emergencies.
 const ILLUSTRATION_ALIAS: Record<string, string> = {
-  mm_butterfly_make10: 'math_butterfly_arrays',
-  mm_array_orchard:    'math_array_orchard',
-  mm_hundreds_hollow:  'math_hundreds_hollow',
-  mm_tens_tower:       'math_tens_tower',
-  mm_compare_trees:    'math_compare_trees',
-  mm_stories_plus:     'math_word_stories',
-  mm_stories_minus:    'math_word_stories',
-  mm_long_stories:     'math_word_stories',
+  mm_butterfly_make10:  'math_butterfly_arrays',
+  mm_array_orchard:     'math_array_orchard',
+  mm_hundreds_hollow:   'math_hundreds_hollow',
+  mm_tens_tower:        'math_tens_tower',
+  mm_compare_trees:     'math_compare_trees',
+  mm_stories_plus:      'math_word_stories',
+  mm_stories_minus:     'math_word_stories',
+  mm_long_stories:      'math_word_stories',
+  // Phase-3 hand-drawn illustrations
+  mm_twin_bonds:        'math_twin_blossoms',
+  mm_leaf_drops:        'math_leaf_drops',
+  mm_berry_basket:      'math_berry_basket',
+  mm_quiet_pond:        'math_quiet_pond',
+  mm_sharing_squirrels: 'math_sharing_squirrels',
+  mm_garden_clock:      'math_garden_clock',
+  mm_sundial:           'math_sundial',
+  mm_hourglass:         'math_hourglass',
+  mm_even_odd:          'math_even_odd_stones',
+  mm_pebble_coins:      'math_pebble_coins',
+  mm_pie_slices:        'math_pie_slices',
+  mm_bigger_slice:      'math_pie_slices',
 };
 
 // HABITAT GROUPS — clusters that consolidate into ONE marker by default.
