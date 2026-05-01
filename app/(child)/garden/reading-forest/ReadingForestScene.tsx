@@ -526,61 +526,85 @@ export default function ReadingForestScene({
           );
         })()}
 
-        {/* ── 10b. FOOTBRIDGES — where path A crosses the brook ──
-             Path A descends from the glade NE toward the Digraph
-             Bridge; in doing so it crosses the brook around x:380.
-             Path B drops from Diphthong Cove SE through the morphology
-             grove and crosses the brook around x:1210. Without bridges
-             the tan path painted directly over the blue brook —
-             readable to an adult, but a kid asked "where's the bridge?"
-             Two small wooden footbridges now span those crossings. */}
+        {/* ── 10b. FOOTBRIDGES — where paths cross the brook ──
+             The brook flows EAST-WEST. A bridge over it must span
+             NORTH-SOUTH (perpendicular to the flow), not east-west.
+             Previous bridges had the deck running east-west which read
+             as "flat plank floating along the water" rather than
+             "spanning across it." Now they're proper north-south
+             decks with the brook flowing under them.
+
+             Crossing points (computed from path/brook intersection):
+               Path A descends NE from the glade and crosses brook at
+               approx (363, 393).
+               Path B drops SE from Diphthong Cove and crosses brook
+               at approx (1215, 453). */}
         {([
-          { cx: 380, cy: 386, halfW: 30, key: 'fb-glade' },
-          { cx: 1210, cy: 452, halfW: 30, key: 'fb-grove' },
-        ] as const).map(b => (
-          <g key={b.key} pointerEvents="none">
-            {/* under-arch shadow on the water */}
-            <path
-              d={`M ${b.cx - b.halfW} ${b.cy + 6}
-                  C ${b.cx - b.halfW * 0.5} ${b.cy + 12}, ${b.cx + b.halfW * 0.5} ${b.cy + 12}, ${b.cx + b.halfW} ${b.cy + 6}`}
-              stroke="#000" strokeWidth={2.5} fill="none" opacity={0.22} strokeLinecap="round"
-            />
-            {/* abutment posts at each end */}
-            <rect x={b.cx - b.halfW - 3} y={b.cy - 4} width={5} height={12} fill="#5A3B1F" stroke="#3F2614" strokeWidth={0.9} />
-            <rect x={b.cx + b.halfW - 2} y={b.cy - 4} width={5} height={12} fill="#5A3B1F" stroke="#3F2614" strokeWidth={0.9} />
-            {/* deck — slight arch */}
-            <path
-              d={`M ${b.cx - b.halfW} ${b.cy}
-                  Q ${b.cx} ${b.cy - 6} ${b.cx + b.halfW} ${b.cy}
-                  L ${b.cx + b.halfW} ${b.cy + 4}
-                  Q ${b.cx} ${b.cy - 2} ${b.cx - b.halfW} ${b.cy + 4} Z`}
-              fill="#A06B36" stroke="#5A3B1F" strokeWidth={1.4} strokeLinejoin="round"
-            />
-            {/* plank lines */}
-            <line x1={b.cx - b.halfW * 0.5} y1={b.cy - 3.5} x2={b.cx - b.halfW * 0.5} y2={b.cy + 3} stroke="#5A3B1F" strokeWidth={0.6} opacity={0.6} />
-            <line x1={b.cx} y1={b.cy - 5} x2={b.cx} y2={b.cy + 2} stroke="#5A3B1F" strokeWidth={0.6} opacity={0.6} />
-            <line x1={b.cx + b.halfW * 0.5} y1={b.cy - 3.5} x2={b.cx + b.halfW * 0.5} y2={b.cy + 3} stroke="#5A3B1F" strokeWidth={0.6} opacity={0.6} />
-            {/* railing posts (4) */}
-            <line x1={b.cx - b.halfW * 0.7} y1={b.cy - 2} x2={b.cx - b.halfW * 0.7} y2={b.cy - 9} stroke="#5A3B1F" strokeWidth={1.1} strokeLinecap="round" />
-            <line x1={b.cx - b.halfW * 0.25} y1={b.cy - 4} x2={b.cx - b.halfW * 0.25} y2={b.cy - 11} stroke="#5A3B1F" strokeWidth={1.1} strokeLinecap="round" />
-            <line x1={b.cx + b.halfW * 0.25} y1={b.cy - 4} x2={b.cx + b.halfW * 0.25} y2={b.cy - 11} stroke="#5A3B1F" strokeWidth={1.1} strokeLinecap="round" />
-            <line x1={b.cx + b.halfW * 0.7} y1={b.cy - 2} x2={b.cx + b.halfW * 0.7} y2={b.cy - 9} stroke="#5A3B1F" strokeWidth={1.1} strokeLinecap="round" />
-            {/* railing top rail — gentle arch */}
-            <path
-              d={`M ${b.cx - b.halfW * 0.7} ${b.cy - 9}
-                  Q ${b.cx} ${b.cy - 12} ${b.cx + b.halfW * 0.7} ${b.cy - 9}`}
-              stroke="#5A3B1F" strokeWidth={1.3} fill="none" strokeLinecap="round"
-            />
-          </g>
-        ))}
+          { cx: 363, cy: 393, halfH: 22, key: 'fb-glade' },
+          { cx: 1215, cy: 453, halfH: 22, key: 'fb-grove' },
+        ] as const).map(b => {
+          const deckW = 18;          // deck thickness east-west
+          const northY = b.cy - b.halfH;
+          const southY = b.cy + b.halfH;
+          const eastX = b.cx + deckW / 2;
+          const westX = b.cx - deckW / 2;
+          return (
+            <g key={b.key} pointerEvents="none">
+              {/* drop shadow on the water under the deck */}
+              <ellipse cx={b.cx} cy={b.cy + 4} rx={deckW * 1.05} ry={b.halfH + 2} fill="#000" opacity={0.18} />
+              {/* abutment posts on each bank */}
+              <rect x={westX - 3} y={northY - 5} width={deckW + 6} height={5} rx={1} fill="#5A3B1F" stroke="#3F2614" strokeWidth={0.9} />
+              <rect x={westX - 3} y={southY} width={deckW + 6} height={5} rx={1} fill="#5A3B1F" stroke="#3F2614" strokeWidth={0.9} />
+              {/* deck base (darker wood) */}
+              <rect x={westX - 1.5} y={northY} width={deckW + 3} height={2 * b.halfH} fill="#7A5A3A" stroke="#3F2614" strokeWidth={1.2} />
+              {/* deck top (lighter plank surface) */}
+              <rect x={westX} y={northY} width={deckW} height={2 * b.halfH} fill="#A06B36" stroke="#5A3B1F" strokeWidth={1} />
+              {/* horizontal plank cross-lines */}
+              {Array.from({ length: 4 }, (_, i) => {
+                const py = northY + 4 + i * 10;
+                return (
+                  <line
+                    key={`fbpl-${b.key}-${i}`}
+                    x1={westX + 1} y1={py} x2={eastX - 1} y2={py}
+                    stroke="#5A3B1F" strokeWidth={0.7} opacity={0.6}
+                  />
+                );
+              })}
+              {/* WEST + EAST railings — vertical lines along the deck */}
+              <line x1={westX - 4} y1={northY + 2} x2={westX - 4} y2={southY - 2}
+                    stroke="#5A3B1F" strokeWidth={1.3} strokeLinecap="round" />
+              <line x1={eastX + 4} y1={northY + 2} x2={eastX + 4} y2={southY - 2}
+                    stroke="#5A3B1F" strokeWidth={1.3} strokeLinecap="round" />
+              {/* spindles connecting railings to deck (3 along each side) */}
+              {[0.25, 0.5, 0.75].map((t, i) => {
+                const py = northY + 2 * b.halfH * t;
+                return (
+                  <g key={`fbsp-${b.key}-${i}`}>
+                    <line x1={westX} y1={py} x2={westX - 4} y2={py - 1}
+                          stroke="#5A3B1F" strokeWidth={0.8} strokeLinecap="round" />
+                    <line x1={eastX} y1={py} x2={eastX + 4} y2={py - 1}
+                          stroke="#5A3B1F" strokeWidth={0.8} strokeLinecap="round" />
+                  </g>
+                );
+              })}
+            </g>
+          );
+        })}
 
         {/* ── Garden exit signpost at right edge ──
-             Arrow points RIGHT — the central garden is east of the
-             forest, so to walk back to it you walk right off the
-             screen. Sign uses the same font family + weight as the
-             structure labels so it reads as part of the same world,
-             not a stranger label. */}
-        <g transform="translate(1408, 258)" pointerEvents="none">
+             Arrow points RIGHT and the whole sign is CLICKABLE — taps
+             route back to /garden. Central garden is east of the
+             forest, so to walk home you go right. */}
+        <g
+          transform="translate(1408, 258)"
+          style={{ cursor: 'pointer', touchAction: 'manipulation' }}
+          onClick={() => router.push(`/garden?learner=${learnerId}`)}
+          role="button"
+          aria-label="back to garden"
+          tabIndex={0}
+        >
+          {/* invisible hit target — generous enough to fit a finger */}
+          <rect x={-44} y={-44} width={92} height={64} fill="transparent" />
           {/* wooden post — slight shadow so it sits on the ground */}
           <ellipse cx={0} cy={10} rx={9} ry={2.4} fill="#000" opacity={0.22} />
           <rect x={-3} y={-22} width={6} height={32} rx={2} fill="#8B5A2B" stroke="#5A3B1F" strokeWidth={1.2} />
