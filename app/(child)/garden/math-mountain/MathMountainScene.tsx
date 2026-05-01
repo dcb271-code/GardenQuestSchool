@@ -507,11 +507,10 @@ export default function MathMountainScene({
         <g
           style={{ cursor: 'pointer', touchAction: 'manipulation' }}
           onClick={() => router.push(`/garden/habitat/operations_cave?learner=${learnerId}`)}
-          // Cave at 50% size, positioned with its right-edge mouth
-          // at x:148 — exactly where the river starts. The river is
-          // the source of the watercourse and visibly emerges from
-          // the cave's dark interior.
-          transform="translate(73, 370) scale(0.5)"
+          // Cave at 50% size, hard-anchored to the LEFT edge of the
+          // scene. Right-edge mouth at x:71 — the river starts there,
+          // emerging directly from the cave's dark interior pool.
+          transform="translate(-4, 370) scale(0.5)"
         >
           {/* invisible hit target covering the cave area */}
           <rect x={-12} y={616} width={172} height={136} fill="transparent" />
@@ -645,53 +644,60 @@ export default function MathMountainScene({
              both bridge decks sit just above the river surface where
              it dips beneath them. Log-jam dam at midpoint (820, 740). */}
         <g pointerEvents="none">
-          {/* wet-earth bank — emerges from cave at left edge */}
+          {/* wet-earth bank — emerges directly from the cave mouth at
+              x:71 on the left edge of the scene */}
           <path
-            d="M 148 675
-               C 220 681, 290 686, 360 689
-               C 440 692, 500 700, 540 708
-               C 620 720, 720 728, 820 734
-               C 920 730, 1010 716, 1100 711
-               C 1200 706, 1280 700, 1320 695
-               C 1380 689, 1420 680, 1440 673
+            d="M 71 686
+               C 110 684, 160 680, 220 681
+               C 290 686, 360 689, 440 692
+               C 500 700, 540 708, 620 720
+               C 720 728, 820 734, 920 730
+               C 1010 716, 1100 711, 1200 706
+               C 1280 700, 1320 695, 1380 689
+               C 1420 680, 1440 673, 1440 673
                L 1440 707
                C 1420 711, 1380 716, 1320 729
                C 1280 734, 1200 740, 1100 746
                C 1010 750, 920 766, 820 770
                C 720 766, 620 758, 540 742
                C 500 738, 440 730, 360 723
-               C 290 720, 220 716, 148 711 Z"
+               C 290 720, 220 716, 160 712
+               C 110 711, 71 706, 71 706 Z"
             fill="#6B8E5A" opacity={0.30}
           />
           {/* primary water body — bends with the bank */}
           <path
-            d="M 150 681
-               C 220 685, 290 690, 360 693
-               C 440 696, 500 706, 540 714
-               C 620 724, 720 734, 820 740
-               C 920 736, 1010 720, 1100 717
-               C 1200 712, 1280 706, 1320 701
-               C 1380 695, 1420 686, 1440 679
+            d="M 71 692
+               C 110 690, 160 688, 220 685
+               C 290 690, 360 693, 440 696
+               C 500 706, 540 714, 620 724
+               C 720 734, 820 740, 920 736
+               C 1010 720, 1100 717, 1200 712
+               C 1280 706, 1320 701, 1380 695
+               C 1420 686, 1440 679, 1440 679
                L 1440 701
                C 1420 705, 1380 708, 1320 723
                C 1280 728, 1200 734, 1100 740
                C 1010 744, 920 760, 820 762
                C 720 758, 620 750, 540 736
                C 500 730, 440 723, 360 717
-               C 290 713, 220 709, 150 703 Z"
+               C 290 713, 220 709, 160 706
+               C 110 704, 71 700, 71 700 Z"
             fill="#A8CDD2"
           />
-          {/* deeper channel — follows the dip */}
+          {/* deeper channel — follows the dip from cave-mouth east */}
           <path
-            d="M 240 692
-               C 320 700, 410 714, 500 720
-               C 600 730, 700 738, 800 742
-               C 900 738, 1000 728, 1100 720
-               C 1200 712, 1320 700, 1438 686"
+            d="M 90 696
+               C 160 700, 240 706, 320 714
+               C 410 722, 500 728, 600 732
+               C 700 738, 800 742, 900 738
+               C 1000 728, 1100 720, 1200 712
+               C 1320 700, 1438 686"
             stroke="#7FA9B0" strokeWidth={3} fill="none" strokeLinecap="round" opacity={0.6}
           />
           {/* shimmer ripples — track the bend */}
           {[
+            { x: 130, y: 694 }, { x: 200, y: 692 },
             { x: 280, y: 690 }, { x: 360, y: 698 }, { x: 460, y: 710 },
             { x: 580, y: 722 }, { x: 720, y: 732 }, { x: 880, y: 744 },
             { x: 980, y: 736 }, { x: 1100, y: 726 }, { x: 1240, y: 712 },
@@ -705,17 +711,18 @@ export default function MathMountainScene({
           ))}
 
           {/* foam at the cave-mouth source — dense splash where water
-              emerges from the dark. Three tiers of foam fading east. */}
-          <ellipse cx={150} cy={697} rx={16} ry={6} fill="#FFFFFF" opacity={0.7} />
-          <ellipse cx={158} cy={690} rx={12} ry={4} fill="#FFFFFF" opacity={0.6} />
-          <ellipse cx={172} cy={696} rx={9} ry={3} fill="#FFFFFF" opacity={0.45} />
-          <path d="M 148 686 Q 158 684 168 686" stroke="#FFFFFF" strokeWidth={1.4} fill="none" opacity={0.78} strokeLinecap="round" />
-          <path d="M 152 704 Q 162 702 172 704" stroke="#FFFFFF" strokeWidth={1.1} fill="none" opacity={0.65} strokeLinecap="round" />
-          <path d="M 168 712 Q 178 710 188 712" stroke="#FFFFFF" strokeWidth={0.9} fill="none" opacity={0.5} strokeLinecap="round" />
-          {/* tiny droplets being thrown up */}
-          <circle cx={148} cy={682} r={1.2} fill="#FFFFFF" opacity={0.7} />
-          <circle cx={156} cy={678} r={1} fill="#FFFFFF" opacity={0.6} />
-          <circle cx={162} cy={684} r={0.8} fill="#FFFFFF" opacity={0.55} />
+              emerges from the dark. Now centered at x:71-95, the
+              actual cave mouth on the left edge. */}
+          <ellipse cx={75} cy={696} rx={18} ry={6} fill="#FFFFFF" opacity={0.7} />
+          <ellipse cx={88} cy={690} rx={12} ry={4} fill="#FFFFFF" opacity={0.6} />
+          <ellipse cx={102} cy={696} rx={9} ry={3} fill="#FFFFFF" opacity={0.45} />
+          <path d="M 73 686 Q 86 684 100 686" stroke="#FFFFFF" strokeWidth={1.4} fill="none" opacity={0.78} strokeLinecap="round" />
+          <path d="M 76 702 Q 90 700 104 702" stroke="#FFFFFF" strokeWidth={1.1} fill="none" opacity={0.65} strokeLinecap="round" />
+          <path d="M 96 710 Q 110 708 122 710" stroke="#FFFFFF" strokeWidth={0.9} fill="none" opacity={0.5} strokeLinecap="round" />
+          {/* tiny droplets being thrown up at the source */}
+          <circle cx={75} cy={680} r={1.2} fill="#FFFFFF" opacity={0.7} />
+          <circle cx={84} cy={676} r={1} fill="#FFFFFF" opacity={0.6} />
+          <circle cx={92} cy={682} r={0.8} fill="#FFFFFF" opacity={0.55} />
 
           {/* small reeds along the top bank — y values track the curve */}
           {[[300, 686], [430, 696], [690, 724], [970, 716], [1140, 706], [1380, 686]].map(([rx, ry], i) => (
@@ -759,35 +766,31 @@ export default function MathMountainScene({
         </g>
 
         {/* ── 8. PATH SYSTEM ──
-             Radically simplified to ONE main spine. Previous attempts
-             stitched together 6+ paths trying to thread through every
-             structure, which read as a maze. The central garden takes
-             a different approach: one long winding ribbon sweeps the
-             world and structures stand alongside, not necessarily ON
-             the path. Mountain now does the same.
-               A. MAIN SPINE — garden sign (left edge) → cottage →
-                  lake area → plateau → glen → orchard → garden exit
-                  (right edge). A single diagonal sweep.
-               B/C. SHORT BRIDGE STUBS that drop south from the spine
-                  toward each river bridge, but stop AT the river
-                  bank. The bridges themselves are standalone
-                  structures spanning the water. */}
+             Main spine + a loop branch. The spine sweeps west → east
+             across the upper meadow. At Tens Tower (560, 400) the
+             trail FORKS — one branch continues east along the upper
+             route, the other drops south through the lower meadow
+             (measurement → orchard) and meets the spine again at the
+             lower-right corner exit. Same loop topology a real hiking
+             trail would have. */}
         {(() => {
-          // ── A. MAIN SPINE — single diagonal sweep ──
-          const mainSpineD = `M 30 410
+          // ── A. UPPER SPINE — west edge → fork at Tens → exit ──
+          const upperSpineD = `M 30 410
             C 80 440, 140 470, 200 470
-            C 320 460, 460 440, 600 430
-            C 740 425, 880 430, 1020 450
-            C 1160 480, 1280 530, 1380 600
-            C 1420 620, 1440 640, 1440 660`;
+            C 320 460, 460 420, 560 400
+            C 660 410, 760 425, 880 430
+            C 1020 450, 1160 480, 1280 530
+            C 1340 570, 1400 620, 1440 660`;
 
-          // ── B + C. BRIDGE STUBS — short south-pointing approaches
-          // Each stub leaves the spine and ends at the river's north
-          // bank. The bridge SVG itself spans the water below. */}
-          const bigBridgeStubD = `M 540 432 C 542 530, 540 620, 540 670`;
-          const skipBridgeStubD = `M 1320 558 C 1322 610, 1320 650, 1320 670`;
+          // ── B. LOWER LOOP — fork at Tens → south → meadow east → join exit ──
+          const lowerLoopD = `M 560 400
+            C 540 460, 540 530, 580 580
+            C 680 590, 780 580, 880 580
+            C 980 580, 1080 580, 1180 580
+            C 1260 580, 1320 590, 1380 610
+            C 1410 630, 1430 650, 1440 660`;
 
-          const trails = [mainSpineD, bigBridgeStubD, skipBridgeStubD];
+          const trails = [upperSpineD, lowerLoopD];
           return (
             <g pointerEvents="none">
               {/* Shadow */}
@@ -805,23 +808,26 @@ export default function MathMountainScene({
               {/* (Bridges drawn separately — they're clickable as their
                   own skill structures now, not part of the path block.) */}
 
-              {/* Stepping stones along the simplified main spine +
-                  bridge stubs. Sparse — ~12 total. */}
+              {/* Stepping stones along the upper spine + lower loop.
+                  Sparse — ~14 total, picking out the fork and key
+                  approaches on each branch. */}
               {[
-                // Main spine, west → east
+                // Upper spine, west → east through the fork
                 { x: 90, y: 442 },          // sign → cottage
                 { x: 250, y: 466 },         // past lake-area
-                { x: 420, y: 446 },         // through middle
-                { x: 700, y: 426 },         // plateau approach
+                { x: 420, y: 432 },         // approaching fork
+                { x: 670, y: 416 },         // past fork on upper
                 { x: 940, y: 432 },         // plateau east
-                { x: 1100, y: 462 },        // descending
-                { x: 1240, y: 506 },        // toward orchard
-                { x: 1400, y: 624 },        // toward exit
-                // Bridge stubs
-                { x: 540, y: 530 },         // big-bridge stub mid
-                { x: 540, y: 640 },         // big-bridge stub low
-                { x: 1320, y: 600 },        // skip-bridge stub mid
-                { x: 1320, y: 660 },        // skip-bridge stub low
+                { x: 1140, y: 478 },        // descending
+                { x: 1310, y: 552 },        // toward exit
+                { x: 1410, y: 632 },        // exit corner
+                // Lower loop, fork → meadow → exit
+                { x: 548, y: 470 },         // descent from fork
+                { x: 580, y: 562 },         // joining meadow band
+                { x: 760, y: 580 },         // through meadow
+                { x: 980, y: 580 },         // through meadow east
+                { x: 1180, y: 580 },        // past orchard
+                { x: 1330, y: 596 },        // climbing toward exit
               ].map((s, i) => (
                 <g key={`mmstn-${i}`}>
                   <ellipse cx={s.x + 1} cy={s.y + 2} rx={7} ry={4} fill="#000" opacity={0.16} />
@@ -836,142 +842,10 @@ export default function MathMountainScene({
         {/* Cottage SVG removed — the cottage habitat icon now anchors
             the cluster on its own. */}
 
-        {/* ── 8b. BRIDGES (clickable skill structures) ──
-             Bespoke wooden bridges with arched plank deck, support
-             posts, and railings. The bridge SVG itself IS the click
-             target for mm_big_bridge and mm_skip_bridge — no redundant
-             "shadowy bridge icon" shown elsewhere. */}
-        {(() => {
-          // BRIDGES — clean standalone wooden footbridges that sit
-          // ON the river. Visible deck (lighter wood with horizontal
-          // plank lines), simple railings flush with the deck edges,
-          // post at each of the four corners on the banks. Same
-          // hand-drawn vocabulary as the central garden's structures.
-          const renderBridge = (
-            code: string,
-            cx: number,
-          ) => {
-            const struct = structures.find(s => s.code === code);
-            if (!struct) return null;
-            const state = structureStates[code];
-            const completed = state?.completed ?? false;
-            const unlocked = state?.unlocked ?? false;
-
-            const deckHalfW = 12;
-            const northY = 678;   // top river bank
-            const southY = 732;   // bottom river bank
-            const labelY = southY + 14;
-
-            return (
-              <g
-                key={`bridge-${code}`}
-                style={{ cursor: 'pointer', touchAction: 'manipulation',
-                  filter: completed
-                    ? 'drop-shadow(0 0 6px rgba(255,217,61,0.55))'
-                    : unlocked
-                      ? 'drop-shadow(0 1.5px 2px rgba(107,68,35,0.42))'
-                      : 'grayscale(1) brightness(0.92)',
-                  opacity: unlocked ? 1 : 0.62,
-                }}
-                onClick={() => onStructureTap(struct)}
-              >
-                {/* invisible hit target */}
-                <rect x={cx - 26} y={northY - 8} width={52} height={southY - northY + 32} fill="transparent" />
-
-                {/* drop shadow on the water */}
-                <ellipse cx={cx} cy={southY + 2} rx={deckHalfW + 3} ry={4} fill="#000" opacity={0.22} />
-
-                {/* DECK — light wooden plank surface */}
-                <rect x={cx - deckHalfW} y={northY} width={2 * deckHalfW} height={southY - northY}
-                      fill="#C8A57A" stroke="#5A3B1F" strokeWidth={1.6} />
-
-                {/* horizontal plank cross-lines (the boards) */}
-                {(() => {
-                  const planks: number[] = [];
-                  for (let py = northY + 6; py < southY - 2; py += 7) planks.push(py);
-                  return planks.map((py, i) => (
-                    <line
-                      key={`pl-${code}-${i}`}
-                      x1={cx - deckHalfW + 1.5} y1={py}
-                      x2={cx + deckHalfW - 1.5} y2={py}
-                      stroke="#5A3B1F" strokeWidth={0.8} opacity={0.55}
-                    />
-                  ));
-                })()}
-
-                {/* WEST + EAST railings — sit on the deck edges,
-                    a touch raised so they read as railings not just
-                    deck outline. */}
-                <line x1={cx - deckHalfW} y1={northY + 1} x2={cx - deckHalfW} y2={southY - 1}
-                      stroke="#5A3B1F" strokeWidth={2} strokeLinecap="round" />
-                <line x1={cx + deckHalfW} y1={northY + 1} x2={cx + deckHalfW} y2={southY - 1}
-                      stroke="#5A3B1F" strokeWidth={2} strokeLinecap="round" />
-
-                {/* small spindles on each railing */}
-                {[0.25, 0.5, 0.75].map((t, i) => {
-                  const py = northY + (southY - northY) * t;
-                  return (
-                    <g key={`sp-${code}-${i}`}>
-                      <line x1={cx - deckHalfW - 2} y1={py} x2={cx - deckHalfW - 2} y2={py - 3}
-                            stroke="#5A3B1F" strokeWidth={1.1} strokeLinecap="round" />
-                      <line x1={cx + deckHalfW + 2} y1={py} x2={cx + deckHalfW + 2} y2={py - 3}
-                            stroke="#5A3B1F" strokeWidth={1.1} strokeLinecap="round" />
-                    </g>
-                  );
-                })}
-
-                {/* CORNER POSTS at the four bank-touching corners */}
-                <circle cx={cx - deckHalfW} cy={northY} r={2.4} fill="#5A3B1F" />
-                <circle cx={cx + deckHalfW} cy={northY} r={2.4} fill="#5A3B1F" />
-                <circle cx={cx - deckHalfW} cy={southY} r={2.4} fill="#5A3B1F" />
-                <circle cx={cx + deckHalfW} cy={southY} r={2.4} fill="#5A3B1F" />
-
-                {/* lock / completed badge — sits to the side */}
-                {!unlocked && (
-                  <g pointerEvents="none">
-                    <circle cx={cx + 22} cy={northY} r={9}
-                            fill="#FFFFFF" stroke="#8A7E6C" strokeWidth={1.3} />
-                    <text x={cx + 22} y={northY + 3} fontSize={11} textAnchor="middle"
-                          style={{ userSelect: 'none' }}>🔒</text>
-                  </g>
-                )}
-                {completed && (
-                  <g pointerEvents="none">
-                    <circle cx={cx + 22} cy={northY} r={9}
-                            fill="#6B8E5A" stroke="#4F6F42" strokeWidth={1.3} />
-                    <path
-                      d={`M ${cx + 18} ${northY + 0.5}
-                          L ${cx + 21} ${northY + 3.5}
-                          L ${cx + 26} ${northY - 2.5}`}
-                      stroke="#FFFFFF" strokeWidth={1.8} fill="none"
-                      strokeLinecap="round" strokeLinejoin="round"
-                    />
-                  </g>
-                )}
-
-                {/* label — uniform with other Mountain structure pills */}
-                <rect
-                  x={cx - 46} y={labelY} width={92} height={17} rx={8.5}
-                  fill={completed ? '#FFF6CC' : unlocked ? '#FFFAF2' : '#EDEAD8'}
-                  stroke={completed ? '#D4B43E' : unlocked ? '#E8A87C' : '#B5BFA0'}
-                  strokeWidth={1.2}
-                />
-                <text x={cx} y={labelY + 12} textAnchor="middle"
-                      fontSize={9.5} fontWeight={700}
-                      fill={unlocked ? '#6b4423' : '#6f7d5a'}
-                      style={{ userSelect: 'none' }}>
-                  {struct.label}
-                </text>
-              </g>
-            );
-          };
-          return (
-            <g>
-              {renderBridge('mm_big_bridge', 540)}
-              {renderBridge('mm_skip_bridge', 1320)}
-            </g>
-          );
-        })()}
+        {/* (Bridge SVG block removed — the bridges to nowhere on the
+            river were a dead-end design. mm_big_bridge and
+            mm_skip_bridge skill structures now render through the
+            normal structures.map below, on the lower loop.) */}
 
         {/* ── 9b. TEA-HOUSE PAVILION ──
              Warm character anchor on the plateau ridge. Pure
@@ -1225,9 +1099,6 @@ export default function MathMountainScene({
             // Skip individual structures that belong to a collapsed habitat
             const habitatKey = HABITAT_BY_SKILL[s.code];
             if (habitatKey && expandedHabitat !== habitatKey) return null;
-            // Skip bridge structures — bridges are rendered as their own
-            // clickable SVG planks above. No redundant locked-icon overlay.
-            if (s.code === 'mm_big_bridge' || s.code === 'mm_skip_bridge') return null;
 
             const state = structureStates[s.code];
             const completed = state?.completed ?? false;

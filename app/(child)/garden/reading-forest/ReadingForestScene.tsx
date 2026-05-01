@@ -534,14 +534,16 @@ export default function ReadingForestScene({
              angle). Path A descends NE and crosses at ~(363, 393);
              Path B drops SW and crosses at ~(1215, 453). */}
         {([
-          { cx: 363, cy: 393, angleDeg: -37, key: 'fb-glade' },
-          { cx: 1215, cy: 453, angleDeg: -58, key: 'fb-grove' },
+          { cx: 363, cy: 393, angleDeg: -37, halfW: 14, key: 'fb-glade' },
+          { cx: 1215, cy: 453, angleDeg: -58, halfW: 16, key: 'fb-grove' },
         ] as const).map(b => {
           // Deck dimensions in the bridge's LOCAL coords (before
           // rotation). Long axis = path direction (x). Short axis =
           // perpendicular = bridge width across the brook.
-          const halfL = 22;     // half deck length (along path)
-          const halfW = 9;      // half deck width (across brook)
+          // Bridge width must be >= path width (24px) so the deck
+          // doesn't visually pinch the trail.
+          const halfL = 24;     // half deck length (along path)
+          const halfW = b.halfW;
           return (
             <g key={b.key} transform={`translate(${b.cx},${b.cy}) rotate(${b.angleDeg})`} pointerEvents="none">
               {/* drop shadow on the water */}
@@ -642,8 +644,11 @@ export default function ReadingForestScene({
         <Sway x={360} y={472} delay={0.9}><Tree x={360} y={472} size={58} variant={2} /></Sway>
 
         {/* ── 12. ANCIENT OAK — Morphology Grove anchor (NE) ──
-             Centre at x:1382, y:440 — flanks the grove on the right. */}
-        <g transform="translate(1382, 440)" pointerEvents="none">
+             Was 264px wide canopy at full scale — extended off-screen
+             and visually overpowered every other tree. Now scaled to
+             0.55 and tucked at (1340, 470) so it reads as the grove's
+             anchor without dominating the right side. */}
+        <g transform="translate(1340, 470) scale(0.55)" pointerEvents="none">
           {/* root flare */}
           <path d="M -18 112 Q -28 100 -22 88 L -14 90 Q -16 102 -8 110 Z"
             fill="#8B5A2B" stroke="#5A3B1F" strokeWidth={1.5} strokeLinejoin="round" opacity={0.78} />
