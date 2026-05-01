@@ -527,66 +527,60 @@ export default function ReadingForestScene({
         })()}
 
         {/* ── 10b. FOOTBRIDGES — where paths cross the brook ──
-             The brook flows EAST-WEST. A bridge over it must span
-             NORTH-SOUTH (perpendicular to the flow), not east-west.
-             Previous bridges had the deck running east-west which read
-             as "flat plank floating along the water" rather than
-             "spanning across it." Now they're proper north-south
-             decks with the brook flowing under them.
-
-             Crossing points (computed from path/brook intersection):
-               Path A descends NE from the glade and crosses brook at
-               approx (363, 393).
-               Path B drops SE from Diphthong Cove and crosses brook
-               at approx (1215, 453). */}
+             Each bridge is rotated to MATCH the path's local
+             direction at the crossing, so the deck appears at the
+             same angle as the path (a kid sees the path go onto a
+             bridge, across the water, and continue at the same
+             angle). Path A descends NE and crosses at ~(363, 393);
+             Path B drops SW and crosses at ~(1215, 453). */}
         {([
-          { cx: 363, cy: 393, halfH: 22, key: 'fb-glade' },
-          { cx: 1215, cy: 453, halfH: 22, key: 'fb-grove' },
+          { cx: 363, cy: 393, angleDeg: -37, key: 'fb-glade' },
+          { cx: 1215, cy: 453, angleDeg: -58, key: 'fb-grove' },
         ] as const).map(b => {
-          const deckW = 18;          // deck thickness east-west
-          const northY = b.cy - b.halfH;
-          const southY = b.cy + b.halfH;
-          const eastX = b.cx + deckW / 2;
-          const westX = b.cx - deckW / 2;
+          // Deck dimensions in the bridge's LOCAL coords (before
+          // rotation). Long axis = path direction (x). Short axis =
+          // perpendicular = bridge width across the brook.
+          const halfL = 22;     // half deck length (along path)
+          const halfW = 9;      // half deck width (across brook)
           return (
-            <g key={b.key} pointerEvents="none">
-              {/* drop shadow on the water under the deck */}
-              <ellipse cx={b.cx} cy={b.cy + 4} rx={deckW * 1.05} ry={b.halfH + 2} fill="#000" opacity={0.18} />
-              {/* abutment posts on each bank */}
-              <rect x={westX - 3} y={northY - 5} width={deckW + 6} height={5} rx={1} fill="#5A3B1F" stroke="#3F2614" strokeWidth={0.9} />
-              <rect x={westX - 3} y={southY} width={deckW + 6} height={5} rx={1} fill="#5A3B1F" stroke="#3F2614" strokeWidth={0.9} />
-              {/* deck base (darker wood) */}
-              <rect x={westX - 1.5} y={northY} width={deckW + 3} height={2 * b.halfH} fill="#7A5A3A" stroke="#3F2614" strokeWidth={1.2} />
-              {/* deck top (lighter plank surface) */}
-              <rect x={westX} y={northY} width={deckW} height={2 * b.halfH} fill="#A06B36" stroke="#5A3B1F" strokeWidth={1} />
-              {/* horizontal plank cross-lines */}
-              {Array.from({ length: 4 }, (_, i) => {
-                const py = northY + 4 + i * 10;
-                return (
-                  <line
-                    key={`fbpl-${b.key}-${i}`}
-                    x1={westX + 1} y1={py} x2={eastX - 1} y2={py}
-                    stroke="#5A3B1F" strokeWidth={0.7} opacity={0.6}
-                  />
-                );
-              })}
-              {/* WEST + EAST railings — vertical lines along the deck */}
-              <line x1={westX - 4} y1={northY + 2} x2={westX - 4} y2={southY - 2}
-                    stroke="#5A3B1F" strokeWidth={1.3} strokeLinecap="round" />
-              <line x1={eastX + 4} y1={northY + 2} x2={eastX + 4} y2={southY - 2}
-                    stroke="#5A3B1F" strokeWidth={1.3} strokeLinecap="round" />
-              {/* spindles connecting railings to deck (3 along each side) */}
+            <g key={b.key} transform={`translate(${b.cx},${b.cy}) rotate(${b.angleDeg})`} pointerEvents="none">
+              {/* drop shadow on the water */}
+              <ellipse cx={0} cy={2} rx={halfL + 2} ry={halfW + 1} fill="#000" opacity={0.20} />
+              {/* DECK — light wooden plank surface */}
+              <rect x={-halfL} y={-halfW} width={2 * halfL} height={2 * halfW}
+                    fill="#C8A57A" stroke="#5A3B1F" strokeWidth={1.4} />
+              {/* plank cross-lines perpendicular to path direction */}
+              {(() => {
+                const xs: number[] = [];
+                for (let x = -halfL + 5; x < halfL - 1; x += 6) xs.push(x);
+                return xs.map((x, i) => (
+                  <line key={`pl-${b.key}-${i}`}
+                        x1={x} y1={-halfW + 1} x2={x} y2={halfW - 1}
+                        stroke="#5A3B1F" strokeWidth={0.7} opacity={0.55} />
+                ));
+              })()}
+              {/* RAILINGS — parallel to path on each side */}
+              <line x1={-halfL + 2} y1={-halfW} x2={halfL - 2} y2={-halfW}
+                    stroke="#5A3B1F" strokeWidth={1.6} strokeLinecap="round" />
+              <line x1={-halfL + 2} y1={halfW} x2={halfL - 2} y2={halfW}
+                    stroke="#5A3B1F" strokeWidth={1.6} strokeLinecap="round" />
+              {/* small spindles raising the railings off the deck */}
               {[0.25, 0.5, 0.75].map((t, i) => {
-                const py = northY + 2 * b.halfH * t;
+                const x = -halfL + 2 * halfL * t;
                 return (
-                  <g key={`fbsp-${b.key}-${i}`}>
-                    <line x1={westX} y1={py} x2={westX - 4} y2={py - 1}
-                          stroke="#5A3B1F" strokeWidth={0.8} strokeLinecap="round" />
-                    <line x1={eastX} y1={py} x2={eastX + 4} y2={py - 1}
-                          stroke="#5A3B1F" strokeWidth={0.8} strokeLinecap="round" />
+                  <g key={`sp-${b.key}-${i}`}>
+                    <line x1={x} y1={-halfW} x2={x} y2={-halfW - 3}
+                          stroke="#5A3B1F" strokeWidth={1} strokeLinecap="round" />
+                    <line x1={x} y1={halfW} x2={x} y2={halfW + 3}
+                          stroke="#5A3B1F" strokeWidth={1} strokeLinecap="round" />
                   </g>
                 );
               })}
+              {/* CORNER POSTS — four small dark dots at the deck corners */}
+              <circle cx={-halfL} cy={-halfW} r={1.8} fill="#5A3B1F" />
+              <circle cx={halfL} cy={-halfW} r={1.8} fill="#5A3B1F" />
+              <circle cx={-halfL} cy={halfW} r={1.8} fill="#5A3B1F" />
+              <circle cx={halfL} cy={halfW} r={1.8} fill="#5A3B1F" />
             </g>
           );
         })}
@@ -940,9 +934,12 @@ export default function ReadingForestScene({
             COMPLETED → warm gold drop-shadow + check badge.
             Label pill: rounded white pill with terracotta hairline. */}
         {(() => {
-          const UNIFORM = 44;
-          const HIT = 36;
-          const LABEL_Y = 30;
+          // UNIFIED across all branch scenes — same icon size, label
+          // box, fontSize so the three worlds read as one design
+          // language. Mountain also uses these exact values.
+          const UNIFORM = 38;
+          const HIT = 34;
+          const LABEL_Y = 28;
           const LABEL_W = 92;
           const LABEL_H = 17;
           return structures.map(s => {
