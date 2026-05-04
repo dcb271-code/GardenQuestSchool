@@ -124,16 +124,31 @@ export default async function GardenPage({
     } else if (s.kind === 'habitat' && s.habitatCode) {
       const habitat = HABITAT_CATALOG.find(h => h.code === s.habitatCode);
       const prereqsMet = habitat ? habitat.prereqSkillCodes.every(c => mastered.has(c)) : false;
-      const prereqNames = habitat
-        ? habitat.prereqSkillCodes.filter(c => !mastered.has(c)).map(c => skillNameByCode.get(c) ?? c)
+      // For each unmet prereq skill, find a structure on the central
+      // garden that teaches it so the lock message can point Cecily
+      // somewhere actionable. Falls back to the skill name alone if
+      // the skill only exists on a branch (mountain/forest), in
+      // which case the branch name is shown.
+      const unmetCodes = habitat
+        ? habitat.prereqSkillCodes.filter(c => !mastered.has(c))
         : [];
+      const prereqHints = unmetCodes.map(code => {
+        const skillName = skillNameByCode.get(code) ?? code;
+        // search central garden first
+        const localStruct = GARDEN_STRUCTURES.find(g => g.kind === 'skill' && g.skillCode === code);
+        if (localStruct) return `${skillName} at ${localStruct.label}`;
+        // fall back to a branch
+        if (code.startsWith('math.')) return `${skillName} on Math Mountain`;
+        if (code.startsWith('reading.')) return `${skillName} in Reading Forest`;
+        return skillName;
+      });
       structureStates[s.code] = {
         unlocked: prereqsMet,
         completed: false,
         isNext: false,
         correctCount: 0,
         target: 0,
-        prereqDisplay: prereqNames.length > 0 ? prereqNames.join(', ') : 'more practice',
+        prereqDisplay: prereqHints.length > 0 ? prereqHints.join(', ') : 'more practice',
         built: builtSet.has(s.habitatCode),
       };
     }

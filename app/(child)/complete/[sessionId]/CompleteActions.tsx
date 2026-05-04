@@ -10,9 +10,39 @@ interface ActionDef {
   primary?: boolean;
 }
 
-export default function CompleteActions({ learnerId }: { learnerId: string }) {
+export default function CompleteActions({
+  learnerId,
+  returnTo = 'garden',
+}: {
+  learnerId: string;
+  // Where the session originated — drives the primary back-to-where
+  // button so a kid finishing a math lesson lands back on the
+  // mountain (not all the way back at the central garden).
+  returnTo?: 'garden' | 'math-mountain' | 'reading-forest';
+}) {
+  const RETURN: Record<typeof returnTo, ActionDef> = {
+    'garden': {
+      href: `/garden?learner=${learnerId}`,
+      emoji: '🌿', label: 'garden', primary: true,
+    },
+    'math-mountain': {
+      href: `/garden/math-mountain?learner=${learnerId}`,
+      emoji: '⛰️', label: 'mountain', primary: true,
+    },
+    'reading-forest': {
+      href: `/garden/reading-forest?learner=${learnerId}`,
+      emoji: '🌲', label: 'forest', primary: true,
+    },
+  };
+
+  // Always show the primary back-to-environment button. When that's
+  // not the central garden, also offer garden as a secondary route.
+  const primary = RETURN[returnTo];
   const actions: ActionDef[] = [
-    { href: `/garden?learner=${learnerId}`, emoji: '🌿', label: 'garden',   primary: true },
+    primary,
+    ...(returnTo !== 'garden'
+      ? [{ href: `/garden?learner=${learnerId}`, emoji: '🌿', label: 'garden' }]
+      : []),
     { href: `/journal?learner=${learnerId}`, emoji: '📖', label: 'journal' },
     { href: '/picker', emoji: '🏡', label: 'home' },
   ];

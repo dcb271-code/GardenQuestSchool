@@ -4,12 +4,14 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 
 // Where the sisters live when they're not wandering — just in front of
-// the cozy house porch.
+// the cozy house porch (central garden default).
 export const SISTERS_HOME = { x: 220, y: 600 };
 
-// On a fresh page load, the sisters emerge from the house's red door.
-// House is at (100, 500) size 140 → door bottom at ~(110, 543).
-const DOOR_EMERGE = { x: 110, y: 548 };
+// Default emerge position — the cozy house red door at the garden.
+// Branches override via the `emergeFrom` prop (typically the garden
+// signpost position) so the sisters appear walking in from the same
+// place the player tapped to enter.
+const DEFAULT_DOOR_EMERGE = { x: 110, y: 548 };
 
 // Esme trails Cecily at a constant offset (Piglet-following-Pooh).
 const ESME_OFFSET = { x: 24, y: 10 };
@@ -21,11 +23,17 @@ export default function SisterWalkers({
   target,
   walking,
   reducedMotion = false,
+  emergeFrom,
 }: {
   target: { x: number; y: number };
   walking: boolean;
   reducedMotion?: boolean;
+  // Optional override for the on-mount emerge position. Defaults to
+  // the garden's cozy-house door. Branches pass their garden-signpost
+  // position so the sisters appear walking in from the entrance.
+  emergeFrom?: { x: number; y: number };
 }) {
+  const emerge = emergeFrom ?? DEFAULT_DOOR_EMERGE;
   // Welcome cutscene on mount: sisters emerge from the door, then
   // walk to their idle "home" position. We consider them walking for
   // the duration of that first journey.
@@ -53,7 +61,7 @@ export default function SisterWalkers({
     <g pointerEvents="none">
       {/* Esme — trails behind, renders behind when they overlap */}
       <motion.g
-        initial={{ x: DOOR_EMERGE.x - ESME_OFFSET.x, y: DOOR_EMERGE.y + ESME_OFFSET.y, opacity: 0 }}
+        initial={{ x: emerge.x - ESME_OFFSET.x, y: emerge.y + ESME_OFFSET.y, opacity: 0 }}
         animate={{ x: esmeTarget.x, y: esmeTarget.y, opacity: 1 }}
         transition={esmeTransition}
       >
@@ -62,7 +70,7 @@ export default function SisterWalkers({
 
       {/* Cecily — leader, renders on top */}
       <motion.g
-        initial={{ x: DOOR_EMERGE.x, y: DOOR_EMERGE.y, opacity: 0 }}
+        initial={{ x: emerge.x, y: emerge.y, opacity: 0 }}
         animate={{ x: target.x, y: target.y, opacity: 1 }}
         transition={cecilyTransition}
       >

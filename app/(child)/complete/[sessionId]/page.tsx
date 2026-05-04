@@ -42,6 +42,7 @@ export default async function CompletePage({ params }: { params: { sessionId: st
     skillCounts.set(code, cur);
   }
   const skillsPracticed = Array.from(skillCounts.values()).sort((a, b) => b.count - a.count);
+  const returnTo = pickReturnTo(Array.from(skillCounts.keys()));
 
   // Curated documentation lines — prefer specific, observational, brief
   const lines: string[] = [];
@@ -146,9 +147,17 @@ export default async function CompletePage({ params }: { params: { sessionId: st
         </div>
       )}
 
-      <CompleteActions learnerId={session?.learner_id ?? ''} />
+      <CompleteActions learnerId={session?.learner_id ?? ''} returnTo={returnTo} />
     </main>
   );
+}
+
+// Pick the right "back to" environment from the session's skills:
+// math.* → mountain, reading.* → forest, otherwise garden.
+function pickReturnTo(skillCodes: string[]): 'garden' | 'math-mountain' | 'reading-forest' {
+  if (skillCodes.some(c => c.startsWith('math.'))) return 'math-mountain';
+  if (skillCodes.some(c => c.startsWith('reading.'))) return 'reading-forest';
+  return 'garden';
 }
 
 function SummaryStat({

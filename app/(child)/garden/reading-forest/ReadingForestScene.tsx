@@ -47,6 +47,7 @@ import type { BranchCluster } from '@/lib/world/branchMaps';
 import { BRANCH_MAP_WIDTH, BRANCH_MAP_HEIGHT } from '@/lib/world/branchMaps';
 import BranchSceneLayout from '@/components/child/garden/BranchSceneLayout';
 import AmbientLayer from '@/components/child/garden/AmbientLayer';
+import SisterWalkers from '@/components/child/garden/SisterWalkers';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
 import { Tree, PineTree, Flower, GrassTuft, StructureIllustration } from '@/components/child/garden/illustrations';
 import type { ReadingForestStructureState } from './page';
@@ -908,6 +909,18 @@ export default function ReadingForestScene({
              x:230 / 720 / 1180 give the clouds visible space to drift
              through. */}
         <AmbientLayer reducedMotion={reducedMotion} />
+
+        {/* ── SISTER WALKERS ──
+             Cecily + Esme emerge from the garden signpost on the
+             right edge and walk in to their idle spot in the
+             meadow under the canopy. Same component as garden,
+             with emergeFrom set to this scene's signpost. */}
+        <SisterWalkers
+          target={{ x: 1320, y: 320 }}
+          walking={false}
+          reducedMotion={reducedMotion}
+          emergeFrom={{ x: 1408, y: 258 }}
+        />
 
         {/* ── CLUSTER LABELS — softened italic name-tags ── */}
         {clusters.map(c => {

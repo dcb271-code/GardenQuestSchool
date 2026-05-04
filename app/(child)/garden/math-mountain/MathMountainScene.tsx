@@ -52,6 +52,7 @@ import type { BranchCluster } from '@/lib/world/branchMaps';
 import { BRANCH_MAP_WIDTH, BRANCH_MAP_HEIGHT } from '@/lib/world/branchMaps';
 import BranchSceneLayout from '@/components/child/garden/BranchSceneLayout';
 import AmbientLayer from '@/components/child/garden/AmbientLayer';
+import SisterWalkers from '@/components/child/garden/SisterWalkers';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
 import {
   Tree, PineTree, StructureIllustration,
@@ -507,11 +508,12 @@ export default function MathMountainScene({
         <g
           style={{ cursor: 'pointer', touchAction: 'manipulation' }}
           onClick={() => router.push(`/garden/habitat/operations_cave?learner=${learnerId}`)}
-          // Cave at 50% size, anchored to the LEFT edge. Lifted up
-          // so the river's vertical center (~y:693) lines up with
-          // the cave's vertical center — water emerges from the
-          // middle of the cave mouth, not just the top edge.
-          transform="translate(-4, 354) scale(0.5)"
+          // Cave at 50% size, anchored to the LEFT edge. Lifted so
+          // its bottom lip sits on the river's bottom bank — the
+          // river fills the lower half of the cave mouth, with the
+          // upper half showing the dark interior + glow above the
+          // water line (so it reads "cave above, river below").
+          transform="translate(-4, 336) scale(0.5)"
         >
           {/* invisible hit target covering the cave area */}
           <rect x={-12} y={616} width={172} height={136} fill="transparent" />
@@ -968,6 +970,18 @@ export default function MathMountainScene({
              toggle internally. Without this layer the mountain felt
              dead next to the central garden's living scene. */}
         <AmbientLayer reducedMotion={reducedMotion} />
+
+        {/* ── SISTER WALKERS ──
+             Cecily + Esme emerge from the garden signpost on the
+             left edge and walk in to their idle spot in the meadow.
+             Same component the central garden uses; the emergeFrom
+             prop is what changes per scene. */}
+        <SisterWalkers
+          target={{ x: 110, y: 460 }}
+          walking={false}
+          reducedMotion={reducedMotion}
+          emergeFrom={{ x: 34, y: 414 }}
+        />
 
         {/* ── Garden exit signpost on the LEFT edge ──
              Mirrors the Forest sign but pointing WEST — central garden

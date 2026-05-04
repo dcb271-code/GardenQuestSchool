@@ -4,12 +4,24 @@ import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { LunaCat } from './illustrations';
 
-// Hand-picked lounging spots on the meadow (avoids water, trees, and
-// interfering with structure labels).
+// Hand-picked lounging spots spanning the WHOLE meadow — was 8 spots
+// clustered around the middle (which made Luna look like she only
+// shuttled between two corners). Now 18 spots covering NW, N, NE,
+// E, SE, S, SW, W and the center, while still avoiding the water /
+// trees / cozy-house and the structure label pills.
 const SPOTS = [
-  { x: 500, y: 380 }, { x: 600, y: 470 }, { x: 430, y: 500 },
-  { x: 700, y: 420 }, { x: 560, y: 330 }, { x: 640, y: 550 },
-  { x: 500, y: 600 }, { x: 750, y: 500 },
+  // North band (upper meadow)
+  { x: 320, y: 380 }, { x: 500, y: 380 }, { x: 700, y: 360 },
+  { x: 880, y: 380 }, { x: 1140, y: 480 },
+  // East band (right meadow)
+  { x: 1000, y: 460 }, { x: 1240, y: 540 },
+  // South band (lower meadow)
+  { x: 850, y: 600 }, { x: 600, y: 580 }, { x: 400, y: 600 },
+  // West band (left meadow)
+  { x: 280, y: 540 }, { x: 300, y: 460 },
+  // Center cluster
+  { x: 480, y: 500 }, { x: 600, y: 470 }, { x: 720, y: 480 },
+  { x: 600, y: 420 }, { x: 880, y: 540 }, { x: 560, y: 330 },
 ];
 
 export default function LunaWanderer({
@@ -23,13 +35,19 @@ export default function LunaWanderer({
 
   useEffect(() => {
     if (reducedMotion) return;
-    const id = setInterval(() => {
+    // Variable interval — sometimes Luna sits longer, sometimes she
+    // makes a short hop. Range 6-14s feels less metronomic than the
+    // old fixed 8s.
+    const tick = () => {
       setIdx(i => {
         const step = 1 + Math.floor(Math.random() * (SPOTS.length - 1));
         return (i + step) % SPOTS.length;
       });
-    }, 8000);
-    return () => clearInterval(id);
+      const next = 6000 + Math.floor(Math.random() * 8000);
+      handle = window.setTimeout(tick, next);
+    };
+    let handle = window.setTimeout(tick, 6000 + Math.floor(Math.random() * 4000));
+    return () => window.clearTimeout(handle);
   }, [reducedMotion]);
 
   const spot = SPOTS[idx];
