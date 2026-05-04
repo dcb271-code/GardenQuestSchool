@@ -22,6 +22,19 @@ import GardenScene from './GardenScene';
 
 export const dynamic = 'force-dynamic';
 
+export interface PrereqHint {
+  // Where the missing skill can be practiced. If `structureCode` is
+  // set, the skill exists on the central garden as that structure
+  // (the modal can show its emoji + label and pulse it on tap).
+  // Otherwise `branch` is set ('math-mountain' / 'reading-forest')
+  // and the modal shows a "go to <branch>" button instead.
+  skillName: string;
+  structureCode?: string;
+  structureLabel?: string;
+  structureEmoji?: string;
+  branch?: 'math-mountain' | 'reading-forest';
+}
+
 export interface StructureState {
   unlocked: boolean;
   completed: boolean;
@@ -31,6 +44,7 @@ export interface StructureState {
   prereqDisplay: string;
   built?: boolean;       // habitats only — true if ecology quest done
   unlocksLabel?: string | null;  // skill structures: what finishing this opens
+  prereqHints?: PrereqHint[];    // habitats only — where to find each missing prereq
 }
 
 export default async function GardenPage({
@@ -125,30 +139,48 @@ export default async function GardenPage({
       const habitat = HABITAT_CATALOG.find(h => h.code === s.habitatCode);
       const prereqsMet = habitat ? habitat.prereqSkillCodes.every(c => mastered.has(c)) : false;
       // For each unmet prereq skill, find a structure on the central
-      // garden that teaches it so the lock message can point Cecily
-      // somewhere actionable. Falls back to the skill name alone if
-      // the skill only exists on a branch (mountain/forest), in
-      // which case the branch name is shown.
+      // garden that teaches it so the lock modal can show "go to X"
+      // with that structure's emoji + label, and pulse it on tap.
+      // For skills that only exist on a branch, the hint instead
+      // tells Cecily which branch to visit (and the modal renders a
+      // "go to Math Mountain →" button).
       const unmetCodes = habitat
         ? habitat.prereqSkillCodes.filter(c => !mastered.has(c))
         : [];
-      const prereqHints = unmetCodes.map(code => {
+      const prereqHints: PrereqHint[] = unmetCodes.map(code => {
         const skillName = skillNameByCode.get(code) ?? code;
-        // search central garden first
         const localStruct = GARDEN_STRUCTURES.find(g => g.kind === 'skill' && g.skillCode === code);
-        if (localStruct) return `${skillName} at ${localStruct.label}`;
-        // fall back to a branch
-        if (code.startsWith('math.')) return `${skillName} on Math Mountain`;
-        if (code.startsWith('reading.')) return `${skillName} in Reading Forest`;
-        return skillName;
+        if (localStruct) {
+          return {
+            skillName,
+            structureCode: localStruct.code,
+            structureLabel: localStruct.label,
+            structureEmoji: localStruct.themeEmoji,
+          };
+        }
+        if (code.startsWith('math.')) return { skillName, branch: 'math-mountain' as const };
+        if (code.startsWith('reading.')) return { skillName, branch: 'reading-forest' as const };
+        return { skillName };
       });
+      const prereqDisplay = prereqHints.length > 0
+        ? prereqHints
+            .map(h => h.structureLabel
+              ? `${h.skillName} at ${h.structureLabel}`
+              : h.branch === 'math-mountain'
+                ? `${h.skillName} on Math Mountain`
+                : h.branch === 'reading-forest'
+                  ? `${h.skillName} in Reading Forest`
+                  : h.skillName)
+            .join(', ')
+        : 'more practice';
       structureStates[s.code] = {
         unlocked: prereqsMet,
         completed: false,
         isNext: false,
         correctCount: 0,
         target: 0,
-        prereqDisplay: prereqHints.length > 0 ? prereqHints.join(', ') : 'more practice',
+        prereqDisplay,
+        prereqHints,
         built: builtSet.has(s.habitatCode),
       };
     }

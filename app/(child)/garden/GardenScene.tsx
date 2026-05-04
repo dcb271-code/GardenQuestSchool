@@ -138,6 +138,14 @@ function BachanFigure({ isAlert }: { isAlert: boolean }) {
   );
 }
 
+interface PrereqHint {
+  skillName: string;
+  structureCode?: string;
+  structureLabel?: string;
+  structureEmoji?: string;
+  branch?: 'math-mountain' | 'reading-forest';
+}
+
 interface StructureState {
   unlocked: boolean;
   completed: boolean;
@@ -146,6 +154,7 @@ interface StructureState {
   target: number;
   prereqDisplay: string;
   built?: boolean;       // habitats only
+  prereqHints?: PrereqHint[];
 }
 
 export default function GardenScene({
@@ -189,6 +198,10 @@ export default function GardenScene({
   });
   const [arrival, setArrival] = useState<SpeciesData | null>(pendingArrival);
   const [selected, setSelected] = useState<MapStructure | null>(null);
+  // When a locked-habitat lock-message points at a structure on the
+  // central garden, the kid can tap "show me" to highlight it. This
+  // code gets set for ~6s and the matching structure pulses.
+  const [highlightCode, setHighlightCode] = useState<string | null>(null);
   const [starting, setStarting] = useState(false);
   const [tappedCode, setTappedCode] = useState<string | null>(null);
 
@@ -1123,6 +1136,7 @@ export default function GardenScene({
                 onTap={() => onStructureTap(s)}
                 reducedMotion={reducedMotion}
                 justBuilt={justBuiltCode === s.code}
+                highlight={highlightCode === s.code}
               />
             );
           })}
@@ -1259,8 +1273,68 @@ export default function GardenScene({
                             </div>
                           )}
                           {isLocked && (
-                            <div className="mt-2.5 text-[12px] not-italic text-bark/60 font-display italic">
-                              🔒 finish {habState?.prereqDisplay || 'an earlier stop'} to start building
+                            <div className="mt-2.5 space-y-2">
+                              <div className="text-[12px] not-italic text-bark/60 font-display italic">
+                                🔒 finish first:
+                              </div>
+                              {/* Render each unmet prereq as a tappable
+                                  card. For local structures: closes the
+                                  modal + pulses the structure on the
+                                  map. For branch skills: navigates to
+                                  the branch. */}
+                              {(habState?.prereqHints && habState.prereqHints.length > 0) ? (
+                                <div className="space-y-1.5">
+                                  {habState.prereqHints.map((h, i) => h.structureCode ? (
+                                    <button
+                                      key={i}
+                                      onClick={() => {
+                                        setSelected(null);
+                                        setHighlightCode(h.structureCode!);
+                                        window.setTimeout(() => setHighlightCode(null), 6000);
+                                      }}
+                                      className="w-full flex items-center gap-2 bg-cream border-2 border-ochre rounded-xl px-3 py-2 text-left"
+                                      style={{ touchAction: 'manipulation', minHeight: 44 }}
+                                    >
+                                      <span className="text-2xl" aria-hidden>{h.structureEmoji}</span>
+                                      <span className="flex-1 not-italic">
+                                        <span className="block font-display text-[14px] text-bark" style={{ fontWeight: 700 }}>
+                                          {h.structureLabel}
+                                        </span>
+                                        <span className="block font-display text-[11px] text-bark/55 italic">
+                                          {h.skillName}
+                                        </span>
+                                      </span>
+                                      <span className="text-bark/50 text-lg">👀</span>
+                                    </button>
+                                  ) : h.branch ? (
+                                    <a
+                                      key={i}
+                                      href={`/garden/${h.branch}?learner=${learnerId}`}
+                                      className="w-full flex items-center gap-2 bg-cream border-2 border-ochre rounded-xl px-3 py-2 text-left no-underline"
+                                      style={{ touchAction: 'manipulation', minHeight: 44 }}
+                                    >
+                                      <span className="text-2xl" aria-hidden>{h.branch === 'math-mountain' ? '⛰️' : '🌲'}</span>
+                                      <span className="flex-1 not-italic">
+                                        <span className="block font-display text-[14px] text-bark" style={{ fontWeight: 700 }}>
+                                          {h.branch === 'math-mountain' ? 'Math Mountain' : 'Reading Forest'}
+                                        </span>
+                                        <span className="block font-display text-[11px] text-bark/55 italic">
+                                          {h.skillName}
+                                        </span>
+                                      </span>
+                                      <span className="text-bark/50 text-lg">→</span>
+                                    </a>
+                                  ) : (
+                                    <div key={i} className="text-[12px] text-bark/60 italic px-3 py-1.5">
+                                      {h.skillName}
+                                    </div>
+                                  ))}
+                                </div>
+                              ) : (
+                                <div className="text-[12px] not-italic text-bark/60 font-display italic">
+                                  complete an earlier stop to start building
+                                </div>
+                              )}
                             </div>
                           )}
                         </div>
@@ -1346,16 +1420,21 @@ interface StructureStateProp {
   prereqDisplay: string;
   built?: boolean;
   unlocksLabel?: string | null;
+  prereqHints?: PrereqHint[];
 }
 
 function Structure({
-  struct, state, onTap, reducedMotion = false, justBuilt = false,
+  struct, state, onTap, reducedMotion = false, justBuilt = false, highlight = false,
 }: {
   struct: MapStructure;
   state: StructureStateProp;
   onTap: () => void;
   reducedMotion?: boolean;
   justBuilt?: boolean;
+  // Set briefly (~6s) when the kid taps "show me" on a locked
+  // habitat that points at this structure. Renders a strong
+  // attention pulse so she can spot it on the map.
+  highlight?: boolean;
 }) {
   const { unlocked, completed, isNext, correctCount, target, built, unlocksLabel } = state;
   const showProgressBadge = struct.kind === 'skill' && target > 0;
@@ -1376,6 +1455,29 @@ function Structure({
       aria-label={`${struct.label}${unlocked ? '' : ' (locked)'}${showProgressBadge ? ` ${correctCount} of ${target} complete` : ''}`}
       tabIndex={0}
     >
+      {/* "Show me" highlight pulse — strong, brief, attention-grabbing.
+          Outer expanding ring + inner steady ring so the structure
+          really stands out on a busy map. */}
+      {highlight && !reducedMotion && (
+        <>
+          <motion.circle
+            cx={struct.x} cy={struct.y}
+            fill="none" stroke="#FFD93D" strokeWidth={4}
+            animate={{ r: [struct.size * 0.9, struct.size * 1.6], opacity: [0.95, 0] }}
+            transition={{ duration: 1.4, repeat: Infinity, ease: 'easeOut' }}
+          />
+          <motion.circle
+            cx={struct.x} cy={struct.y} r={struct.size * 1.0}
+            fill="none" stroke="#E8A87C" strokeWidth={3}
+            animate={{ opacity: [0.6, 1, 0.6] }}
+            transition={{ duration: 0.9, repeat: Infinity, ease: 'easeInOut' }}
+          />
+        </>
+      )}
+      {highlight && reducedMotion && (
+        <circle cx={struct.x} cy={struct.y} r={struct.size * 1.0}
+                fill="none" stroke="#FFD93D" strokeWidth={4} opacity={0.85} />
+      )}
       {/* "Next" structure gets an extra pulsing ring — a soft "come here" cue */}
       {isNext && !reducedMotion && (
         <motion.circle
