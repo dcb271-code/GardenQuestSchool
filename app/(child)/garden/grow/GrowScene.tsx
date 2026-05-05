@@ -15,6 +15,7 @@ import { PlantStageIllustration } from '@/components/child/garden/PlantStageIllu
 import {
   VegetableBackground, FlowerBackground, FruitGroveBackground, JapaneseBackground,
 } from '@/components/child/garden/QuadrantBackgrounds';
+import EmptyPlotPicker from './EmptyPlotPicker';
 
 export default function GrowScene({
   learnerId, state,
@@ -22,6 +23,8 @@ export default function GrowScene({
   learnerId: string;
   state: GrowState;
 }) {
+  const [pickerPlotCode, setPickerPlotCode] = useState<string | null>(null);
+
   return (
     <div className="bg-[#F5EBDC] flex flex-col overflow-hidden" style={{ height: '100dvh', minHeight: '100vh' }}>
       <header className="flex items-center justify-between bg-cream/90 backdrop-blur border-b border-ochre/30 px-3 py-2">
@@ -73,6 +76,26 @@ export default function GrowScene({
             <rect x={800} y={420} width={520} height={340} fill="#5A3B1F" opacity={0.45} pointerEvents="none" />
           )}
 
+          {/* Empty plot tap targets */}
+          {state.plots.map(p => {
+            if (p.plant) return null;
+            const isOpen = state.openQuadrants.has(p.plot.garden);
+            return (
+              <g key={`empty-${p.plot.code}`}
+                 style={{ cursor: isOpen ? 'pointer' : 'not-allowed', touchAction: 'manipulation' }}
+                 onClick={() => isOpen && setPickerPlotCode(p.plot.code)}>
+                {/* dashed outline indicating empty plot */}
+                <ellipse cx={p.plot.x} cy={p.plot.y} rx={28} ry={18}
+                         fill="rgba(0,0,0,0.08)" stroke={isOpen ? '#8B5A2B' : '#5A3B1F'}
+                         strokeWidth={1.4} strokeDasharray="4 4" opacity={isOpen ? 0.6 : 0.3} />
+                {isOpen && (
+                  <text x={p.plot.x} y={p.plot.y + 4} textAnchor="middle"
+                        fontSize={18} fill="#6B4423" opacity={0.5}>+</text>
+                )}
+              </g>
+            );
+          })}
+
           {/* Plots: render plant illustration if planted, otherwise nothing yet */}
           {state.plots.map(p => {
             if (!p.plant) return null;
@@ -87,6 +110,15 @@ export default function GrowScene({
             );
           })}
         </svg>
+
+        <EmptyPlotPicker
+          open={pickerPlotCode !== null}
+          onClose={() => setPickerPlotCode(null)}
+          learnerId={learnerId}
+          plotCode={pickerPlotCode ?? ''}
+          plotGarden={state.plots.find(p => p.plot.code === pickerPlotCode)?.plot.garden ?? 'vegetable'}
+          earnedSeeds={state.earnedSeeds}
+        />
       </div>
     </div>
   );
