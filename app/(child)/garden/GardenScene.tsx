@@ -155,6 +155,11 @@ interface StructureState {
   prereqDisplay: string;
   built?: boolean;       // habitats only
   prereqHints?: PrereqHint[];
+  // 3-tier badge state (skill structures only):
+  //   ≥10 correct → "10/10" first-milestone badge
+  //   ≥20 correct OR mastered → +check ✓ (also triggers habitat unlock)
+  //   ≥30 correct OR mastered → +star ⭐ (volume OR cross-session mastery)
+  mastered?: boolean;
 }
 
 export default function GardenScene({
@@ -1516,6 +1521,7 @@ interface StructureStateProp {
   built?: boolean;
   unlocksLabel?: string | null;
   prereqHints?: PrereqHint[];
+  mastered?: boolean;
 }
 
 function Structure({
@@ -1531,9 +1537,16 @@ function Structure({
   // attention pulse so she can spot it on the map.
   highlight?: boolean;
 }) {
-  const { unlocked, completed, isNext, correctCount, target, built, unlocksLabel } = state;
+  const { unlocked, completed, isNext, correctCount, target, built, unlocksLabel, mastered } = state;
   const showProgressBadge = struct.kind === 'skill' && target > 0;
   const isHabitat = struct.kind === 'habitat';
+  // 3-tier progress recognition for skill structures:
+  //   ≥10 correct → "10/10" first-milestone (existing progress badge stays
+  //                  green and locked at 10/10 once she crosses 10)
+  //   ≥20 correct OR mastered → +check ✓ (also unlocks the related habitat)
+  //   ≥30 correct OR mastered → +star ⭐ (volume OR cross-session mastery)
+  const showCheckBadge = struct.kind === 'skill' && (correctCount >= 20 || !!mastered);
+  const showStarBadge  = struct.kind === 'skill' && (correctCount >= 30 || !!mastered);
   // Ghost state: skill prereqs met but ecology quest not done yet.
   // The illustration is shown faded with a build-me indicator.
   const isGhost = isHabitat && unlocked && !built;
@@ -1754,6 +1767,65 @@ function Structure({
             >
               {Math.min(correctCount, target)}/{target}
             </text>
+          </g>
+        )}
+
+        {/* CHECK ✓ badge — appears at ≥20 correct OR mastered.
+            Positioned upper-right of the structure. Same visual
+            anchor the locked structures use for the 🔒 lock badge. */}
+        {showCheckBadge && (
+          <g pointerEvents="none">
+            <circle
+              cx={struct.x + struct.size * 0.4}
+              cy={struct.y - struct.size * 0.4}
+              r={9}
+              fill="#6B8E5A" stroke="#4F6F42" strokeWidth={1.4}
+            />
+            <path
+              d={`M ${struct.x + struct.size * 0.4 - 4} ${struct.y - struct.size * 0.4 + 0.5}
+                  L ${struct.x + struct.size * 0.4 - 1} ${struct.y - struct.size * 0.4 + 3.5}
+                  L ${struct.x + struct.size * 0.4 + 4} ${struct.y - struct.size * 0.4 - 2.5}`}
+              stroke="#FFFFFF" strokeWidth={2} fill="none"
+              strokeLinecap="round" strokeLinejoin="round"
+            />
+          </g>
+        )}
+
+        {/* STAR ⭐ badge — appears at ≥30 correct OR mastered.
+            Sits just LEFT of the check so both badges read together
+            as a tier progression: check first, then star added next
+            to it. Gold five-pointed star on a soft cream background. */}
+        {showStarBadge && (
+          <g pointerEvents="none">
+            <circle
+              cx={struct.x + struct.size * 0.4 - 18}
+              cy={struct.y - struct.size * 0.4}
+              r={9}
+              fill="#FFD93D" stroke="#B8941A" strokeWidth={1.4}
+            />
+            {/* hand-drawn five-pointed star */}
+            <path
+              d={(() => {
+                const cx = struct.x + struct.size * 0.4 - 18;
+                const cy = struct.y - struct.size * 0.4;
+                const r = 5;
+                // 5-point star path — angles at 90, 162, 234, 306, 378° (every 72°)
+                const pts: string[] = [];
+                for (let i = 0; i < 10; i++) {
+                  const radius = i % 2 === 0 ? r : r * 0.45;
+                  const angle = (i * 36 - 90) * Math.PI / 180;
+                  const x = cx + Math.cos(angle) * radius;
+                  const y = cy + Math.sin(angle) * radius;
+                  pts.push(`${i === 0 ? 'M' : 'L'} ${x.toFixed(2)} ${y.toFixed(2)}`);
+                }
+                pts.push('Z');
+                return pts.join(' ');
+              })()}
+              fill="#FFFFFF"
+              stroke="#B8941A"
+              strokeWidth={0.8}
+              strokeLinejoin="round"
+            />
           </g>
         )}
 

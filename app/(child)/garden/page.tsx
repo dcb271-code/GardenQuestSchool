@@ -46,6 +46,15 @@ export interface StructureState {
   built?: boolean;       // habitats only — true if ecology quest done
   unlocksLabel?: string | null;  // skill structures: what finishing this opens
   prereqHints?: PrereqHint[];    // habitats only — where to find each missing prereq
+  // 3-tier badge state for skill structures:
+  //   <10 correct  → progress count
+  //   ≥10 correct  → "10/10" first-milestone badge
+  //   ≥20 correct OR mastered → +check ✓
+  //   ≥30 correct OR mastered → +star ⭐
+  // `mastered` is the strict 4-state mastery flag (review→mastered
+  // cross-session). Star also fires when correctCount ≥ 30 — gives a
+  // count-based path so volume practice is recognized too.
+  mastered?: boolean;
 }
 
 export default async function GardenPage({
@@ -135,19 +144,20 @@ export default async function GardenPage({
         target: p?.target ?? ZONE_COMPLETION_TARGET,
         prereqDisplay: p?.prereqDisplay ?? '',
         unlocksLabel: p?.unlocksLabel ?? null,
+        mastered: s.skillCode ? mastered.has(s.skillCode) : false,
       };
     } else if (s.kind === 'habitat' && s.habitatCode) {
       const habitat = HABITAT_CATALOG.find(h => h.code === s.habitatCode);
-      // Habitat unlock threshold: a prereq is "met" when the skill
-      // shows COMPLETED on the map (the check-mark state) — meaning
-      // the learner is either fully mastered (strict review→mastered
-      // cross-session transition) OR has racked up the same count of
-      // correct attempts that earns the visual completion check
-      // (ZONE_COMPLETION_TARGET — currently 10). Aligning the unlock
-      // bar with the visible completion signal removes the confusion
-      // of "I see a check mark, why is the habitat still locked?"
+      // Habitat unlock threshold: matches the CHECK ✓ badge tier in
+      // the structure visuals — the learner has crossed beyond the
+      // initial "10/10" first-milestone display and racked up at
+      // least 20 lifetime correct attempts at the prereq skill (or
+      // is fully mastered cross-session). The check signals "she's
+      // really practiced this," which is the right bar for opening
+      // an animal habitat.
+      const HABITAT_UNLOCK_CORRECT = 20;
       const isPrereqMet = (c: string) =>
-        mastered.has(c) || (correctByCode.get(c) ?? 0) >= ZONE_COMPLETION_TARGET;
+        mastered.has(c) || (correctByCode.get(c) ?? 0) >= HABITAT_UNLOCK_CORRECT;
       const prereqsMet = habitat ? habitat.prereqSkillCodes.every(isPrereqMet) : false;
       // For each unmet prereq skill, find a structure on the central
       // garden that teaches it so the lock modal can show "go to X"
