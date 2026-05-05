@@ -1245,116 +1245,114 @@ export default function MathMountainScene({
               : 'drop-shadow(0 2px 3px rgba(107,68,35,0.42))';
 
             if (key === 'cottage') {
-              // Open-front pavilion / woodland cabin — A-frame timber
-              // roof, log-cabin side walls (stacked horizontal logs),
-              // open front porch with two prominent timber posts and
-              // chairs visible inside, wooden deck with railings, and
-              // a center staircase. Modeled on the user's reference
-              // photo. Same hand-drawn vocabulary as CozyHouse on the
-              // central garden.
+              // Open-front timber pavilion modeled directly on the
+              // user's reference photo. Wider-than-tall proportions
+              // (~3:2), GENTLE roof pitch (no spire/church look), thick
+              // visible log walls all the way across the back, and a
+              // generous wood deck with central stairs. No decorative
+              // gable trim — the photo's pavilion is plain timber.
               return (
                 <g style={{ filter, opacity: tone }} transform="scale(1.1)">
                   {/* ground shadow */}
-                  <ellipse cx={0} cy={48} rx={48} ry={6} fill="#000" opacity={0.18} />
+                  <ellipse cx={0} cy={50} rx={62} ry={6} fill="#000" opacity={0.20} />
 
-                  {/* WOODEN DECK — wide platform with railings around
-                      the perimeter, deeper in front than at sides */}
-                  <path d="M -44 30 L 44 30 L 44 42 L -44 42 Z"
-                        fill="#A06B36" stroke="#5A3B1F" strokeWidth={1.5} strokeLinejoin="round" />
-                  {/* deck plank lines */}
-                  <line x1={-44} y1={34} x2={44} y2={34} stroke="#5A3B1F" strokeWidth={0.6} opacity={0.55} />
-                  <line x1={-44} y1={38} x2={44} y2={38} stroke="#5A3B1F" strokeWidth={0.6} opacity={0.55} />
-                  {/* deck under-skirt */}
-                  <rect x={-44} y={42} width={88} height={4} fill="#5A3B1F" stroke="#3F2614" strokeWidth={1} />
+                  {/* DECK SKIRT (under-deck shadow + fascia) */}
+                  <rect x={-58} y={40} width={116} height={6} fill="#3F2614" stroke="#2A1810" strokeWidth={1} />
 
-                  {/* RAILINGS — left + right, vertical posts at the deck edges */}
-                  {/* left railing */}
-                  <line x1={-44} y1={30} x2={-44} y2={20} stroke="#5A3B1F" strokeWidth={1.4} strokeLinecap="round" />
-                  <line x1={-32} y1={30} x2={-32} y2={20} stroke="#5A3B1F" strokeWidth={1.1} strokeLinecap="round" />
-                  <line x1={-44} y1={22} x2={-32} y2={22} stroke="#5A3B1F" strokeWidth={1.4} strokeLinecap="round" />
-                  {/* spindles */}
-                  <line x1={-42} y1={30} x2={-42} y2={22} stroke="#5A3B1F" strokeWidth={0.5} />
-                  <line x1={-39} y1={30} x2={-39} y2={22} stroke="#5A3B1F" strokeWidth={0.5} />
-                  <line x1={-36} y1={30} x2={-36} y2={22} stroke="#5A3B1F" strokeWidth={0.5} />
+                  {/* DECK SURFACE — wider-than-tall wood platform */}
+                  <rect x={-58} y={28} width={116} height={12} fill="#A06B36" stroke="#5A3B1F" strokeWidth={1.5} />
+                  <line x1={-58} y1={32} x2={58} y2={32} stroke="#5A3B1F" strokeWidth={0.5} opacity={0.55} />
+                  <line x1={-58} y1={36} x2={58} y2={36} stroke="#5A3B1F" strokeWidth={0.5} opacity={0.55} />
+                  {/* deck plank vertical seams (every 14px) */}
+                  {[-44, -30, -16, -2, 12, 26, 40].map(xi => (
+                    <line key={`dp-${xi}`} x1={xi} y1={28} x2={xi} y2={40} stroke="#5A3B1F" strokeWidth={0.4} opacity={0.4} />
+                  ))}
+
+                  {/* SIDE RAILINGS — left + right, sitting on the deck */}
+                  {/* left railing — top rail + posts */}
+                  <line x1={-58} y1={20} x2={-32} y2={20} stroke="#5A3B1F" strokeWidth={1.4} strokeLinecap="round" />
+                  <line x1={-58} y1={20} x2={-58} y2={28} stroke="#5A3B1F" strokeWidth={1.4} strokeLinecap="round" />
+                  <line x1={-32} y1={20} x2={-32} y2={28} stroke="#5A3B1F" strokeWidth={1.4} strokeLinecap="round" />
+                  {[-52, -46, -40].map(xi => (
+                    <line key={`lr-${xi}`} x1={xi} y1={20} x2={xi} y2={28} stroke="#5A3B1F" strokeWidth={0.6} />
+                  ))}
                   {/* right railing */}
-                  <line x1={44} y1={30} x2={44} y2={20} stroke="#5A3B1F" strokeWidth={1.4} strokeLinecap="round" />
-                  <line x1={32} y1={30} x2={32} y2={20} stroke="#5A3B1F" strokeWidth={1.1} strokeLinecap="round" />
-                  <line x1={32} y1={22} x2={44} y2={22} stroke="#5A3B1F" strokeWidth={1.4} strokeLinecap="round" />
-                  <line x1={42} y1={30} x2={42} y2={22} stroke="#5A3B1F" strokeWidth={0.5} />
-                  <line x1={39} y1={30} x2={39} y2={22} stroke="#5A3B1F" strokeWidth={0.5} />
-                  <line x1={36} y1={30} x2={36} y2={22} stroke="#5A3B1F" strokeWidth={0.5} />
-
-                  {/* CENTER STAIRCASE in front, descending */}
-                  <path d="M -10 42 L 10 42 L 10 48 L -10 48 Z"
-                        fill="#C8A57A" stroke="#5A3B1F" strokeWidth={1.2} strokeLinejoin="round" />
-                  <line x1={-10} y1={45} x2={10} y2={45} stroke="#5A3B1F" strokeWidth={0.7} opacity={0.6} />
-                  {/* step shadow on lower edge */}
-                  <line x1={-10} y1={48} x2={10} y2={48} stroke="#3F2614" strokeWidth={1} />
-
-                  {/* LOG-CABIN SIDE WALLS — stacked horizontal logs on
-                      the left and right of the open porch */}
-                  {/* left wall */}
-                  <rect x={-44} y={-8} width={12} height={28} fill="#B47845" stroke="#5A3B1F" strokeWidth={1.4} />
-                  {[ -4, 0, 4, 8, 12, 16 ].map(yi => (
-                    <ellipse key={`ll-${yi}`} cx={-38} cy={yi} rx={6} ry={1.6} fill="#A06B36" stroke="#5A3B1F" strokeWidth={0.7} />
-                  ))}
-                  {/* right wall */}
-                  <rect x={32} y={-8} width={12} height={28} fill="#B47845" stroke="#5A3B1F" strokeWidth={1.4} />
-                  {[ -4, 0, 4, 8, 12, 16 ].map(yi => (
-                    <ellipse key={`rl-${yi}`} cx={38} cy={yi} rx={6} ry={1.6} fill="#A06B36" stroke="#5A3B1F" strokeWidth={0.7} />
+                  <line x1={32} y1={20} x2={58} y2={20} stroke="#5A3B1F" strokeWidth={1.4} strokeLinecap="round" />
+                  <line x1={58} y1={20} x2={58} y2={28} stroke="#5A3B1F" strokeWidth={1.4} strokeLinecap="round" />
+                  <line x1={32} y1={20} x2={32} y2={28} stroke="#5A3B1F" strokeWidth={1.4} strokeLinecap="round" />
+                  {[40, 46, 52].map(xi => (
+                    <line key={`rr-${xi}`} x1={xi} y1={20} x2={xi} y2={28} stroke="#5A3B1F" strokeWidth={0.6} />
                   ))}
 
-                  {/* CENTER OPEN PORCH — back wall partially visible
-                      between the two side walls */}
-                  <rect x={-32} y={4} width={64} height={16} fill="#7A5A3A" stroke="#3F2614" strokeWidth={1} opacity={0.85} />
-                  {/* horizontal log lines on the back wall */}
-                  <line x1={-32} y1={8} x2={32} y2={8} stroke="#5A3B1F" strokeWidth={0.7} opacity={0.55} />
-                  <line x1={-32} y1={14} x2={32} y2={14} stroke="#5A3B1F" strokeWidth={0.7} opacity={0.55} />
+                  {/* CENTRAL STAIRCASE — wider-than-tall, descending */}
+                  <rect x={-16} y={40} width={32} height={4} fill="#C8A57A" stroke="#5A3B1F" strokeWidth={1} />
+                  <rect x={-16} y={44} width={32} height={4} fill="#B89265" stroke="#5A3B1F" strokeWidth={1} />
+                  <rect x={-16} y={48} width={32} height={4} fill="#A87E55" stroke="#5A3B1F" strokeWidth={1} />
+                  {/* stair side stringers */}
+                  <line x1={-16} y1={40} x2={-16} y2={52} stroke="#5A3B1F" strokeWidth={1} />
+                  <line x1={16} y1={40} x2={16} y2={52} stroke="#5A3B1F" strokeWidth={1} />
 
-                  {/* CHAIRS visible on the porch — two simple silhouettes */}
+                  {/* TWO MAIN TIMBER POSTS at the front of the porch */}
+                  <rect x={-36} y={-2} width={6} height={30} fill="#8B5A2B" stroke="#3F2614" strokeWidth={1.2} />
+                  <rect x={30} y={-2} width={6} height={30} fill="#8B5A2B" stroke="#3F2614" strokeWidth={1.2} />
+                  {/* timber grain hint */}
+                  <line x1={-33} y1={2} x2={-33} y2={26} stroke="#5A3B1F" strokeWidth={0.5} opacity={0.55} />
+                  <line x1={33} y1={2} x2={33} y2={26} stroke="#5A3B1F" strokeWidth={0.5} opacity={0.55} />
+
+                  {/* LOG-CABIN BACK WALL — full-width chunky stacked
+                      logs visible through the open front. This is the
+                      defining feature: thick horizontal logs across
+                      the whole back. */}
+                  <rect x={-52} y={2} width={104} height={26} fill="#7A5A3A" stroke="#3F2614" strokeWidth={1.2} />
+                  {/* log courses — 5 stacked logs across the back */}
+                  {[6, 12, 18, 24].map(yi => (
+                    <line key={`lg-${yi}`} x1={-52} y1={yi} x2={52} y2={yi} stroke="#5A3B1F" strokeWidth={1} opacity={0.7} />
+                  ))}
+                  {/* end-cuts of the logs sticking out at the corners
+                      (the chunky log-cabin look) */}
+                  {[6, 12, 18, 24].map(yi => (
+                    <g key={`lc-${yi}`}>
+                      <ellipse cx={-52} cy={yi - 2} rx={3} ry={2.4} fill="#A06B36" stroke="#5A3B1F" strokeWidth={0.8} />
+                      <ellipse cx={52}  cy={yi - 2} rx={3} ry={2.4} fill="#A06B36" stroke="#5A3B1F" strokeWidth={0.8} />
+                    </g>
+                  ))}
+
+                  {/* CHAIRS visible inside the porch — two simple
+                      silhouettes flanking the center */}
                   <g>
-                    <rect x={-20} y={14} width={6} height={10} rx={1} fill="#5C7E4F" stroke="#3F2614" strokeWidth={0.8} />
-                    <rect x={-21} y={20} width={8} height={2} fill="#3F2614" />
+                    <rect x={-22} y={14} width={7} height={11} rx={1} fill="#5C7E4F" stroke="#3F2614" strokeWidth={0.9} />
+                    <rect x={-23} y={20} width={9} height={2} fill="#3F2614" />
+                    <line x1={-22} y1={25} x2={-22} y2={28} stroke="#3F2614" strokeWidth={0.7} />
+                    <line x1={-15} y1={25} x2={-15} y2={28} stroke="#3F2614" strokeWidth={0.7} />
                   </g>
                   <g>
-                    <rect x={14} y={14} width={6} height={10} rx={1} fill="#5C7E4F" stroke="#3F2614" strokeWidth={0.8} />
-                    <rect x={13} y={20} width={8} height={2} fill="#3F2614" />
+                    <rect x={15} y={14} width={7} height={11} rx={1} fill="#5C7E4F" stroke="#3F2614" strokeWidth={0.9} />
+                    <rect x={14} y={20} width={9} height={2} fill="#3F2614" />
+                    <line x1={15} y1={25} x2={15} y2={28} stroke="#3F2614" strokeWidth={0.7} />
+                    <line x1={22} y1={25} x2={22} y2={28} stroke="#3F2614" strokeWidth={0.7} />
                   </g>
 
-                  {/* TWO PROMINENT TIMBER POSTS holding up the porch
-                      roof — at the front corners of the open area */}
-                  <rect x={-29} y={-8} width={4} height={28} fill="#8B5A2B" stroke="#3F2614" strokeWidth={1} />
-                  <rect x={25} y={-8} width={4} height={28} fill="#8B5A2B" stroke="#3F2614" strokeWidth={1} />
+                  {/* STRING LIGHTS — soft warm bulbs strung between the
+                      two front posts */}
+                  <path d="M -33 6 Q 0 10 33 6" stroke="#5A3B1F" strokeWidth={0.5} fill="none" />
+                  {[-22, -10, 0, 10, 22].map(xi => (
+                    <ellipse key={`sl-${xi}`} cx={xi} cy={8} rx={1.4} ry={1.7} fill="#FFD06B" stroke="#5A3B1F" strokeWidth={0.5} />
+                  ))}
 
-                  {/* WARM LANTERN GLOW between the posts (string-light hint) */}
-                  <ellipse cx={-12} cy={4} rx={2} ry={2.4} fill="#FFD06B" stroke="#5A3B1F" strokeWidth={0.6} />
-                  <ellipse cx={0} cy={4} rx={2} ry={2.4} fill="#FFD06B" stroke="#5A3B1F" strokeWidth={0.6} />
-                  <ellipse cx={12} cy={4} rx={2} ry={2.4} fill="#FFD06B" stroke="#5A3B1F" strokeWidth={0.6} />
-                  {/* string */}
-                  <path d="M -25 4 Q 0 8 25 4" stroke="#5A3B1F" strokeWidth={0.5} fill="none" />
-
-                  {/* A-FRAME ROOF — steep gabled wood-stained roof */}
-                  <path d="M -50 -8 L 0 -42 L 50 -8 Z"
+                  {/* GENTLE GABLED ROOF — wide, low-pitched. Roof spans
+                      from x:-66 to 66 (overhanging the deck), peaks at
+                      y:-26 (only 26px above the eave at y:-2). Aspect
+                      ~5:1 wide:tall, no spire. */}
+                  <path d="M -66 -2 L 0 -26 L 66 -2 Z"
                         fill="#7A5A3A" stroke="#3F2614" strokeWidth={2} strokeLinejoin="round" />
-                  {/* roof eaves overhang */}
-                  <path d="M -50 -8 L -52 -4 L -44 -4 Z" fill="#7A5A3A" stroke="#3F2614" strokeWidth={1.4} strokeLinejoin="round" />
-                  <path d="M 50 -8 L 52 -4 L 44 -4 Z" fill="#7A5A3A" stroke="#3F2614" strokeWidth={1.4} strokeLinejoin="round" />
-                  {/* roof beam lines (suggesting heavy timber rafters) */}
-                  <path d="M -34 -8 L -2 -32" stroke="#3F2614" strokeWidth={0.8} opacity={0.55} />
-                  <path d="M 34 -8 L 2 -32" stroke="#3F2614" strokeWidth={0.8} opacity={0.55} />
-                  <path d="M -16 -8 L -8 -16" stroke="#3F2614" strokeWidth={0.6} opacity={0.4} />
-                  <path d="M 16 -8 L 8 -16" stroke="#3F2614" strokeWidth={0.6} opacity={0.4} />
-                  {/* gable trim board across the bottom of the roof */}
-                  <line x1={-50} y1={-8} x2={50} y2={-8} stroke="#3F2614" strokeWidth={1.2} />
-                  {/* central kingpost / decorative timber inside the gable */}
-                  <line x1={0} y1={-42} x2={0} y2={-12} stroke="#3F2614" strokeWidth={1} opacity={0.7} />
-                  <line x1={-10} y1={-22} x2={10} y2={-22} stroke="#3F2614" strokeWidth={0.8} opacity={0.6} />
-
-                  {/* tiny string-light glow above the roof eaves */}
-                  <circle cx={-30} cy={-6} r={0.8} fill="#FFD93D" opacity={0.85} />
-                  <circle cx={-15} cy={-6} r={0.8} fill="#FFD93D" opacity={0.85} />
-                  <circle cx={15} cy={-6} r={0.8} fill="#FFD93D" opacity={0.85} />
-                  <circle cx={30} cy={-6} r={0.8} fill="#FFD93D" opacity={0.85} />
+                  {/* eave fascia board — strong horizontal line under
+                      the roof, defining the open-front look */}
+                  <rect x={-66} y={-2} width={132} height={3} fill="#5A3B1F" stroke="#3F2614" strokeWidth={1} />
+                  {/* a few subtle plank lines along the roof slope —
+                      no king-post, no cross-beams (those made it look
+                      church-y) */}
+                  <line x1={-44} y1={-2} x2={-14} y2={-18} stroke="#3F2614" strokeWidth={0.6} opacity={0.45} />
+                  <line x1={44} y1={-2} x2={14} y2={-18} stroke="#3F2614" strokeWidth={0.6} opacity={0.45} />
                 </g>
               );
             }
