@@ -1326,94 +1326,92 @@ export default function MathMountainScene({
                   <line x1={-22} y1={36} x2={-22} y2={42} stroke="#5A3B1F" strokeWidth={1.4} strokeLinecap="round" />
                   <line x1={22} y1={36} x2={22} y2={42} stroke="#5A3B1F" strokeWidth={1.4} strokeLinecap="round" />
 
-                  {/* LOG-CABIN BACK WALL — RAISED so the wall top
-                      meets the roof eave (no gap between roof and
-                      wall). Wall now spans y:-12 to y:28 (height 40,
-                      was 26). Renders FIRST so front posts + chairs
-                      layer on top of it. */}
-                  <rect x={-52} y={-12} width={104} height={40} fill="#7A5A3A" stroke="#3F2614" strokeWidth={1.2} />
-                  {/* 6 log courses across the taller wall */}
-                  {[-6, 0, 6, 12, 18, 24].map(yi => (
+                  {/* LOG-CABIN BACK WALL — eaves slightly LOWER (y:-9
+                      vs the previous y:-12) so the building reads as
+                      shorter / wider, and the steeper roof above it
+                      reads as more triangular. Wall now spans y:-9 to
+                      y:28 (height 37). Renders FIRST so windows,
+                      chairs, and front posts layer on top. */}
+                  <rect x={-52} y={-9} width={104} height={37} fill="#7A5A3A" stroke="#3F2614" strokeWidth={1.2} />
+                  {/* 6 log courses across the wall */}
+                  {[-3, 3, 9, 15, 21].map(yi => (
                     <line key={`lg-${yi}`} x1={-52} y1={yi} x2={52} y2={yi} stroke="#5A3B1F" strokeWidth={1} opacity={0.7} />
                   ))}
                   {/* end-cut log nubs at corners (one per course) */}
-                  {[-6, 0, 6, 12, 18, 24].map(yi => (
+                  {[-3, 3, 9, 15, 21].map(yi => (
                     <g key={`lc-${yi}`}>
                       <ellipse cx={-52} cy={yi - 2} rx={3} ry={2.4} fill="#A06B36" stroke="#5A3B1F" strokeWidth={0.8} />
                       <ellipse cx={52}  cy={yi - 2} rx={3} ry={2.4} fill="#A06B36" stroke="#5A3B1F" strokeWidth={0.8} />
                     </g>
                   ))}
 
-                  {/* FOUR TALLER RECTANGULAR WINDOWS — now span y:-8
-                      to y:14 (height 22, was 9). Glowing warm gold
-                      panes positioned so the chairs sit IN FRONT of
-                      the lower portion. */}
+                  {/* FOUR TALL RECTANGULAR WINDOWS — span y:-5 to y:14
+                      (height 19), 12 wide. Glowing warm gold panes
+                      that the chairs sit in front of. */}
                   {[-32, -12, 8, 28].map(xi => (
                     <g key={`win-${xi}`}>
-                      <rect x={xi - 6} y={-8} width={12} height={22} fill="#FFD06B" stroke="#5A3B1F" strokeWidth={1.2} />
-                      {/* glow inside */}
-                      <rect x={xi - 5} y={-7} width={10} height={20} fill="#FFE89A" opacity={0.65} />
-                      {/* mullion cross — vertical center + horizontal mid-bar */}
-                      <line x1={xi} y1={-8} x2={xi} y2={14} stroke="#5A3B1F" strokeWidth={0.6} />
-                      <line x1={xi - 6} y1={3} x2={xi + 6} y2={3} stroke="#5A3B1F" strokeWidth={0.6} />
+                      <rect x={xi - 6} y={-5} width={12} height={19} fill="#FFD06B" stroke="#5A3B1F" strokeWidth={1.2} />
+                      <rect x={xi - 5} y={-4} width={10} height={17} fill="#FFE89A" opacity={0.65} />
+                      <line x1={xi} y1={-5} x2={xi} y2={14} stroke="#5A3B1F" strokeWidth={0.6} />
+                      <line x1={xi - 6} y1={4} x2={xi + 6} y2={4} stroke="#5A3B1F" strokeWidth={0.6} />
                     </g>
                   ))}
 
                   {/* FOUR GREEN PORCH CHAIRS — sit on the deck IN
-                      FRONT of the windows, partially overlapping the
-                      lower window panes (the photo shows chairs in
-                      front of the lit interior). */}
+                      FRONT of the windows */}
                   {[-32, -12, 8, 28].map(xi => (
                     <g key={`chair-${xi}`}>
-                      {/* seat back */}
                       <rect x={xi - 4} y={14} width={8} height={10} rx={1} fill="#5C7E4F" stroke="#3F2614" strokeWidth={0.9} />
-                      {/* seat cushion */}
                       <rect x={xi - 5} y={21} width={10} height={3} fill="#4F6F42" stroke="#3F2614" strokeWidth={0.6} />
-                      {/* chair legs */}
                       <line x1={xi - 4} y1={24} x2={xi - 4} y2={28} stroke="#3F2614" strokeWidth={0.7} />
                       <line x1={xi + 4} y1={24} x2={xi + 4} y2={28} stroke="#3F2614" strokeWidth={0.7} />
-                      {/* back-rest spindle hint */}
                       <line x1={xi} y1={15} x2={xi} y2={22} stroke="#3F2614" strokeWidth={0.5} opacity={0.55} />
                     </g>
                   ))}
 
-                  {/* TWO MAIN TIMBER POSTS at the front of the porch
-                      — rendered AFTER the wall so they layer on top
-                      (the previous order had wall covering the lower
-                      portion of each post). */}
-                  <rect x={-36} y={-12} width={6} height={40} fill="#8B5A2B" stroke="#3F2614" strokeWidth={1.2} />
-                  <rect x={30} y={-12} width={6} height={40} fill="#8B5A2B" stroke="#3F2614" strokeWidth={1.2} />
-                  <line x1={-33} y1={-8} x2={-33} y2={26} stroke="#5A3B1F" strokeWidth={0.5} opacity={0.55} />
-                  <line x1={33} y1={-8} x2={33} y2={26} stroke="#5A3B1F" strokeWidth={0.5} opacity={0.55} />
+                  {/* TWO MAIN TIMBER POSTS at the front of the porch */}
+                  <rect x={-36} y={-9} width={6} height={37} fill="#8B5A2B" stroke="#3F2614" strokeWidth={1.2} />
+                  <rect x={30} y={-9} width={6} height={37} fill="#8B5A2B" stroke="#3F2614" strokeWidth={1.2} />
+                  <line x1={-33} y1={-5} x2={-33} y2={26} stroke="#5A3B1F" strokeWidth={0.5} opacity={0.55} />
+                  <line x1={33} y1={-5} x2={33} y2={26} stroke="#5A3B1F" strokeWidth={0.5} opacity={0.55} />
 
                   {/* STRING LIGHTS between the two front posts */}
-                  <path d="M -33 0 Q 0 4 33 0" stroke="#5A3B1F" strokeWidth={0.5} fill="none" />
+                  <path d="M -33 3 Q 0 7 33 3" stroke="#5A3B1F" strokeWidth={0.5} fill="none" />
                   {[-22, -10, 0, 10, 22].map(xi => (
-                    <ellipse key={`sl-${xi}`} cx={xi} cy={2} rx={1.3} ry={1.6} fill="#FFD06B" stroke="#5A3B1F" strokeWidth={0.5} />
+                    <ellipse key={`sl-${xi}`} cx={xi} cy={5} rx={1.3} ry={1.6} fill="#FFD06B" stroke="#5A3B1F" strokeWidth={0.5} />
                   ))}
 
-                  {/* STEEPER A-FRAME ROOF — peak at y:-44 (was -26).
-                      Width still 132 (-66 to 66) but rise is now 32px
-                      from eave to peak, giving roughly a 38° pitch.
-                      strokeLinejoin="miter" so the apex is a clean
-                      sharp point — no rounded "nub" artifact. The
-                      previous fascia board across the eave is gone;
-                      the post tops handle the visual connection. */}
-                  <path d="M -66 -12 L 0 -44 L 66 -12 Z"
+                  {/* STEEPER A-FRAME ROOF — peak at y:-58, eaves at
+                      y:-9 (rise 49 over run 132 = ~37° pitch). Reads
+                      as much more triangular than the previous
+                      gentler version. Eaves overhang the wall edges
+                      slightly (-66/+66 vs wall at -52/+52). */}
+                  <path d="M -66 -9 L 0 -58 L 66 -9 Z"
                         fill="#7A5A3A" stroke="#3F2614" strokeWidth={2} strokeLinejoin="miter" />
-                  {/* roof shake/shingle hint — two subtle horizontal
+                  {/* roof shake/shingle hint — three subtle horizontal
                       lines parallel to the eave */}
-                  <path d="M -54 -18 L 54 -18" stroke="#3F2614" strokeWidth={0.5} opacity={0.4} />
-                  <path d="M -42 -24 L 42 -24" stroke="#3F2614" strokeWidth={0.5} opacity={0.4} />
+                  <path d="M -56 -16 L 56 -16" stroke="#3F2614" strokeWidth={0.5} opacity={0.4} />
+                  <path d="M -44 -25 L 44 -25" stroke="#3F2614" strokeWidth={0.5} opacity={0.4} />
+                  <path d="M -30 -36 L 30 -36" stroke="#3F2614" strokeWidth={0.5} opacity={0.4} />
 
-                  {/* TWO TRIANGULAR GABLE WINDOWS — small triangles
-                      tucked into the upper portion of the roof,
-                      mirroring the photo's dual gable vents */}
-                  <path d="M -16 -28 L 0 -38 L 0 -28 Z" fill="#FFD06B" stroke="#5A3B1F" strokeWidth={1} strokeLinejoin="miter" />
-                  <path d="M  0 -28 L 0 -38 L 16 -28 Z" fill="#FFD06B" stroke="#5A3B1F" strokeWidth={1} strokeLinejoin="miter" />
-                  {/* glow inside */}
-                  <path d="M -14 -28 L -1 -36 L -1 -28 Z" fill="#FFE89A" opacity={0.6} />
-                  <path d="M  1 -28 L 1 -36 L 14 -28 Z" fill="#FFE89A" opacity={0.6} />
+                  {/* HORIZONTAL CROSS BAR at the eave line — chunky
+                      timber beam spanning the gable, like the photo's
+                      visible tie beam under the roof */}
+                  <rect x={-66} y={-11} width={132} height={4} fill="#5A3B1F" stroke="#3F2614" strokeWidth={1} />
+                  {/* small wood-grain hint on the beam */}
+                  <line x1={-60} y1={-9.5} x2={60} y2={-9.5} stroke="#3F2614" strokeWidth={0.4} opacity={0.55} />
+
+                  {/* TWO BIGGER TRIANGULAR GABLE WINDOWS — fill more
+                      of the gable area, separated by a thin king-post
+                      down the middle. Each spans from x:±28 at the
+                      eave-cross-bar level up to x:0 near the peak. */}
+                  <path d="M -28 -14 L 0 -50 L -2 -14 Z" fill="#FFD06B" stroke="#5A3B1F" strokeWidth={1.1} strokeLinejoin="miter" />
+                  <path d="M  2 -14 L 0 -50 L 28 -14 Z" fill="#FFD06B" stroke="#5A3B1F" strokeWidth={1.1} strokeLinejoin="miter" />
+                  {/* glow inside each */}
+                  <path d="M -25 -15 L -1 -45 L -3 -15 Z" fill="#FFE89A" opacity={0.6} />
+                  <path d="M  3 -15 L 1 -45 L 25 -15 Z" fill="#FFE89A" opacity={0.6} />
+                  {/* king-post divider between the two gable windows */}
+                  <line x1={0} y1={-50} x2={0} y2={-14} stroke="#3F2614" strokeWidth={1.4} />
                 </g>
               );
             }
