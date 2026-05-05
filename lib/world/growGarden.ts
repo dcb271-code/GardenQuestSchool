@@ -56,7 +56,26 @@ export async function loadGrowState(
     .select('plot_code, plant_code, planted_at_correct, planted_at')
     .eq('learner_id', learnerId)
     .is('harvested_at', null);
-  if (error) throw new Error(error.message);
+  // FAIL-SOFT: if the garden_plot table doesn't exist yet (the
+  // migration `010_garden_plot.sql` hasn't been applied), don't
+  // crash the whole /garden/grow page — just treat it as having
+  // zero plots planted. Cecily can still see the layout, the
+  // earned-seeds inventory, and the tap-empty-plot prompt. Planting
+  // actions will surface the real error inline. Once the migration
+  // is applied this branch is no longer exercised.
+  if (error) {
+    if (process.env.NODE_ENV !== 'production') {
+      console.warn('[growGarden] garden_plot read failed (migration not applied?):', error.message);
+    }
+    return {
+      cumulativeCorrect,
+      earnedSeeds: getEarnedSeedCodes(cumulativeCorrect)
+        .map(c => getPlant(c))
+        .filter((p): p is PlantData => !!p),
+      openQuadrants: getOpenQuadrants(cumulativeCorrect),
+      plots: PLOTS.map(plot => ({ plot })),
+    };
+  }
 
   const byPlotCode = new Map<string, GardenPlotRow>();
   for (const row of (plotRows ?? []) as GardenPlotRow[]) {
