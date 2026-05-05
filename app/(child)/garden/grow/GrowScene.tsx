@@ -19,6 +19,7 @@ import {
 import EmptyPlotPicker from './EmptyPlotPicker';
 import PlantInspectModal from './PlantInspectModal';
 import HarvestCelebration from './HarvestCelebration';
+import SeedInventoryTray from './SeedInventoryTray';
 
 export default function GrowScene({
   learnerId, state,
@@ -149,6 +150,8 @@ export default function GrowScene({
         />
 
         <HarvestCelebration open={celebrating} />
+
+        <SeedInventoryTray earnedSeeds={state.earnedSeeds} openQuadrants={state.openQuadrants} />
       </div>
     </div>
   );
