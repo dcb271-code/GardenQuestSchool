@@ -11,7 +11,7 @@ const SUN_LABEL = { full: '☀ full sun', partial: '☀ partial sun', shade: '�
 const WATER_LABEL = { low: '💧 a little', medium: '💧💧 medium', high: '💧💧💧 lots' } as const;
 
 export default function PlantInspectModal({
-  open, onClose, learnerId, plotCode, plant, progress,
+  open, onClose, learnerId, plotCode, plant, progress, onHarvested,
 }: {
   open: boolean;
   onClose: () => void;
@@ -19,6 +19,7 @@ export default function PlantInspectModal({
   plotCode: string;
   plant: PlantData | null;
   progress: number;
+  onHarvested?: () => void;
 }) {
   const [harvesting, setHarvesting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -37,6 +38,7 @@ export default function PlantInspectModal({
     setHarvesting(false);
     if (!r.ok) { setError(r.reason); return; }
     onClose();
+    onHarvested?.();
   };
 
   return (

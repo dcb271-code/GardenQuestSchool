@@ -8,6 +8,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 import type { GrowState } from '@/lib/world/growGarden';
 import { QUADRANT_LAYOUT } from '@/lib/world/plotLayout';
 import { plantStageFor } from '@/lib/world/plantCatalog';
@@ -17,6 +18,7 @@ import {
 } from '@/components/child/garden/QuadrantBackgrounds';
 import EmptyPlotPicker from './EmptyPlotPicker';
 import PlantInspectModal from './PlantInspectModal';
+import HarvestCelebration from './HarvestCelebration';
 
 export default function GrowScene({
   learnerId, state,
@@ -26,6 +28,7 @@ export default function GrowScene({
 }) {
   const [pickerPlotCode, setPickerPlotCode] = useState<string | null>(null);
   const [inspectPlotCode, setInspectPlotCode] = useState<string | null>(null);
+  const [celebrating, setCelebrating] = useState(false);
 
   return (
     <div className="bg-[#F5EBDC] flex flex-col overflow-hidden" style={{ height: '100dvh', minHeight: '100vh' }}>
@@ -108,6 +111,15 @@ export default function GrowScene({
                  style={{ cursor: 'pointer', touchAction: 'manipulation' }}
                  onClick={() => setInspectPlotCode(p.plot.code)}>
                 <rect x={p.plot.x - 36} y={p.plot.y - 36} width={72} height={72} fill="transparent" />
+                {p.plant.isMature && (
+                  <motion.circle
+                    cx={p.plot.x} cy={p.plot.y} r={36}
+                    fill="none" stroke="#FFD93D" strokeWidth={2}
+                    initial={{ opacity: 0.4, scale: 0.95 }}
+                    animate={{ opacity: [0.4, 0.85, 0.4], scale: [0.95, 1.08, 0.95] }}
+                    transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+                  />
+                )}
                 <PlantStageIllustration code={stage.illustration} x={p.plot.x} y={p.plot.y} size={sizePx} />
               </g>
             );
@@ -130,7 +142,13 @@ export default function GrowScene({
           plotCode={inspectPlotCode ?? ''}
           plant={state.plots.find(p => p.plot.code === inspectPlotCode)?.plant?.data ?? null}
           progress={state.plots.find(p => p.plot.code === inspectPlotCode)?.plant?.progress ?? 0}
+          onHarvested={() => {
+            setCelebrating(true);
+            window.setTimeout(() => setCelebrating(false), 1800);
+          }}
         />
+
+        <HarvestCelebration open={celebrating} />
       </div>
     </div>
   );
