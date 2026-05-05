@@ -18,6 +18,7 @@ import {
   type RecommendedCandidate,
 } from '@/lib/world/characterRecommendation';
 import { hasHabitatInterior } from '@/lib/world/habitatInteriors';
+import { getCumulativeCorrect } from '@/lib/world/cumulativeProgress';
 import GardenScene from './GardenScene';
 
 export const dynamic = 'force-dynamic';
@@ -308,6 +309,8 @@ export default async function GardenPage({
     }
   }
 
+  const cumulativeCorrect = await getCumulativeCorrect(db, learnerId);
+
   return (
     <GardenScene
       learnerId={learnerId}
@@ -320,6 +323,7 @@ export default async function GardenPage({
       interiorEnabledByHabitat={interiorEnabledByHabitat}
       pendingArrivalIsFirstForHabitat={pendingArrivalIsFirstForHabitat}
       pendingArrivalHabitatCode={pendingArrivalHabitatCode}
+      cumulativeCorrect={cumulativeCorrect}
     />
   );
 }

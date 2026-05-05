@@ -171,6 +171,7 @@ export default function GardenScene({
   interiorEnabledByHabitat = {},
   pendingArrivalIsFirstForHabitat = false,
   pendingArrivalHabitatCode = null,
+  cumulativeCorrect = 0,
 }: {
   learnerId: string;
   firstName?: string | null;
@@ -186,6 +187,7 @@ export default function GardenScene({
   interiorEnabledByHabitat?: Record<string, boolean>;
   pendingArrivalIsFirstForHabitat?: boolean;
   pendingArrivalHabitatCode?: string | null;
+  cumulativeCorrect?: number;
 }) {
   const router = useRouter();
   const { settings, update } = useAccessibilitySettings();
@@ -338,6 +340,15 @@ export default function GardenScene({
             title="Field Journal"
             style={{ minWidth: 40, minHeight: 40, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
           >📖</Link>
+          {cumulativeCorrect >= 25 && (
+            <Link
+              href={`/garden/grow?learner=${learnerId}`}
+              className="text-lg p-1.5 rounded-full bg-white border border-ochre"
+              aria-label="grow garden"
+              title="Grow Garden"
+              style={{ minWidth: 40, minHeight: 40, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+            >🌱</Link>
+          )}
         </div>
       </div>
 
