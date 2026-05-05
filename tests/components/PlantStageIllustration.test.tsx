@@ -42,4 +42,9 @@ describe('PlantStageIllustration', () => {
     const { container } = render(svgWrap(<PlantStageIllustration code="plant_sunflower_bloom" x={0} y={0} size={50} />));
     expect(container.querySelector('g')).not.toBeNull();
   });
+
+  it('renders plant_apple_mature', () => {
+    const { container } = render(svgWrap(<PlantStageIllustration code="plant_apple_mature" x={0} y={0} size={60} />));
+    expect(container.querySelector('g')).not.toBeNull();
+  });
 });

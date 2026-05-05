@@ -505,6 +505,93 @@ function SunflowerBloom({ x, y, size }: StageProps) {
   );
 }
 
+// ─── APPLE SAPLING ──────────────────────────────────────────────────────
+function AppleSeed({ x, y, size }: StageProps) {
+  // Single dark teardrop seed
+  const r = size * 0.07;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={0} rx={r * 4} ry={r * 2} fill="#6B4423" opacity={0.35} />
+      <path d={`M 0 ${-r} Q ${r * 0.6} 0 0 ${r} Q ${-r * 0.6} 0 0 ${-r} Z`} fill="#3F2614" stroke={STROKE} strokeWidth={0.5} />
+    </g>
+  );
+}
+
+function AppleSprout({ x, y, size }: StageProps) {
+  // Rounder leaves than radish
+  const h = size * 0.2;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={size * 0.05} rx={size * 0.18} ry={size * 0.04} fill="#6B4423" opacity={0.4} />
+      <line x1={0} y1={size * 0.05} x2={0} y2={-h * 0.7} stroke="#7BA46F" strokeWidth={1.4} strokeLinecap="round" />
+      <circle cx={-size * 0.06} cy={-h * 0.85} r={size * 0.07} fill="#95B88F" stroke={STROKE} strokeWidth={0.8} />
+      <circle cx={size * 0.06} cy={-h * 0.85} r={size * 0.07} fill="#7BA46F" stroke={STROKE} strokeWidth={0.8} />
+    </g>
+  );
+}
+
+function AppleTwig({ x, y, size }: StageProps) {
+  // Short bare brown twig with maybe 2 leaves
+  const h = size * 0.35;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={size * 0.06} rx={size * 0.18} ry={size * 0.04} fill="#6B4423" opacity={0.4} />
+      {/* trunk */}
+      <path d={`M ${-size * 0.025} ${size * 0.06} L ${-size * 0.02} ${-h * 0.85} L ${size * 0.02} ${-h * 0.85} L ${size * 0.025} ${size * 0.06} Z`} fill="#8B5A2B" stroke={STROKE} strokeWidth={1} />
+      {/* twig branches */}
+      <line x1={0} y1={-h * 0.6} x2={size * 0.1} y2={-h * 0.85} stroke="#8B5A2B" strokeWidth={1.2} strokeLinecap="round" />
+      <line x1={0} y1={-h * 0.7} x2={-size * 0.08} y2={-h * 0.95} stroke="#8B5A2B" strokeWidth={1.2} strokeLinecap="round" />
+      {/* 2 leaves */}
+      <ellipse cx={size * 0.11} cy={-h * 0.88} rx={size * 0.06} ry={size * 0.04} fill="#7BA46F" stroke={STROKE} strokeWidth={0.7} transform={`rotate(35 ${size * 0.11} ${-h * 0.88})`} />
+      <ellipse cx={-size * 0.09} cy={-h * 0.98} rx={size * 0.06} ry={size * 0.04} fill="#95B88F" stroke={STROKE} strokeWidth={0.7} transform={`rotate(-35 ${-size * 0.09} ${-h * 0.98})`} />
+    </g>
+  );
+}
+
+function AppleYoung({ x, y, size }: StageProps) {
+  // Small tree ~50% with rounded green canopy on brown trunk
+  const r = size * 0.25;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={r * 1.0} rx={r * 0.9} ry={r * 0.16} fill="#6B4423" opacity={0.3} />
+      {/* trunk */}
+      <path d={`M ${-r * 0.12} ${r * 0.9} L ${-r * 0.08} ${-r * 0.1} L ${r * 0.08} ${-r * 0.1} L ${r * 0.12} ${r * 0.9} Z`} fill="#8B5A2B" stroke={STROKE} strokeWidth={1.1} />
+      {/* canopy puffs */}
+      <circle cx={-r * 0.45} cy={-r * 0.25} r={r * 0.4} fill="#5C7E4F" stroke={STROKE} strokeWidth={1.1} />
+      <circle cx={r * 0.45} cy={-r * 0.25} r={r * 0.4} fill="#7BA46F" stroke={STROKE} strokeWidth={1.1} />
+      <circle cx={0} cy={-r * 0.55} r={r * 0.45} fill="#7BA46F" stroke={STROKE} strokeWidth={1.1} />
+      {/* highlight */}
+      <circle cx={-r * 0.15} cy={-r * 0.65} r={r * 0.12} fill="#A2C794" opacity={0.7} />
+    </g>
+  );
+}
+
+function AppleMature({ x, y, size }: StageProps) {
+  // Taller tree with green canopy and one prominent red apple
+  const r = size * 0.4;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={r * 0.95} rx={r * 1.0} ry={r * 0.18} fill="#6B4423" opacity={0.3} />
+      {/* trunk */}
+      <path d={`M ${-r * 0.12} ${r * 0.85} L ${-r * 0.08} ${-r * 0.05} L ${r * 0.08} ${-r * 0.05} L ${r * 0.12} ${r * 0.85} Z`} fill="#8B5A2B" stroke={STROKE} strokeWidth={1.2} />
+      {/* canopy puffs (filled green, outlined dark) */}
+      <circle cx={-r * 0.45} cy={-r * 0.2} r={r * 0.42} fill="#5C7E4F" stroke={STROKE} strokeWidth={1.2} />
+      <circle cx={r * 0.45} cy={-r * 0.2} r={r * 0.42} fill="#7BA46F" stroke={STROKE} strokeWidth={1.2} />
+      <circle cx={-r * 0.15} cy={-r * 0.6} r={r * 0.4} fill="#7BA46F" stroke={STROKE} strokeWidth={1.2} />
+      <circle cx={r * 0.2} cy={-r * 0.55} r={r * 0.42} fill="#5C7E4F" stroke={STROKE} strokeWidth={1.2} />
+      {/* highlights */}
+      <circle cx={-r * 0.25} cy={-r * 0.7} r={r * 0.1} fill="#A2C794" opacity={0.7} />
+      {/* prominent red apple */}
+      <circle cx={r * 0.25} cy={-r * 0.05} r={r * 0.18} fill="#C84A3A" stroke={STROKE} strokeWidth={1.2} />
+      <ellipse cx={r * 0.18} cy={-r * 0.12} rx={r * 0.06} ry={r * 0.08} fill="#E6705F" opacity={0.7} />
+      {/* apple stem */}
+      <line x1={r * 0.25} y1={-r * 0.22} x2={r * 0.27} y2={-r * 0.3} stroke={STROKE} strokeWidth={0.9} strokeLinecap="round" />
+      {/* apple leaf */}
+      <ellipse cx={r * 0.32} cy={-r * 0.3} rx={r * 0.06} ry={r * 0.03} fill="#5C7E4F" stroke={STROKE} strokeWidth={0.6} transform={`rotate(40 ${r * 0.32} ${-r * 0.3})`} />
+    </g>
+  );
+}
+
 export function PlantStageIllustration({ code, x, y, size }: Props) {
   switch (code) {
     case 'plant_radish_seed':    return <RadishSeed x={x} y={y} size={size} />;
@@ -532,6 +619,11 @@ export function PlantStageIllustration({ code, x, y, size }: Props) {
     case 'plant_sunflower_stalk':  return <SunflowerStalk x={x} y={y} size={size} />;
     case 'plant_sunflower_bud':    return <SunflowerBud x={x} y={y} size={size} />;
     case 'plant_sunflower_bloom':  return <SunflowerBloom x={x} y={y} size={size} />;
+    case 'plant_apple_seed':       return <AppleSeed x={x} y={y} size={size} />;
+    case 'plant_apple_sprout':     return <AppleSprout x={x} y={y} size={size} />;
+    case 'plant_apple_twig':       return <AppleTwig x={x} y={y} size={size} />;
+    case 'plant_apple_young':      return <AppleYoung x={x} y={y} size={size} />;
+    case 'plant_apple_mature':     return <AppleMature x={x} y={y} size={size} />;
     default: return null;
   }
 }
