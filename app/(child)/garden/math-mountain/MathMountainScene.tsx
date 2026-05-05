@@ -1312,17 +1312,17 @@ export default function MathMountainScene({
                     <line key={`rr-${xi}`} x1={xi} y1={20} x2={xi} y2={28} stroke="#5A3B1F" strokeWidth={0.6} />
                   ))}
 
-                  {/* CENTRAL STAIRCASE — prominent, wider, more steps
-                      leading up to the porch from the front */}
+                  {/* CENTRAL STAIRCASE — raised: just two steps (8
+                      units tall total) so the stairs don't extend
+                      down into the habitat label below. Reads as a
+                      cleared stair-up to the porch. */}
                   <rect x={-22} y={40} width={44} height={4} fill="#D4B58A" stroke="#5A3B1F" strokeWidth={1} />
-                  <rect x={-22} y={44} width={44} height={4} fill="#C8A57A" stroke="#5A3B1F" strokeWidth={1} />
-                  <rect x={-22} y={48} width={44} height={4} fill="#B89265" stroke="#5A3B1F" strokeWidth={1} />
-                  <rect x={-22} y={52} width={44} height={4} fill="#A87E55" stroke="#5A3B1F" strokeWidth={1} />
+                  <rect x={-22} y={44} width={44} height={4} fill="#B89265" stroke="#5A3B1F" strokeWidth={1} />
                   {/* stair side stringers */}
-                  <line x1={-22} y1={40} x2={-22} y2={56} stroke="#5A3B1F" strokeWidth={1.2} />
-                  <line x1={22} y1={40} x2={22} y2={56} stroke="#5A3B1F" strokeWidth={1.2} />
-                  {/* stair handrails — two short rails at each side
-                      of the steps for a clear "leading up" look */}
+                  <line x1={-22} y1={40} x2={-22} y2={48} stroke="#5A3B1F" strokeWidth={1.2} />
+                  <line x1={22} y1={40} x2={22} y2={48} stroke="#5A3B1F" strokeWidth={1.2} />
+                  {/* stair handrails — short verticals at each side
+                      ending just at the deck level */}
                   <line x1={-22} y1={36} x2={-22} y2={42} stroke="#5A3B1F" strokeWidth={1.4} strokeLinecap="round" />
                   <line x1={22} y1={36} x2={22} y2={42} stroke="#5A3B1F" strokeWidth={1.4} strokeLinecap="round" />
 
@@ -1401,15 +1401,16 @@ export default function MathMountainScene({
                   {/* small wood-grain hint on the beam */}
                   <line x1={-60} y1={-9.5} x2={60} y2={-9.5} stroke="#3F2614" strokeWidth={0.4} opacity={0.55} />
 
-                  {/* TWO BIGGER TRIANGULAR GABLE WINDOWS — fill more
-                      of the gable area, separated by a thin king-post
-                      down the middle. Each spans from x:±28 at the
-                      eave-cross-bar level up to x:0 near the peak. */}
-                  <path d="M -28 -14 L 0 -50 L -2 -14 Z" fill="#FFD06B" stroke="#5A3B1F" strokeWidth={1.1} strokeLinejoin="miter" />
-                  <path d="M  2 -14 L 0 -50 L 28 -14 Z" fill="#FFD06B" stroke="#5A3B1F" strokeWidth={1.1} strokeLinejoin="miter" />
+                  {/* TWO TRIANGULAR GABLE WINDOWS — wider and shorter
+                      than the previous version (x:±36 at the eave-bar
+                      level up to x:0 at y:-42, instead of x:±28 up to
+                      y:-50). Reads less spire-y, more like the
+                      photo's short-and-wide gable vents. */}
+                  <path d="M -36 -14 L -2 -42 L -2 -14 Z" fill="#FFD06B" stroke="#5A3B1F" strokeWidth={1.1} strokeLinejoin="miter" />
+                  <path d="M  2 -14 L  2 -42 L 36 -14 Z" fill="#FFD06B" stroke="#5A3B1F" strokeWidth={1.1} strokeLinejoin="miter" />
                   {/* glow inside each */}
-                  <path d="M -25 -15 L -1 -45 L -3 -15 Z" fill="#FFE89A" opacity={0.6} />
-                  <path d="M  3 -15 L 1 -45 L 25 -15 Z" fill="#FFE89A" opacity={0.6} />
+                  <path d="M -32 -15 L -3 -38 L -3 -15 Z" fill="#FFE89A" opacity={0.6} />
+                  <path d="M  3 -15 L  3 -38 L 32 -15 Z" fill="#FFE89A" opacity={0.6} />
                   {/* king-post divider between the two gable windows */}
                   <line x1={0} y1={-50} x2={0} y2={-14} stroke="#3F2614" strokeWidth={1.4} />
                 </g>
@@ -1571,29 +1572,35 @@ export default function MathMountainScene({
                 )}
                 {!isExpanded && illustration}
 
-                {/* Label banner — sits below the illustration (or below
-                    the cave SVG for cave). Soft, sign-like. */}
-                {!isExpanded && (
-                  <>
-                    <rect x={-58} y={42} width={116} height={17} rx={8.5}
-                          fill="#FFFAF2" stroke="#E8A87C" strokeWidth={1.1} />
-                    <text x={0} y={54.5} textAnchor="middle" fontSize={10}
-                          fontWeight={700} fill="#6b4423"
-                          style={{ userSelect: 'none' }}>
-                      {group.label}
-                    </text>
-                    <rect x={-22} y={61} width={44} height={13} rx={6.5}
-                          fill={allCompleted ? '#6B8E5A' : '#FDF6E8'}
-                          stroke={allCompleted ? '#4F6F42' : '#C7B89A'}
-                          strokeWidth={0.9} />
-                    <text x={0} y={70.5} textAnchor="middle" fontSize={9}
-                          fontWeight={700}
-                          fill={allCompleted ? '#FFFFFF' : '#6b4423'}
-                          style={{ userSelect: 'none', fontFamily: 'ui-monospace, SFMono-Regular, monospace' }}>
-                      {completedCount}/{total}
-                    </text>
-                  </>
-                )}
+                {/* Label banner — sits below the illustration. The
+                    cottage habitat needs an extra ~14 units of clearance
+                    because its illustration extends further down (deck +
+                    stairs scaled 1.1x reach to y≈53). Other habitats
+                    keep the original label position. */}
+                {!isExpanded && (() => {
+                  const labelY = key === 'cottage' ? 56 : 42;
+                  return (
+                    <>
+                      <rect x={-58} y={labelY} width={116} height={17} rx={8.5}
+                            fill="#FFFAF2" stroke="#E8A87C" strokeWidth={1.1} />
+                      <text x={0} y={labelY + 12.5} textAnchor="middle" fontSize={10}
+                            fontWeight={700} fill="#6b4423"
+                            style={{ userSelect: 'none' }}>
+                        {group.label}
+                      </text>
+                      <rect x={-22} y={labelY + 19} width={44} height={13} rx={6.5}
+                            fill={allCompleted ? '#6B8E5A' : '#FDF6E8'}
+                            stroke={allCompleted ? '#4F6F42' : '#C7B89A'}
+                            strokeWidth={0.9} />
+                      <text x={0} y={labelY + 28.5} textAnchor="middle" fontSize={9}
+                            fontWeight={700}
+                            fill={allCompleted ? '#FFFFFF' : '#6b4423'}
+                            style={{ userSelect: 'none', fontFamily: 'ui-monospace, SFMono-Regular, monospace' }}>
+                        {completedCount}/{total}
+                      </text>
+                    </>
+                  );
+                })()}
 
                 {/* Expanded indicator — small dim "tap to close" hint */}
                 {isExpanded && drawTapTarget && (
