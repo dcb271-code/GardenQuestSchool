@@ -208,3 +208,40 @@ export function playSettle() {
   playNote(ctx, master, { freq: 440, type: 'sine', duration: 0.5, attack: 0.04, release: 0.4, filterFreq: 1800, gain: 0.4 });
   playNote(ctx, master, { freq: 329.63, type: 'sine', start: 0.08, duration: 0.5, attack: 0.04, release: 0.4, filterFreq: 1800, gain: 0.35 });
 }
+
+// Soft "earth being patted into place" — short low thump + tiny shake.
+export function playSeedPlant() {
+  const ctx = getCtx();
+  if (!ctx) return;
+  const now = ctx.currentTime;
+  // low triangle thump (earth)
+  const o1 = ctx.createOscillator();
+  o1.type = 'triangle';
+  o1.frequency.setValueAtTime(140, now);
+  o1.frequency.exponentialRampToValueAtTime(70, now + 0.18);
+  const g1 = ctx.createGain();
+  g1.gain.setValueAtTime(0, now);
+  g1.gain.linearRampToValueAtTime(0.18, now + 0.02);
+  g1.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
+  o1.connect(g1).connect(ctx.destination);
+  o1.start(now); o1.stop(now + 0.24);
+}
+
+// Soft chime cluster — three rising tones for "harvest gathered".
+export function playHarvest() {
+  const ctx = getCtx();
+  if (!ctx) return;
+  const now = ctx.currentTime;
+  const freqs = [523.25, 659.25, 783.99]; // C5 E5 G5 — gentle major triad
+  freqs.forEach((f, i) => {
+    const o = ctx.createOscillator();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(f, now + i * 0.06);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0, now + i * 0.06);
+    g.gain.linearRampToValueAtTime(0.16, now + i * 0.06 + 0.02);
+    g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.06 + 0.7);
+    o.connect(g).connect(ctx.destination);
+    o.start(now + i * 0.06); o.stop(now + i * 0.06 + 0.72);
+  });
+}

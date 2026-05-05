@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { type PlantData, plantStageFor, progressHint } from '@/lib/world/plantCatalog';
 import { PlantStageIllustration } from '@/components/child/garden/PlantStageIllustration';
 import { harvestPlant } from './actions';
+import { playHarvest } from '@/lib/audio/sfx';
 
 const SUN_LABEL = { full: '☀ full sun', partial: '☀ partial sun', shade: '☁ shade' } as const;
 const WATER_LABEL = { low: '💧 a little', medium: '💧💧 medium', high: '💧💧💧 lots' } as const;
@@ -37,6 +38,7 @@ export default function PlantInspectModal({
     const r = await harvestPlant(learnerId, plotCode);
     setHarvesting(false);
     if (!r.ok) { setError(r.reason); return; }
+    playHarvest();
     onClose();
     onHarvested?.();
   };

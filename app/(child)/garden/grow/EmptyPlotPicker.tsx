@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { type PlantData } from '@/lib/world/plantCatalog';
 import { PlantStageIllustration } from '@/components/child/garden/PlantStageIllustration';
 import { plantSeed } from './actions';
+import { playSeedPlant } from '@/lib/audio/sfx';
 
 export default function EmptyPlotPicker({
   open, onClose, learnerId, plotCode, plotGarden, earnedSeeds,
@@ -31,6 +32,7 @@ export default function EmptyPlotPicker({
       setError(result.reason);
       return;
     }
+    playSeedPlant();
     onClose();
   };
 
