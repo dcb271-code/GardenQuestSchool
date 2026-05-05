@@ -130,7 +130,7 @@ const HABITAT_GROUPS: Record<string, {
 }> = {
   cottage: {
     codes: ['mm_stories_plus', 'mm_stories_minus', 'mm_long_stories'],
-    x: 110, y: 480, label: 'Stories Cottage',
+    x: 110, y: 480, label: 'Stories Cabin',
   },
   cave: {
     codes: ['mm_hundreds_hollow', 'mm_fast_facts', 'mm_regroup_ridge'],
@@ -177,11 +177,10 @@ export default function MathMountainScene({
   // They walk for ~1.3s and rest for ~7s at each stop. Reduced-motion
   // users skip the loop and just stand at the cottage front.
   const REST_SPOTS = [
-    // Lowered by 6 from the previous (570/580) so Cecily + Esme don't
-    // sit behind the cottage's "1/3" progress pill (which lands at
-    // world y:555-568 with the new labelY=56 cottage shift).
-    { x: 130, y: 576 },   // cottage front
-    { x: 380, y: 586 },   // lake front
+    // Nudged 1 more unit lower so the sisters' figures clear the
+    // bottom edge of the cottage's "1/3" progress pill entirely.
+    { x: 130, y: 577 },   // cottage front
+    { x: 380, y: 587 },   // lake front
   ];
   const [wanderIdx, setWanderIdx] = useState(0);
   const [wanderWalking, setWanderWalking] = useState(false);
@@ -1315,20 +1314,21 @@ export default function MathMountainScene({
                     <line key={`rr-${xi}`} x1={xi} y1={20} x2={xi} y2={28} stroke="#5A3B1F" strokeWidth={0.6} />
                   ))}
 
-                  {/* CENTRAL STAIRCASE — three steps total (lightest
-                      tread on top, darker as they descend), each 3
-                      units tall so the staircase fits in 9 units
-                      above the habitat label. */}
-                  <rect x={-22} y={40} width={44} height={3} fill="#D4B58A" stroke="#5A3B1F" strokeWidth={1} />
-                  <rect x={-22} y={43} width={44} height={3} fill="#C8A57A" stroke="#5A3B1F" strokeWidth={1} />
-                  <rect x={-22} y={46} width={44} height={3} fill="#B89265" stroke="#5A3B1F" strokeWidth={1} />
-                  {/* stair side stringers */}
-                  <line x1={-22} y1={40} x2={-22} y2={49} stroke="#5A3B1F" strokeWidth={1.2} />
-                  <line x1={22} y1={40} x2={22} y2={49} stroke="#5A3B1F" strokeWidth={1.2} />
-                  {/* stair handrails — short verticals at each side
-                      ending just at the deck level */}
-                  <line x1={-22} y1={36} x2={-22} y2={42} stroke="#5A3B1F" strokeWidth={1.4} strokeLinecap="round" />
-                  <line x1={22} y1={36} x2={22} y2={42} stroke="#5A3B1F" strokeWidth={1.4} strokeLinecap="round" />
+                  {/* CENTRAL STAIRCASE — three steps that LAND FLUSH
+                      with the deck surface at y:28 instead of starting
+                      at the deck's bottom edge (y:40). Top step is
+                      now level with the porch floor like the photo;
+                      bottom step lands at ground level (y:40 = the
+                      deck-skirt top). Each step 4 units tall. */}
+                  <rect x={-22} y={28} width={44} height={4} fill="#D4B58A" stroke="#5A3B1F" strokeWidth={1} />
+                  <rect x={-22} y={32} width={44} height={4} fill="#C8A57A" stroke="#5A3B1F" strokeWidth={1} />
+                  <rect x={-22} y={36} width={44} height={4} fill="#B89265" stroke="#5A3B1F" strokeWidth={1} />
+                  {/* stair side stringers run from deck surface to ground */}
+                  <line x1={-22} y1={28} x2={-22} y2={40} stroke="#5A3B1F" strokeWidth={1.2} />
+                  <line x1={22} y1={28} x2={22} y2={40} stroke="#5A3B1F" strokeWidth={1.2} />
+                  {/* stair handrails — short verticals at each side */}
+                  <line x1={-22} y1={22} x2={-22} y2={30} stroke="#5A3B1F" strokeWidth={1.4} strokeLinecap="round" />
+                  <line x1={22} y1={22} x2={22} y2={30} stroke="#5A3B1F" strokeWidth={1.4} strokeLinecap="round" />
 
                   {/* LOG-CABIN BACK WALL — eaves slightly LOWER (y:-9
                       vs the previous y:-12) so the building reads as
