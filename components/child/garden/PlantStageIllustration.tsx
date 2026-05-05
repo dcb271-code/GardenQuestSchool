@@ -592,6 +592,114 @@ function AppleMature({ x, y, size }: StageProps) {
   );
 }
 
+// ─── BAMBOO ─────────────────────────────────────────────────────────────
+function BambooSeed({ x, y, size }: StageProps) {
+  const r = size * 0.06;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={0} rx={r * 4.5} ry={r * 2} fill="#6B4423" opacity={0.4} />
+      <circle cx={0} cy={0} r={r} fill="#3F2614" />
+      {/* tiny scuff marks for soil disturbance */}
+      <line x1={-r * 2} y1={r * 0.5} x2={-r * 1.2} y2={r * 0.5} stroke={STROKE} strokeWidth={0.4} opacity={0.5} />
+      <line x1={r * 1.2} y1={-r * 0.5} x2={r * 2} y2={-r * 0.5} stroke={STROKE} strokeWidth={0.4} opacity={0.5} />
+    </g>
+  );
+}
+
+function BambooShoot({ x, y, size }: StageProps) {
+  // Single thick green shoot pushing up, blunt-tipped
+  const h = size * 0.25;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={size * 0.06} rx={size * 0.18} ry={size * 0.04} fill="#6B4423" opacity={0.4} />
+      {/* shoot — blunt cone */}
+      <path
+        d={`M ${-size * 0.06} ${size * 0.06}
+            L ${-size * 0.04} ${-h * 0.85}
+            Q 0 ${-h * 1.0} ${size * 0.04} ${-h * 0.85}
+            L ${size * 0.06} ${size * 0.06} Z`}
+        fill="#8CB27A"
+        stroke={STROKE}
+        strokeWidth={1.1}
+      />
+      {/* node ring */}
+      <line x1={-size * 0.05} y1={-h * 0.4} x2={size * 0.05} y2={-h * 0.4} stroke={STROKE} strokeWidth={0.7} />
+      {/* sheath highlight */}
+      <line x1={0} y1={-h * 0.2} x2={0} y2={-h * 0.85} stroke="#A2C794" strokeWidth={0.6} />
+    </g>
+  );
+}
+
+function BambooStalk({ x, y, size }: StageProps) {
+  // Tall single stalk with 2-3 thin pointed leaves at the top, node rings
+  const h = size * 0.55;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={size * 0.06} rx={size * 0.18} ry={size * 0.04} fill="#6B4423" opacity={0.35} />
+      {/* stalk */}
+      <path
+        d={`M ${-size * 0.04} ${size * 0.06}
+            L ${-size * 0.025} ${-h * 0.95}
+            L ${size * 0.025} ${-h * 0.95}
+            L ${size * 0.04} ${size * 0.06} Z`}
+        fill="#8CB27A"
+        stroke={STROKE}
+        strokeWidth={1}
+      />
+      {/* node rings */}
+      {[0.2, 0.45, 0.7].map(frac => (
+        <line key={frac} x1={-size * 0.04} y1={-h * frac} x2={size * 0.04} y2={-h * frac} stroke={STROKE} strokeWidth={0.7} />
+      ))}
+      {/* 3 thin pointed leaves at the top */}
+      <path d={`M 0 ${-h * 0.95} L ${size * 0.18} ${-h * 1.1} L ${size * 0.04} ${-h * 0.92} Z`} fill="#7BA46F" stroke={STROKE} strokeWidth={0.8} />
+      <path d={`M 0 ${-h * 0.95} L ${-size * 0.18} ${-h * 1.05} L ${-size * 0.04} ${-h * 0.92} Z`} fill="#A2C794" stroke={STROKE} strokeWidth={0.8} />
+      <path d={`M 0 ${-h * 0.95} L ${size * 0.04} ${-h * 1.18} L ${-size * 0.04} ${-h * 1.05} Z`} fill="#7BA46F" stroke={STROKE} strokeWidth={0.8} />
+    </g>
+  );
+}
+
+function BambooCluster({ x, y, size }: StageProps) {
+  // 4-5 stalks clustered, varying heights, leaves at top of each
+  const h = size * 0.6;
+  const stalks = [
+    { dx: -0.18, frac: 0.95, color: '#7BA46F' },
+    { dx: -0.06, frac: 1.0, color: '#8CB27A' },
+    { dx: 0.06, frac: 0.85, color: '#A2C794' },
+    { dx: 0.18, frac: 0.92, color: '#7BA46F' },
+    { dx: 0.0, frac: 0.78, color: '#5C7E4F' },
+  ];
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={size * 0.07} rx={size * 0.4} ry={size * 0.06} fill="#6B4423" opacity={0.32} />
+      {stalks.map((s, i) => {
+        const sx = size * s.dx;
+        const top = -h * s.frac;
+        return (
+          <g key={i}>
+            {/* stalk */}
+            <path
+              d={`M ${sx - size * 0.022} ${size * 0.06}
+                  L ${sx - size * 0.018} ${top}
+                  L ${sx + size * 0.018} ${top}
+                  L ${sx + size * 0.022} ${size * 0.06} Z`}
+              fill={s.color}
+              stroke={STROKE}
+              strokeWidth={0.9}
+            />
+            {/* node rings */}
+            {[0.3, 0.6].map(f => (
+              <line key={f} x1={sx - size * 0.025} y1={top * f + size * 0.06 * (1 - f)} x2={sx + size * 0.025} y2={top * f + size * 0.06 * (1 - f)} stroke={STROKE} strokeWidth={0.55} />
+            ))}
+            {/* a couple of leaves at the top */}
+            <path d={`M ${sx} ${top} L ${sx + size * 0.13} ${top - size * 0.08} L ${sx + size * 0.025} ${top - size * 0.005} Z`} fill="#A2C794" stroke={STROKE} strokeWidth={0.7} />
+            <path d={`M ${sx} ${top} L ${sx - size * 0.13} ${top - size * 0.06} L ${sx - size * 0.025} ${top - size * 0.005} Z`} fill="#7BA46F" stroke={STROKE} strokeWidth={0.7} />
+          </g>
+        );
+      })}
+    </g>
+  );
+}
+
 export function PlantStageIllustration({ code, x, y, size }: Props) {
   switch (code) {
     case 'plant_radish_seed':    return <RadishSeed x={x} y={y} size={size} />;
@@ -624,6 +732,10 @@ export function PlantStageIllustration({ code, x, y, size }: Props) {
     case 'plant_apple_twig':       return <AppleTwig x={x} y={y} size={size} />;
     case 'plant_apple_young':      return <AppleYoung x={x} y={y} size={size} />;
     case 'plant_apple_mature':     return <AppleMature x={x} y={y} size={size} />;
+    case 'plant_bamboo_seed':      return <BambooSeed x={x} y={y} size={size} />;
+    case 'plant_bamboo_shoot':     return <BambooShoot x={x} y={y} size={size} />;
+    case 'plant_bamboo_stalk':     return <BambooStalk x={x} y={y} size={size} />;
+    case 'plant_bamboo_cluster':   return <BambooCluster x={x} y={y} size={size} />;
     default: return null;
   }
 }
