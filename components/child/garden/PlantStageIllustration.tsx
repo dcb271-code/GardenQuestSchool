@@ -159,6 +159,101 @@ function MintMature({ x, y, size }: StageProps) {
   );
 }
 
+// ─── LETTUCE ────────────────────────────────────────────────────────────
+function LettuceSeed({ x, y, size }: StageProps) {
+  const r = size * 0.06;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={0} rx={r * 4} ry={r * 2} fill="#6B4423" opacity={0.35} />
+      <circle cx={0} cy={0} r={r} fill="#3F2614" />
+    </g>
+  );
+}
+
+function LettuceSprout({ x, y, size }: StageProps) {
+  // Small loose green tuft, looser than mint
+  const h = size * 0.18;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={size * 0.05} rx={size * 0.18} ry={size * 0.04} fill="#6B4423" opacity={0.4} />
+      {[
+        { rot: -45, fill: '#95B88F' },
+        { rot: -10, fill: '#A2C794' },
+        { rot: 25, fill: '#7BA46F' },
+        { rot: 50, fill: '#95B88F' },
+      ].map((leaf, i) => (
+        <ellipse key={i} cx={0} cy={-h * 0.7} rx={size * 0.05} ry={size * 0.09} fill={leaf.fill} stroke={STROKE} strokeWidth={0.7} transform={`rotate(${leaf.rot} 0 ${-h * 0.4})`} />
+      ))}
+    </g>
+  );
+}
+
+function LettuceYoung({ x, y, size }: StageProps) {
+  // Overlapping wide leaves forming a loose rosette ~50%
+  const r = size * 0.25;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={r * 0.6} rx={r * 1.1} ry={r * 0.18} fill="#6B4423" opacity={0.32} />
+      {[0, 60, 120, 180, 240, 300].map((a, i) => (
+        <ellipse
+          key={a}
+          cx={0}
+          cy={-r * 0.3}
+          rx={r * 0.45}
+          ry={r * 0.6}
+          fill={i % 2 === 0 ? '#95B88F' : '#A2C794'}
+          stroke={STROKE}
+          strokeWidth={0.9}
+          transform={`rotate(${a + i * 3})`}
+        />
+      ))}
+      <circle cx={0} cy={0} r={r * 0.18} fill="#7BA46F" />
+    </g>
+  );
+}
+
+function LettuceMature({ x, y, size }: StageProps) {
+  // Full leafy head ~80% with frilly outer edges
+  const r = size * 0.4;
+  // Build a ruffly outline path: a circle with little wavelets
+  const ruffPath = (radius: number, count: number, amp: number) => {
+    const pts: string[] = [];
+    for (let i = 0; i <= count; i++) {
+      const a = (i / count) * Math.PI * 2;
+      const wave = i % 2 === 0 ? radius : radius - amp;
+      const px = Math.cos(a) * wave;
+      const py = Math.sin(a) * wave;
+      pts.push(`${i === 0 ? 'M' : 'L'} ${px.toFixed(2)} ${py.toFixed(2)}`);
+    }
+    return pts.join(' ') + ' Z';
+  };
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={r * 0.7} rx={r * 1.15} ry={r * 0.18} fill="#6B4423" opacity={0.3} />
+      {/* outer ruffly outline */}
+      <path d={ruffPath(r, 24, r * 0.08)} fill="#95B88F" stroke={STROKE} strokeWidth={1.2} />
+      {/* overlapping leaves (8) */}
+      {[0, 45, 90, 135, 180, 225, 270, 315].map((a, i) => (
+        <ellipse
+          key={a}
+          cx={0}
+          cy={-r * 0.4}
+          rx={r * 0.4}
+          ry={r * 0.55}
+          fill={i % 2 === 0 ? '#A2C794' : '#95B88F'}
+          stroke={STROKE}
+          strokeWidth={0.9}
+          opacity={0.95}
+          transform={`rotate(${a + i * 2})`}
+        />
+      ))}
+      {/* inner cluster */}
+      <circle cx={0} cy={0} r={r * 0.28} fill="#A2C794" stroke={STROKE} strokeWidth={0.8} />
+      <ellipse cx={-r * 0.08} cy={-r * 0.05} rx={r * 0.12} ry={r * 0.18} fill="#C8DDB8" opacity={0.7} />
+    </g>
+  );
+}
+
 export function PlantStageIllustration({ code, x, y, size }: Props) {
   switch (code) {
     case 'plant_radish_seed':    return <RadishSeed x={x} y={y} size={size} />;
@@ -169,6 +264,10 @@ export function PlantStageIllustration({ code, x, y, size }: Props) {
     case 'plant_mint_sprout':    return <MintSprout x={x} y={y} size={size} />;
     case 'plant_mint_young':     return <MintYoung x={x} y={y} size={size} />;
     case 'plant_mint_mature':    return <MintMature x={x} y={y} size={size} />;
+    case 'plant_lettuce_seed':   return <LettuceSeed x={x} y={y} size={size} />;
+    case 'plant_lettuce_sprout': return <LettuceSprout x={x} y={y} size={size} />;
+    case 'plant_lettuce_young':  return <LettuceYoung x={x} y={y} size={size} />;
+    case 'plant_lettuce_mature': return <LettuceMature x={x} y={y} size={size} />;
     default: return null;
   }
 }
