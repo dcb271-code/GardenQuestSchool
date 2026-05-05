@@ -327,6 +327,82 @@ function TulipBloom({ x, y, size }: StageProps) {
   );
 }
 
+// ─── DAISY ──────────────────────────────────────────────────────────────
+function DaisySeed({ x, y, size }: StageProps) {
+  const r = size * 0.06;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={0} rx={r * 4} ry={r * 2} fill="#6B4423" opacity={0.35} />
+      <circle cx={0} cy={0} r={r} fill="#3F2614" />
+    </g>
+  );
+}
+
+function DaisySprout({ x, y, size }: StageProps) {
+  const h = size * 0.18;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={size * 0.05} rx={size * 0.16} ry={size * 0.04} fill="#6B4423" opacity={0.4} />
+      <line x1={0} y1={size * 0.05} x2={0} y2={-h * 0.7} stroke="#7BA46F" strokeWidth={1.4} strokeLinecap="round" />
+      <ellipse cx={-size * 0.06} cy={-h * 0.85} rx={size * 0.06} ry={size * 0.04} fill="#95B88F" stroke={STROKE} strokeWidth={0.7} transform={`rotate(-30 ${-size * 0.06} ${-h * 0.85})`} />
+      <ellipse cx={size * 0.06} cy={-h * 0.85} rx={size * 0.06} ry={size * 0.04} fill="#7BA46F" stroke={STROKE} strokeWidth={0.7} transform={`rotate(30 ${size * 0.06} ${-h * 0.85})`} />
+    </g>
+  );
+}
+
+function DaisyBud({ x, y, size }: StageProps) {
+  // Stem with closed yellow-green bud
+  const h = size * 0.4;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={size * 0.06} rx={size * 0.16} ry={size * 0.04} fill="#6B4423" opacity={0.4} />
+      <line x1={0} y1={size * 0.06} x2={0} y2={-h * 0.75} stroke="#7BA46F" strokeWidth={1.2} strokeLinecap="round" />
+      {/* small base leaves */}
+      <ellipse cx={-size * 0.08} cy={-h * 0.2} rx={size * 0.05} ry={size * 0.1} fill="#5C7E4F" stroke={STROKE} strokeWidth={0.7} transform={`rotate(-25 ${-size * 0.08} ${-h * 0.2})`} />
+      <ellipse cx={size * 0.08} cy={-h * 0.2} rx={size * 0.05} ry={size * 0.1} fill="#7BA46F" stroke={STROKE} strokeWidth={0.7} transform={`rotate(25 ${size * 0.08} ${-h * 0.2})`} />
+      {/* closed bud */}
+      <ellipse cx={0} cy={-h * 0.85} rx={size * 0.09} ry={size * 0.13} fill="#D2C77A" stroke={STROKE} strokeWidth={1} />
+      {/* sepal hint */}
+      <path d={`M ${-size * 0.08} ${-h * 0.78} Q 0 ${-h * 0.7} ${size * 0.08} ${-h * 0.78}`} fill="#7BA46F" stroke={STROKE} strokeWidth={0.8} />
+    </g>
+  );
+}
+
+function DaisyBloom({ x, y, size }: StageProps) {
+  // 8-12 white petals around yellow center, top-down
+  const r = size * 0.4;
+  const petalCount = 10;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={r * 0.8} rx={r * 0.9} ry={r * 0.14} fill="#6B4423" opacity={0.3} />
+      {/* base leaves peeking */}
+      <ellipse cx={-r * 0.6} cy={r * 0.55} rx={r * 0.18} ry={r * 0.4} fill="#5C7E4F" stroke={STROKE} strokeWidth={0.9} transform={`rotate(-30 ${-r * 0.6} ${r * 0.55})`} />
+      <ellipse cx={r * 0.6} cy={r * 0.55} rx={r * 0.18} ry={r * 0.4} fill="#7BA46F" stroke={STROKE} strokeWidth={0.9} transform={`rotate(30 ${r * 0.6} ${r * 0.55})`} />
+      {/* petals (shadow layer) */}
+      {Array.from({ length: petalCount }).map((_, i) => {
+        const a = (i / petalCount) * 360;
+        return (
+          <ellipse key={`s${i}`} cx={0} cy={-r * 0.55} rx={r * 0.16} ry={r * 0.4} fill="#E8C493" opacity={0.6} transform={`rotate(${a + 4})`} />
+        );
+      })}
+      {/* petals */}
+      {Array.from({ length: petalCount }).map((_, i) => {
+        const a = (i / petalCount) * 360;
+        return (
+          <ellipse key={i} cx={0} cy={-r * 0.55} rx={r * 0.15} ry={r * 0.38} fill="#FFFAF2" stroke={STROKE} strokeWidth={0.9} transform={`rotate(${a})`} />
+        );
+      })}
+      {/* center ring */}
+      <circle cx={0} cy={0} r={r * 0.26} fill="#E8A87C" stroke={STROKE} strokeWidth={1} />
+      <circle cx={0} cy={0} r={r * 0.2} fill="#FFD93D" />
+      {/* center stipple */}
+      <circle cx={-r * 0.05} cy={-r * 0.04} r={r * 0.025} fill="#E8A87C" />
+      <circle cx={r * 0.06} cy={r * 0.05} r={r * 0.025} fill="#E8A87C" />
+      <circle cx={0} cy={r * 0.07} r={r * 0.02} fill="#E8A87C" />
+    </g>
+  );
+}
+
 export function PlantStageIllustration({ code, x, y, size }: Props) {
   switch (code) {
     case 'plant_radish_seed':    return <RadishSeed x={x} y={y} size={size} />;
@@ -345,6 +421,10 @@ export function PlantStageIllustration({ code, x, y, size }: Props) {
     case 'plant_tulip_spear':    return <TulipSpear x={x} y={y} size={size} />;
     case 'plant_tulip_bud':      return <TulipBud x={x} y={y} size={size} />;
     case 'plant_tulip_bloom':    return <TulipBloom x={x} y={y} size={size} />;
+    case 'plant_daisy_seed':     return <DaisySeed x={x} y={y} size={size} />;
+    case 'plant_daisy_sprout':   return <DaisySprout x={x} y={y} size={size} />;
+    case 'plant_daisy_bud':      return <DaisyBud x={x} y={y} size={size} />;
+    case 'plant_daisy_bloom':    return <DaisyBloom x={x} y={y} size={size} />;
     default: return null;
   }
 }
