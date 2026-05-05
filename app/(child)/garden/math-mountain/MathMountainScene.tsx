@@ -177,8 +177,11 @@ export default function MathMountainScene({
   // They walk for ~1.3s and rest for ~7s at each stop. Reduced-motion
   // users skip the loop and just stand at the cottage front.
   const REST_SPOTS = [
-    { x: 130, y: 570 },   // cottage front
-    { x: 380, y: 580 },   // lake front
+    // Lowered by 6 from the previous (570/580) so Cecily + Esme don't
+    // sit behind the cottage's "1/3" progress pill (which lands at
+    // world y:555-568 with the new labelY=56 cottage shift).
+    { x: 130, y: 576 },   // cottage front
+    { x: 380, y: 586 },   // lake front
   ];
   const [wanderIdx, setWanderIdx] = useState(0);
   const [wanderWalking, setWanderWalking] = useState(false);
@@ -1312,15 +1315,16 @@ export default function MathMountainScene({
                     <line key={`rr-${xi}`} x1={xi} y1={20} x2={xi} y2={28} stroke="#5A3B1F" strokeWidth={0.6} />
                   ))}
 
-                  {/* CENTRAL STAIRCASE — raised: just two steps (8
-                      units tall total) so the stairs don't extend
-                      down into the habitat label below. Reads as a
-                      cleared stair-up to the porch. */}
-                  <rect x={-22} y={40} width={44} height={4} fill="#D4B58A" stroke="#5A3B1F" strokeWidth={1} />
-                  <rect x={-22} y={44} width={44} height={4} fill="#B89265" stroke="#5A3B1F" strokeWidth={1} />
+                  {/* CENTRAL STAIRCASE — three steps total (lightest
+                      tread on top, darker as they descend), each 3
+                      units tall so the staircase fits in 9 units
+                      above the habitat label. */}
+                  <rect x={-22} y={40} width={44} height={3} fill="#D4B58A" stroke="#5A3B1F" strokeWidth={1} />
+                  <rect x={-22} y={43} width={44} height={3} fill="#C8A57A" stroke="#5A3B1F" strokeWidth={1} />
+                  <rect x={-22} y={46} width={44} height={3} fill="#B89265" stroke="#5A3B1F" strokeWidth={1} />
                   {/* stair side stringers */}
-                  <line x1={-22} y1={40} x2={-22} y2={48} stroke="#5A3B1F" strokeWidth={1.2} />
-                  <line x1={22} y1={40} x2={22} y2={48} stroke="#5A3B1F" strokeWidth={1.2} />
+                  <line x1={-22} y1={40} x2={-22} y2={49} stroke="#5A3B1F" strokeWidth={1.2} />
+                  <line x1={22} y1={40} x2={22} y2={49} stroke="#5A3B1F" strokeWidth={1.2} />
                   {/* stair handrails — short verticals at each side
                       ending just at the deck level */}
                   <line x1={-22} y1={36} x2={-22} y2={42} stroke="#5A3B1F" strokeWidth={1.4} strokeLinecap="round" />
@@ -1345,15 +1349,16 @@ export default function MathMountainScene({
                     </g>
                   ))}
 
-                  {/* FOUR TALL RECTANGULAR WINDOWS — span y:-5 to y:14
-                      (height 19), 12 wide. Glowing warm gold panes
-                      that the chairs sit in front of. */}
+                  {/* FOUR TALL RECTANGULAR WINDOWS — span y:-5 to y:13
+                      (height 18, was 19). Bottom raised by 1 unit so
+                      there's a 1-unit gap between the window sill and
+                      the green chair backs at y:14. NO mullion
+                      cross-bars (panes removed); each window is just
+                      a gold-glowing pane in a dark frame. */}
                   {[-32, -12, 8, 28].map(xi => (
                     <g key={`win-${xi}`}>
-                      <rect x={xi - 6} y={-5} width={12} height={19} fill="#FFD06B" stroke="#5A3B1F" strokeWidth={1.2} />
-                      <rect x={xi - 5} y={-4} width={10} height={17} fill="#FFE89A" opacity={0.65} />
-                      <line x1={xi} y1={-5} x2={xi} y2={14} stroke="#5A3B1F" strokeWidth={0.6} />
-                      <line x1={xi - 6} y1={4} x2={xi + 6} y2={4} stroke="#5A3B1F" strokeWidth={0.6} />
+                      <rect x={xi - 6} y={-5} width={12} height={18} fill="#FFD06B" stroke="#5A3B1F" strokeWidth={1.2} />
+                      <rect x={xi - 5} y={-4} width={10} height={16} fill="#FFE89A" opacity={0.65} />
                     </g>
                   ))}
 
