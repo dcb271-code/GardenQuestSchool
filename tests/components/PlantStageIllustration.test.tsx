@@ -57,4 +57,9 @@ describe('PlantStageIllustration', () => {
     const { container } = render(svgWrap(<PlantStageIllustration code="plant_bonsai_mature" x={0} y={0} size={60} />));
     expect(container.querySelector('g')).not.toBeNull();
   });
+
+  it('renders plant_cherry_bloom', () => {
+    const { container } = render(svgWrap(<PlantStageIllustration code="plant_cherry_bloom" x={0} y={0} size={60} />));
+    expect(container.querySelector('g')).not.toBeNull();
+  });
 });

@@ -793,6 +793,123 @@ function BonsaiMature({ x, y, size }: StageProps) {
   );
 }
 
+// ─── CHERRY BLOSSOM ─────────────────────────────────────────────────────
+function CherrySeed({ x, y, size }: StageProps) {
+  // Pit-like seed — bigger than other seeds, slightly almond shaped
+  const r = size * 0.08;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={0} rx={r * 4} ry={r * 2} fill="#6B4423" opacity={0.4} />
+      <ellipse cx={0} cy={0} rx={r * 0.7} ry={r} fill="#5A3B1F" stroke={STROKE} strokeWidth={0.7} />
+      {/* groove */}
+      <line x1={0} y1={-r * 0.8} x2={0} y2={r * 0.8} stroke="#3F2614" strokeWidth={0.5} />
+    </g>
+  );
+}
+
+function CherrySprout({ x, y, size }: StageProps) {
+  const h = size * 0.2;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={size * 0.05} rx={size * 0.16} ry={size * 0.04} fill="#6B4423" opacity={0.4} />
+      <line x1={0} y1={size * 0.05} x2={0} y2={-h * 0.7} stroke="#7BA46F" strokeWidth={1.4} strokeLinecap="round" />
+      <ellipse cx={-size * 0.05} cy={-h * 0.85} rx={size * 0.05} ry={size * 0.07} fill="#95B88F" stroke={STROKE} strokeWidth={0.8} transform={`rotate(-25 ${-size * 0.05} ${-h * 0.85})`} />
+      <ellipse cx={size * 0.05} cy={-h * 0.85} rx={size * 0.05} ry={size * 0.07} fill="#7BA46F" stroke={STROKE} strokeWidth={0.8} transform={`rotate(25 ${size * 0.05} ${-h * 0.85})`} />
+    </g>
+  );
+}
+
+function CherryTwig({ x, y, size }: StageProps) {
+  // Bare brown twig with branching
+  const h = size * 0.4;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={size * 0.06} rx={size * 0.18} ry={size * 0.04} fill="#6B4423" opacity={0.4} />
+      {/* main twig */}
+      <path
+        d={`M ${-size * 0.025} ${size * 0.06} L ${-size * 0.018} ${-h * 0.85} L ${size * 0.018} ${-h * 0.85} L ${size * 0.025} ${size * 0.06} Z`}
+        fill="#6B4423"
+        stroke={STROKE}
+        strokeWidth={1}
+      />
+      {/* sub-branches */}
+      <line x1={0} y1={-h * 0.5} x2={size * 0.12} y2={-h * 0.85} stroke="#6B4423" strokeWidth={1.2} strokeLinecap="round" />
+      <line x1={0} y1={-h * 0.65} x2={-size * 0.1} y2={-h * 0.95} stroke="#6B4423" strokeWidth={1.2} strokeLinecap="round" />
+      <line x1={0} y1={-h * 0.78} x2={size * 0.07} y2={-h * 1.0} stroke="#6B4423" strokeWidth={1.0} strokeLinecap="round" />
+      {/* tiny buds */}
+      <circle cx={size * 0.12} cy={-h * 0.85} r={size * 0.018} fill="#8B5A2B" />
+      <circle cx={-size * 0.1} cy={-h * 0.95} r={size * 0.018} fill="#8B5A2B" />
+    </g>
+  );
+}
+
+function CherryYoung({ x, y, size }: StageProps) {
+  // Small tree with green leaves, no blossoms
+  const r = size * 0.3;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={r * 0.95} rx={r * 0.95} ry={r * 0.16} fill="#6B4423" opacity={0.3} />
+      {/* trunk */}
+      <path d={`M ${-r * 0.1} ${r * 0.85} L ${-r * 0.06} ${-r * 0.05} L ${r * 0.06} ${-r * 0.05} L ${r * 0.1} ${r * 0.85} Z`} fill="#8B5A2B" stroke={STROKE} strokeWidth={1.1} />
+      {/* canopy puffs (green only) */}
+      <circle cx={-r * 0.4} cy={-r * 0.25} r={r * 0.4} fill="#5C7E4F" stroke={STROKE} strokeWidth={1.1} />
+      <circle cx={r * 0.4} cy={-r * 0.25} r={r * 0.4} fill="#7BA46F" stroke={STROKE} strokeWidth={1.1} />
+      <circle cx={0} cy={-r * 0.55} r={r * 0.42} fill="#7BA46F" stroke={STROKE} strokeWidth={1.1} />
+      <circle cx={r * 0.15} cy={-r * 0.55} r={r * 0.35} fill="#5C7E4F" stroke={STROKE} strokeWidth={1.1} />
+      {/* leaf hints */}
+      <ellipse cx={-r * 0.2} cy={-r * 0.7} rx={r * 0.08} ry={r * 0.05} fill="#A2C794" opacity={0.7} />
+    </g>
+  );
+}
+
+function CherryBloom({ x, y, size }: StageProps) {
+  // Taller tree with crown of pink/white cherry blossoms
+  const r = size * 0.42;
+  // a cluster of blossom positions on the canopy
+  const blossoms: Array<[number, number, number, string]> = [
+    [-0.5, -0.3, 0.07, '#FFD6E0'], [-0.25, -0.45, 0.09, '#FFFAF2'], [0.1, -0.5, 0.08, '#FFD6E0'],
+    [0.4, -0.4, 0.07, '#FFFAF2'], [0.55, -0.2, 0.08, '#FFD6E0'], [-0.6, -0.1, 0.07, '#FFFAF2'],
+    [0, -0.7, 0.09, '#FFD6E0'], [0.3, -0.65, 0.07, '#FFFAF2'], [-0.35, -0.6, 0.08, '#FFD6E0'],
+    [-0.45, 0.05, 0.06, '#FFFAF2'], [0.45, 0.0, 0.07, '#FFD6E0'], [0, -0.2, 0.07, '#FFFAF2'],
+  ];
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={r * 0.95} rx={r * 1.0} ry={r * 0.18} fill="#6B4423" opacity={0.3} />
+      {/* trunk */}
+      <path d={`M ${-r * 0.12} ${r * 0.85} L ${-r * 0.07} ${-r * 0.05} L ${r * 0.07} ${-r * 0.05} L ${r * 0.12} ${r * 0.85} Z`} fill="#8B5A2B" stroke={STROKE} strokeWidth={1.2} />
+      {/* greener crown puffs as backdrop */}
+      <circle cx={-r * 0.45} cy={-r * 0.25} r={r * 0.45} fill="#7BA46F" stroke={STROKE} strokeWidth={1.1} opacity={0.85} />
+      <circle cx={r * 0.45} cy={-r * 0.25} r={r * 0.45} fill="#95B88F" stroke={STROKE} strokeWidth={1.1} opacity={0.85} />
+      <circle cx={0} cy={-r * 0.55} r={r * 0.5} fill="#7BA46F" stroke={STROKE} strokeWidth={1.1} opacity={0.85} />
+      <circle cx={r * 0.2} cy={-r * 0.6} r={r * 0.42} fill="#95B88F" stroke={STROKE} strokeWidth={1.1} opacity={0.85} />
+      {/* blossoms — clusters of small circles, each with 5 petal hints */}
+      {blossoms.map(([dx, dy, br, color], i) => {
+        const cx = r * dx;
+        const cy = r * dy;
+        const pr = r * br;
+        return (
+          <g key={i}>
+            {/* 5 petal circles */}
+            {[0, 72, 144, 216, 288].map(a => (
+              <circle
+                key={a}
+                cx={cx + Math.cos((a * Math.PI) / 180) * pr * 0.6}
+                cy={cy + Math.sin((a * Math.PI) / 180) * pr * 0.6}
+                r={pr}
+                fill={color}
+                stroke={STROKE}
+                strokeWidth={0.6}
+              />
+            ))}
+            {/* center */}
+            <circle cx={cx} cy={cy} r={pr * 0.4} fill="#FFD93D" />
+          </g>
+        );
+      })}
+    </g>
+  );
+}
+
 export function PlantStageIllustration({ code, x, y, size }: Props) {
   switch (code) {
     case 'plant_radish_seed':    return <RadishSeed x={x} y={y} size={size} />;
@@ -833,6 +950,11 @@ export function PlantStageIllustration({ code, x, y, size }: Props) {
     case 'plant_bonsai_sprout':    return <BonsaiSprout x={x} y={y} size={size} />;
     case 'plant_bonsai_young':     return <BonsaiYoung x={x} y={y} size={size} />;
     case 'plant_bonsai_mature':    return <BonsaiMature x={x} y={y} size={size} />;
+    case 'plant_cherry_seed':      return <CherrySeed x={x} y={y} size={size} />;
+    case 'plant_cherry_sprout':    return <CherrySprout x={x} y={y} size={size} />;
+    case 'plant_cherry_twig':      return <CherryTwig x={x} y={y} size={size} />;
+    case 'plant_cherry_young':     return <CherryYoung x={x} y={y} size={size} />;
+    case 'plant_cherry_bloom':     return <CherryBloom x={x} y={y} size={size} />;
     default: return null;
   }
 }
