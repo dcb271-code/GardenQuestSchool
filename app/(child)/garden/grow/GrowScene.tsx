@@ -16,6 +16,7 @@ import {
   VegetableBackground, FlowerBackground, FruitGroveBackground, JapaneseBackground,
 } from '@/components/child/garden/QuadrantBackgrounds';
 import EmptyPlotPicker from './EmptyPlotPicker';
+import PlantInspectModal from './PlantInspectModal';
 
 export default function GrowScene({
   learnerId, state,
@@ -24,6 +25,7 @@ export default function GrowScene({
   state: GrowState;
 }) {
   const [pickerPlotCode, setPickerPlotCode] = useState<string | null>(null);
+  const [inspectPlotCode, setInspectPlotCode] = useState<string | null>(null);
 
   return (
     <div className="bg-[#F5EBDC] flex flex-col overflow-hidden" style={{ height: '100dvh', minHeight: '100vh' }}>
@@ -102,11 +104,12 @@ export default function GrowScene({
             const stage = plantStageFor(p.plant.data, p.plant.progress);
             const sizePx = p.plant.isMature ? 64 : 48;
             return (
-              <PlantStageIllustration
-                key={p.plot.code}
-                code={stage.illustration}
-                x={p.plot.x} y={p.plot.y} size={sizePx}
-              />
+              <g key={p.plot.code}
+                 style={{ cursor: 'pointer', touchAction: 'manipulation' }}
+                 onClick={() => setInspectPlotCode(p.plot.code)}>
+                <rect x={p.plot.x - 36} y={p.plot.y - 36} width={72} height={72} fill="transparent" />
+                <PlantStageIllustration code={stage.illustration} x={p.plot.x} y={p.plot.y} size={sizePx} />
+              </g>
             );
           })}
         </svg>
@@ -118,6 +121,15 @@ export default function GrowScene({
           plotCode={pickerPlotCode ?? ''}
           plotGarden={state.plots.find(p => p.plot.code === pickerPlotCode)?.plot.garden ?? 'vegetable'}
           earnedSeeds={state.earnedSeeds}
+        />
+
+        <PlantInspectModal
+          open={inspectPlotCode !== null}
+          onClose={() => setInspectPlotCode(null)}
+          learnerId={learnerId}
+          plotCode={inspectPlotCode ?? ''}
+          plant={state.plots.find(p => p.plot.code === inspectPlotCode)?.plant?.data ?? null}
+          progress={state.plots.find(p => p.plot.code === inspectPlotCode)?.plant?.progress ?? 0}
         />
       </div>
     </div>
