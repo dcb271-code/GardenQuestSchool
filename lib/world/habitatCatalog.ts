@@ -32,7 +32,11 @@ export const HABITAT_CATALOG: HabitatTypeData[] = [
     name: 'Bee Hotel',
     description: 'Hollow tubes where solitary bees nest and raise their young.',
     attractsSpeciesCodes: ['mason_bee', 'honey_bee', 'bumble_bee'],
-    prereqSkillCodes: ['math.add.within_20.crossing_ten'],
+    // Different prereq from Butterfly Bush (which needs make-10 add)
+    // so the two adjacent habitats reward separate practice. The
+    // hexagonal cells of a bee hotel echo part-whole structure, hence
+    // number-bond as the unlock skill.
+    prereqSkillCodes: ['math.number_bond.within_10'],
     illustrationKey: 'bee_hotel',
     emoji: '🐝',
   },

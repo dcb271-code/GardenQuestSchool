@@ -138,16 +138,16 @@ export default async function GardenPage({
       };
     } else if (s.kind === 'habitat' && s.habitatCode) {
       const habitat = HABITAT_CATALOG.find(h => h.code === s.habitatCode);
-      // Habitat unlock threshold: a prereq is "met" when the skill is
-      // either fully mastered (the strict review→mastered cross-session
-      // transition) OR the learner has racked up at least 5 correct
-      // attempts at it. Mastery alone was too strict — a 6yo doing one
-      // good session at Butterfly Clusters should be able to build the
-      // Butterfly Bush, not have to wait two more sessions for the
-      // mastery transition.
-      const HABITAT_UNLOCK_CORRECT = 5;
+      // Habitat unlock threshold: a prereq is "met" when the skill
+      // shows COMPLETED on the map (the check-mark state) — meaning
+      // the learner is either fully mastered (strict review→mastered
+      // cross-session transition) OR has racked up the same count of
+      // correct attempts that earns the visual completion check
+      // (ZONE_COMPLETION_TARGET — currently 10). Aligning the unlock
+      // bar with the visible completion signal removes the confusion
+      // of "I see a check mark, why is the habitat still locked?"
       const isPrereqMet = (c: string) =>
-        mastered.has(c) || (correctByCode.get(c) ?? 0) >= HABITAT_UNLOCK_CORRECT;
+        mastered.has(c) || (correctByCode.get(c) ?? 0) >= ZONE_COMPLETION_TARGET;
       const prereqsMet = habitat ? habitat.prereqSkillCodes.every(isPrereqMet) : false;
       // For each unmet prereq skill, find a structure on the central
       // garden that teaches it so the lock modal can show "go to X"
