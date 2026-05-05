@@ -3,6 +3,10 @@ import DocumentationLine from '@/components/child/DocumentationLine';
 import VirtueGemMoment from '@/components/child/VirtueGemMoment';
 import CompleteActions from './CompleteActions';
 import Link from 'next/link';
+import { getCumulativeCorrect, getCumulativeCorrectAt } from '@/lib/world/cumulativeProgress';
+import { getSessionSeedEarns } from '@/lib/world/seedEarnSchedule';
+import { getPlant } from '@/lib/world/plantCatalog';
+import SeedEarnedCard from './SeedEarnedCard';
 
 export const dynamic = 'force-dynamic';
 
@@ -76,6 +80,11 @@ export default async function CompletePage({ params }: { params: { sessionId: st
     .gte('granted_at', sessionStart.toISOString())
     .order('granted_at', { ascending: true });
 
+  const seedSessionStart = session?.started_at ? new Date(session.started_at) : new Date();
+  const beforeCount = await getCumulativeCorrectAt(db, session!.learner_id, seedSessionStart);
+  const afterCount = await getCumulativeCorrect(db, session!.learner_id);
+  const seedEarns = getSessionSeedEarns(beforeCount, afterCount);
+
   return (
     <main className="max-w-xl mx-auto p-6 space-y-6 pb-20">
       <header className="text-center pt-4 space-y-1">
@@ -144,6 +153,25 @@ export default async function CompletePage({ params }: { params: { sessionId: st
               index={i}
             />
           ))}
+        </div>
+      )}
+
+      {seedEarns.length > 0 && (
+        <div className="space-y-3 pt-2">
+          {seedEarns.map((earn, i) => {
+            const plant = getPlant(earn.plantCode);
+            if (!plant) return null;
+            return (
+              <SeedEarnedCard
+                key={earn.plantCode}
+                plant={plant}
+                opensQuadrant={earn.opensQuadrant}
+                isFirstEver={beforeCount < 25 && earn.plantCode === 'radish'}
+                learnerId={session!.learner_id}
+                index={i}
+              />
+            );
+          })}
         </div>
       )}
 
