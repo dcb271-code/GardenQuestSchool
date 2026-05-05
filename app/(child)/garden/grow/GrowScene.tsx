@@ -16,6 +16,7 @@ import { PlantStageIllustration } from '@/components/child/garden/PlantStageIllu
 import {
   VegetableBackground, FlowerBackground, FruitGroveBackground, JapaneseBackground,
 } from '@/components/child/garden/QuadrantBackgrounds';
+import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
 import EmptyPlotPicker from './EmptyPlotPicker';
 import PlantInspectModal from './PlantInspectModal';
 import HarvestCelebration from './HarvestCelebration';
@@ -30,6 +31,8 @@ export default function GrowScene({
   const [pickerPlotCode, setPickerPlotCode] = useState<string | null>(null);
   const [inspectPlotCode, setInspectPlotCode] = useState<string | null>(null);
   const [celebrating, setCelebrating] = useState(false);
+  const { settings } = useAccessibilitySettings();
+  const reducedMotion = settings.reducedMotion;
 
   return (
     <div className="bg-[#F5EBDC] flex flex-col overflow-hidden" style={{ height: '100dvh', minHeight: '100vh' }}>
@@ -112,7 +115,9 @@ export default function GrowScene({
                  style={{ cursor: 'pointer', touchAction: 'manipulation' }}
                  onClick={() => setInspectPlotCode(p.plot.code)}>
                 <rect x={p.plot.x - 36} y={p.plot.y - 36} width={72} height={72} fill="transparent" />
-                {p.plant.isMature && (
+                {p.plant.isMature && (reducedMotion ? (
+                  <circle cx={p.plot.x} cy={p.plot.y} r={36} fill="none" stroke="#FFD93D" strokeWidth={2} opacity={0.7} />
+                ) : (
                   <motion.circle
                     cx={p.plot.x} cy={p.plot.y} r={36}
                     fill="none" stroke="#FFD93D" strokeWidth={2}
@@ -120,7 +125,7 @@ export default function GrowScene({
                     animate={{ opacity: [0.4, 0.85, 0.4], scale: [0.95, 1.08, 0.95] }}
                     transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
                   />
-                )}
+                ))}
                 <PlantStageIllustration code={stage.illustration} x={p.plot.x} y={p.plot.y} size={sizePx} />
               </g>
             );
@@ -149,7 +154,7 @@ export default function GrowScene({
           }}
         />
 
-        <HarvestCelebration open={celebrating} />
+        <HarvestCelebration open={celebrating} reducedMotion={reducedMotion} />
 
         <SeedInventoryTray earnedSeeds={state.earnedSeeds} openQuadrants={state.openQuadrants} />
       </div>

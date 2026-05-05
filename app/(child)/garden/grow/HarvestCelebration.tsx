@@ -5,7 +5,22 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const PETAL_COLORS = ['#FFB7C5', '#FFD93D', '#E8A87C', '#FFFAF2', '#C38D9E'];
 
-export default function HarvestCelebration({ open }: { open: boolean }) {
+export default function HarvestCelebration({ open, reducedMotion = false }: { open: boolean; reducedMotion?: boolean }) {
+  if (reducedMotion) {
+    return (
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            className="absolute inset-0 flex items-center justify-center pointer-events-none z-40"
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div className="text-6xl">🌷</div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    );
+  }
   return (
     <AnimatePresence>
       {open && (
