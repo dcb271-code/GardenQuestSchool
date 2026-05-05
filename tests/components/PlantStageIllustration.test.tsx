@@ -37,4 +37,9 @@ describe('PlantStageIllustration', () => {
     const { container } = render(svgWrap(<PlantStageIllustration code="plant_daisy_bloom" x={0} y={0} size={50} />));
     expect(container.querySelector('g')).not.toBeNull();
   });
+
+  it('renders plant_sunflower_bloom', () => {
+    const { container } = render(svgWrap(<PlantStageIllustration code="plant_sunflower_bloom" x={0} y={0} size={50} />));
+    expect(container.querySelector('g')).not.toBeNull();
+  });
 });

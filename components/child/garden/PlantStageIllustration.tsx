@@ -403,6 +403,108 @@ function DaisyBloom({ x, y, size }: StageProps) {
   );
 }
 
+// ─── SUNFLOWER ──────────────────────────────────────────────────────────
+function SunflowerSeed({ x, y, size }: StageProps) {
+  // Single dark seed (slightly oblong like a real sunflower kernel)
+  const r = size * 0.07;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={0} rx={r * 4} ry={r * 2} fill="#6B4423" opacity={0.35} />
+      <ellipse cx={0} cy={0} rx={r * 0.7} ry={r * 1.2} fill="#3F2614" stroke={STROKE} strokeWidth={0.6} transform="rotate(15)" />
+      <line x1={0} y1={-r} x2={0} y2={r} stroke="#FFFAF2" strokeWidth={0.4} opacity={0.5} transform="rotate(15)" />
+    </g>
+  );
+}
+
+function SunflowerSprout({ x, y, size }: StageProps) {
+  const h = size * 0.2;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={size * 0.05} rx={size * 0.16} ry={size * 0.04} fill="#6B4423" opacity={0.4} />
+      <line x1={0} y1={size * 0.05} x2={0} y2={-h} stroke="#7BA46F" strokeWidth={1.4} strokeLinecap="round" />
+      <ellipse cx={-size * 0.06} cy={-h * 0.85} rx={size * 0.06} ry={size * 0.08} fill="#95B88F" stroke={STROKE} strokeWidth={0.8} transform={`rotate(-25 ${-size * 0.06} ${-h * 0.85})`} />
+      <ellipse cx={size * 0.06} cy={-h * 0.85} rx={size * 0.06} ry={size * 0.08} fill="#7BA46F" stroke={STROKE} strokeWidth={0.8} transform={`rotate(25 ${size * 0.06} ${-h * 0.85})`} />
+    </g>
+  );
+}
+
+function SunflowerStalk({ x, y, size }: StageProps) {
+  // Tall thin green stalk with two opposite leaves (no flower) — ~50% width
+  const h = size * 0.5;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={size * 0.06} rx={size * 0.18} ry={size * 0.05} fill="#6B4423" opacity={0.35} />
+      <line x1={0} y1={size * 0.06} x2={0} y2={-h} stroke="#7BA46F" strokeWidth={1.6} strokeLinecap="round" />
+      {/* two large opposite leaves, top-down view = wide ellipses */}
+      <ellipse cx={-size * 0.18} cy={-h * 0.5} rx={size * 0.16} ry={size * 0.09} fill="#5C7E4F" stroke={STROKE} strokeWidth={1.1} transform={`rotate(-20 ${-size * 0.18} ${-h * 0.5})`} />
+      <ellipse cx={size * 0.18} cy={-h * 0.5} rx={size * 0.16} ry={size * 0.09} fill="#7BA46F" stroke={STROKE} strokeWidth={1.1} transform={`rotate(20 ${size * 0.18} ${-h * 0.5})`} />
+      {/* leaf veins */}
+      <line x1={-size * 0.06} y1={-h * 0.5} x2={-size * 0.3} y2={-h * 0.55} stroke={STROKE} strokeWidth={0.5} opacity={0.5} />
+      <line x1={size * 0.06} y1={-h * 0.5} x2={size * 0.3} y2={-h * 0.55} stroke={STROKE} strokeWidth={0.5} opacity={0.5} />
+    </g>
+  );
+}
+
+function SunflowerBud({ x, y, size }: StageProps) {
+  // Stalk with green bud at top
+  const h = size * 0.6;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={size * 0.06} rx={size * 0.2} ry={size * 0.05} fill="#6B4423" opacity={0.35} />
+      <line x1={0} y1={size * 0.06} x2={0} y2={-h * 0.85} stroke="#7BA46F" strokeWidth={1.6} strokeLinecap="round" />
+      {/* leaves */}
+      <ellipse cx={-size * 0.18} cy={-h * 0.45} rx={size * 0.15} ry={size * 0.08} fill="#5C7E4F" stroke={STROKE} strokeWidth={1} transform={`rotate(-25 ${-size * 0.18} ${-h * 0.45})`} />
+      <ellipse cx={size * 0.18} cy={-h * 0.45} rx={size * 0.15} ry={size * 0.08} fill="#7BA46F" stroke={STROKE} strokeWidth={1} transform={`rotate(25 ${size * 0.18} ${-h * 0.45})`} />
+      {/* green bud (with sepals) */}
+      <circle cx={0} cy={-h * 0.92} r={size * 0.13} fill="#7BA46F" stroke={STROKE} strokeWidth={1.1} />
+      {/* sepal points */}
+      {[0, 60, 120, 180, 240, 300].map(a => (
+        <path key={a} d={`M 0 ${-h * 0.92} l ${size * 0.04} ${-size * 0.04} l ${-size * 0.08} 0 Z`} fill="#5C7E4F" stroke={STROKE} strokeWidth={0.6} transform={`rotate(${a} 0 ${-h * 0.92})`} />
+      ))}
+      {/* center peeking yellow */}
+      <circle cx={0} cy={-h * 0.92} r={size * 0.05} fill="#FFD93D" />
+    </g>
+  );
+}
+
+function SunflowerBloom({ x, y, size }: StageProps) {
+  // Large yellow head from above: 14 petals around brown center with seed dots
+  const r = size * 0.45;
+  const petalCount = 14;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={r * 0.85} rx={r * 1.0} ry={r * 0.16} fill="#6B4423" opacity={0.3} />
+      {/* base leaves peeking */}
+      <ellipse cx={-r * 0.7} cy={r * 0.55} rx={r * 0.2} ry={r * 0.45} fill="#5C7E4F" stroke={STROKE} strokeWidth={1} transform={`rotate(-30 ${-r * 0.7} ${r * 0.55})`} />
+      <ellipse cx={r * 0.7} cy={r * 0.55} rx={r * 0.2} ry={r * 0.45} fill="#7BA46F" stroke={STROKE} strokeWidth={1} transform={`rotate(30 ${r * 0.7} ${r * 0.55})`} />
+      {/* petal shadow ring */}
+      {Array.from({ length: petalCount }).map((_, i) => {
+        const a = (i / petalCount) * 360;
+        return (
+          <ellipse key={`s${i}`} cx={0} cy={-r * 0.62} rx={r * 0.13} ry={r * 0.32} fill="#E8A87C" opacity={0.6} transform={`rotate(${a + 4})`} />
+        );
+      })}
+      {/* petals */}
+      {Array.from({ length: petalCount }).map((_, i) => {
+        const a = (i / petalCount) * 360;
+        return (
+          <ellipse key={i} cx={0} cy={-r * 0.6} rx={r * 0.12} ry={r * 0.3} fill="#FFD93D" stroke={STROKE} strokeWidth={0.9} transform={`rotate(${a})`} />
+        );
+      })}
+      {/* brown center */}
+      <circle cx={0} cy={0} r={r * 0.36} fill="#5A3B1F" stroke={STROKE} strokeWidth={1.1} />
+      {/* seed stipple */}
+      {[
+        [0, 0], [-0.12, -0.06], [0.1, -0.08], [-0.05, 0.12], [0.13, 0.08],
+        [-0.18, 0.04], [0.18, -0.04], [0.05, -0.16], [-0.08, -0.16], [0.16, 0.16],
+        [-0.16, 0.16], [0.22, 0], [-0.22, 0],
+      ].map(([dx, dy], i) => (
+        <circle key={i} cx={r * dx} cy={r * dy} r={r * 0.04} fill="#3F2614" />
+      ))}
+    </g>
+  );
+}
+
 export function PlantStageIllustration({ code, x, y, size }: Props) {
   switch (code) {
     case 'plant_radish_seed':    return <RadishSeed x={x} y={y} size={size} />;
@@ -425,6 +527,11 @@ export function PlantStageIllustration({ code, x, y, size }: Props) {
     case 'plant_daisy_sprout':   return <DaisySprout x={x} y={y} size={size} />;
     case 'plant_daisy_bud':      return <DaisyBud x={x} y={y} size={size} />;
     case 'plant_daisy_bloom':    return <DaisyBloom x={x} y={y} size={size} />;
+    case 'plant_sunflower_seed':   return <SunflowerSeed x={x} y={y} size={size} />;
+    case 'plant_sunflower_sprout': return <SunflowerSprout x={x} y={y} size={size} />;
+    case 'plant_sunflower_stalk':  return <SunflowerStalk x={x} y={y} size={size} />;
+    case 'plant_sunflower_bud':    return <SunflowerBud x={x} y={y} size={size} />;
+    case 'plant_sunflower_bloom':  return <SunflowerBloom x={x} y={y} size={size} />;
     default: return null;
   }
 }
