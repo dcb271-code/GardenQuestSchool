@@ -1326,54 +1326,65 @@ export default function MathMountainScene({
                   <line x1={-22} y1={36} x2={-22} y2={42} stroke="#5A3B1F" strokeWidth={1.4} strokeLinecap="round" />
                   <line x1={22} y1={36} x2={22} y2={42} stroke="#5A3B1F" strokeWidth={1.4} strokeLinecap="round" />
 
-                  {/* TWO MAIN TIMBER POSTS at the front of the porch */}
-                  <rect x={-36} y={-12} width={6} height={40} fill="#8B5A2B" stroke="#3F2614" strokeWidth={1.2} />
-                  <rect x={30} y={-12} width={6} height={40} fill="#8B5A2B" stroke="#3F2614" strokeWidth={1.2} />
-                  <line x1={-33} y1={-8} x2={-33} y2={26} stroke="#5A3B1F" strokeWidth={0.5} opacity={0.55} />
-                  <line x1={33} y1={-8} x2={33} y2={26} stroke="#5A3B1F" strokeWidth={0.5} opacity={0.55} />
-
-                  {/* LOG-CABIN BACK WALL — chunky stacked logs */}
-                  <rect x={-52} y={2} width={104} height={26} fill="#7A5A3A" stroke="#3F2614" strokeWidth={1.2} />
-                  {[6, 12, 18, 24].map(yi => (
+                  {/* LOG-CABIN BACK WALL — RAISED so the wall top
+                      meets the roof eave (no gap between roof and
+                      wall). Wall now spans y:-12 to y:28 (height 40,
+                      was 26). Renders FIRST so front posts + chairs
+                      layer on top of it. */}
+                  <rect x={-52} y={-12} width={104} height={40} fill="#7A5A3A" stroke="#3F2614" strokeWidth={1.2} />
+                  {/* 6 log courses across the taller wall */}
+                  {[-6, 0, 6, 12, 18, 24].map(yi => (
                     <line key={`lg-${yi}`} x1={-52} y1={yi} x2={52} y2={yi} stroke="#5A3B1F" strokeWidth={1} opacity={0.7} />
                   ))}
-                  {/* end-cut log nubs at the corners */}
-                  {[6, 12, 18, 24].map(yi => (
+                  {/* end-cut log nubs at corners (one per course) */}
+                  {[-6, 0, 6, 12, 18, 24].map(yi => (
                     <g key={`lc-${yi}`}>
                       <ellipse cx={-52} cy={yi - 2} rx={3} ry={2.4} fill="#A06B36" stroke="#5A3B1F" strokeWidth={0.8} />
                       <ellipse cx={52}  cy={yi - 2} rx={3} ry={2.4} fill="#A06B36" stroke="#5A3B1F" strokeWidth={0.8} />
                     </g>
                   ))}
 
-                  {/* FOUR RECTANGULAR WINDOWS in the back wall —
-                      glowing warm gold panes, sit ABOVE each chair so
-                      they read as "lit windows behind the seating" */}
+                  {/* FOUR TALLER RECTANGULAR WINDOWS — now span y:-8
+                      to y:14 (height 22, was 9). Glowing warm gold
+                      panes positioned so the chairs sit IN FRONT of
+                      the lower portion. */}
                   {[-32, -12, 8, 28].map(xi => (
                     <g key={`win-${xi}`}>
-                      <rect x={xi - 5} y={4} width={10} height={9} fill="#FFD06B" stroke="#5A3B1F" strokeWidth={1.1} />
+                      <rect x={xi - 6} y={-8} width={12} height={22} fill="#FFD06B" stroke="#5A3B1F" strokeWidth={1.2} />
                       {/* glow inside */}
-                      <rect x={xi - 4} y={5} width={8} height={7} fill="#FFE89A" opacity={0.65} />
-                      {/* mullion cross */}
-                      <line x1={xi} y1={4} x2={xi} y2={13} stroke="#5A3B1F" strokeWidth={0.6} />
-                      <line x1={xi - 5} y1={8.5} x2={xi + 5} y2={8.5} stroke="#5A3B1F" strokeWidth={0.6} />
+                      <rect x={xi - 5} y={-7} width={10} height={20} fill="#FFE89A" opacity={0.65} />
+                      {/* mullion cross — vertical center + horizontal mid-bar */}
+                      <line x1={xi} y1={-8} x2={xi} y2={14} stroke="#5A3B1F" strokeWidth={0.6} />
+                      <line x1={xi - 6} y1={3} x2={xi + 6} y2={3} stroke="#5A3B1F" strokeWidth={0.6} />
                     </g>
                   ))}
 
-                  {/* FOUR GREEN PORCH CHAIRS evenly spaced — each sits
-                      under a window. Cross-back chair silhouette. */}
+                  {/* FOUR GREEN PORCH CHAIRS — sit on the deck IN
+                      FRONT of the windows, partially overlapping the
+                      lower window panes (the photo shows chairs in
+                      front of the lit interior). */}
                   {[-32, -12, 8, 28].map(xi => (
                     <g key={`chair-${xi}`}>
                       {/* seat back */}
-                      <rect x={xi - 4} y={16} width={8} height={9} rx={1} fill="#5C7E4F" stroke="#3F2614" strokeWidth={0.9} />
+                      <rect x={xi - 4} y={14} width={8} height={10} rx={1} fill="#5C7E4F" stroke="#3F2614" strokeWidth={0.9} />
                       {/* seat cushion */}
-                      <rect x={xi - 5} y={22} width={10} height={3} fill="#4F6F42" stroke="#3F2614" strokeWidth={0.6} />
+                      <rect x={xi - 5} y={21} width={10} height={3} fill="#4F6F42" stroke="#3F2614" strokeWidth={0.6} />
                       {/* chair legs */}
-                      <line x1={xi - 4} y1={25} x2={xi - 4} y2={28} stroke="#3F2614" strokeWidth={0.7} />
-                      <line x1={xi + 4} y1={25} x2={xi + 4} y2={28} stroke="#3F2614" strokeWidth={0.7} />
+                      <line x1={xi - 4} y1={24} x2={xi - 4} y2={28} stroke="#3F2614" strokeWidth={0.7} />
+                      <line x1={xi + 4} y1={24} x2={xi + 4} y2={28} stroke="#3F2614" strokeWidth={0.7} />
                       {/* back-rest spindle hint */}
-                      <line x1={xi} y1={17} x2={xi} y2={23} stroke="#3F2614" strokeWidth={0.5} opacity={0.55} />
+                      <line x1={xi} y1={15} x2={xi} y2={22} stroke="#3F2614" strokeWidth={0.5} opacity={0.55} />
                     </g>
                   ))}
+
+                  {/* TWO MAIN TIMBER POSTS at the front of the porch
+                      — rendered AFTER the wall so they layer on top
+                      (the previous order had wall covering the lower
+                      portion of each post). */}
+                  <rect x={-36} y={-12} width={6} height={40} fill="#8B5A2B" stroke="#3F2614" strokeWidth={1.2} />
+                  <rect x={30} y={-12} width={6} height={40} fill="#8B5A2B" stroke="#3F2614" strokeWidth={1.2} />
+                  <line x1={-33} y1={-8} x2={-33} y2={26} stroke="#5A3B1F" strokeWidth={0.5} opacity={0.55} />
+                  <line x1={33} y1={-8} x2={33} y2={26} stroke="#5A3B1F" strokeWidth={0.5} opacity={0.55} />
 
                   {/* STRING LIGHTS between the two front posts */}
                   <path d="M -33 0 Q 0 4 33 0" stroke="#5A3B1F" strokeWidth={0.5} fill="none" />
