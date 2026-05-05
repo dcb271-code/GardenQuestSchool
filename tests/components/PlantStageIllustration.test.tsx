@@ -17,4 +17,9 @@ describe('PlantStageIllustration', () => {
     const { container } = render(svgWrap(<PlantStageIllustration code="nope" x={0} y={0} size={40} />));
     expect(container.querySelector('g')).toBeNull();
   });
+
+  it('renders plant_mint_mature', () => {
+    const { container } = render(svgWrap(<PlantStageIllustration code="plant_mint_mature" x={0} y={0} size={50} />));
+    expect(container.querySelector('g')).not.toBeNull();
+  });
 });
