@@ -49,11 +49,11 @@ describe('virtueDetector — rules', () => {
     expect(events.filter(e => e.virtue === 'curiosity').length).toBe(1);
   });
 
-  it('grants Noticing for 3+ first-try corrects (pattern signal)', () => {
-    // Threshold is 3 (not 4): with a 5-item session cap, requiring 4
-    // first-try-correct made the gem nearly unreachable. 3/5 is the
-    // honest "this child sees the pattern" signal.
-    const attempts: AttemptRow[] = Array.from({ length: 3 }, (_, i) => ({
+  it('grants Noticing for 4+ first-try corrects with no incorrects or retries', () => {
+    // Production rule: requires ≥4 first-try-correct AND zero incorrect
+    // AND zero retries — true first-try pattern recognition. Anything
+    // less makes the gem too common.
+    const attempts: AttemptRow[] = Array.from({ length: 4 }, (_, i) => ({
       itemId: `i${i}`, outcome: 'correct' as const, retryCount: 0, skillCode: 'math.counting.skip_2s',
     }));
     const events = detectVirtuesFromSession({
@@ -67,8 +67,8 @@ describe('virtueDetector — rules', () => {
     expect(noticing[0].evidence.narrativeText).toMatch(/pattern|spotted|noticed|naturalist|recognised|fast|catch/i);
   });
 
-  it('does NOT grant Noticing for only 2 first-try corrects', () => {
-    const attempts: AttemptRow[] = Array.from({ length: 2 }, (_, i) => ({
+  it('does NOT grant Noticing for only 3 first-try corrects', () => {
+    const attempts: AttemptRow[] = Array.from({ length: 3 }, (_, i) => ({
       itemId: `i${i}`, outcome: 'correct' as const, retryCount: 0, skillCode: 'math.counting.skip_2s',
     }));
     const events = detectVirtuesFromSession({
