@@ -44,7 +44,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { MapStructure } from '@/lib/world/gardenMap';
@@ -167,6 +167,33 @@ export default function MathMountainScene({
   // Matches the central garden's tap UX (mountain skipped this step
   // before, which made the world feel mechanical compared to home).
   const [selected, setSelected] = useState<MapStructure | null>(null);
+
+  // SISTERS WANDER LOOP — Cecily + Esme cycle between two rest spots:
+  //   • In front of the cottage (around x:130, y:570 — south of the
+  //     porch deck so they're visible on the path, not behind the
+  //     building)
+  //   • In front of the lake (around x:380, y:580 — beside the south
+  //     bank so they're not in the water)
+  // They walk for ~1.3s and rest for ~7s at each stop. Reduced-motion
+  // users skip the loop and just stand at the cottage front.
+  const REST_SPOTS = [
+    { x: 130, y: 570 },   // cottage front
+    { x: 380, y: 580 },   // lake front
+  ];
+  const [wanderIdx, setWanderIdx] = useState(0);
+  const [wanderWalking, setWanderWalking] = useState(false);
+  useEffect(() => {
+    if (reducedMotion) return;
+    const interval = setInterval(() => {
+      setWanderWalking(true);
+      setWanderIdx(i => (i + 1) % REST_SPOTS.length);
+      // walking pose ends after the SisterWalkers transition completes
+      window.setTimeout(() => setWanderWalking(false), 1300);
+    }, 8000);
+    return () => clearInterval(interval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reducedMotion]);
+  const wanderTarget = REST_SPOTS[wanderIdx];
 
   const startSkill = async (skillCode: string) => {
     if (starting) return;
@@ -973,12 +1000,15 @@ export default function MathMountainScene({
 
         {/* ── SISTER WALKERS ──
              Cecily + Esme emerge from the garden signpost on the
-             left edge and walk in to their idle spot in the meadow.
-             Same component the central garden uses; the emergeFrom
-             prop is what changes per scene. */}
+             left edge and then WANDER along the path between two
+             rest spots: in front of the cottage and in front of the
+             lake. They pause ~7s at each stop. The previous version
+             parked them at (110, 460) which was inside/behind the
+             cottage; now they rest at y:570 which is south of the
+             cottage front edge. */}
         <SisterWalkers
-          target={{ x: 110, y: 460 }}
-          walking={false}
+          target={wanderTarget}
+          walking={wanderWalking}
           reducedMotion={reducedMotion}
           emergeFrom={{ x: 34, y: 414 }}
         />
@@ -1245,71 +1275,69 @@ export default function MathMountainScene({
               : 'drop-shadow(0 2px 3px rgba(107,68,35,0.42))';
 
             if (key === 'cottage') {
-              // Open-front timber pavilion modeled directly on the
-              // user's reference photo. Wider-than-tall proportions
-              // (~3:2), GENTLE roof pitch (no spire/church look), thick
-              // visible log walls all the way across the back, and a
-              // generous wood deck with central stairs. No decorative
-              // gable trim — the photo's pavilion is plain timber.
+              // Stories Cottage v3 — closer to the user's reference
+              // photo: STEEPER A-frame roof (~38° pitch), 4 green
+              // chairs evenly spaced inside the porch, 4 small
+              // rectangular windows in the back wall behind the
+              // chairs + 2 triangular gable windows up high, no
+              // fascia "nub" along the eave, prominent center
+              // staircase leading up to the chairs.
               return (
                 <g style={{ filter, opacity: tone }} transform="scale(1.1)">
                   {/* ground shadow */}
                   <ellipse cx={0} cy={50} rx={62} ry={6} fill="#000" opacity={0.20} />
 
-                  {/* DECK SKIRT (under-deck shadow + fascia) */}
+                  {/* DECK SKIRT (under-deck shadow) */}
                   <rect x={-58} y={40} width={116} height={6} fill="#3F2614" stroke="#2A1810" strokeWidth={1} />
 
-                  {/* DECK SURFACE — wider-than-tall wood platform */}
+                  {/* DECK SURFACE */}
                   <rect x={-58} y={28} width={116} height={12} fill="#A06B36" stroke="#5A3B1F" strokeWidth={1.5} />
                   <line x1={-58} y1={32} x2={58} y2={32} stroke="#5A3B1F" strokeWidth={0.5} opacity={0.55} />
                   <line x1={-58} y1={36} x2={58} y2={36} stroke="#5A3B1F" strokeWidth={0.5} opacity={0.55} />
-                  {/* deck plank vertical seams (every 14px) */}
                   {[-44, -30, -16, -2, 12, 26, 40].map(xi => (
                     <line key={`dp-${xi}`} x1={xi} y1={28} x2={xi} y2={40} stroke="#5A3B1F" strokeWidth={0.4} opacity={0.4} />
                   ))}
 
-                  {/* SIDE RAILINGS — left + right, sitting on the deck */}
-                  {/* left railing — top rail + posts */}
-                  <line x1={-58} y1={20} x2={-32} y2={20} stroke="#5A3B1F" strokeWidth={1.4} strokeLinecap="round" />
+                  {/* SIDE RAILINGS — left + right of the central stairs */}
+                  <line x1={-58} y1={20} x2={-22} y2={20} stroke="#5A3B1F" strokeWidth={1.4} strokeLinecap="round" />
                   <line x1={-58} y1={20} x2={-58} y2={28} stroke="#5A3B1F" strokeWidth={1.4} strokeLinecap="round" />
-                  <line x1={-32} y1={20} x2={-32} y2={28} stroke="#5A3B1F" strokeWidth={1.4} strokeLinecap="round" />
-                  {[-52, -46, -40].map(xi => (
+                  <line x1={-22} y1={20} x2={-22} y2={28} stroke="#5A3B1F" strokeWidth={1.4} strokeLinecap="round" />
+                  {[-50, -42, -34, -28].map(xi => (
                     <line key={`lr-${xi}`} x1={xi} y1={20} x2={xi} y2={28} stroke="#5A3B1F" strokeWidth={0.6} />
                   ))}
-                  {/* right railing */}
-                  <line x1={32} y1={20} x2={58} y2={20} stroke="#5A3B1F" strokeWidth={1.4} strokeLinecap="round" />
+                  <line x1={22} y1={20} x2={58} y2={20} stroke="#5A3B1F" strokeWidth={1.4} strokeLinecap="round" />
                   <line x1={58} y1={20} x2={58} y2={28} stroke="#5A3B1F" strokeWidth={1.4} strokeLinecap="round" />
-                  <line x1={32} y1={20} x2={32} y2={28} stroke="#5A3B1F" strokeWidth={1.4} strokeLinecap="round" />
-                  {[40, 46, 52].map(xi => (
+                  <line x1={22} y1={20} x2={22} y2={28} stroke="#5A3B1F" strokeWidth={1.4} strokeLinecap="round" />
+                  {[28, 34, 42, 50].map(xi => (
                     <line key={`rr-${xi}`} x1={xi} y1={20} x2={xi} y2={28} stroke="#5A3B1F" strokeWidth={0.6} />
                   ))}
 
-                  {/* CENTRAL STAIRCASE — wider-than-tall, descending */}
-                  <rect x={-16} y={40} width={32} height={4} fill="#C8A57A" stroke="#5A3B1F" strokeWidth={1} />
-                  <rect x={-16} y={44} width={32} height={4} fill="#B89265" stroke="#5A3B1F" strokeWidth={1} />
-                  <rect x={-16} y={48} width={32} height={4} fill="#A87E55" stroke="#5A3B1F" strokeWidth={1} />
+                  {/* CENTRAL STAIRCASE — prominent, wider, more steps
+                      leading up to the porch from the front */}
+                  <rect x={-22} y={40} width={44} height={4} fill="#D4B58A" stroke="#5A3B1F" strokeWidth={1} />
+                  <rect x={-22} y={44} width={44} height={4} fill="#C8A57A" stroke="#5A3B1F" strokeWidth={1} />
+                  <rect x={-22} y={48} width={44} height={4} fill="#B89265" stroke="#5A3B1F" strokeWidth={1} />
+                  <rect x={-22} y={52} width={44} height={4} fill="#A87E55" stroke="#5A3B1F" strokeWidth={1} />
                   {/* stair side stringers */}
-                  <line x1={-16} y1={40} x2={-16} y2={52} stroke="#5A3B1F" strokeWidth={1} />
-                  <line x1={16} y1={40} x2={16} y2={52} stroke="#5A3B1F" strokeWidth={1} />
+                  <line x1={-22} y1={40} x2={-22} y2={56} stroke="#5A3B1F" strokeWidth={1.2} />
+                  <line x1={22} y1={40} x2={22} y2={56} stroke="#5A3B1F" strokeWidth={1.2} />
+                  {/* stair handrails — two short rails at each side
+                      of the steps for a clear "leading up" look */}
+                  <line x1={-22} y1={36} x2={-22} y2={42} stroke="#5A3B1F" strokeWidth={1.4} strokeLinecap="round" />
+                  <line x1={22} y1={36} x2={22} y2={42} stroke="#5A3B1F" strokeWidth={1.4} strokeLinecap="round" />
 
                   {/* TWO MAIN TIMBER POSTS at the front of the porch */}
-                  <rect x={-36} y={-2} width={6} height={30} fill="#8B5A2B" stroke="#3F2614" strokeWidth={1.2} />
-                  <rect x={30} y={-2} width={6} height={30} fill="#8B5A2B" stroke="#3F2614" strokeWidth={1.2} />
-                  {/* timber grain hint */}
-                  <line x1={-33} y1={2} x2={-33} y2={26} stroke="#5A3B1F" strokeWidth={0.5} opacity={0.55} />
-                  <line x1={33} y1={2} x2={33} y2={26} stroke="#5A3B1F" strokeWidth={0.5} opacity={0.55} />
+                  <rect x={-36} y={-12} width={6} height={40} fill="#8B5A2B" stroke="#3F2614" strokeWidth={1.2} />
+                  <rect x={30} y={-12} width={6} height={40} fill="#8B5A2B" stroke="#3F2614" strokeWidth={1.2} />
+                  <line x1={-33} y1={-8} x2={-33} y2={26} stroke="#5A3B1F" strokeWidth={0.5} opacity={0.55} />
+                  <line x1={33} y1={-8} x2={33} y2={26} stroke="#5A3B1F" strokeWidth={0.5} opacity={0.55} />
 
-                  {/* LOG-CABIN BACK WALL — full-width chunky stacked
-                      logs visible through the open front. This is the
-                      defining feature: thick horizontal logs across
-                      the whole back. */}
+                  {/* LOG-CABIN BACK WALL — chunky stacked logs */}
                   <rect x={-52} y={2} width={104} height={26} fill="#7A5A3A" stroke="#3F2614" strokeWidth={1.2} />
-                  {/* log courses — 5 stacked logs across the back */}
                   {[6, 12, 18, 24].map(yi => (
                     <line key={`lg-${yi}`} x1={-52} y1={yi} x2={52} y2={yi} stroke="#5A3B1F" strokeWidth={1} opacity={0.7} />
                   ))}
-                  {/* end-cuts of the logs sticking out at the corners
-                      (the chunky log-cabin look) */}
+                  {/* end-cut log nubs at the corners */}
                   {[6, 12, 18, 24].map(yi => (
                     <g key={`lc-${yi}`}>
                       <ellipse cx={-52} cy={yi - 2} rx={3} ry={2.4} fill="#A06B36" stroke="#5A3B1F" strokeWidth={0.8} />
@@ -1317,42 +1345,64 @@ export default function MathMountainScene({
                     </g>
                   ))}
 
-                  {/* CHAIRS visible inside the porch — two simple
-                      silhouettes flanking the center */}
-                  <g>
-                    <rect x={-22} y={14} width={7} height={11} rx={1} fill="#5C7E4F" stroke="#3F2614" strokeWidth={0.9} />
-                    <rect x={-23} y={20} width={9} height={2} fill="#3F2614" />
-                    <line x1={-22} y1={25} x2={-22} y2={28} stroke="#3F2614" strokeWidth={0.7} />
-                    <line x1={-15} y1={25} x2={-15} y2={28} stroke="#3F2614" strokeWidth={0.7} />
-                  </g>
-                  <g>
-                    <rect x={15} y={14} width={7} height={11} rx={1} fill="#5C7E4F" stroke="#3F2614" strokeWidth={0.9} />
-                    <rect x={14} y={20} width={9} height={2} fill="#3F2614" />
-                    <line x1={15} y1={25} x2={15} y2={28} stroke="#3F2614" strokeWidth={0.7} />
-                    <line x1={22} y1={25} x2={22} y2={28} stroke="#3F2614" strokeWidth={0.7} />
-                  </g>
-
-                  {/* STRING LIGHTS — soft warm bulbs strung between the
-                      two front posts */}
-                  <path d="M -33 6 Q 0 10 33 6" stroke="#5A3B1F" strokeWidth={0.5} fill="none" />
-                  {[-22, -10, 0, 10, 22].map(xi => (
-                    <ellipse key={`sl-${xi}`} cx={xi} cy={8} rx={1.4} ry={1.7} fill="#FFD06B" stroke="#5A3B1F" strokeWidth={0.5} />
+                  {/* FOUR RECTANGULAR WINDOWS in the back wall —
+                      glowing warm gold panes, sit ABOVE each chair so
+                      they read as "lit windows behind the seating" */}
+                  {[-32, -12, 8, 28].map(xi => (
+                    <g key={`win-${xi}`}>
+                      <rect x={xi - 5} y={4} width={10} height={9} fill="#FFD06B" stroke="#5A3B1F" strokeWidth={1.1} />
+                      {/* glow inside */}
+                      <rect x={xi - 4} y={5} width={8} height={7} fill="#FFE89A" opacity={0.65} />
+                      {/* mullion cross */}
+                      <line x1={xi} y1={4} x2={xi} y2={13} stroke="#5A3B1F" strokeWidth={0.6} />
+                      <line x1={xi - 5} y1={8.5} x2={xi + 5} y2={8.5} stroke="#5A3B1F" strokeWidth={0.6} />
+                    </g>
                   ))}
 
-                  {/* GENTLE GABLED ROOF — wide, low-pitched. Roof spans
-                      from x:-66 to 66 (overhanging the deck), peaks at
-                      y:-26 (only 26px above the eave at y:-2). Aspect
-                      ~5:1 wide:tall, no spire. */}
-                  <path d="M -66 -2 L 0 -26 L 66 -2 Z"
-                        fill="#7A5A3A" stroke="#3F2614" strokeWidth={2} strokeLinejoin="round" />
-                  {/* eave fascia board — strong horizontal line under
-                      the roof, defining the open-front look */}
-                  <rect x={-66} y={-2} width={132} height={3} fill="#5A3B1F" stroke="#3F2614" strokeWidth={1} />
-                  {/* a few subtle plank lines along the roof slope —
-                      no king-post, no cross-beams (those made it look
-                      church-y) */}
-                  <line x1={-44} y1={-2} x2={-14} y2={-18} stroke="#3F2614" strokeWidth={0.6} opacity={0.45} />
-                  <line x1={44} y1={-2} x2={14} y2={-18} stroke="#3F2614" strokeWidth={0.6} opacity={0.45} />
+                  {/* FOUR GREEN PORCH CHAIRS evenly spaced — each sits
+                      under a window. Cross-back chair silhouette. */}
+                  {[-32, -12, 8, 28].map(xi => (
+                    <g key={`chair-${xi}`}>
+                      {/* seat back */}
+                      <rect x={xi - 4} y={16} width={8} height={9} rx={1} fill="#5C7E4F" stroke="#3F2614" strokeWidth={0.9} />
+                      {/* seat cushion */}
+                      <rect x={xi - 5} y={22} width={10} height={3} fill="#4F6F42" stroke="#3F2614" strokeWidth={0.6} />
+                      {/* chair legs */}
+                      <line x1={xi - 4} y1={25} x2={xi - 4} y2={28} stroke="#3F2614" strokeWidth={0.7} />
+                      <line x1={xi + 4} y1={25} x2={xi + 4} y2={28} stroke="#3F2614" strokeWidth={0.7} />
+                      {/* back-rest spindle hint */}
+                      <line x1={xi} y1={17} x2={xi} y2={23} stroke="#3F2614" strokeWidth={0.5} opacity={0.55} />
+                    </g>
+                  ))}
+
+                  {/* STRING LIGHTS between the two front posts */}
+                  <path d="M -33 0 Q 0 4 33 0" stroke="#5A3B1F" strokeWidth={0.5} fill="none" />
+                  {[-22, -10, 0, 10, 22].map(xi => (
+                    <ellipse key={`sl-${xi}`} cx={xi} cy={2} rx={1.3} ry={1.6} fill="#FFD06B" stroke="#5A3B1F" strokeWidth={0.5} />
+                  ))}
+
+                  {/* STEEPER A-FRAME ROOF — peak at y:-44 (was -26).
+                      Width still 132 (-66 to 66) but rise is now 32px
+                      from eave to peak, giving roughly a 38° pitch.
+                      strokeLinejoin="miter" so the apex is a clean
+                      sharp point — no rounded "nub" artifact. The
+                      previous fascia board across the eave is gone;
+                      the post tops handle the visual connection. */}
+                  <path d="M -66 -12 L 0 -44 L 66 -12 Z"
+                        fill="#7A5A3A" stroke="#3F2614" strokeWidth={2} strokeLinejoin="miter" />
+                  {/* roof shake/shingle hint — two subtle horizontal
+                      lines parallel to the eave */}
+                  <path d="M -54 -18 L 54 -18" stroke="#3F2614" strokeWidth={0.5} opacity={0.4} />
+                  <path d="M -42 -24 L 42 -24" stroke="#3F2614" strokeWidth={0.5} opacity={0.4} />
+
+                  {/* TWO TRIANGULAR GABLE WINDOWS — small triangles
+                      tucked into the upper portion of the roof,
+                      mirroring the photo's dual gable vents */}
+                  <path d="M -16 -28 L 0 -38 L 0 -28 Z" fill="#FFD06B" stroke="#5A3B1F" strokeWidth={1} strokeLinejoin="miter" />
+                  <path d="M  0 -28 L 0 -38 L 16 -28 Z" fill="#FFD06B" stroke="#5A3B1F" strokeWidth={1} strokeLinejoin="miter" />
+                  {/* glow inside */}
+                  <path d="M -14 -28 L -1 -36 L -1 -28 Z" fill="#FFE89A" opacity={0.6} />
+                  <path d="M  1 -28 L 1 -36 L 14 -28 Z" fill="#FFE89A" opacity={0.6} />
                 </g>
               );
             }
