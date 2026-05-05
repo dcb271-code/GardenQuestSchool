@@ -1015,6 +1015,7 @@ export default function GardenScene({
                   ? `/garden/math-mountain?learner=${learnerId}`
                   : `/garden/reading-forest?learner=${learnerId}`;
               const dest = s.label.replace(/^to /, '');
+              const isMountain = s.branchCode === 'math_mountain';
               return (
                 <g
                   key={s.code}
@@ -1024,18 +1025,101 @@ export default function GardenScene({
                 >
                   {/* large invisible hit target — meets the 60pt min */}
                   <circle r={42} fill="transparent" />
-                  {/* gate icon: ivy when locked, open archway when unlocked */}
-                  <text
-                    textAnchor="middle"
-                    dominantBaseline="central"
-                    fontSize={36}
-                    opacity={u.unlocked ? 1 : 0.85}
+                  {/* WHIMSICAL GATE — bespoke SVG, no emoji.
+                      Mountain gate: rough timber post-and-beam archway
+                      with a stone hint and a hanging wooden sign.
+                      Forest gate: two tree trunks bent into an arch
+                      with a leafy canopy and mushrooms at the base.
+                      Locked variant adds a tied vine bundle / curtain. */}
+                  <g
                     style={{ filter: u.unlocked && u.justUnlocked
                       ? 'drop-shadow(0 0 10px rgba(255, 217, 61, 0.7))'
-                      : undefined }}
+                      : 'drop-shadow(0 1.5px 2px rgba(107,68,35,0.42))',
+                      opacity: u.unlocked ? 1 : 0.78,
+                    }}
                   >
-                    {u.unlocked ? '🚪' : '🌿'}
-                  </text>
+                    {isMountain ? (
+                      <g>
+                        {/* ground shadow */}
+                        <ellipse cx={0} cy={20} rx={26} ry={3} fill="#000" opacity={0.22} />
+                        {/* stone bases at each post */}
+                        <ellipse cx={-18} cy={18} rx={7} ry={3} fill="#A89D8A" stroke="#5A3B1F" strokeWidth={1} />
+                        <ellipse cx={18} cy={18} rx={7} ry={3} fill="#A89D8A" stroke="#5A3B1F" strokeWidth={1} />
+                        {/* timber posts */}
+                        <rect x={-21} y={-12} width={6} height={32} fill="#8B5A2B" stroke="#5A3B1F" strokeWidth={1.4} />
+                        <rect x={15} y={-12} width={6} height={32} fill="#8B5A2B" stroke="#5A3B1F" strokeWidth={1.4} />
+                        {/* wood grain hint on posts */}
+                        <line x1={-19} y1={-8} x2={-19} y2={16} stroke="#5A3B1F" strokeWidth={0.5} opacity={0.5} />
+                        <line x1={19} y1={-8} x2={19} y2={16} stroke="#5A3B1F" strokeWidth={0.5} opacity={0.5} />
+                        {/* curved cross-beam at the top — chunky timber */}
+                        <path d="M -24 -12 Q 0 -20 24 -12 L 22 -8 Q 0 -14 -22 -8 Z"
+                              fill="#8B5A2B" stroke="#5A3B1F" strokeWidth={1.4} strokeLinejoin="round" />
+                        {/* hanging wooden sign in the center */}
+                        <line x1={-6} y1={-12} x2={-6} y2={-6} stroke="#5A3B1F" strokeWidth={0.6} />
+                        <line x1={6} y1={-12} x2={6} y2={-6} stroke="#5A3B1F" strokeWidth={0.6} />
+                        <rect x={-10} y={-6} width={20} height={8} rx={1} fill="#FFFAF2" stroke="#5A3B1F" strokeWidth={1.2} />
+                        <text x={0} y={1} textAnchor="middle" fontSize={6} fontStyle="italic" fontWeight={700} fill="#6b4423">
+                          {u.unlocked ? '⛰' : '🔒'}
+                        </text>
+                        {/* climbing vine on the unlocked side, tied bundle on the locked side */}
+                        {u.unlocked ? (
+                          <>
+                            <path d="M -21 18 Q -25 8 -19 -2 Q -14 -8 -18 -12"
+                                  stroke="#5C7E4F" strokeWidth={1.2} fill="none" strokeLinecap="round" />
+                            <ellipse cx={-21} cy={4} rx={2} ry={1.4} fill="#7BA46F" />
+                            <ellipse cx={-19} cy={-4} rx={2} ry={1.4} fill="#7BA46F" />
+                          </>
+                        ) : (
+                          <>
+                            <path d="M -22 -2 Q 0 6 22 -2" stroke="#5C7E4F" strokeWidth={2.4} fill="none" strokeLinecap="round" />
+                            <path d="M -22 4 Q 0 12 22 4" stroke="#5C7E4F" strokeWidth={2.4} fill="none" strokeLinecap="round" />
+                            <path d="M -22 10 Q 0 18 22 10" stroke="#5C7E4F" strokeWidth={2.4} fill="none" strokeLinecap="round" />
+                            <ellipse cx={0} cy={6} rx={3} ry={2} fill="#5C7E4F" stroke="#3F5A30" strokeWidth={0.9} />
+                          </>
+                        )}
+                      </g>
+                    ) : (
+                      <g>
+                        {/* ground shadow */}
+                        <ellipse cx={0} cy={20} rx={26} ry={3} fill="#000" opacity={0.22} />
+                        {/* tree-trunk posts that bend inward */}
+                        <path d="M -22 20 Q -20 -2 -10 -14 Q -2 -20 2 -20"
+                              stroke="#8B5A2B" strokeWidth={6} fill="none" strokeLinecap="round" />
+                        <path d="M 22 20 Q 20 -2 10 -14 Q 2 -20 -2 -20"
+                              stroke="#8B5A2B" strokeWidth={6} fill="none" strokeLinecap="round" />
+                        {/* bark grain */}
+                        <path d="M -20 14 Q -18 4 -14 -6" stroke="#5A3B1F" strokeWidth={0.6} fill="none" opacity={0.5} />
+                        <path d="M 20 14 Q 18 4 14 -6" stroke="#5A3B1F" strokeWidth={0.6} fill="none" opacity={0.5} />
+                        {/* leafy canopy crown above the arch */}
+                        <ellipse cx={-10} cy={-20} rx={12} ry={9} fill="#7BA46F" stroke="#3F5A30" strokeWidth={1.2} />
+                        <ellipse cx={10} cy={-20} rx={12} ry={9} fill="#7BA46F" stroke="#3F5A30" strokeWidth={1.2} />
+                        <ellipse cx={0} cy={-24} rx={10} ry={7} fill="#95B88F" stroke="#3F5A30" strokeWidth={1.2} />
+                        {/* dappled highlights on canopy */}
+                        <circle cx={-6} cy={-26} r={1.4} fill="#A2C794" />
+                        <circle cx={6} cy={-22} r={1.2} fill="#A2C794" />
+                        {/* mushrooms at the base */}
+                        <ellipse cx={-26} cy={20} rx={3.5} ry={2} fill="#C84A3A" stroke="#5A3B1F" strokeWidth={0.8} />
+                        <rect x={-27} y={20} width={2} height={3} fill="#FFFAF2" stroke="#5A3B1F" strokeWidth={0.6} />
+                        <circle cx={-27} cy={19.5} r={0.5} fill="#FFFAF2" />
+                        <circle cx={-25} cy={20.2} r={0.5} fill="#FFFAF2" />
+                        <ellipse cx={26} cy={20} rx={3} ry={1.8} fill="#C84A3A" stroke="#5A3B1F" strokeWidth={0.8} />
+                        <rect x={25} y={20} width={2} height={2.5} fill="#FFFAF2" stroke="#5A3B1F" strokeWidth={0.6} />
+                        {/* curtain of vines hanging from the arch when locked */}
+                        {!u.unlocked && [-10, -5, 0, 5, 10].map(vx => (
+                          <g key={`vine-${vx}`}>
+                            <path d={`M ${vx} -12 Q ${vx + 1} 0 ${vx - 1} 14`}
+                                  stroke="#5C7E4F" strokeWidth={1.4} fill="none" strokeLinecap="round" />
+                            <ellipse cx={vx - 1} cy={4} rx={1.5} ry={1} fill="#7BA46F" />
+                            <ellipse cx={vx - 1} cy={12} rx={1.5} ry={1} fill="#A2C794" />
+                          </g>
+                        ))}
+                        {/* tiny opening glow when unlocked */}
+                        {u.unlocked && (
+                          <ellipse cx={0} cy={4} rx={10} ry={14} fill="#FFE89A" opacity={0.22} />
+                        )}
+                      </g>
+                    )}
+                  </g>
                   {/* destination label */}
                   <rect
                     x={-58} y={26} width={116} height={18} rx={5}

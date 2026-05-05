@@ -138,7 +138,17 @@ export default async function GardenPage({
       };
     } else if (s.kind === 'habitat' && s.habitatCode) {
       const habitat = HABITAT_CATALOG.find(h => h.code === s.habitatCode);
-      const prereqsMet = habitat ? habitat.prereqSkillCodes.every(c => mastered.has(c)) : false;
+      // Habitat unlock threshold: a prereq is "met" when the skill is
+      // either fully mastered (the strict review→mastered cross-session
+      // transition) OR the learner has racked up at least 5 correct
+      // attempts at it. Mastery alone was too strict — a 6yo doing one
+      // good session at Butterfly Clusters should be able to build the
+      // Butterfly Bush, not have to wait two more sessions for the
+      // mastery transition.
+      const HABITAT_UNLOCK_CORRECT = 5;
+      const isPrereqMet = (c: string) =>
+        mastered.has(c) || (correctByCode.get(c) ?? 0) >= HABITAT_UNLOCK_CORRECT;
+      const prereqsMet = habitat ? habitat.prereqSkillCodes.every(isPrereqMet) : false;
       // For each unmet prereq skill, find a structure on the central
       // garden that teaches it so the lock modal can show "go to X"
       // with that structure's emoji + label, and pulse it on tap.
@@ -146,7 +156,7 @@ export default async function GardenPage({
       // tells Cecily which branch to visit (and the modal renders a
       // "go to Math Mountain →" button).
       const unmetCodes = habitat
-        ? habitat.prereqSkillCodes.filter(c => !mastered.has(c))
+        ? habitat.prereqSkillCodes.filter(c => !isPrereqMet(c))
         : [];
       const prereqHints: PrereqHint[] = unmetCodes.map(code => {
         const skillName = skillNameByCode.get(code) ?? code;
