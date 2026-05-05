@@ -254,6 +254,79 @@ function LettuceMature({ x, y, size }: StageProps) {
   );
 }
 
+// ─── TULIP ──────────────────────────────────────────────────────────────
+function TulipBulb({ x, y, size }: StageProps) {
+  // Brown ovoid bulb partially buried
+  const r = size * 0.12;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={r * 0.4} rx={r * 1.4} ry={r * 0.3} fill="#6B4423" opacity={0.4} />
+      {/* bulb body — half-buried */}
+      <ellipse cx={0} cy={0} rx={r} ry={r * 1.3} fill="#7A4A1F" stroke={STROKE} strokeWidth={1} />
+      {/* papery skin highlight */}
+      <path d={`M ${-r * 0.4} ${-r * 0.6} Q 0 ${-r * 1.1} ${r * 0.4} ${-r * 0.6}`} stroke="#A66838" strokeWidth={0.8} fill="none" opacity={0.7} />
+      {/* tiny tip */}
+      <line x1={0} y1={-r * 1.3} x2={0} y2={-r * 1.6} stroke="#7BA46F" strokeWidth={0.8} strokeLinecap="round" />
+    </g>
+  );
+}
+
+function TulipSpear({ x, y, size }: StageProps) {
+  // Single thin green spear ~25% size
+  const h = size * 0.25;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={size * 0.05} rx={size * 0.16} ry={size * 0.04} fill="#6B4423" opacity={0.4} />
+      {/* spear */}
+      <path d={`M 0 ${size * 0.05} L ${-size * 0.025} ${-h * 0.4} L 0 ${-h} L ${size * 0.025} ${-h * 0.4} Z`} fill="#7BA46F" stroke={STROKE} strokeWidth={0.9} />
+      {/* highlight */}
+      <line x1={0} y1={-h * 0.1} x2={0} y2={-h * 0.85} stroke="#95B88F" strokeWidth={0.6} />
+    </g>
+  );
+}
+
+function TulipBud({ x, y, size }: StageProps) {
+  // Taller stem with closed pointed bud
+  const h = size * 0.45;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={size * 0.07} rx={size * 0.18} ry={size * 0.05} fill="#6B4423" opacity={0.35} />
+      {/* stem */}
+      <line x1={0} y1={size * 0.07} x2={0} y2={-h * 0.7} stroke="#7BA46F" strokeWidth={1.4} strokeLinecap="round" />
+      {/* base leaf */}
+      <ellipse cx={-size * 0.06} cy={-h * 0.25} rx={size * 0.04} ry={size * 0.18} fill="#5C7E4F" stroke={STROKE} strokeWidth={0.8} transform={`rotate(-15 ${-size * 0.06} ${-h * 0.25})`} />
+      {/* closed pointed bud */}
+      <path d={`M 0 ${-h * 0.7} Q ${-size * 0.08} ${-h * 0.85} 0 ${-h} Q ${size * 0.08} ${-h * 0.85} 0 ${-h * 0.7} Z`} fill="#C38D9E" stroke={STROKE} strokeWidth={1} />
+      {/* center crease */}
+      <line x1={0} y1={-h * 0.72} x2={0} y2={-h * 0.95} stroke={STROKE} strokeWidth={0.6} opacity={0.7} />
+    </g>
+  );
+}
+
+function TulipBloom({ x, y, size }: StageProps) {
+  // Open tulip from above — 3 petals visible, 2 leaves at base
+  const r = size * 0.35;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={r * 0.7} rx={r * 1.1} ry={r * 0.16} fill="#6B4423" opacity={0.3} />
+      {/* base leaves */}
+      <ellipse cx={-r * 0.55} cy={r * 0.35} rx={r * 0.16} ry={r * 0.55} fill="#5C7E4F" stroke={STROKE} strokeWidth={1} transform={`rotate(-30 ${-r * 0.55} ${r * 0.35})`} />
+      <ellipse cx={r * 0.55} cy={r * 0.35} rx={r * 0.16} ry={r * 0.55} fill="#7BA46F" stroke={STROKE} strokeWidth={1} transform={`rotate(30 ${r * 0.55} ${r * 0.35})`} />
+      {/* outer 3 petals (top-down) */}
+      {[0, 120, 240].map(a => (
+        <ellipse key={a} cx={0} cy={-r * 0.18} rx={r * 0.32} ry={r * 0.5} fill="#E8A87C" stroke={STROKE} strokeWidth={1.1} transform={`rotate(${a})`} />
+      ))}
+      {/* inner petals slightly offset */}
+      {[60, 180, 300].map(a => (
+        <ellipse key={a} cx={0} cy={-r * 0.12} rx={r * 0.22} ry={r * 0.36} fill="#C38D9E" stroke={STROKE} strokeWidth={0.9} transform={`rotate(${a})`} />
+      ))}
+      {/* center */}
+      <circle cx={0} cy={0} r={r * 0.12} fill="#5A3B1F" />
+      <circle cx={0} cy={0} r={r * 0.06} fill="#FFD93D" />
+    </g>
+  );
+}
+
 export function PlantStageIllustration({ code, x, y, size }: Props) {
   switch (code) {
     case 'plant_radish_seed':    return <RadishSeed x={x} y={y} size={size} />;
@@ -268,6 +341,10 @@ export function PlantStageIllustration({ code, x, y, size }: Props) {
     case 'plant_lettuce_sprout': return <LettuceSprout x={x} y={y} size={size} />;
     case 'plant_lettuce_young':  return <LettuceYoung x={x} y={y} size={size} />;
     case 'plant_lettuce_mature': return <LettuceMature x={x} y={y} size={size} />;
+    case 'plant_tulip_bulb':     return <TulipBulb x={x} y={y} size={size} />;
+    case 'plant_tulip_spear':    return <TulipSpear x={x} y={y} size={size} />;
+    case 'plant_tulip_bud':      return <TulipBud x={x} y={y} size={size} />;
+    case 'plant_tulip_bloom':    return <TulipBloom x={x} y={y} size={size} />;
     default: return null;
   }
 }
