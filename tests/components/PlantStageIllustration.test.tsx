@@ -52,4 +52,9 @@ describe('PlantStageIllustration', () => {
     const { container } = render(svgWrap(<PlantStageIllustration code="plant_bamboo_cluster" x={0} y={0} size={60} />));
     expect(container.querySelector('g')).not.toBeNull();
   });
+
+  it('renders plant_bonsai_mature', () => {
+    const { container } = render(svgWrap(<PlantStageIllustration code="plant_bonsai_mature" x={0} y={0} size={60} />));
+    expect(container.querySelector('g')).not.toBeNull();
+  });
 });

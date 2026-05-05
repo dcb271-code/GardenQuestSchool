@@ -700,6 +700,99 @@ function BambooCluster({ x, y, size }: StageProps) {
   );
 }
 
+// ─── BONSAI ─────────────────────────────────────────────────────────────
+function BonsaiSeed({ x, y, size }: StageProps) {
+  const r = size * 0.06;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={0} rx={r * 4} ry={r * 2} fill="#6B4423" opacity={0.4} />
+      <circle cx={0} cy={0} r={r} fill="#3F2614" />
+    </g>
+  );
+}
+
+function BonsaiSprout({ x, y, size }: StageProps) {
+  // Tiny pine sprout — a single needle tuft
+  const h = size * 0.2;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={size * 0.05} rx={size * 0.16} ry={size * 0.04} fill="#6B4423" opacity={0.4} />
+      <line x1={0} y1={size * 0.05} x2={0} y2={-h * 0.7} stroke="#5C7E4F" strokeWidth={1.2} strokeLinecap="round" />
+      {/* needle tuft — a star of short lines */}
+      {[-60, -30, 0, 30, 60].map(a => (
+        <line key={a} x1={0} y1={-h * 0.7} x2={0} y2={-h} stroke="#5C7E4F" strokeWidth={0.9} strokeLinecap="round" transform={`rotate(${a} 0 ${-h * 0.7})`} />
+      ))}
+    </g>
+  );
+}
+
+function BonsaiYoung({ x, y, size }: StageProps) {
+  // Small twisted brown trunk with small green needled crown
+  const r = size * 0.25;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={r * 0.85} rx={r * 0.7} ry={r * 0.13} fill="#6B4423" opacity={0.32} />
+      {/* shallow ceramic pot rim hinted */}
+      <rect x={-r * 0.55} y={r * 0.55} width={r * 1.1} height={r * 0.28} fill="#5A4533" stroke={STROKE} strokeWidth={1} rx={r * 0.05} />
+      {/* twisted trunk — curve */}
+      <path d={`M 0 ${r * 0.55} Q ${r * 0.25} ${r * 0.2} ${-r * 0.05} ${-r * 0.05} Q ${-r * 0.25} ${-r * 0.25} ${r * 0.05} ${-r * 0.4}`} stroke="#6B4423" strokeWidth={r * 0.18} fill="none" strokeLinecap="round" />
+      {/* small needled crown */}
+      <ellipse cx={r * 0.05} cy={-r * 0.5} rx={r * 0.4} ry={r * 0.25} fill="#5C7E4F" stroke={STROKE} strokeWidth={1} />
+      <ellipse cx={-r * 0.15} cy={-r * 0.4} rx={r * 0.25} ry={r * 0.18} fill="#7BA46F" stroke={STROKE} strokeWidth={0.9} />
+      {/* needle hints */}
+      <line x1={r * 0.4} y1={-r * 0.55} x2={r * 0.5} y2={-r * 0.6} stroke={STROKE} strokeWidth={0.5} opacity={0.6} />
+      <line x1={-r * 0.35} y1={-r * 0.4} x2={-r * 0.45} y2={-r * 0.42} stroke={STROKE} strokeWidth={0.5} opacity={0.6} />
+    </g>
+  );
+}
+
+function BonsaiMature({ x, y, size }: StageProps) {
+  // Bonsai shape: low broad crown of needles spreading horizontally,
+  // contorted trunk, in a small ceramic pot
+  const r = size * 0.4;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={r * 0.95} rx={r * 0.95} ry={r * 0.16} fill="#6B4423" opacity={0.3} />
+      {/* ceramic pot — trapezoid */}
+      <path
+        d={`M ${-r * 0.7} ${r * 0.55}
+            L ${r * 0.7} ${r * 0.55}
+            L ${r * 0.6} ${r * 0.9}
+            L ${-r * 0.6} ${r * 0.9} Z`}
+        fill="#5A4533"
+        stroke={STROKE}
+        strokeWidth={1.3}
+      />
+      {/* pot rim */}
+      <line x1={-r * 0.7} y1={r * 0.6} x2={r * 0.7} y2={r * 0.6} stroke={STROKE} strokeWidth={0.9} />
+      {/* soil mound at top of pot */}
+      <ellipse cx={0} cy={r * 0.55} rx={r * 0.55} ry={r * 0.07} fill="#3F2614" />
+      {/* contorted trunk: S-curve from base to crown */}
+      <path
+        d={`M ${-r * 0.05} ${r * 0.55}
+            Q ${r * 0.3} ${r * 0.3} ${-r * 0.1} ${r * 0.05}
+            Q ${-r * 0.4} ${-r * 0.15} ${0} ${-r * 0.3}
+            Q ${r * 0.3} ${-r * 0.45} ${-r * 0.1} ${-r * 0.45}`}
+        stroke="#6B4423"
+        strokeWidth={r * 0.16}
+        fill="none"
+        strokeLinecap="round"
+      />
+      {/* horizontal broad crown — stacked low ovals (3 tiers) */}
+      <ellipse cx={-r * 0.45} cy={-r * 0.4} rx={r * 0.35} ry={r * 0.15} fill="#5C7E4F" stroke={STROKE} strokeWidth={1.1} />
+      <ellipse cx={r * 0.4} cy={-r * 0.45} rx={r * 0.4} ry={r * 0.16} fill="#7BA46F" stroke={STROKE} strokeWidth={1.1} />
+      <ellipse cx={0} cy={-r * 0.62} rx={r * 0.5} ry={r * 0.18} fill="#5C7E4F" stroke={STROKE} strokeWidth={1.1} />
+      <ellipse cx={r * 0.15} cy={-r * 0.78} rx={r * 0.32} ry={r * 0.13} fill="#7BA46F" stroke={STROKE} strokeWidth={1} />
+      {/* needle hints — tiny tufts */}
+      {[
+        [-0.7, -0.42], [-0.2, -0.32], [0.7, -0.5], [0.5, -0.66], [-0.35, -0.7], [0.45, -0.85], [-0.05, -0.87],
+      ].map(([dx, dy], i) => (
+        <line key={i} x1={r * dx} y1={r * dy} x2={r * (dx + 0.06)} y2={r * (dy - 0.04)} stroke={STROKE} strokeWidth={0.5} opacity={0.6} />
+      ))}
+    </g>
+  );
+}
+
 export function PlantStageIllustration({ code, x, y, size }: Props) {
   switch (code) {
     case 'plant_radish_seed':    return <RadishSeed x={x} y={y} size={size} />;
@@ -736,6 +829,10 @@ export function PlantStageIllustration({ code, x, y, size }: Props) {
     case 'plant_bamboo_shoot':     return <BambooShoot x={x} y={y} size={size} />;
     case 'plant_bamboo_stalk':     return <BambooStalk x={x} y={y} size={size} />;
     case 'plant_bamboo_cluster':   return <BambooCluster x={x} y={y} size={size} />;
+    case 'plant_bonsai_seed':      return <BonsaiSeed x={x} y={y} size={size} />;
+    case 'plant_bonsai_sprout':    return <BonsaiSprout x={x} y={y} size={size} />;
+    case 'plant_bonsai_young':     return <BonsaiYoung x={x} y={y} size={size} />;
+    case 'plant_bonsai_mature':    return <BonsaiMature x={x} y={y} size={size} />;
     default: return null;
   }
 }
