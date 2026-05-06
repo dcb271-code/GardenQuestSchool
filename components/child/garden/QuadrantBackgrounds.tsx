@@ -516,23 +516,26 @@ export function JapaneseBackground({ x, y, w, h }: BgProps) {
         <ellipse cx={sandCx - sandRx * 0.45} cy={sandCy + sandRy * 0.07} rx={4} ry={1.6} fill="#A89D8A" />
       </g>
 
-      {/* KOI STREAM — meandering interior continuation of the meadow
-          stream that enters at the upper-right corner of the bed.
-          Three control segments give it real OMEGA-style wander
-          (down, double back right, then SW to a calm pool near the
-          torii). Stays clear of all plot positions and the sand
-          circle. Same colors/style as the meadow stream segment in
-          GrowScene so visually they read as one waterway. */}
+      {/* KOI STREAM — interior continuation of the meadow stream that
+          enters at the upper-right corner of the bed. Path:
+            • enters at (505,55) where the meadow segment ends
+            • meanders down-left through the upper bed
+            • a deliberate VERTICAL section at x=470 between y=215..260
+              gives the moon bridge a clean horizontal crossing
+            • curves down-left to exit at (405, 282) near the bottom edge
+          The meadow stream then picks up again outside the bed and
+          continues off the bottom of the viewBox. Same colors/style
+          as the meadow segments in GrowScene so the whole waterway
+          reads as one continuous flow. Stays clear of all plot
+          positions and the sand circle. */}
       <g>
-        {/* path expressed in local coords — entry (505,55) lines up
-            with the meadow stream's endpoint (1305,515) in absolute
-            viewBox coords (zone origin 800,460). */}
         {(() => {
           const streamD =
             `M 505 55
-             C 485 95, 480 130, 460 150
-             C 440 170, 478 208, 458 240
-             C 438 268, 380 273, 320 268`;
+             C 485 95, 475 130, 470 150
+             C 466 170, 478 195, 470 215
+             L 470 260
+             C 470 275, 440 282, 405 282`;
           return (
             <>
               {/* stream bed shadow */}
@@ -550,38 +553,28 @@ export function JapaneseBackground({ x, y, w, h }: BgProps) {
         {/* shimmer arcs along the meander */}
         <path d="M 495 80 Q 490 92 485 105"
               stroke="#FFFFFF" strokeWidth={1.0} fill="none" opacity={0.60} strokeLinecap="round" />
-        <path d="M 470 140 Q 465 150 460 160"
+        <path d="M 472 138 Q 470 150 470 162"
               stroke="#FFFFFF" strokeWidth={1.0} fill="none" opacity={0.55} strokeLinecap="round" />
-        <path d="M 470 200 Q 472 212 470 224"
+        {/* shimmer along the vertical section, just above the bridge */}
+        <path d="M 470 222 L 470 234"
               stroke="#FFFFFF" strokeWidth={1.0} fill="none" opacity={0.50} strokeLinecap="round" />
-        <path d="M 410 270 Q 400 270 388 270"
+        <path d="M 460 280 Q 445 282 430 282"
               stroke="#FFFFFF" strokeWidth={1.0} fill="none" opacity={0.55} strokeLinecap="round" />
-        {/* a single orange koi swimming in the wider middle bend */}
-        <g transform="translate(470, 195) rotate(110)">
+        {/* a single orange koi swimming in the upper bend */}
+        <g transform="translate(478, 175) rotate(105)">
           <ellipse cx={0} cy={0} rx={6} ry={2.4} fill="#E8713C" stroke={STROKE} strokeWidth={0.7} />
           <path d="M -6 0 L -10 -2.5 L -10 2.5 Z" fill="#E8713C" stroke={STROKE} strokeWidth={0.7} strokeLinejoin="round" />
           <ellipse cx={2} cy={-0.8} rx={1.6} ry={0.8} fill="#FFFFFF" opacity={0.85} />
           <circle cx={3.5} cy={-0.3} r={0.5} fill="#1F1006" />
           <ellipse cx={-1} cy={1} rx={2} ry={1.2} fill="#FFFFFF" opacity={0.6} />
         </g>
-        {/* lily pads on the calm end pool, near the torii base */}
-        <g transform="translate(360, 268)">
-          <ellipse cx={0} cy={0} rx={6.5} ry={4} fill="#5C7E4F" stroke="#3D5C32" strokeWidth={0.7} />
-          <path d="M 0 0 L 4.5 -2.5" stroke="#3D5C32" strokeWidth={0.5} />
-          <circle cx={-1} cy={-1} r={1.5} fill="#FFB7C5" stroke="#9B6A8A" strokeWidth={0.4} />
-        </g>
-        <g transform="translate(335, 274)">
-          <ellipse cx={0} cy={0} rx={4.5} ry={3} fill="#5C7E4F" stroke="#3D5C32" strokeWidth={0.6} />
-          <path d="M 0 0 L 3 -2" stroke="#3D5C32" strokeWidth={0.4} />
-        </g>
       </g>
 
-      {/* MOON BRIDGE — arches OVER the koi stream where it curls right
-          around plot jp-4. Vermillion-stained wood, kid-storybook style.
-          The arch is rotated about 30° so it sits perpendicular to the
-          stream's direction at the crossing point (stream runs roughly
-          NW->SE here). */}
-      <g transform="translate(465, 220) rotate(35)">
+      {/* MOON BRIDGE — arches HORIZONTALLY across the stream's vertical
+          section at x=470, around y=240. The bridge spans west-east
+          (-26 to +26) over the south-flowing water. Vermillion-stained
+          wood, kid-storybook style. */}
+      <g transform="translate(470, 240)">
         {/* shadow on water */}
         <ellipse cx={2} cy={6} rx={26} ry={4} fill="#000" opacity={0.30} />
         {/* arch underside (darker) */}

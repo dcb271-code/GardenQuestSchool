@@ -332,6 +332,60 @@ export default function GrowScene({
           <FlowerBackground      x={ZONES.flower.x}    y={ZONES.flower.y}    w={ZONES.flower.w}    h={ZONES.flower.h} />
           <JapaneseBackground    x={ZONES.japanese.x}  y={ZONES.japanese.y}  w={ZONES.japanese.w}  h={ZONES.japanese.h} />
 
+          {/* MEADOW STREAM (lower segment) — picks up where the
+              Japanese garden's interior stream EXITS the bed at the
+              bottom edge (1205, 742), then continues through the
+              meadow and off the bottom of the viewBox. Drawn AFTER
+              the bed so the stream visually emerges from it. Same
+              gradient/colors as the upper meadow segment + interior
+              stream so the whole thing reads as one waterway flowing
+              top-right → through-the-garden → out-the-bottom. */}
+          {(() => {
+            const streamD =
+              `M 1205 742
+               C 1212 790, 1198 845, 1188 900
+               L 1185 920`;
+            return (
+              <g pointerEvents="none">
+                <path d={streamD} stroke="#5A8A80" strokeWidth={28}
+                      fill="none" strokeLinecap="round" opacity={0.30} />
+                <path d={streamD} stroke="url(#grow-water)" strokeWidth={22}
+                      fill="none" strokeLinecap="round" />
+                <path d={streamD} stroke="#D2EAEC" strokeWidth={6}
+                      fill="none" strokeLinecap="round" opacity={0.55} />
+                {/* shimmer */}
+                <path d="M 1209 770 Q 1208 782 1206 794"
+                      stroke="#FFFFFF" strokeWidth={1.0} fill="none"
+                      opacity={0.55} strokeLinecap="round" />
+                <path d="M 1198 830 Q 1196 842 1194 854"
+                      stroke="#FFFFFF" strokeWidth={1.0} fill="none"
+                      opacity={0.50} strokeLinecap="round" />
+                {/* a lily pad floating downstream */}
+                <g transform="translate(1200, 808)">
+                  <ellipse cx={0} cy={0} rx={6} ry={3.5}
+                           fill="#5C7E4F" stroke="#3D5C32" strokeWidth={0.7} />
+                  <path d="M 0 0 L 4.5 -2.5" stroke="#3D5C32" strokeWidth={0.5} />
+                  <circle cx={-1} cy={-1} r={1.3} fill="#FFB7C5"
+                          stroke="#9B6A8A" strokeWidth={0.4} />
+                </g>
+                {/* small reed clump on the east bank near the exit */}
+                <g transform="translate(1224, 870)">
+                  <line x1={-2} y1={0} x2={-3} y2={-9}
+                        stroke="#5C7E4F" strokeWidth={1.0} strokeLinecap="round" />
+                  <line x1={1}  y1={0} x2={2}  y2={-11}
+                        stroke="#5C7E4F" strokeWidth={1.0} strokeLinecap="round" />
+                  <line x1={4}  y1={0} x2={5}  y2={-9}
+                        stroke="#5C7E4F" strokeWidth={1.0} strokeLinecap="round" />
+                </g>
+                {/* a couple of bank stones at the bed exit point */}
+                <ellipse cx={1178} cy={755} rx={5} ry={2.5} fill="#9B948A"
+                         stroke="#5A3B1F" strokeWidth={0.6} />
+                <ellipse cx={1228} cy={760} rx={6} ry={3} fill="#B5ACA0"
+                         stroke="#5A3B1F" strokeWidth={0.7} />
+              </g>
+            );
+          })()}
+
           {/* Quadrant title pills (kept above each bed) */}
           {Object.entries(QUADRANT_LAYOUT).map(([garden, q]) => {
             const isOpen = state.openQuadrants.has(garden as any);
