@@ -104,6 +104,13 @@ export default function GrowScene({
               <stop offset="40%" stopColor="#FFE89A" stopOpacity="0.45" />
               <stop offset="100%" stopColor="#FFE89A" stopOpacity="0" />
             </radialGradient>
+            {/* shared water gradient — used for the meadow stream
+                segment AND the Japanese garden's interior stream so
+                they read as one continuous waterway. */}
+            <linearGradient id="grow-water" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"  stopColor="#B0D4D8" />
+              <stop offset="100%" stopColor="#7FA9B0" />
+            </linearGradient>
           </defs>
 
           {/* OVERHEAD VIEW — the whole scene reads as if you're
@@ -268,6 +275,56 @@ export default function GrowScene({
               </g>
             ))}
           </g>
+
+          {/* MEADOW STREAM — flows in from off the right edge of the
+              scene, curves down through the meadow, and enters the
+              Japanese garden's upper-right corner (where its interior
+              stream picks up the same waterway). Three layers (shadow
+              base, water ribbon, center highlight) match the interior
+              stream so the join reads as one continuous flow. The
+              endpoint sits JUST inside the bed boundary so the bed's
+              grass naturally hides the seam when it renders on top. */}
+          {(() => {
+            const streamD =
+              `M 1440 320
+               C 1430 380, 1395 415, 1378 432
+               S 1322 488, 1305 515`;
+            return (
+              <g pointerEvents="none">
+                <path d={streamD} stroke="#5A8A80" strokeWidth={28}
+                      fill="none" strokeLinecap="round" opacity={0.30} />
+                <path d={streamD} stroke="url(#grow-water)" strokeWidth={22}
+                      fill="none" strokeLinecap="round" />
+                <path d={streamD} stroke="#D2EAEC" strokeWidth={6}
+                      fill="none" strokeLinecap="round" opacity={0.55} />
+                {/* shimmer hatches along the meadow stretch */}
+                <path d="M 1428 350 Q 1424 360 1420 372"
+                      stroke="#FFFFFF" strokeWidth={1.0} fill="none"
+                      opacity={0.6} strokeLinecap="round" />
+                <path d="M 1402 400 Q 1398 410 1393 422"
+                      stroke="#FFFFFF" strokeWidth={1.0} fill="none"
+                      opacity={0.55} strokeLinecap="round" />
+                <path d="M 1355 470 Q 1348 478 1340 488"
+                      stroke="#FFFFFF" strokeWidth={1.0} fill="none"
+                      opacity={0.55} strokeLinecap="round" />
+                {/* a couple of bank stones where the stream enters
+                    the meadow from off-frame */}
+                <ellipse cx={1438} cy={310} rx={6} ry={3} fill="#9B948A"
+                         stroke="#5A3B1F" strokeWidth={0.7} />
+                <ellipse cx={1432} cy={336} rx={5} ry={2.5} fill="#B5ACA0"
+                         stroke="#5A3B1F" strokeWidth={0.6} />
+                {/* small reed clump on the bank at the bend */}
+                <g transform="translate(1394, 422)">
+                  <line x1={-2} y1={0} x2={-3} y2={-9} stroke="#5C7E4F"
+                        strokeWidth={1.0} strokeLinecap="round" />
+                  <line x1={1}  y1={0} x2={2}  y2={-11} stroke="#5C7E4F"
+                        strokeWidth={1.0} strokeLinecap="round" />
+                  <line x1={4}  y1={0} x2={5}  y2={-9} stroke="#5C7E4F"
+                        strokeWidth={1.0} strokeLinecap="round" />
+                </g>
+              </g>
+            );
+          })()}
 
           {/* QUADRANT BACKGROUNDS (organic beds) */}
           <VegetableBackground   x={ZONES.vegetable.x} y={ZONES.vegetable.y} w={ZONES.vegetable.w} h={ZONES.vegetable.h} />
@@ -684,15 +741,17 @@ function SnailSprite() {
 // ─────────────────────────────────────────────────────────────────────────
 
 function Dragonfly({ reducedMotion }: { reducedMotion: boolean }) {
-  // Hover region: along the koi stream in the Japanese garden.
-  // Stream starts upper-right (~1240, 494), exits bottom (~1175, 735).
-  // Dragonfly bobs around three waypoints in that region.
+  // Hover region: along the meandering koi stream in the Japanese
+  // garden. Stream enters at (1305, 515), wanders through (1260, 610)
+  // → (1278, 668) → (1255, 700) → ends near (1120, 728). Waypoints
+  // pick out the wider bends so the dragonfly looks like it's
+  // dancing over the moving water.
   const WAYPOINTS: Array<{ x: number; y: number }> = [
-    { x: 1230, y: 540 },
-    { x: 1180, y: 620 },
-    { x: 1240, y: 700 },
-    { x: 1190, y: 580 },
-    { x: 1230, y: 540 },
+    { x: 1290, y: 555 },
+    { x: 1260, y: 615 },
+    { x: 1275, y: 665 },
+    { x: 1295, y: 600 },
+    { x: 1290, y: 555 },
   ];
 
   if (reducedMotion) {
