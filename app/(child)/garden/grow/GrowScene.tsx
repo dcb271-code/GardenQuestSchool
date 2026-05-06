@@ -30,10 +30,9 @@ const VB_W = 1440;
 const VB_H = 900;
 
 // Layout for the four garden beds. Bounds are chosen so each plot's
-// (x,y) center sits comfortably WITHIN the bed (plots: y=200,355 for
-// top zones; y=500,680 for bottom zones — see lib/world/plotLayout.ts).
-// Top zones start at y=160 — clear of the fence (y:138-154) and the
-// overhead tree canopies (y:100-115).
+// (x,y) center sits comfortably WITHIN the bed. Top zones start at
+// y=160 — clear of the fence (y:138-154) and the overhead tree
+// canopies (y:100-115). See lib/world/plotLayout.ts for plot positions.
 const ZONES = {
   vegetable: { x: 80,  y: 160, w: 520, h: 260 },
   fruit:     { x: 800, y: 160, w: 520, h: 260 },
@@ -312,23 +311,21 @@ export default function GrowScene({
                   rx={48} ry={48} fill="#3F2614" opacity={0.55} pointerEvents="none" />
           )}
 
-          {/* Empty plot tap targets — slightly smaller ellipses with a
-              dirt-toned (not black) fill so they read as "a hole in the
-              soil" instead of a cast shadow. */}
+          {/* Empty plot tap targets — character-driven per quadrant.
+              Each garden gets a marker that fits its visual world,
+              not a generic dashed ellipse. */}
           {state.plots.map(p => {
             if (p.plant) return null;
             const isOpen = state.openQuadrants.has(p.plot.garden);
             return (
               <g key={`empty-${p.plot.code}`}
                  style={{ cursor: isOpen ? 'pointer' : 'not-allowed', touchAction: 'manipulation' }}
-                 onClick={() => isOpen && setPickerPlotCode(p.plot.code)}>
-                <ellipse cx={p.plot.x} cy={p.plot.y} rx={24} ry={15}
-                         fill="rgba(90,55,28,0.18)" stroke={isOpen ? '#8B5A2B' : '#5A3B1F'}
-                         strokeWidth={1.4} strokeDasharray="4 4" opacity={isOpen ? 0.85 : 0.5} />
-                {isOpen && (
-                  <text x={p.plot.x} y={p.plot.y + 4} textAnchor="middle"
-                        fontSize={18} fill="#6B4423" opacity={0.6}>+</text>
-                )}
+                 onClick={() => isOpen && setPickerPlotCode(p.plot.code)}
+                 opacity={isOpen ? 1 : 0.55}>
+                {/* invisible square hit-target so the tap area is
+                    bigger than the visible marker — easier for fingers */}
+                <rect x={p.plot.x - 28} y={p.plot.y - 28} width={56} height={56} fill="transparent" />
+                <EmptyPlotMarker garden={p.plot.garden} cx={p.plot.x} cy={p.plot.y} isOpen={isOpen} />
               </g>
             );
           })}
@@ -365,6 +362,15 @@ export default function GrowScene({
           {/* WANDERING CHICKEN — slow back-and-forth in the meadow strip,
               between (650, 770) and (820, 770). Pauses at each end. */}
           <WanderingChicken reducedMotion={reducedMotion} />
+
+          {/* CRAWLING SNAIL — very slow trip across the vegetable patch.
+              Lives in the meadow strip just below the bed (y ≈ 425).
+              Moves so slowly it feels like the bed itself is breathing. */}
+          <CrawlingSnail reducedMotion={reducedMotion} />
+
+          {/* DRAGONFLY — darts back and forth above the koi stream in the
+              Japanese garden. Quick little hovers, not a slow drift. */}
+          <Dragonfly reducedMotion={reducedMotion} />
 
           {/* Foreground grass silhouette — Miyazaki-style depth frame
               along the very bottom (above the inventory tray). Kept
@@ -482,6 +488,275 @@ function WanderingChicken({ reducedMotion }: { reducedMotion: boolean }) {
         </motion.g>
       </motion.g>
     </motion.g>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// EMPTY-PLOT MARKERS — character-driven per quadrant (no dashed ellipses)
+// ─────────────────────────────────────────────────────────────────────────
+
+function EmptyPlotMarker({
+  garden, cx, cy, isOpen,
+}: {
+  garden: 'vegetable' | 'flower' | 'fruit' | 'japanese';
+  cx: number; cy: number; isOpen: boolean;
+}) {
+  // Subtle "tap me" affordance — when the quadrant is open, the marker
+  // gets a soft golden glow ring. When locked, no glow (the quadrant
+  // overlay already shows it's not interactive).
+  const glow = isOpen ? (
+    <circle cx={cx} cy={cy} r={20} fill="#FFD93D" opacity={0.10} />
+  ) : null;
+
+  switch (garden) {
+    case 'vegetable':
+      // Crumbled soil mound + wooden tag stake. Reads as a freshly
+      // dug planting hole waiting for a seed.
+      return (
+        <g>
+          {glow}
+          <ellipse cx={cx} cy={cy + 2} rx={20} ry={11} fill="#5C3A1E" opacity={0.55} />
+          <ellipse cx={cx} cy={cy} rx={17} ry={8.5} fill="#7A4F2C" stroke="#3F2614" strokeWidth={1.1} />
+          <ellipse cx={cx - 3} cy={cy - 1.5} rx={10} ry={3.5} fill="#9C6B3E" opacity={0.6} />
+          {/* tag stake on the right side */}
+          <line x1={cx + 11} y1={cy - 2} x2={cx + 11} y2={cy - 14}
+                stroke="#7B4F2C" strokeWidth={1.6} strokeLinecap="round" />
+          <rect x={cx + 4} y={cy - 18} width={14} height={6} rx={1}
+                fill="#F0E4CF" stroke="#5A3B1F" strokeWidth={0.7} />
+          <line x1={cx + 6} y1={cy - 15} x2={cx + 16} y2={cy - 15}
+                stroke="#5A3B1F" strokeWidth={0.5} opacity={0.7} />
+        </g>
+      );
+
+    case 'flower':
+      // Fairy ring of small pebbles around a bare patch.
+      return (
+        <g>
+          {glow}
+          <ellipse cx={cx} cy={cy + 1} rx={15} ry={8} fill="#7A8262" opacity={0.55} />
+          <ellipse cx={cx} cy={cy} rx={11} ry={5.5} fill="#8FA983" opacity={0.7} />
+          {[0, 60, 120, 180, 240, 300].map(deg => {
+            const rad = (deg * Math.PI) / 180;
+            const px = cx + Math.cos(rad) * 16;
+            const py = cy + Math.sin(rad) * 9;
+            const r = deg % 120 === 0 ? 3.4 : 2.8;
+            return (
+              <g key={deg}>
+                <ellipse cx={px + 0.4} cy={py + 0.6} rx={r} ry={r * 0.55} fill="#000" opacity={0.18} />
+                <ellipse cx={px} cy={py} rx={r} ry={r * 0.55}
+                         fill={deg % 60 === 0 ? '#B5A892' : '#A89D8A'}
+                         stroke="#6B5D48" strokeWidth={0.5} />
+              </g>
+            );
+          })}
+          {/* tiny sprout-stub center hint that something will grow */}
+          <path d={`M ${cx} ${cy + 2} L ${cx} ${cy - 2}`}
+                stroke="#5C7E4F" strokeWidth={0.9} strokeLinecap="round" opacity={0.6} />
+        </g>
+      );
+
+    case 'fruit':
+      // Planting hole + stake with twine-tied paper tag.
+      return (
+        <g>
+          {glow}
+          <ellipse cx={cx + 1} cy={cy + 4} rx={18} ry={9} fill="#3F2614" opacity={0.55} />
+          <ellipse cx={cx} cy={cy + 1} rx={15} ry={7} fill="#7A4F2C" stroke="#3F2614" strokeWidth={1.1} />
+          <ellipse cx={cx - 2} cy={cy - 0.5} rx={8} ry={3} fill="#9C6B3E" opacity={0.55} />
+          {/* stake */}
+          <line x1={cx - 9} y1={cy - 2} x2={cx - 9} y2={cy - 18}
+                stroke="#7B4F2C" strokeWidth={1.6} strokeLinecap="round" />
+          {/* twine */}
+          <path d={`M ${cx - 9} ${cy - 16} L ${cx - 2} ${cy - 13}`}
+                stroke="#A99878" strokeWidth={0.8} strokeLinecap="round" />
+          {/* paper tag, slightly tilted */}
+          <g transform={`rotate(-12 ${cx + 2} ${cy - 12})`}>
+            <rect x={cx - 2} y={cy - 15} width={11} height={6} rx={0.8}
+                  fill="#F0E4CF" stroke="#5A3B1F" strokeWidth={0.6} />
+            <line x1={cx} y1={cy - 12} x2={cx + 7} y2={cy - 12}
+                  stroke="#5A3B1F" strokeWidth={0.4} opacity={0.65} />
+          </g>
+        </g>
+      );
+
+    case 'japanese':
+      // Smooth river stone resting on a moss patch, with a tiny
+      // rake-mark sweep arcing past it.
+      return (
+        <g>
+          {glow}
+          {/* moss patch */}
+          <ellipse cx={cx} cy={cy + 2} rx={18} ry={9} fill="#5C7E4F" opacity={0.55} />
+          <ellipse cx={cx - 2} cy={cy + 1} rx={12} ry={5.5} fill="#7BA46F" opacity={0.7} />
+          {/* stone */}
+          <ellipse cx={cx + 1} cy={cy + 1} rx={11} ry={4.5} fill="#5F5B53" opacity={0.30} />
+          <ellipse cx={cx} cy={cy} rx={11} ry={4.5} fill="#9B948A" stroke="#5A3B1F" strokeWidth={0.9} />
+          <ellipse cx={cx - 2} cy={cy - 1} rx={5.5} ry={1.6} fill="#C2B5A2" opacity={0.75} />
+          {/* small rake-mark sweep arcing past the stone */}
+          <path d={`M ${cx - 16} ${cy + 8} Q ${cx} ${cy + 12} ${cx + 16} ${cy + 8}`}
+                stroke="#A89878" strokeWidth={0.7} fill="none" opacity={0.6} strokeLinecap="round" />
+        </g>
+      );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// CRAWLING SNAIL — slow drifter across the vegetable patch
+// ─────────────────────────────────────────────────────────────────────────
+
+function CrawlingSnail({ reducedMotion }: { reducedMotion: boolean }) {
+  // Slow walk along the southern edge of the vegetable bed.
+  // Vegetable bed bottom is around y=420; we sit just inside it.
+  const LEFT = 100;
+  const RIGHT = 560;
+  const Y = 412;
+
+  if (reducedMotion) {
+    return (
+      <g pointerEvents="none" transform={`translate(${(LEFT + RIGHT) / 2}, ${Y})`}>
+        <SnailSprite />
+      </g>
+    );
+  }
+
+  // 60s full cycle — snails are SLOW.
+  return (
+    <motion.g
+      pointerEvents="none"
+      initial={{ x: LEFT, y: Y }}
+      animate={{ x: [LEFT, RIGHT, RIGHT, LEFT, LEFT], y: [Y, Y, Y, Y, Y] }}
+      transition={{
+        duration: 90,
+        times: [0, 0.40, 0.50, 0.90, 1],
+        repeat: Infinity,
+        ease: 'linear',
+      }}
+    >
+      {/* body squish — gentle vertical compress as it inches forward */}
+      <motion.g
+        animate={{ scaleY: [1, 0.96, 1] }}
+        transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
+        style={{ originY: '50%' }}
+      >
+        <motion.g
+          animate={{ scaleX: [1, 1, -1, -1, 1] }}
+          transition={{
+            duration: 90,
+            times: [0, 0.40, 0.50, 0.90, 1],
+            repeat: Infinity,
+            ease: 'linear',
+          }}
+        >
+          <SnailSprite />
+        </motion.g>
+      </motion.g>
+    </motion.g>
+  );
+}
+
+function SnailSprite() {
+  return (
+    <g>
+      {/* shadow */}
+      <ellipse cx={0} cy={6} rx={11} ry={1.6} fill="#000" opacity={0.22} />
+      {/* foot — slug body */}
+      <path d="M -10 4 Q -12 -1 -8 -3 L 6 -3 Q 11 -2 11 2 L 10 5 L -9 5 Z"
+            fill="#D8B687" stroke="#5A3B1F" strokeWidth={0.9} strokeLinejoin="round" />
+      {/* shell — coiled spiral */}
+      <circle cx={2} cy={-3} r={7.5} fill="#C9A66A" stroke="#5A3B1F" strokeWidth={1.0} />
+      <circle cx={2} cy={-3} r={5.5} fill="none" stroke="#7B4F2C" strokeWidth={0.7} opacity={0.8} />
+      <circle cx={2} cy={-3} r={3.2} fill="none" stroke="#7B4F2C" strokeWidth={0.6} opacity={0.7} />
+      <circle cx={2} cy={-3} r={1.4} fill="#7B4F2C" />
+      {/* shell highlight */}
+      <path d="M -2.5 -7 Q 0 -9 3 -8" stroke="#F0E4CF" strokeWidth={0.9} fill="none" opacity={0.7} strokeLinecap="round" />
+      {/* head + eye stalks */}
+      <path d="M 8 -2 Q 13 -3 14 0" stroke="#5A3B1F" strokeWidth={0.9} fill="none" strokeLinecap="round" />
+      <line x1={11} y1={-1} x2={13} y2={-5} stroke="#D8B687" strokeWidth={1.2} strokeLinecap="round" />
+      <line x1={9}  y1={-1} x2={10} y2={-5} stroke="#D8B687" strokeWidth={1.2} strokeLinecap="round" />
+      <circle cx={13} cy={-5.5} r={0.9} fill="#1F1006" />
+      <circle cx={10} cy={-5.5} r={0.8} fill="#1F1006" />
+    </g>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// DRAGONFLY — quick darting hover above the koi stream
+// ─────────────────────────────────────────────────────────────────────────
+
+function Dragonfly({ reducedMotion }: { reducedMotion: boolean }) {
+  // Hover region: along the koi stream in the Japanese garden.
+  // Stream starts upper-right (~1240, 494), exits bottom (~1175, 735).
+  // Dragonfly bobs around three waypoints in that region.
+  const WAYPOINTS: Array<{ x: number; y: number }> = [
+    { x: 1230, y: 540 },
+    { x: 1180, y: 620 },
+    { x: 1240, y: 700 },
+    { x: 1190, y: 580 },
+    { x: 1230, y: 540 },
+  ];
+
+  if (reducedMotion) {
+    return (
+      <g pointerEvents="none" transform={`translate(${WAYPOINTS[0].x}, ${WAYPOINTS[0].y})`}>
+        <DragonflySprite />
+      </g>
+    );
+  }
+
+  return (
+    <motion.g
+      pointerEvents="none"
+      initial={{ x: WAYPOINTS[0].x, y: WAYPOINTS[0].y }}
+      animate={{
+        x: WAYPOINTS.map(w => w.x),
+        y: WAYPOINTS.map(w => w.y),
+      }}
+      transition={{
+        duration: 14,
+        times: [0, 0.25, 0.55, 0.80, 1],
+        repeat: Infinity,
+        ease: 'easeInOut',
+      }}
+    >
+      {/* tiny hover wobble overlay */}
+      <motion.g
+        animate={{ y: [0, -2, 0, -1, 0], rotate: [0, 8, -6, 4, 0] }}
+        transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
+      >
+        <DragonflySprite />
+      </motion.g>
+    </motion.g>
+  );
+}
+
+function DragonflySprite() {
+  return (
+    <g>
+      {/* faint shadow on water */}
+      <ellipse cx={1} cy={6} rx={9} ry={1.4} fill="#000" opacity={0.15} />
+      {/* upper wings — translucent iridescent */}
+      <ellipse cx={-5} cy={-3} rx={8} ry={2.4} fill="#B5DDE6" stroke="#5C7E8C" strokeWidth={0.5}
+               opacity={0.75} transform="rotate(-18)" />
+      <ellipse cx={5}  cy={-3} rx={8} ry={2.4} fill="#B5DDE6" stroke="#5C7E8C" strokeWidth={0.5}
+               opacity={0.75} transform="rotate(18)" />
+      {/* lower wings — slightly smaller */}
+      <ellipse cx={-4} cy={2} rx={6.5} ry={2} fill="#C8E5EC" stroke="#5C7E8C" strokeWidth={0.5}
+               opacity={0.7} transform="rotate(-12)" />
+      <ellipse cx={4}  cy={2} rx={6.5} ry={2} fill="#C8E5EC" stroke="#5C7E8C" strokeWidth={0.5}
+               opacity={0.7} transform="rotate(12)" />
+      {/* slender body — turquoise-blue */}
+      <ellipse cx={0} cy={0} rx={1.6} ry={3.6} fill="#3D8B92" stroke="#1F4E54" strokeWidth={0.4} />
+      {/* tail segments */}
+      <line x1={0} y1={3.2} x2={0} y2={9} stroke="#3D8B92" strokeWidth={1.4} strokeLinecap="round" />
+      <line x1={0} y1={5}   x2={0} y2={5.5} stroke="#1F4E54" strokeWidth={0.6} />
+      <line x1={0} y1={6.5} x2={0} y2={7}   stroke="#1F4E54" strokeWidth={0.6} />
+      <line x1={0} y1={8}   x2={0} y2={8.5} stroke="#1F4E54" strokeWidth={0.6} />
+      {/* head */}
+      <circle cx={0} cy={-3.6} r={1.4} fill="#3D8B92" stroke="#1F4E54" strokeWidth={0.4} />
+      {/* big compound eyes */}
+      <circle cx={-1} cy={-4} r={0.9} fill="#1F1006" />
+      <circle cx={1}  cy={-4} r={0.9} fill="#1F1006" />
+    </g>
   );
 }
 
