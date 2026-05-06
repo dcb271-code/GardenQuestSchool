@@ -288,31 +288,62 @@ export default function GrowScene({
             const streamD =
               `M 1440 320
                C 1430 380, 1395 415, 1378 432
-               S 1322 488, 1305 515`;
+               S 1322 488, 1310 522`;  // overshoots into the bed by ~7px
+                                       // so the bed grass hides the seam
             return (
               <g pointerEvents="none">
-                <path d={streamD} stroke="#5A8A80" strokeWidth={28}
-                      fill="none" strokeLinecap="round" opacity={0.30} />
+                {/* WET-EARTH BANK — sage halo (not teal) so the stream
+                    reads as carved into grass, not a glowing path */}
+                <path d={streamD} stroke="#6B8E5A" strokeWidth={36}
+                      fill="none" strokeLinecap="round" opacity={0.32} />
+                {/* WATER body */}
                 <path d={streamD} stroke="url(#grow-water)" strokeWidth={22}
                       fill="none" strokeLinecap="round" />
-                <path d={streamD} stroke="#D2EAEC" strokeWidth={6}
+                {/* CHANNEL — darker centerline shows depth + flow */}
+                <path d={streamD} stroke="#4F7E84" strokeWidth={4}
                       fill="none" strokeLinecap="round" opacity={0.55} />
-                {/* shimmer hatches along the meadow stretch */}
+                {/* CENTER highlight ribbon (much narrower than before
+                    so the water doesn't read as a uniform pastel slab) */}
+                <path d={streamD} stroke="#D2EAEC" strokeWidth={3}
+                      fill="none" strokeLinecap="round" opacity={0.45} />
+                {/* shimmer hatches — varied widths + opacity for life */}
                 <path d="M 1428 350 Q 1424 360 1420 372"
-                      stroke="#FFFFFF" strokeWidth={1.0} fill="none"
-                      opacity={0.6} strokeLinecap="round" />
+                      stroke="#FFFFFF" strokeWidth={1.2} fill="none"
+                      opacity={0.65} strokeLinecap="round" />
+                <path d="M 1410 388 Q 1406 396 1404 404"
+                      stroke="#FFFFFF" strokeWidth={0.7} fill="none"
+                      opacity={0.50} strokeLinecap="round" />
                 <path d="M 1402 400 Q 1398 410 1393 422"
                       stroke="#FFFFFF" strokeWidth={1.0} fill="none"
                       opacity={0.55} strokeLinecap="round" />
                 <path d="M 1355 470 Q 1348 478 1340 488"
-                      stroke="#FFFFFF" strokeWidth={1.0} fill="none"
-                      opacity={0.55} strokeLinecap="round" />
+                      stroke="#FFFFFF" strokeWidth={1.1} fill="none"
+                      opacity={0.60} strokeLinecap="round" />
+                {/* tiny ripple circles at calm spots */}
+                <circle cx={1372} cy={446} r={1.3} fill="none"
+                        stroke="#FFFFFF" strokeWidth={0.5} opacity={0.45} />
+                <circle cx={1378} cy={442} r={0.8} fill="none"
+                        stroke="#FFFFFF" strokeWidth={0.4} opacity={0.40} />
+                {/* a stone PEEKING OUT of the water mid-segment */}
+                <g>
+                  <ellipse cx={1395} cy={418} rx={6} ry={2.2}
+                           fill="#5F5B53" opacity={0.30} />
+                  <ellipse cx={1394} cy={416} rx={5.5} ry={2.0}
+                           fill="#9B948A" stroke="#5A3B1F" strokeWidth={0.7} />
+                  <ellipse cx={1393} cy={415} rx={2.4} ry={0.7}
+                           fill="#D4C8B0" opacity={0.7} />
+                </g>
                 {/* a couple of bank stones where the stream enters
                     the meadow from off-frame */}
                 <ellipse cx={1438} cy={310} rx={6} ry={3} fill="#9B948A"
                          stroke="#5A3B1F" strokeWidth={0.7} />
                 <ellipse cx={1432} cy={336} rx={5} ry={2.5} fill="#B5ACA0"
                          stroke="#5A3B1F" strokeWidth={0.6} />
+                {/* a darker pebble cluster on the inside bank of the bend */}
+                <ellipse cx={1364} cy={462} rx={5} ry={2.2} fill="#7B6F5A"
+                         stroke="#3F2614" strokeWidth={0.6} />
+                <ellipse cx={1372} cy={464} rx={3.5} ry={1.6} fill="#9B948A"
+                         stroke="#5A3B1F" strokeWidth={0.5} />
                 {/* small reed clump on the bank at the bend */}
                 <g transform="translate(1394, 422)">
                   <line x1={-2} y1={0} x2={-3} y2={-9} stroke="#5C7E4F"
@@ -322,6 +353,9 @@ export default function GrowScene({
                   <line x1={4}  y1={0} x2={5}  y2={-9} stroke="#5C7E4F"
                         strokeWidth={1.0} strokeLinecap="round" />
                 </g>
+                {/* moss tuft on the outer bank */}
+                <ellipse cx={1418} cy={384} rx={6} ry={2.2} fill="#5C7E4F"
+                         opacity={0.65} />
               </g>
             );
           })()}
@@ -341,25 +375,47 @@ export default function GrowScene({
               stream so the whole thing reads as one waterway flowing
               top-right → through-the-garden → out-the-bottom. */}
           {(() => {
+            // Start a few px ABOVE the bed exit point so the lower
+            // segment overlaps the interior stream's tail and the
+            // join is hidden in the bank halo overlap.
             const streamD =
-              `M 1205 742
+              `M 1200 736
                C 1212 790, 1198 845, 1188 900
                L 1185 920`;
             return (
               <g pointerEvents="none">
-                <path d={streamD} stroke="#5A8A80" strokeWidth={28}
-                      fill="none" strokeLinecap="round" opacity={0.30} />
+                {/* WET-EARTH BANK halo */}
+                <path d={streamD} stroke="#6B8E5A" strokeWidth={36}
+                      fill="none" strokeLinecap="round" opacity={0.32} />
+                {/* WATER body */}
                 <path d={streamD} stroke="url(#grow-water)" strokeWidth={22}
                       fill="none" strokeLinecap="round" />
-                <path d={streamD} stroke="#D2EAEC" strokeWidth={6}
+                {/* CHANNEL — darker centerline */}
+                <path d={streamD} stroke="#4F7E84" strokeWidth={4}
                       fill="none" strokeLinecap="round" opacity={0.55} />
-                {/* shimmer */}
+                {/* center highlight ribbon — narrow */}
+                <path d={streamD} stroke="#D2EAEC" strokeWidth={3}
+                      fill="none" strokeLinecap="round" opacity={0.45} />
+                {/* shimmer hatches */}
                 <path d="M 1209 770 Q 1208 782 1206 794"
                       stroke="#FFFFFF" strokeWidth={1.0} fill="none"
                       opacity={0.55} strokeLinecap="round" />
                 <path d="M 1198 830 Q 1196 842 1194 854"
-                      stroke="#FFFFFF" strokeWidth={1.0} fill="none"
+                      stroke="#FFFFFF" strokeWidth={0.9} fill="none"
                       opacity={0.50} strokeLinecap="round" />
+                <path d="M 1192 880 Q 1190 890 1189 900"
+                      stroke="#FFFFFF" strokeWidth={1.1} fill="none"
+                      opacity={0.55} strokeLinecap="round" />
+                {/* tiny ripple at calm spot */}
+                <circle cx={1196} cy={820} r={1.4} fill="none"
+                        stroke="#FFFFFF" strokeWidth={0.5} opacity={0.45} />
+                {/* a stone PEEKING OUT of the water below the lily pad */}
+                <g>
+                  <ellipse cx={1206} cy={862} rx={5.5} ry={2.0}
+                           fill="#5F5B53" opacity={0.30} />
+                  <ellipse cx={1205} cy={860} rx={5.0} ry={1.8}
+                           fill="#9B948A" stroke="#5A3B1F" strokeWidth={0.6} />
+                </g>
                 {/* a lily pad floating downstream */}
                 <g transform="translate(1200, 808)">
                   <ellipse cx={0} cy={0} rx={6} ry={3.5}
@@ -368,7 +424,7 @@ export default function GrowScene({
                   <circle cx={-1} cy={-1} r={1.3} fill="#FFB7C5"
                           stroke="#9B6A8A" strokeWidth={0.4} />
                 </g>
-                {/* small reed clump on the east bank near the exit */}
+                {/* reed clump on the east bank near the exit */}
                 <g transform="translate(1224, 870)">
                   <line x1={-2} y1={0} x2={-3} y2={-9}
                         stroke="#5C7E4F" strokeWidth={1.0} strokeLinecap="round" />
@@ -377,11 +433,25 @@ export default function GrowScene({
                   <line x1={4}  y1={0} x2={5}  y2={-9}
                         stroke="#5C7E4F" strokeWidth={1.0} strokeLinecap="round" />
                 </g>
-                {/* a couple of bank stones at the bed exit point */}
-                <ellipse cx={1178} cy={755} rx={5} ry={2.5} fill="#9B948A"
-                         stroke="#5A3B1F" strokeWidth={0.6} />
-                <ellipse cx={1228} cy={760} rx={6} ry={3} fill="#B5ACA0"
+                {/* small reed clump on the WEST bank too */}
+                <g transform="translate(1170, 850)">
+                  <line x1={-1} y1={0} x2={-2} y2={-8}
+                        stroke="#5C7E4F" strokeWidth={0.9} strokeLinecap="round" />
+                  <line x1={2}  y1={0} x2={3}  y2={-10}
+                        stroke="#5C7E4F" strokeWidth={0.9} strokeLinecap="round" />
+                </g>
+                {/* moss tufts on both banks */}
+                <ellipse cx={1180} cy={780} rx={5} ry={2.0} fill="#5C7E4F" opacity={0.65} />
+                <ellipse cx={1216} cy={830} rx={4.5} ry={1.8} fill="#5C7E4F" opacity={0.60} />
+                {/* bank stones at the bed exit point — positioned so
+                    they FRAME the join, hiding any tiny visual seam
+                    where the interior stream meets this segment */}
+                <ellipse cx={1178} cy={748} rx={6} ry={3} fill="#9B948A"
                          stroke="#5A3B1F" strokeWidth={0.7} />
+                <ellipse cx={1175} cy={745} rx={4} ry={1.5} fill="#C2B5A2" opacity={0.7} />
+                <ellipse cx={1228} cy={754} rx={7} ry={3.2} fill="#B5ACA0"
+                         stroke="#5A3B1F" strokeWidth={0.7} />
+                <ellipse cx={1226} cy={751} rx={4.5} ry={1.6} fill="#D4C8B0" opacity={0.7} />
               </g>
             );
           })()}

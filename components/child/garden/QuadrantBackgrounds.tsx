@@ -530,6 +530,9 @@ export function JapaneseBackground({ x, y, w, h }: BgProps) {
           positions and the sand circle. */}
       <g>
         {(() => {
+          // Entry overshoots LEFT slightly into the bed (502 vs the
+          // bed boundary at ~499 at y=55) so the meadow stream's tail
+          // overlaps with this segment's bank halo for a smooth join.
           const streamD =
             `M 505 55
              C 485 95, 475 130, 470 150
@@ -538,28 +541,54 @@ export function JapaneseBackground({ x, y, w, h }: BgProps) {
              C 470 275, 440 282, 405 282`;
           return (
             <>
-              {/* stream bed shadow */}
-              <path d={streamD} stroke="#5A8A80" strokeWidth={28}
-                    fill="none" strokeLinecap="round" opacity={0.30} />
-              {/* main water ribbon */}
+              {/* WET-EARTH BANK halo — sage green, the same tone the
+                  meadow uses outside the bed. Wider than the water
+                  body so the stream reads as carved into the ground,
+                  not painted on top. */}
+              <path d={streamD} stroke="#6B8E5A" strokeWidth={36}
+                    fill="none" strokeLinecap="round" opacity={0.32} />
+              {/* WATER body */}
               <path d={streamD} stroke={`url(#${waterId})`} strokeWidth={22}
                     fill="none" strokeLinecap="round" />
-              {/* center highlight ribbon */}
-              <path d={streamD} stroke="#D2EAEC" strokeWidth={6}
+              {/* CHANNEL — darker centerline, gives depth + flow */}
+              <path d={streamD} stroke="#4F7E84" strokeWidth={4}
                     fill="none" strokeLinecap="round" opacity={0.55} />
+              {/* center highlight ribbon — narrow */}
+              <path d={streamD} stroke="#D2EAEC" strokeWidth={3}
+                    fill="none" strokeLinecap="round" opacity={0.45} />
             </>
           );
         })()}
-        {/* shimmer arcs along the meander */}
+        {/* shimmer arcs along the meander — varied widths/opacities
+            for naturalness */}
         <path d="M 495 80 Q 490 92 485 105"
-              stroke="#FFFFFF" strokeWidth={1.0} fill="none" opacity={0.60} strokeLinecap="round" />
+              stroke="#FFFFFF" strokeWidth={1.1} fill="none" opacity={0.60} strokeLinecap="round" />
+        <path d="M 482 118 Q 478 124 476 130"
+              stroke="#FFFFFF" strokeWidth={0.7} fill="none" opacity={0.50} strokeLinecap="round" />
         <path d="M 472 138 Q 470 150 470 162"
               stroke="#FFFFFF" strokeWidth={1.0} fill="none" opacity={0.55} strokeLinecap="round" />
         {/* shimmer along the vertical section, just above the bridge */}
         <path d="M 470 222 L 470 234"
               stroke="#FFFFFF" strokeWidth={1.0} fill="none" opacity={0.50} strokeLinecap="round" />
         <path d="M 460 280 Q 445 282 430 282"
-              stroke="#FFFFFF" strokeWidth={1.0} fill="none" opacity={0.55} strokeLinecap="round" />
+              stroke="#FFFFFF" strokeWidth={1.1} fill="none" opacity={0.55} strokeLinecap="round" />
+        {/* tiny ripple circles at calm spots */}
+        <circle cx={478} cy={185} r={1.3} fill="none" stroke="#FFFFFF" strokeWidth={0.5} opacity={0.45} />
+        <circle cx={425} cy={284} r={1.0} fill="none" stroke="#FFFFFF" strokeWidth={0.4} opacity={0.40} />
+        {/* a stone PEEKING OUT of the water in the upper bend */}
+        <g>
+          <ellipse cx={476} cy={140} rx={5} ry={1.8} fill="#5F5B53" opacity={0.30} />
+          <ellipse cx={475} cy={138} rx={4.5} ry={1.6} fill="#9B948A" stroke={STROKE} strokeWidth={0.6} />
+          <ellipse cx={474} cy={137} rx={2.2} ry={0.6} fill="#D4C8B0" opacity={0.7} />
+        </g>
+        {/* moss/reed clump on the east bank by the bridge */}
+        <g transform="translate(496, 245)">
+          <ellipse cx={0} cy={0} rx={5} ry={1.8} fill="#5C7E4F" opacity={0.60} />
+          <line x1={-2} y1={-1} x2={-3} y2={-9} stroke="#5C7E4F"
+                strokeWidth={0.9} strokeLinecap="round" />
+          <line x1={1}  y1={-1} x2={2}  y2={-11} stroke="#5C7E4F"
+                strokeWidth={0.9} strokeLinecap="round" />
+        </g>
         {/* a single orange koi swimming in the upper bend */}
         <g transform="translate(478, 175) rotate(105)">
           <ellipse cx={0} cy={0} rx={6} ry={2.4} fill="#E8713C" stroke={STROKE} strokeWidth={0.7} />

@@ -130,7 +130,10 @@ const HABITAT_GROUPS: Record<string, {
 }> = {
   cottage: {
     codes: ['mm_stories_plus', 'mm_stories_minus', 'mm_long_stories'],
-    x: 110, y: 480, label: 'Stories Cabin',
+    // Lifted from y:480 to y:466 — clears more sky above and gives the
+    // cabin a more elevated "perched on the foothill" reading now that
+    // rocky foothills sit beneath it.
+    x: 110, y: 466, label: 'Stories Cabin',
   },
   cave: {
     codes: ['mm_hundreds_hollow', 'mm_fast_facts', 'mm_regroup_ridge'],
@@ -523,6 +526,136 @@ export default function MathMountainScene({
             as clumsy. The lake and river live as separate water
             features now; the meadow between them stays open and
             uncluttered.) */}
+
+        {/* ── 6b. ROCKY FOOTHILLS — lower-left foreground ──
+             Three layered rocky outcrops give the cave somewhere to
+             BE — instead of a cave just plopped onto a flat meadow,
+             it now reads as carved INTO a rugged hillside. Layered
+             back-to-front (distant haze → mid-tone → dark front) for
+             depth, and the front layer tucks UNDER the cave shape
+             so the cave's outer rocky face appears to be PART OF
+             the same hillside. Renders BEFORE the cave so the cave
+             overlays the front layer, and BEFORE the river so the
+             river bank sits on top of the foothills' base. */}
+        <g pointerEvents="none">
+          {/* LAYER 1 — distant warm-grey hill silhouette, slightly
+              hazed back. Wraps from off-frame at left to about x:330. */}
+          <path
+            d="M -40 800
+               L -40 580
+               C 0 540, 60 520, 130 510
+               C 200 506, 260 522, 310 552
+               C 340 580, 350 620, 340 660
+               L 340 800 Z"
+            fill="#9C9080" opacity={0.55}
+          />
+          {/* tiny grass-tuft hint on top of the back ridge */}
+          <ellipse cx={120} cy={508} rx={18} ry={3} fill="#7BA46F" opacity={0.45} />
+          <ellipse cx={228} cy={520} rx={14} ry={2.4} fill="#7BA46F" opacity={0.40} />
+
+          {/* LAYER 2 — mid foothill, the main rocky body. Boulder-y
+              silhouette with a couple of jagged notches. */}
+          <path
+            d="M -30 800
+               L -30 632
+               C -10 612, 16 596, 44 588
+               L 56 596 L 70 580
+               C 100 572, 138 580, 168 600
+               L 184 590 L 196 604
+               C 222 622, 240 648, 244 678
+               L 248 720 L 256 712 L 270 730
+               L 270 800 Z"
+            fill="#7A6B58" stroke="#3F3026" strokeWidth={1.6} strokeLinejoin="round"
+          />
+          {/* darker shading on the right shoulder of the mid hill */}
+          <path
+            d="M 184 590 L 196 604 C 222 622, 240 648, 244 678
+               L 248 720 L 220 720 C 220 680, 210 644, 196 624 Z"
+            fill="#5C4F3F" opacity={0.55}
+          />
+          {/* lighter highlight on the left flank */}
+          <path
+            d="M -30 632 C -10 612, 16 596, 44 588 L 56 596
+               C 30 608, 0 624, -16 644 L -30 644 Z"
+            fill="#A89878" opacity={0.40}
+          />
+          {/* mid-hill rock cracks — short hand-drawn lines */}
+          <path d="M 60 620 L 76 644" stroke="#3F3026" strokeWidth={1} fill="none" strokeLinecap="round" opacity={0.7} />
+          <path d="M 110 660 L 100 690" stroke="#3F3026" strokeWidth={1} fill="none" strokeLinecap="round" opacity={0.65} />
+          <path d="M 200 660 L 218 678" stroke="#3F3026" strokeWidth={0.9} fill="none" strokeLinecap="round" opacity={0.6} />
+          {/* grass tufts cresting the mid hill */}
+          {[
+            { tx: 0,   ty: 622 }, { tx: 50,  ty: 590 }, { tx: 90,  ty: 580 },
+            { tx: 138, ty: 588 }, { tx: 184, ty: 592 },
+          ].map((t, i) => (
+            <g key={`mh-tuft-${i}`} transform={`translate(${t.tx}, ${t.ty})`}>
+              <path d="M 0 0 Q -2 -7 -1 -12" stroke="#5C7E4F" strokeWidth={1.2} fill="none" strokeLinecap="round" />
+              <path d="M 0 0 Q 1 -8 3 -12" stroke="#5C7E4F" strokeWidth={1.2} fill="none" strokeLinecap="round" />
+              <path d="M 0 0 Q 3 -6 5 -10" stroke="#5C7E4F" strokeWidth={1.1} fill="none" strokeLinecap="round" />
+            </g>
+          ))}
+          {/* a small windswept pine on the mid-hill ridge */}
+          <g transform="translate(34, 580)">
+            <line x1={0} y1={0} x2={0} y2={-22} stroke="#3F2614" strokeWidth={1.6} strokeLinecap="round" />
+            <path d="M 0 -22 Q -10 -16 -8 -10 Q -2 -14 4 -10 Q 10 -14 12 -8"
+                  stroke="#3D5C32" strokeWidth={2.4} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+            <ellipse cx={0} cy={-22} rx={8} ry={6} fill="#5C7E4F" stroke="#3D5C32" strokeWidth={0.8} />
+          </g>
+
+          {/* LAYER 3 — front boulders, darkest, anchored at the very
+              foreground. Tucked UNDER the cave (cave renders right
+              after this group, so the cave's outer rock visually
+              continues this front cluster). */}
+          <path
+            d="M -30 800
+               L -30 700
+               L -10 686 L 12 700 L 30 690 L 56 706
+               L 80 696 L 110 712 L 140 702 L 170 720
+               L 196 712 L 220 730 L 240 722 L 256 738
+               L 256 800 Z"
+            fill="#6B5A48" stroke="#2A1810" strokeWidth={1.6} strokeLinejoin="round"
+          />
+          {/* highlight ridge on the front boulders */}
+          <path
+            d="M -10 686 L 12 700 L 30 690 L 56 706 L 80 696 L 110 712 L 140 702 L 170 720"
+            stroke="#9B8868" strokeWidth={1.4} fill="none" strokeLinecap="round" opacity={0.65}
+          />
+          {/* moss patches on the front boulders */}
+          <ellipse cx={20}  cy={702} rx={12} ry={3.2} fill="#7BA46F" opacity={0.7} />
+          <ellipse cx={120} cy={714} rx={14} ry={3.5} fill="#7BA46F" opacity={0.7} />
+          <ellipse cx={210} cy={728} rx={10} ry={2.8} fill="#7BA46F" opacity={0.65} />
+          {/* tiny wildflowers on the moss */}
+          {[
+            { fx: 16,  fy: 700, c: '#FFD166' },
+            { fx: 26,  fy: 702, c: '#FFB7C5' },
+            { fx: 116, fy: 712, c: '#E6B0D0' },
+            { fx: 128, fy: 715, c: '#FFD166' },
+          ].map((f, i) => (
+            <g key={`mf-${i}`} transform={`translate(${f.fx}, ${f.fy})`}>
+              {[0, 90, 180, 270].map(deg => (
+                <ellipse key={deg} cx={0} cy={-1.2} rx={0.9} ry={1.6} fill={f.c}
+                         stroke="#8B6938" strokeWidth={0.25} transform={`rotate(${deg})`} />
+              ))}
+              <circle cx={0} cy={0} r={0.7} fill="#FFD166" />
+            </g>
+          ))}
+          {/* a couple of FERNS at the foothills' base near the river bank */}
+          <g transform="translate(220, 740)">
+            <path d="M 0 0 Q -3 -10 -7 -16" stroke="#6B8E5A" strokeWidth={1.3} fill="none" strokeLinecap="round" />
+            <path d="M 0 0 Q 0 -12 -2 -20" stroke="#6B8E5A" strokeWidth={1.3} fill="none" strokeLinecap="round" />
+            <path d="M 0 0 Q 3 -10 5 -16" stroke="#6B8E5A" strokeWidth={1.2} fill="none" strokeLinecap="round" />
+          </g>
+          <g transform="translate(252, 752)">
+            <path d="M 0 0 Q -3 -10 -6 -16" stroke="#6B8E5A" strokeWidth={1.3} fill="none" strokeLinecap="round" />
+            <path d="M 0 0 Q 0 -10 1 -18" stroke="#6B8E5A" strokeWidth={1.3} fill="none" strokeLinecap="round" />
+          </g>
+          {/* a few SCATTERED PEBBLES at the riverbank where the
+              foothills meet the water — visually integrates the
+              foothills with the river that emerges from the cave */}
+          <ellipse cx={262} cy={730} rx={5} ry={1.8} fill="#9B948A" stroke="#5A3B1F" strokeWidth={0.6} />
+          <ellipse cx={272} cy={734} rx={3.5} ry={1.4} fill="#B5ACA0" stroke="#5A3B1F" strokeWidth={0.5} />
+          <ellipse cx={284} cy={738} rx={4.5} ry={1.6} fill="#A89D8A" stroke="#5A3B1F" strokeWidth={0.5} />
+        </g>
 
         {/* ── 6c. CAVE — natural rocky archway at the far-left edge ──
              The river flows OUT of the cave mouth on the right side,
