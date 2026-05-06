@@ -651,18 +651,24 @@ function WanderingChicken({ reducedMotion }: { reducedMotion: boolean }) {
         animate={{ y: [0, -1.2, 0] }}
         transition={{ duration: 0.45, repeat: Infinity, ease: 'easeInOut' }}
       >
-        {/* facing flips at the midpoint of the walk cycle. We animate
-            scaleX on a <g> with no transform-box override — at this
-            point the local origin (0,0) is the chicken's anchor (the
-            outer group has translated us there) so scaleX flips around
-            its body, which is what we want. */}
+        {/* facing flips at the midpoint of each pause. Instead of an
+            instant scaleX 1↔-1 flip (which reads as 2D paper flipping),
+            interpolate THROUGH a slim scaleX (0.16) with a brief
+            scaleY squish — simulates a 3D pivot rotation where the
+            body becomes momentarily edge-on, like a real chicken
+            turning around. Also briefly tucks the body lower (positive
+            y offset) so the bird "leans into" the turn. */}
         <motion.g
-          animate={{ scaleX: [1, 1, -1, -1, 1] }}
+          animate={{
+            scaleX: [1, 1, 0.16, -1, -1, -0.16, 1],
+            scaleY: [1, 1, 0.94, 1, 1, 0.94, 1],
+            y:      [0, 0, 1.6, 0, 0, 1.6, 0],
+          }}
           transition={{
             duration: 36,
-            times: [0, 0.34, 0.45, 0.78, 1],
+            times: [0, 0.34, 0.395, 0.45, 0.78, 0.89, 1],
             repeat: Infinity,
-            ease: 'linear',
+            ease: 'easeInOut',
           }}
         >
           <ChickenSprite facing="right" />
@@ -819,13 +825,20 @@ function CrawlingSnail({ reducedMotion }: { reducedMotion: boolean }) {
         transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
         style={{ originY: '50%' }}
       >
+        {/* facing flip — 3D pivot through edge-on (scaleX 0.18) with
+            a brief body-squish + tiny dip, so the snail slowly turns
+            around like a real creature instead of a paper cutout. */}
         <motion.g
-          animate={{ scaleX: [1, 1, -1, -1, 1] }}
+          animate={{
+            scaleX: [1, 1, 0.18, -1, -1, -0.18, 1],
+            scaleY: [1, 1, 0.92, 1, 1, 0.92, 1],
+            y:      [0, 0, 1.2, 0, 0, 1.2, 0],
+          }}
           transition={{
             duration: 90,
-            times: [0, 0.40, 0.50, 0.90, 1],
+            times: [0, 0.40, 0.45, 0.50, 0.90, 0.95, 1],
             repeat: Infinity,
-            ease: 'linear',
+            ease: 'easeInOut',
           }}
         >
           <SnailSprite />
