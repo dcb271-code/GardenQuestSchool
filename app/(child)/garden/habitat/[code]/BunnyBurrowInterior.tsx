@@ -58,6 +58,23 @@ function CottontailBunny({
       {/* ground shadow */}
       <ellipse cx={2} cy={56} rx={28} ry={4} fill="#000" opacity={0.32} />
 
+      {/* OPAQUE BACKING SILHOUETTE — single big shape filled with the
+          base fur color that covers the WHOLE bunny outline. Guarantees
+          no "see-through" between the body / head / leg / paw shapes
+          if any tiny gap exists between them. All detail shapes draw
+          on top of this. */}
+      <path
+        d="M -32 28
+           C -36 16, -34 0, -22 -10
+           C -10 -22, 6 -22, 18 -22
+           C 28 -22, 36 -16, 38 -8
+           C 40 8, 32 24, 26 30
+           C 24 50, 12 60, -4 60
+           C -18 60, -28 56, -32 50
+           C -36 44, -36 36, -32 28 Z"
+        fill={FUR}
+      />
+
       {/* COTTONTAIL — fluffy puff at the back, drawn as TEXTURED
           irregular shape (not a smooth circle). Has visible tufts
           radiating outward. */}
