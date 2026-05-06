@@ -30,11 +30,13 @@ const VB_W = 1440;
 const VB_H = 900;
 
 // Layout for the four garden beds. Bounds are chosen so each plot's
-// (x,y) center sits comfortably WITHIN the bed (plots: y=140,320 for
+// (x,y) center sits comfortably WITHIN the bed (plots: y=200,355 for
 // top zones; y=500,680 for bottom zones — see lib/world/plotLayout.ts).
+// Top zones start at y=160 — clear of the fence (y:138-154) and the
+// overhead tree canopies (y:100-115).
 const ZONES = {
-  vegetable: { x: 80,  y: 95,  w: 520, h: 305 },
-  fruit:     { x: 800, y: 95,  w: 520, h: 305 },
+  vegetable: { x: 80,  y: 160, w: 520, h: 260 },
+  fruit:     { x: 800, y: 160, w: 520, h: 260 },
   flower:    { x: 80,  y: 460, w: 520, h: 285 },
   japanese:  { x: 800, y: 460, w: 520, h: 285 },
 } as const;
@@ -310,7 +312,9 @@ export default function GrowScene({
                   rx={48} ry={48} fill="#3F2614" opacity={0.55} pointerEvents="none" />
           )}
 
-          {/* Empty plot tap targets */}
+          {/* Empty plot tap targets — slightly smaller ellipses with a
+              dirt-toned (not black) fill so they read as "a hole in the
+              soil" instead of a cast shadow. */}
           {state.plots.map(p => {
             if (p.plant) return null;
             const isOpen = state.openQuadrants.has(p.plot.garden);
@@ -318,9 +322,9 @@ export default function GrowScene({
               <g key={`empty-${p.plot.code}`}
                  style={{ cursor: isOpen ? 'pointer' : 'not-allowed', touchAction: 'manipulation' }}
                  onClick={() => isOpen && setPickerPlotCode(p.plot.code)}>
-                <ellipse cx={p.plot.x} cy={p.plot.y} rx={28} ry={18}
-                         fill="rgba(0,0,0,0.10)" stroke={isOpen ? '#8B5A2B' : '#5A3B1F'}
-                         strokeWidth={1.4} strokeDasharray="4 4" opacity={isOpen ? 0.7 : 0.4} />
+                <ellipse cx={p.plot.x} cy={p.plot.y} rx={24} ry={15}
+                         fill="rgba(90,55,28,0.18)" stroke={isOpen ? '#8B5A2B' : '#5A3B1F'}
+                         strokeWidth={1.4} strokeDasharray="4 4" opacity={isOpen ? 0.85 : 0.5} />
                 {isOpen && (
                   <text x={p.plot.x} y={p.plot.y + 4} textAnchor="middle"
                         fontSize={18} fill="#6B4423" opacity={0.6}>+</text>

@@ -15,16 +15,17 @@ export interface PlotData {
 }
 
 export const PLOTS: PlotData[] = [
-  // Vegetable (top-left): 2x2
-  { code: 'veg-1',      garden: 'vegetable', x: 220,  y: 140 },
-  { code: 'veg-2',      garden: 'vegetable', x: 480,  y: 140 },
-  { code: 'veg-3',      garden: 'vegetable', x: 220,  y: 320 },
-  { code: 'veg-4',      garden: 'vegetable', x: 480,  y: 320 },
+  // Vegetable (top-left): 2x2 — top row pushed below the fence (y:138-154)
+  // and tree canopies (y:100-115). Bottom row stays put.
+  { code: 'veg-1',      garden: 'vegetable', x: 220,  y: 200 },
+  { code: 'veg-2',      garden: 'vegetable', x: 480,  y: 200 },
+  { code: 'veg-3',      garden: 'vegetable', x: 220,  y: 355 },
+  { code: 'veg-4',      garden: 'vegetable', x: 480,  y: 355 },
   // Fruit (top-right): 2x2 — trees are larger but use same plot count
-  { code: 'fruit-1',    garden: 'fruit',     x: 940,  y: 140 },
-  { code: 'fruit-2',    garden: 'fruit',     x: 1200, y: 140 },
-  { code: 'fruit-3',    garden: 'fruit',     x: 940,  y: 320 },
-  { code: 'fruit-4',    garden: 'fruit',     x: 1200, y: 320 },
+  { code: 'fruit-1',    garden: 'fruit',     x: 940,  y: 200 },
+  { code: 'fruit-2',    garden: 'fruit',     x: 1200, y: 200 },
+  { code: 'fruit-3',    garden: 'fruit',     x: 940,  y: 355 },
+  { code: 'fruit-4',    garden: 'fruit',     x: 1200, y: 355 },
   // Flower (bottom-left): 2x2
   { code: 'flower-1',   garden: 'flower',    x: 220,  y: 500 },
   { code: 'flower-2',   garden: 'flower',    x: 480,  y: 500 },
@@ -46,9 +47,12 @@ export function getPlot(code: string): PlotData | undefined {
 }
 
 // Quadrant centroids (used to position the title pill / locked-overlay).
+// Top pills sit between the back fence (y:138-154) and the new top plot
+// row (y:200) — leaves the sky band clear and stops the pills from
+// floating in front of the trees.
 export const QUADRANT_LAYOUT: Record<GardenType, { x: number; y: number; label: string }> = {
-  vegetable: { x: 350,  y: 50,  label: 'vegetable patch' },
-  fruit:     { x: 1070, y: 50,  label: 'fruit grove' },
-  flower:    { x: 350,  y: 410, label: 'flower garden' },
-  japanese:  { x: 1070, y: 410, label: 'japanese garden' },
+  vegetable: { x: 350,  y: 178, label: 'vegetable patch' },
+  fruit:     { x: 1070, y: 178, label: 'fruit grove' },
+  flower:    { x: 350,  y: 444, label: 'flower garden' },
+  japanese:  { x: 1070, y: 444, label: 'japanese garden' },
 };

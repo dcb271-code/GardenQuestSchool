@@ -43,9 +43,7 @@ export function VegetableBackground({ x, y, w, h }: BgProps) {
         </linearGradient>
       </defs>
 
-      {/* soft cast shadow under the bed */}
-      <ellipse cx={w * 0.5} cy={h * 1.0} rx={w * 0.46} ry={h * 0.06}
-               fill="#000" opacity={0.18} />
+      {/* (no cast shadow — overhead view, the bed isn't lifted off the ground) */}
 
       {/* dark earth rim (back edge — shows below the lighter face) */}
       <path d={bedPath} fill="#3F2614" transform={`translate(0, ${h * 0.04})`} opacity={0.6} />
@@ -147,8 +145,7 @@ export function FruitGroveBackground({ x, y, w, h }: BgProps) {
         </radialGradient>
       </defs>
 
-      {/* soft cast shadow under the bed */}
-      <ellipse cx={w * 0.5} cy={h * 1.0} rx={w * 0.46} ry={h * 0.05} fill="#000" opacity={0.15} />
+      {/* (no cast shadow — overhead view, the bed isn't lifted off the ground) */}
 
       {/* main grass body */}
       <path d={grovePath} fill={`url(#${grassId})`} stroke={STROKE} strokeWidth={1.4} strokeLinejoin="round" />
@@ -243,8 +240,7 @@ export function FlowerBackground({ x, y, w, h }: BgProps) {
         </radialGradient>
       </defs>
 
-      {/* cast shadow */}
-      <ellipse cx={w * 0.5} cy={h * 1.0} rx={w * 0.46} ry={h * 0.05} fill="#000" opacity={0.18} />
+      {/* (no cast shadow — overhead view, the bed isn't lifted off the ground) */}
 
       {/* bed surface */}
       <path d={bedPath} fill={`url(#${flowerId})`} stroke={STROKE} strokeWidth={1.5} strokeLinejoin="round" />
@@ -344,8 +340,7 @@ export function JapaneseBackground({ x, y, w, h }: BgProps) {
         </radialGradient>
       </defs>
 
-      {/* cast shadow */}
-      <ellipse cx={w * 0.5} cy={h * 1.0} rx={w * 0.46} ry={h * 0.05} fill="#000" opacity={0.16} />
+      {/* (no cast shadow — overhead view, the bed isn't lifted off the ground) */}
 
       {/* outer grass surround */}
       <path
