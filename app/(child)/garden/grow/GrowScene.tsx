@@ -105,68 +105,65 @@ export default function GrowScene({
             </radialGradient>
           </defs>
 
-          {/* SKY — top wash, fades into meadow */}
-          <rect x={0} y={0} width={VB_W} height={VB_H * 0.42} fill="url(#grow-sky)" />
+          {/* OVERHEAD VIEW — the whole scene reads as if you're
+              looking down at the garden from above. The horizon is
+              compressed into a thin decorative band at the very top
+              so the four garden zones never overlap with the "sky."
+              No more "top plots floating in the sky" perspective
+              collision — everything below y:90 is meadow ground. */}
 
-          {/* Soft sun in the upper-right */}
-          <circle cx={VB_W * 0.82} cy={70} r={70} fill="url(#grow-sun-glow)" opacity={0.8} />
-          <circle cx={VB_W * 0.82} cy={70} r={26} fill="#FFF2B5" opacity={0.92} />
+          {/* SKY — thin top wash (y:0-90) */}
+          <rect x={0} y={0} width={VB_W} height={90} fill="url(#grow-sky)" />
 
-          {/* Two hand-drawn cumulus clouds */}
+          {/* Soft sun in the upper-right corner of the sky band */}
+          <circle cx={VB_W * 0.82} cy={42} r={36} fill="url(#grow-sun-glow)" opacity={0.85} />
+          <circle cx={VB_W * 0.82} cy={42} r={14} fill="#FFF2B5" opacity={0.92} />
+
+          {/* Two small hand-drawn cumulus clouds in the sky band */}
           <g opacity={0.92}>
-            <path d="M 220 60
-                     Q 200 45 215 35
-                     Q 230 18 260 25
-                     Q 285 12 312 28
-                     Q 340 22 348 42
-                     Q 366 52 350 64
-                     Q 330 74 300 70
-                     Q 270 75 245 70
-                     Q 222 72 220 60 Z"
-                  fill="#FFFFFF" stroke="#D8CDB8" strokeWidth={1.2} strokeLinejoin="round" />
-            <path d="M 245 50 Q 270 38 300 42 Q 322 38 340 50"
-                  stroke="#FFFFFF" strokeWidth={2} fill="none" opacity={0.7} strokeLinecap="round" />
+            <ellipse cx={260} cy={36} rx={42} ry={11} fill="#FFFFFF" stroke="#D8CDB8" strokeWidth={1.1} />
+            <ellipse cx={246} cy={28} rx={20} ry={9} fill="#FFFFFF" />
+            <ellipse cx={278} cy={28} rx={22} ry={10} fill="#FFFFFF" />
           </g>
           <g opacity={0.85}>
-            <path d="M 1000 80
-                     Q 985 65 1000 58
-                     Q 1015 42 1040 50
-                     Q 1062 40 1086 55
-                     Q 1108 50 1115 70
-                     Q 1128 80 1110 88
-                     Q 1090 96 1062 92
-                     Q 1038 96 1018 92
-                     Q 1000 92 1000 80 Z"
-                  fill="#FFFFFF" stroke="#D8CDB8" strokeWidth={1.1} strokeLinejoin="round" />
+            <ellipse cx={1050} cy={56} rx={36} ry={9} fill="#FFFFFF" stroke="#D8CDB8" strokeWidth={1} />
+            <ellipse cx={1040} cy={48} rx={18} ry={8} fill="#FFFFFF" />
+            <ellipse cx={1062} cy={46} rx={20} ry={9} fill="#FFFFFF" />
           </g>
 
-          {/* DISTANT TREE-LINE — soft silhouette band */}
-          <g opacity={0.55} pointerEvents="none">
-            <path
-              d={`M 0 320
-                  Q 60 295 110 305 Q 160 280 215 295 Q 270 270 325 290
-                  Q 380 275 440 295 Q 495 270 555 285 Q 610 265 670 285
-                  Q 725 270 790 290 Q 850 275 910 290 Q 970 270 1030 290
-                  Q 1095 275 1155 290 Q 1215 275 1275 290 Q 1340 280 ${VB_W} 295
-                  L ${VB_W} 360 L 0 360 Z`}
-              fill="#8AA994"
-            />
-          </g>
-          {/* Closer band of trees — slightly darker for depth */}
-          <g opacity={0.4} pointerEvents="none">
-            <path
-              d={`M 0 360
-                  Q 80 335 150 350 Q 230 330 310 348 Q 390 330 470 348
-                  Q 550 332 640 348 Q 720 333 800 350 Q 880 335 960 350
-                  Q 1050 335 1130 350 Q 1220 335 1300 350 Q 1380 340 ${VB_W} 348
-                  L ${VB_W} 400 L 0 400 Z`}
-              fill="#6F8E5F"
-            />
-          </g>
+          {/* MEADOW — fills the WHOLE play area from y:90 to bottom */}
+          <rect x={0} y={90} width={VB_W} height={VB_H - 90} fill="url(#grow-meadow)" opacity={0.96} />
+          <rect x={0} y={90} width={VB_W} height={VB_H - 90} fill="url(#grow-grass-tex)" />
 
-          {/* MEADOW — fills below the tree-line all the way down */}
-          <rect x={0} y={350} width={VB_W} height={VB_H - 350} fill="url(#grow-meadow)" opacity={0.96} />
-          <rect x={0} y={350} width={VB_W} height={VB_H - 350} fill="url(#grow-grass-tex)" />
+          {/* OVERHEAD TREE CANOPIES along the back of the meadow —
+              round green blobs viewed from above (no perspective
+              tree-line silhouette). Frames the back edge of the
+              garden without conflicting with the overhead plot
+              perspective. */}
+          <g pointerEvents="none">
+            {[
+              { cx: 60,   cy: 110, r: 32 },
+              { cx: 160,  cy: 100, r: 26 },
+              { cx: 250,  cy: 115, r: 30 },
+              { cx: 350,  cy: 105, r: 24 },
+              { cx: 450,  cy: 112, r: 28 },
+              { cx: 1000, cy: 105, r: 26 },
+              { cx: 1100, cy: 115, r: 30 },
+              { cx: 1200, cy: 102, r: 24 },
+              { cx: 1300, cy: 112, r: 28 },
+              { cx: 1390, cy: 105, r: 26 },
+            ].map((t, i) => (
+              <g key={`tree-${i}`}>
+                {/* shadow ring under canopy */}
+                <ellipse cx={t.cx + 2} cy={t.cy + 4} rx={t.r * 0.95} ry={t.r * 0.45} fill="#000" opacity={0.18} />
+                {/* canopy outer */}
+                <circle cx={t.cx} cy={t.cy} r={t.r} fill="#6B8E5A" stroke="#4F6F42" strokeWidth={1.4} />
+                {/* canopy inner highlight */}
+                <circle cx={t.cx - t.r * 0.25} cy={t.cy - t.r * 0.25} r={t.r * 0.55} fill="#7BA46F" opacity={0.85} />
+                <circle cx={t.cx - t.r * 0.4} cy={t.cy - t.r * 0.35} r={t.r * 0.18} fill="#A2C794" opacity={0.7} />
+              </g>
+            ))}
+          </g>
 
           {/* WINDING STONE PATH — enters bottom-center, branches to all 4 zones.
               Same three-layer treatment as the central garden's main path:
@@ -219,42 +216,24 @@ export default function GrowScene({
             );
           })()}
 
-          {/* WOODEN POST-AND-RAIL FENCE along the back of the meadow,
-              just below the tree-line. Posts every ~200px. The rails
-              break around x=720 so the path passes through cleanly,
-              creating a natural "gate" opening. Drawn AFTER the path
-              so the fence sits on top of the path where they cross. */}
+          {/* WOODEN POST-AND-RAIL FENCE along the very back of the
+              meadow, just below the overhead tree canopies. Reads as
+              the back boundary of the garden. Compact: top rail at
+              y:138, bottom rail at y:154, posts y:130-160. */}
           <g pointerEvents="none">
-            {/* left half of rails (ends a bit before x=720) */}
-            <line x1={20} y1={395} x2={690} y2={395} stroke="#7B4F2C" strokeWidth={5} strokeLinecap="round" />
-            <line x1={20} y1={395} x2={690} y2={395} stroke="#A0703F" strokeWidth={2} strokeLinecap="round" opacity={0.85} />
-            <line x1={20} y1={418} x2={690} y2={418} stroke="#7B4F2C" strokeWidth={5} strokeLinecap="round" />
-            <line x1={20} y1={418} x2={690} y2={418} stroke="#A0703F" strokeWidth={2} strokeLinecap="round" opacity={0.85} />
-            {/* right half of rails (starts a bit after x=720) */}
-            <line x1={750} y1={395} x2={VB_W - 20} y2={395} stroke="#7B4F2C" strokeWidth={5} strokeLinecap="round" />
-            <line x1={750} y1={395} x2={VB_W - 20} y2={395} stroke="#A0703F" strokeWidth={2} strokeLinecap="round" opacity={0.85} />
-            <line x1={750} y1={418} x2={VB_W - 20} y2={418} stroke="#7B4F2C" strokeWidth={5} strokeLinecap="round" />
-            <line x1={750} y1={418} x2={VB_W - 20} y2={418} stroke="#A0703F" strokeWidth={2} strokeLinecap="round" opacity={0.85} />
-            {/* posts (gate posts at 690 and 750 are taller to mark the opening) */}
-            {[
-              { px: 40,  tall: false }, { px: 240, tall: false },
-              { px: 440, tall: false }, { px: 690, tall: true },
-              { px: 750, tall: true },  { px: 950, tall: false },
-              { px: 1150, tall: false }, { px: 1350, tall: false }, { px: VB_W - 40, tall: false },
-            ].map((p, i) => {
-              const top = p.tall ? 368 : 378;
-              const cap = p.tall ? 362 : 372;
-              return (
-                <g key={i}>
-                  <ellipse cx={p.px} cy={442} rx={6} ry={2} fill="#000" opacity={0.25} />
-                  <rect x={p.px - 5} y={top} width={10} height={442 - top - 2} rx={1.2}
-                        fill="#7B4F2C" stroke="#3F2614" strokeWidth={1} />
-                  <path d={`M ${p.px - 5} ${top} L ${p.px} ${cap} L ${p.px + 5} ${top} Z`} fill="#5A3B1F" />
-                  <line x1={p.px - 2.5} y1={top + 4} x2={p.px - 2.5} y2={436}
-                        stroke="#A0703F" strokeWidth={1} opacity={0.7} />
-                </g>
-              );
-            })}
+            <line x1={20} y1={138} x2={VB_W - 20} y2={138} stroke="#7B4F2C" strokeWidth={4} strokeLinecap="round" />
+            <line x1={20} y1={138} x2={VB_W - 20} y2={138} stroke="#A0703F" strokeWidth={1.6} strokeLinecap="round" opacity={0.85} />
+            <line x1={20} y1={154} x2={VB_W - 20} y2={154} stroke="#7B4F2C" strokeWidth={4} strokeLinecap="round" />
+            <line x1={20} y1={154} x2={VB_W - 20} y2={154} stroke="#A0703F" strokeWidth={1.6} strokeLinecap="round" opacity={0.85} />
+            {/* posts every ~180px */}
+            {[40, 220, 400, 580, 760, 940, 1120, 1300, VB_W - 40].map((px, i) => (
+              <g key={i}>
+                <ellipse cx={px} cy={162} rx={5} ry={1.6} fill="#000" opacity={0.22} />
+                <rect x={px - 4} y={130} width={8} height={30} rx={1} fill="#7B4F2C" stroke="#3F2614" strokeWidth={0.9} />
+                <path d={`M ${px - 4} 130 L ${px} 126 L ${px + 4} 130 Z`} fill="#5A3B1F" />
+                <line x1={px - 2} y1={134} x2={px - 2} y2={158} stroke="#A0703F" strokeWidth={0.8} opacity={0.7} />
+              </g>
+            ))}
           </g>
 
           {/* Meadow detail — scattered flowers and grass tufts BETWEEN the
