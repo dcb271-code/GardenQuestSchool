@@ -972,37 +972,61 @@ export default function CaveInterior({
                 <circle r={40} fill="#FFD93D" opacity={0.28} />
               )}
 
-              {/* FLAT STONE SLAB — water-shaped slab the structure rests
-                  on. Asymmetric, with moss patches + small stone chips. */}
-              <ellipse cx={2} cy={26} rx={32} ry={6} fill="#000" opacity={0.4} />
-              {/* slab base — broader, uneven */}
-              <path
-                d="M -34 24 C -32 14, -22 14, -10 16
-                   C 4 14, 18 14, 28 18
-                   C 36 22, 36 28, 30 30
-                   C 16 32, 0 32, -14 30
-                   C -28 30, -36 28, -34 24 Z"
-                fill="#5A4533" stroke="#1A1208" strokeWidth={1.4} strokeLinejoin="round"
-              />
-              {/* slab top — slightly raised + lighter */}
-              <ellipse cx={0} cy={20} rx={26} ry={6} fill="#7A6B58" stroke="#3F3026" strokeWidth={0.9} />
-              <ellipse cx={-2} cy={18} rx={20} ry={3.5} fill="#9B8868" opacity={0.7} />
-              {/* moss patch on the slab */}
-              <ellipse cx={-14} cy={20} rx={8} ry={2} fill="#7BA46F" opacity={0.7} />
-              <ellipse cx={18} cy={22} rx={5} ry={1.6} fill="#5C7E4F" opacity={0.6} />
-              {/* tiny chips around the base */}
-              <ellipse cx={-32} cy={28} rx={3} ry={1.2} fill="#7A6B58" stroke="#3F3026" strokeWidth={0.5} />
-              <ellipse cx={32} cy={28} rx={2.5} ry={1.0} fill="#9B8868" stroke="#3F3026" strokeWidth={0.4} />
+              {/* CHUNKY STONE PEDESTAL — taller, more substantial rock
+                  formation that the icon clearly SITS ON. Has a visible
+                  3D front face (showing stone "thickness") + flat top
+                  surface at y=8 where the icon's bottom rests. No more
+                  floating icon. */}
+              {/* shadow on the cave floor */}
+              <ellipse cx={2} cy={42} rx={40} ry={7} fill="#000" opacity={0.45} />
 
-              {/* BESPOKE SVG ICON for the cave skill — replaces the
-                  emoji. Each skill has a distinct illustrated marker
-                  (lightning, hollow tree, mountain ridge). */}
+              {/* base — the part below the flat top. Drawn as a chunky
+                  stacked-stone shape with a clear front face. */}
+              <path
+                d="M -38 38
+                   C -40 28, -32 18, -18 16
+                   C -2 14, 16 14, 30 18
+                   C 40 22, 42 32, 38 40
+                   C 22 44, 0 44, -16 42
+                   C -30 42, -40 40, -38 38 Z"
+                fill="#5A4533" stroke="#1A1208" strokeWidth={1.6} strokeLinejoin="round"
+              />
+              {/* darker shadow on the base front face */}
+              <path
+                d="M -34 30 C -16 36, 18 36, 36 30 L 38 40 C 22 44, 0 44, -16 42 C -30 42, -40 40, -38 38 Z"
+                fill="#1A1208" opacity={0.55}
+              />
+              {/* small visible stones stacked on the base (2-3 boulders
+                  to suggest the pedestal was BUILT, not just a rock) */}
+              <ellipse cx={-22} cy={26} rx={9} ry={6} fill="#7A6B58" stroke="#3F3026" strokeWidth={1.0} />
+              <ellipse cx={-24} cy={24} rx={5} ry={2.4} fill="#9B8868" opacity={0.7} />
+              <ellipse cx={20} cy={26} rx={11} ry={6} fill="#7A6B58" stroke="#3F3026" strokeWidth={1.0} />
+              <ellipse cx={18} cy={24} rx={7} ry={2.6} fill="#9B8868" opacity={0.7} />
+
+              {/* FLAT TOP SURFACE — wide oval that's clearly a flat
+                  shelf for the icon to rest on. Lighter color than
+                  the base for contrast. */}
+              <ellipse cx={0} cy={14} rx={34} ry={7} fill="#9B8868" stroke="#3F3026" strokeWidth={1.4} />
+              {/* top highlight — paler */}
+              <ellipse cx={-2} cy={12} rx={28} ry={4} fill="#C2B098" opacity={0.85} />
+              {/* small mossy edge on the top */}
+              <ellipse cx={-22} cy={14} rx={7} ry={1.6} fill="#7BA46F" opacity={0.75} />
+              <ellipse cx={20} cy={15} rx={5} ry={1.4} fill="#5C7E4F" opacity={0.65} />
+              {/* tiny stone chips around the foot of the pedestal */}
+              <ellipse cx={-36} cy={42} rx={4} ry={1.4} fill="#7A6B58" stroke="#3F3026" strokeWidth={0.6} />
+              <ellipse cx={36}  cy={42} rx={3.5} ry={1.2} fill="#9B8868" stroke="#3F3026" strokeWidth={0.5} />
+              <ellipse cx={-30} cy={45} rx={2.5} ry={1.0} fill="#9B8868" opacity={0.7} />
+
+              {/* BESPOKE SVG ICON for the cave skill — sits directly
+                  ON the flat top of the pedestal (the icon's internal
+                  bottom at y~12-16 lands on the pedestal top zone
+                  y=7-21, so the icon visibly rests on the stone). */}
               <g
                 style={{
                   filter: stop.completed
                     ? 'drop-shadow(0 0 8px rgba(255, 217, 61, 0.75))'
                     : stop.unlocked
-                      ? 'drop-shadow(0 1px 3px rgba(0, 0, 0, 0.45))'
+                      ? 'drop-shadow(0 2px 3px rgba(0, 0, 0, 0.55))'
                       : undefined,
                 }}
               >

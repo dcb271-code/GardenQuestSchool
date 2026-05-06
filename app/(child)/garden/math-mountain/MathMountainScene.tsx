@@ -578,38 +578,51 @@ export default function MathMountainScene({
                   fill="#3D5C32" stroke="#1F3018" strokeWidth={0.5} strokeLinejoin="round" />
           </g>
 
-          {/* HORIZONTAL FOOTHILLS — low rocky terrain extending RIGHT
-              from the cliff base, hugging the bottom of the screen.
-              Top edge stays below y=720 so sisters at y=577-587 are
-              clearly above. Width: x=110 to x=380. */}
-          {/* mid-tone foothills body */}
+          {/* HORIZONTAL FOOTHILLS — low rocky terrain extending CONTINUOUSLY
+              from the cliff base RIGHT along the bottom. Starts at x=20
+              (touching the cliff base) instead of x=100, so the cliff
+              and foothills read as ONE connected geological feature
+              rather than two separate rock formations with grass between.
+              Top edge varies from y=770 (just east of the cliff, slightly
+              taller as if the cliff's lowest stones merge with foothills)
+              down to y=786 in the east. */}
+          {/* mid-tone foothills body — runs from cliff base to x=380 */}
           <path
-            d="M 100 800
-               L 110 770
-               C 130 758, 160 754, 196 758
-               C 230 762, 264 760, 296 766
-               C 326 772, 354 778, 380 786
+            d="M 20 800
+               L 20 760
+               C 32 752, 50 750, 70 754
+               C 90 758, 110 760, 132 766
+               C 158 762, 188 758, 218 762
+               C 250 766, 282 762, 312 768
+               C 340 774, 360 780, 380 786
                L 380 800 Z"
             fill="#7A6B58" stroke="#3F3026" strokeWidth={1.4} strokeLinejoin="round"
           />
-          {/* darker shading on the right side of the foothills */}
+          {/* darker shading on the foothills */}
           <path
-            d="M 260 768 C 290 770, 320 776, 360 786 L 380 786 L 380 798 L 280 798 Z"
+            d="M 200 770 C 240 768, 280 770, 320 778 C 350 782, 372 786, 380 786 L 380 798 L 220 798 Z"
             fill="#5C4F3F" opacity={0.50}
           />
-          {/* DARK FRONT BOULDERS along the very foreground — adds depth */}
+          {/* lighter highlight on the cliff-adjacent flank */}
           <path
-            d="M 100 800
-               L 110 790
-               L 134 778 L 160 786 L 188 776 L 218 788
-               L 246 780 L 274 790 L 302 782 L 330 792
-               L 358 786 L 380 794
+            d="M 20 760 C 32 752, 50 750, 70 754 C 60 762, 40 768, 24 776 L 20 776 Z"
+            fill="#A89878" opacity={0.30}
+          />
+          {/* DARK FRONT BOULDERS along the very foreground — also runs
+              all the way from cliff base to x=380 */}
+          <path
+            d="M 18 800
+               L 22 778
+               L 44 786 L 66 778 L 90 788 L 116 780
+               L 142 790 L 168 782 L 194 790 L 220 782
+               L 246 790 L 272 784 L 298 792 L 324 786
+               L 350 792 L 380 794
                L 380 800 Z"
             fill="#6B5A48" stroke="#2A1810" strokeWidth={1.4} strokeLinejoin="round"
           />
           {/* highlight ridge along the front boulders */}
           <path
-            d="M 134 778 L 160 786 L 188 776 L 218 788 L 246 780 L 274 790 L 302 782 L 330 792 L 358 786"
+            d="M 22 778 L 44 786 L 66 778 L 90 788 L 116 780 L 142 790 L 168 782 L 194 790 L 220 782 L 246 790 L 272 784 L 298 792 L 324 786 L 350 792"
             stroke="#9B8868" strokeWidth={1.3} fill="none" strokeLinecap="round" opacity={0.65}
           />
           {/* moss patches on the foothills */}
