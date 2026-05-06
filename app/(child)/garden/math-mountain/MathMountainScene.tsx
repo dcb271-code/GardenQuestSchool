@@ -527,71 +527,137 @@ export default function MathMountainScene({
             features now; the meadow between them stays open and
             uncluttered.) */}
 
-        {/* ── 6b. ROCKY FOOTHILLS — CONTAINED to the lower-left corner ──
-             A small compact rocky outcrop framing the base of the
-             cave, NOT a sprawling hillside. Top edge stays below
-             y=660 so it sits well below where the sisters wander
-             (y:577-587), and the width is contained to x<200 so it
-             doesn't push out past the cave's footprint. Renders
-             BEFORE the cave so the cave overlays the front layer
-             and visually grows out of the rock. */}
+        {/* ── 6b. CLIFFSIDE + HORIZONTAL FOOTHILLS ──
+             A SLIM vertical cliff face hugs the LEFT edge from y=200
+             down to the bottom; the cave is set INTO this cliff. From
+             the cliff's base, low rocky FOOTHILLS extend horizontally
+             along the bottom out to x=380, hugging the riverbank. The
+             whole thing reads as a real geological feature with the
+             cave carved into it — not a single boulder plopped on the
+             grass. Renders BEFORE the cave so the cave overlays the
+             cliff face naturally. */}
         <g pointerEvents="none">
-          {/* MID-LAYER — main rocky body, low + compact. Top edge
-              at y:680 around the peak; tucked into the corner. */}
+          {/* LEFT CLIFF — slim vertical wall along the left edge.
+              Top edge cuts in at y=200 (above the cave); narrow
+              horizontal footprint (off-frame x=-50 to in-frame x=130). */}
           <path
-            d="M -30 800
-               L -30 720
-               C -16 700, 8 686, 36 682
-               C 70 678, 108 686, 140 700
-               C 168 714, 188 728, 196 744
-               L 200 800 Z"
+            d="M -60 800
+               L -60 200
+               L -50 196 L -36 208 L -22 200 L -10 214 L 4 206
+               L 18 220 L 30 212 L 42 226 L 56 218
+               L 70 232 L 84 224 L 100 240 L 116 232
+               L 130 246 L 140 260
+               L 130 280 L 124 320 L 132 360 L 122 400
+               L 130 440 L 120 480 L 132 520 L 124 560
+               L 130 600 L 118 640 L 124 680 L 116 720
+               L 124 760 L 110 800 Z"
             fill="#7A6B58" stroke="#3F3026" strokeWidth={1.6} strokeLinejoin="round"
           />
-          {/* darker shading on the right shoulder */}
+          {/* CLIFF SHADING — darker right side suggesting the wall
+              recedes back into shadow */}
           <path
-            d="M 110 690 C 140 702, 170 720, 196 744
-               L 200 760 L 168 760 C 160 740, 140 720, 120 706 Z"
+            d="M 80 250 L 130 280 L 124 320 L 132 360 L 122 400
+               L 130 440 L 120 480 L 132 520 L 124 560
+               L 130 600 L 118 640 L 124 680 L 116 720
+               L 124 760 L 110 800 L 80 800 Z"
             fill="#5C4F3F" opacity={0.55}
           />
-          {/* lighter highlight on the left flank */}
+          {/* CLIFF HIGHLIGHT — left flank lighter, suggesting catching the light */}
           <path
-            d="M -30 720 C -16 700, 8 686, 36 682
-               C 18 700, 0 716, -14 736 L -30 736 Z"
-            fill="#A89878" opacity={0.38}
+            d="M -60 200 L -50 196 L -36 208 L -22 200 L -10 214 L -10 800 L -60 800 Z"
+            fill="#A89878" opacity={0.28}
           />
-          {/* hand-drawn rock cracks */}
-          <path d="M 52 706 L 64 728" stroke="#3F3026" strokeWidth={1} fill="none" strokeLinecap="round" opacity={0.7} />
-          <path d="M 100 712 L 92 736" stroke="#3F3026" strokeWidth={0.9} fill="none" strokeLinecap="round" opacity={0.65} />
-          <path d="M 158 730 L 172 750" stroke="#3F3026" strokeWidth={0.9} fill="none" strokeLinecap="round" opacity={0.6} />
+          {/* HORIZONTAL ROCK STRIATION lines across the cliff face */}
+          <path d="M -50 280 Q 30 286 124 282" stroke="#3F3026" strokeWidth={0.9}
+                fill="none" opacity={0.55} strokeLinecap="round" />
+          <path d="M -50 380 Q 30 384 122 382" stroke="#3F3026" strokeWidth={0.8}
+                fill="none" opacity={0.50} strokeLinecap="round" />
+          <path d="M -50 480 Q 30 482 124 482" stroke="#3F3026" strokeWidth={0.9}
+                fill="none" opacity={0.55} strokeLinecap="round" />
+          <path d="M -50 580 Q 30 582 126 580" stroke="#3F3026" strokeWidth={0.8}
+                fill="none" opacity={0.50} strokeLinecap="round" />
+          {/* SMALL LEDGES with grass tufts on the cliff face */}
+          {[
+            { lx: 80,  ly: 250 }, { lx: 100, ly: 350 },
+            { lx: 90,  ly: 450 }, { lx: 110, ly: 550 },
+          ].map((l, i) => (
+            <g key={`cl-${i}`}>
+              {/* small ledge stone */}
+              <ellipse cx={l.lx} cy={l.ly} rx={9} ry={2} fill="#5C4F3F" stroke="#2A1810" strokeWidth={0.7} />
+              {/* grass tufts on top */}
+              <path d={`M ${l.lx - 4} ${l.ly - 1} Q ${l.lx - 5} ${l.ly - 6} ${l.lx - 5} ${l.ly - 9}`}
+                    stroke="#5C7E4F" strokeWidth={0.9} fill="none" strokeLinecap="round" />
+              <path d={`M ${l.lx} ${l.ly - 1} Q ${l.lx + 1} ${l.ly - 7} ${l.lx + 2} ${l.ly - 10}`}
+                    stroke="#5C7E4F" strokeWidth={0.9} fill="none" strokeLinecap="round" />
+              <path d={`M ${l.lx + 4} ${l.ly - 1} Q ${l.lx + 5} ${l.ly - 6} ${l.lx + 6} ${l.ly - 8}`}
+                    stroke="#5C7E4F" strokeWidth={0.9} fill="none" strokeLinecap="round" />
+            </g>
+          ))}
+          {/* HAND-DRAWN CRACKS through the cliff face */}
+          <path d="M 30 240 L 22 320 L 36 380" stroke="#3F3026" strokeWidth={1.0}
+                fill="none" strokeLinecap="round" opacity={0.65} />
+          <path d="M 100 460 L 90 530 L 102 600" stroke="#3F3026" strokeWidth={0.9}
+                fill="none" strokeLinecap="round" opacity={0.6} />
+          {/* CLIFF-TOP grass strip — thin green line across the top
+              edge so the cliff doesn't read as bare rock */}
+          <path
+            d="M -50 196 L -36 208 L -22 200 L -10 214 L 4 206
+               L 18 220 L 30 212 L 42 226 L 56 218
+               L 70 232 L 84 224 L 100 240 L 116 232 L 130 246"
+            stroke="#5C7E4F" strokeWidth={3} fill="none" strokeLinecap="round" opacity={0.85}
+          />
+          {/* tiny pine on the cliff top — far off in the corner */}
+          <g transform="translate(-30, 198)">
+            <line x1={0} y1={0} x2={0} y2={-12} stroke="#3F2614" strokeWidth={1.2} strokeLinecap="round" />
+            <path d="M 0 -12 L -4 -8 L 4 -8 Z M 0 -8 L -4 -4 L 4 -4 Z M 0 -4 L -3 -2 L 3 -2 Z"
+                  fill="#3D5C32" stroke="#1F3018" strokeWidth={0.5} strokeLinejoin="round" />
+          </g>
 
-          {/* FRONT BOULDERS — darker, anchored at the very foreground.
-              Tucks UNDER the cave so the cave's outer rocky face appears
-              to grow out of this same outcrop. Ends at x=200 — clear of
-              the river that begins around x=230. */}
+          {/* HORIZONTAL FOOTHILLS — low rocky terrain extending RIGHT
+              from the cliff base, hugging the bottom of the screen.
+              Top edge stays below y=720 so sisters at y=577-587 are
+              clearly above. Width: x=110 to x=380. */}
+          {/* mid-tone foothills body */}
           <path
-            d="M -30 800
-               L -30 754
-               L -10 740 L 14 752 L 36 744 L 60 758
-               L 88 750 L 116 762 L 144 756 L 172 770
-               L 196 762 L 200 770
-               L 200 800 Z"
-            fill="#6B5A48" stroke="#2A1810" strokeWidth={1.5} strokeLinejoin="round"
+            d="M 100 800
+               L 110 770
+               C 130 758, 160 754, 196 758
+               C 230 762, 264 760, 296 766
+               C 326 772, 354 778, 380 786
+               L 380 800 Z"
+            fill="#7A6B58" stroke="#3F3026" strokeWidth={1.4} strokeLinejoin="round"
           />
-          {/* highlight ridge along the front-boulder tops */}
+          {/* darker shading on the right side of the foothills */}
           <path
-            d="M -10 740 L 14 752 L 36 744 L 60 758 L 88 750 L 116 762 L 144 756 L 172 770"
-            stroke="#9B8868" strokeWidth={1.4} fill="none" strokeLinecap="round" opacity={0.65}
+            d="M 260 768 C 290 770, 320 776, 360 786 L 380 786 L 380 798 L 280 798 Z"
+            fill="#5C4F3F" opacity={0.50}
           />
-          {/* moss patches on the front boulders */}
-          <ellipse cx={22}  cy={754} rx={10} ry={2.8} fill="#7BA46F" opacity={0.7} />
-          <ellipse cx={102} cy={764} rx={12} ry={3} fill="#7BA46F" opacity={0.7} />
-          <ellipse cx={172} cy={770} rx={8}  ry={2.4} fill="#7BA46F" opacity={0.65} />
+          {/* DARK FRONT BOULDERS along the very foreground — adds depth */}
+          <path
+            d="M 100 800
+               L 110 790
+               L 134 778 L 160 786 L 188 776 L 218 788
+               L 246 780 L 274 790 L 302 782 L 330 792
+               L 358 786 L 380 794
+               L 380 800 Z"
+            fill="#6B5A48" stroke="#2A1810" strokeWidth={1.4} strokeLinejoin="round"
+          />
+          {/* highlight ridge along the front boulders */}
+          <path
+            d="M 134 778 L 160 786 L 188 776 L 218 788 L 246 780 L 274 790 L 302 782 L 330 792 L 358 786"
+            stroke="#9B8868" strokeWidth={1.3} fill="none" strokeLinecap="round" opacity={0.65}
+          />
+          {/* moss patches on the foothills */}
+          <ellipse cx={150} cy={780} rx={10} ry={2.6} fill="#7BA46F" opacity={0.7} />
+          <ellipse cx={228} cy={786} rx={12} ry={3} fill="#7BA46F" opacity={0.7} />
+          <ellipse cx={310} cy={788} rx={9}  ry={2.4} fill="#7BA46F" opacity={0.65} />
           {/* tiny wildflowers on the moss */}
           {[
-            { fx: 18,  fy: 752, c: '#FFD166' },
-            { fx: 28,  fy: 754, c: '#FFB7C5' },
-            { fx: 100, fy: 762, c: '#E6B0D0' },
-            { fx: 110, fy: 765, c: '#FFD166' },
+            { fx: 146, fy: 778, c: '#FFD166' },
+            { fx: 156, fy: 781, c: '#FFB7C5' },
+            { fx: 226, fy: 786, c: '#E6B0D0' },
+            { fx: 232, fy: 788, c: '#FFD166' },
+            { fx: 312, fy: 788, c: '#FFB7C5' },
           ].map((f, i) => (
             <g key={`mf-${i}`} transform={`translate(${f.fx}, ${f.fy})`}>
               {[0, 90, 180, 270].map(deg => (
@@ -601,25 +667,26 @@ export default function MathMountainScene({
               <circle cx={0} cy={0} r={0.7} fill="#FFD166" />
             </g>
           ))}
-          {/* a couple of grass tufts cresting the rocks */}
+          {/* grass tufts cresting the foothills */}
           {[
-            { tx: 36,  ty: 686 }, { tx: 80,  ty: 684 }, { tx: 130, ty: 696 },
+            { tx: 130, ty: 760 }, { tx: 200, ty: 758 },
+            { tx: 270, ty: 762 }, { tx: 340, ty: 770 },
           ].map((t, i) => (
-            <g key={`mh-tuft-${i}`} transform={`translate(${t.tx}, ${t.ty})`}>
-              <path d="M 0 0 Q -2 -7 -1 -10" stroke="#5C7E4F" strokeWidth={1.1} fill="none" strokeLinecap="round" />
-              <path d="M 0 0 Q 1 -8 3 -10" stroke="#5C7E4F" strokeWidth={1.1} fill="none" strokeLinecap="round" />
-              <path d="M 0 0 Q 3 -6 5 -8" stroke="#5C7E4F" strokeWidth={1.0} fill="none" strokeLinecap="round" />
+            <g key={`fh-tuft-${i}`} transform={`translate(${t.tx}, ${t.ty})`}>
+              <path d="M 0 0 Q -2 -6 -1 -9" stroke="#5C7E4F" strokeWidth={1.0} fill="none" strokeLinecap="round" />
+              <path d="M 0 0 Q 1 -7 3 -9" stroke="#5C7E4F" strokeWidth={1.0} fill="none" strokeLinecap="round" />
+              <path d="M 0 0 Q 3 -5 5 -7" stroke="#5C7E4F" strokeWidth={0.9} fill="none" strokeLinecap="round" />
             </g>
           ))}
-          {/* small fern at the base of the outcrop near the river */}
-          <g transform="translate(196, 770)">
+          {/* small fern at the foothills' end near the river */}
+          <g transform="translate(372, 786)">
             <path d="M 0 0 Q -3 -8 -6 -14" stroke="#6B8E5A" strokeWidth={1.2} fill="none" strokeLinecap="round" />
             <path d="M 0 0 Q 0 -10 -1 -16" stroke="#6B8E5A" strokeWidth={1.2} fill="none" strokeLinecap="round" />
             <path d="M 0 0 Q 3 -8 4 -14" stroke="#6B8E5A" strokeWidth={1.1} fill="none" strokeLinecap="round" />
           </g>
-          {/* a couple of pebbles where the outcrop meets the riverbank */}
-          <ellipse cx={212} cy={774} rx={4.5} ry={1.6} fill="#9B948A" stroke="#5A3B1F" strokeWidth={0.5} />
-          <ellipse cx={222} cy={778} rx={3.5} ry={1.4} fill="#B5ACA0" stroke="#5A3B1F" strokeWidth={0.5} />
+          {/* a couple of pebbles where foothills meet the river bank */}
+          <ellipse cx={392} cy={790} rx={4.5} ry={1.6} fill="#9B948A" stroke="#5A3B1F" strokeWidth={0.5} />
+          <ellipse cx={402} cy={792} rx={3.5} ry={1.4} fill="#B5ACA0" stroke="#5A3B1F" strokeWidth={0.5} />
         </g>
 
         {/* ── 6c. CAVE — natural rocky archway at the far-left edge ──

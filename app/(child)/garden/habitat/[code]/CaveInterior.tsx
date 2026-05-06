@@ -41,11 +41,12 @@ interface CaveInteriorProps {
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// SLEEPING BEAR — black bear lying STRETCHED OUT on its side asleep,
-// facing right. Drawn as ONE big organic silhouette path (not a stack
-// of round ellipses) with details layered on top. Pose is closer to
-// a real sleeping animal — long horizontal shape, head resting on a
-// front paw, hind legs trailing back, tail tucked.
+// SLEEPING BEAR — black bear curled in a TIGHT C-CURL on its side.
+// Pose: head tucked toward chest, knees drawn up, tail at rear, like
+// a sleeping cat. The body has REAL ANATOMICAL STRUCTURE — visible
+// shoulder, hip, ribcage, and a clear dip between head and shoulder
+// (no melted-blob look). Drawn as a few large structural shapes
+// rather than many small ellipses or one amorphous silhouette.
 // ─────────────────────────────────────────────────────────────────────────
 function SleepyBear({ reducedMotion }: { reducedMotion: boolean }) {
   const LINE = '#1A1208';
@@ -53,221 +54,248 @@ function SleepyBear({ reducedMotion }: { reducedMotion: boolean }) {
   const FUR_DARK = '#1F1408';
   const FUR_HI = '#5A4030';
   const BELLY = '#7A5836';
-  const PAW_PAD = '#1A1208';
+  const PAW_PAD = '#2A1810';
   const NOSE = '#0A0604';
 
   return (
-    <g transform="translate(310, 700)">
-      {/* GROUND SHADOW — long horizontal under the bear's whole body */}
-      <ellipse cx={10} cy={42} rx={140} ry={10} fill="#000" opacity={0.40} />
+    <g transform="translate(330, 690)">
+      {/* GROUND SHADOW — compact, follows the curl */}
+      <ellipse cx={0} cy={56} rx={110} ry={10} fill="#000" opacity={0.42} />
 
-      {/* MAIN BODY SILHOUETTE — single flowing path that traces the
-          ENTIRE bear from head-tip to tail-tip in one go. No stacked
-          ellipses. The bear is lying on its right side with the head
-          forward (right), back arched along the top, hind legs trailing
-          to the left, tail at the very back. */}
-      <motion.path
-        d="
-          M -130 28
-          C -136 24, -134 16, -126 12
-          C -118 8, -100 6, -82 8
-          L -68 4
-          C -58 -2, -42 -8, -22 -10
-          L -8 -14
-          C 4 -18, 18 -20, 32 -18
-          C 48 -16, 60 -10, 70 0
-          C 82 8, 92 14, 100 22
-          C 108 28, 110 34, 106 40
-          L 96 42
-          C 84 44, 70 44, 56 40
-          L 40 38
-          C 28 36, 16 32, 0 28
-          L -20 26
-          C -38 22, -56 22, -74 26
-          L -90 32
-          C -104 38, -120 38, -130 28 Z
-        "
-        fill={FUR} stroke={LINE} strokeWidth={2}
-        animate={reducedMotion ? undefined : { scaleY: [1, 1.025, 1] }}
-        transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut' }}
-        style={{ originX: '0px', originY: '20px' }}
-      />
-
-      {/* DARKER UNDERBELLY SHADING — runs along the bottom of the body */}
+      {/* TAIL — small fluffy stub at the back (left side from viewer) */}
       <path
-        d="M -120 30 C -90 38, -50 42, 0 38 C 50 36, 80 36, 100 38
-           L 96 42 C 70 44, 30 42, -10 38 C -50 34, -90 36, -120 30 Z"
+        d="M -88 22
+           C -98 18, -100 8, -90 4
+           C -78 4, -72 14, -76 22
+           C -80 26, -86 26, -88 22 Z"
+        fill={FUR_DARK} stroke={LINE} strokeWidth={1.4} strokeLinejoin="round"
+      />
+      <path d="M -94 12 Q -88 8 -82 12"
+            stroke={FUR_HI} strokeWidth={1.0} fill="none" opacity={0.7} strokeLinecap="round" />
+
+      {/* HIND LEG / HAUNCH — drawn AS ITS OWN SHAPE behind the body so
+          the curl looks anatomically real, not a single melted blob.
+          Shows the rounded knee + tucked back foot with toe pads. */}
+      <path
+        d="M -52 24
+           C -76 30, -86 46, -68 56
+           C -50 60, -28 56, -22 44
+           C -22 36, -34 26, -52 24 Z"
+        fill={FUR} stroke={LINE} strokeWidth={1.7} strokeLinejoin="round"
+      />
+      {/* knee/thigh shading */}
+      <path
+        d="M -60 30 Q -76 36 -76 48 Q -64 54 -52 50 Q -56 40 -60 30 Z"
         fill={FUR_DARK} opacity={0.55} pointerEvents="none"
       />
+      {/* tucked back paw with pads */}
+      <ellipse cx={-30} cy={48} rx={10} ry={5} fill={FUR_DARK} stroke={LINE} strokeWidth={1.2} />
+      <ellipse cx={-26} cy={48} rx={5} ry={2.4} fill={PAW_PAD} opacity={0.85} />
+      <circle cx={-29} cy={47} r={0.8} fill={PAW_PAD} />
+      <circle cx={-25} cy={48} r={0.8} fill={PAW_PAD} />
+      <circle cx={-22} cy={49} r={0.8} fill={PAW_PAD} />
+      {/* claws */}
+      <path d="M -22 46 Q -20 45 -19 47" stroke={LINE} strokeWidth={0.9} fill="none" strokeLinecap="round" />
+      <path d="M -20 49 Q -18 48 -17 50" stroke={LINE} strokeWidth={0.9} fill="none" strokeLinecap="round" />
 
-      {/* BACK HIGHLIGHT — lighter fur tone along the top of the body */}
-      <path
-        d="M -100 12 Q -60 4, -10 -8 Q 30 -16, 60 -10 Q 80 -4, 90 4
-           Q 60 0, 30 -4 Q -10 -10, -50 -2 Q -80 6, -100 12 Z"
-        fill={FUR_HI} opacity={0.45} pointerEvents="none"
+      {/* MAIN BODY — rounded BACK silhouette of the curl. Drawn as a
+          firm arched shape with VISIBLE shoulder and hip bumps. The
+          head is a separate shape that fits into a clear notch on
+          the right (front) of the body. */}
+      <motion.path
+        d="
+          M -78 8
+          C -88 -4, -82 -22, -60 -28
+          C -36 -32, -8 -32, 18 -26
+          C 38 -20, 50 -8, 52 8
+          C 50 22, 36 32, 12 36
+          C -16 38, -50 36, -68 30
+          C -82 24, -84 16, -78 8 Z
+        "
+        fill={FUR} stroke={LINE} strokeWidth={2}
+        animate={reducedMotion ? undefined : { scaleY: [1, 1.030, 1] }}
+        transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut' }}
+        style={{ originX: '0px', originY: '6px' }}
       />
 
-      {/* HAND-DRAWN FUR STROKES along the back — suggesting individual
-          tufts. Short curves angled toward the rear. */}
+      {/* SHOULDER BUMP — defined raised bump where the front leg meets
+          the body. A subtle highlight curve gives the silhouette a
+          REAL shoulder, breaking the "melting" feel. */}
+      <path
+        d="M 28 -22 Q 44 -16 50 -2 Q 38 -10 24 -16 Z"
+        fill={FUR_HI} opacity={0.6} pointerEvents="none"
+      />
+      {/* HIP BUMP — same on the rear */}
+      <path
+        d="M -76 0 Q -82 -10 -68 -22 Q -56 -16 -56 -4 Q -68 -8 -76 0 Z"
+        fill={FUR_HI} opacity={0.55} pointerEvents="none"
+      />
+      {/* RIBCAGE shading underneath the body */}
+      <path
+        d="M -50 18 C -20 30, 20 30, 40 22 L 36 32 C 8 38, -28 36, -54 28 Z"
+        fill={FUR_DARK} opacity={0.55} pointerEvents="none"
+      />
+      {/* light fur highlight along the top of the back */}
+      <path
+        d="M -64 -20 Q -30 -30 0 -30 Q 28 -30 44 -22 Q 14 -26 -14 -24 Q -42 -22 -64 -20 Z"
+        fill={FUR_HI} opacity={0.5} pointerEvents="none"
+      />
+      {/* fur stroke marks suggesting individual tufts on the back */}
       {[
-        { sx: -90, sy: 8, dx: -6, dy: -4 },
-        { sx: -60, sy: 0, dx: -6, dy: -5 },
-        { sx: -30, sy: -8, dx: -6, dy: -5 },
-        { sx: 0,   sy: -12, dx: -5, dy: -5 },
-        { sx: 26,  sy: -14, dx: -5, dy: -4 },
-        { sx: 50,  sy: -10, dx: -4, dy: -4 },
-        { sx: 70,  sy: -2, dx: -3, dy: -4 },
+        { sx: -50, sy: -22 }, { sx: -28, sy: -26 },
+        { sx: -8,  sy: -28 }, { sx: 14,  sy: -28 },
+        { sx: 32,  sy: -22 },
       ].map((s, i) => (
         <path
-          key={`fb-${i}`}
-          d={`M ${s.sx} ${s.sy} q ${s.dx * 0.5} ${s.dy * 0.6} ${s.dx} ${s.dy}`}
+          key={`fs-${i}`}
+          d={`M ${s.sx} ${s.sy} q -2 -3 -4 -5`}
           stroke={FUR_DARK} strokeWidth={0.7} fill="none" opacity={0.55}
           strokeLinecap="round" pointerEvents="none"
         />
       ))}
 
-      {/* TAIL — short stubby fluff at the very back-left */}
+      {/* FRONT PAW — visible peeking from under the chin, both forepaws
+          tucked together. Drawn as one defined shape with toe pads. */}
       <path
-        d="M -128 18 C -134 14, -136 10, -132 6 C -126 4, -120 8, -120 14
-           C -120 20, -126 22, -128 18 Z"
-        fill={FUR} stroke={LINE} strokeWidth={1.2} pointerEvents="none"
+        d="M 30 18 C 44 22, 56 28, 58 36
+           C 56 42, 46 44, 36 42
+           C 26 40, 22 32, 24 24
+           C 26 20, 28 18, 30 18 Z"
+        fill={FUR} stroke={LINE} strokeWidth={1.5} strokeLinejoin="round"
       />
+      {/* darker shadow under the paw */}
       <path
-        d="M -130 14 Q -128 12, -126 14"
-        stroke={FUR_HI} strokeWidth={1.0} fill="none" opacity={0.65} strokeLinecap="round" pointerEvents="none"
+        d="M 36 30 C 46 32, 54 36, 54 40 C 46 42, 38 40, 32 36 Z"
+        fill={FUR_DARK} opacity={0.55} pointerEvents="none"
       />
+      <ellipse cx={48} cy={36} rx={6} ry={2.4} fill={PAW_PAD} opacity={0.85} />
+      <circle cx={45} cy={34} r={0.8} fill={PAW_PAD} />
+      <circle cx={49} cy={35} r={0.8} fill={PAW_PAD} />
+      <circle cx={52} cy={37} r={0.8} fill={PAW_PAD} />
+      <circle cx={49} cy={38} r={0.8} fill={PAW_PAD} />
+      {/* claws */}
+      <path d="M 56 31 Q 58 30 58 32" stroke={LINE} strokeWidth={0.9} fill="none" strokeLinecap="round" />
+      <path d="M 58 34 Q 60 33 60 35" stroke={LINE} strokeWidth={0.9} fill="none" strokeLinecap="round" />
+      <path d="M 58 37 Q 60 36 60 38" stroke={LINE} strokeWidth={0.9} fill="none" strokeLinecap="round" />
 
-      {/* HIND LEG — folded back, visible at the bottom-rear of the body.
-          A single curve that flows out of the body silhouette. */}
-      <path
-        d="M -78 28 C -82 36, -76 44, -64 44 C -52 44, -44 38, -42 32
-           C -50 30, -68 26, -78 28 Z"
-        fill={FUR_DARK} stroke={LINE} strokeWidth={1.4} strokeLinejoin="round" pointerEvents="none"
-      />
-      {/* hind paw pad */}
-      <ellipse cx={-58} cy={42} rx={5} ry={2} fill={PAW_PAD} opacity={0.8} pointerEvents="none" />
-      <circle cx={-60} cy={42} r={0.7} fill={PAW_PAD} pointerEvents="none" />
-      <circle cx={-56} cy={43} r={0.7} fill={PAW_PAD} pointerEvents="none" />
-      <circle cx={-54} cy={41} r={0.7} fill={PAW_PAD} pointerEvents="none" />
-      {/* hind claws — small dark crescents */}
-      <path d="M -52 32 Q -50 31 -50 33" stroke={LINE} strokeWidth={0.8} fill="none" strokeLinecap="round" pointerEvents="none" />
-      <path d="M -50 35 Q -48 34 -48 36" stroke={LINE} strokeWidth={0.8} fill="none" strokeLinecap="round" pointerEvents="none" />
-
-      {/* FRONT PAW — extended forward in front of the muzzle, head rests
-          on it. Single flowing shape. */}
-      <path
-        d="M 70 24 C 84 22, 100 24, 110 32 C 114 38, 110 42, 102 42
-           C 88 42, 76 38, 70 32 C 66 28, 66 26, 70 24 Z"
-        fill={FUR} stroke={LINE} strokeWidth={1.4} strokeLinejoin="round" pointerEvents="none"
-      />
-      {/* front paw pad */}
-      <ellipse cx={100} cy={38} rx={6} ry={2.4} fill={PAW_PAD} opacity={0.85} pointerEvents="none" />
-      <circle cx={97} cy={36} r={0.8} fill={PAW_PAD} pointerEvents="none" />
-      <circle cx={101} cy={37} r={0.8} fill={PAW_PAD} pointerEvents="none" />
-      <circle cx={104} cy={39} r={0.8} fill={PAW_PAD} pointerEvents="none" />
-      <circle cx={101} cy={40} r={0.8} fill={PAW_PAD} pointerEvents="none" />
-      {/* front claws */}
-      <path d="M 108 32 Q 110 31 110 33" stroke={LINE} strokeWidth={0.8} fill="none" strokeLinecap="round" pointerEvents="none" />
-      <path d="M 110 34 Q 112 33 112 35" stroke={LINE} strokeWidth={0.8} fill="none" strokeLinecap="round" pointerEvents="none" />
-      <path d="M 110 37 Q 112 36 112 38" stroke={LINE} strokeWidth={0.8} fill="none" strokeLinecap="round" pointerEvents="none" />
-
-      {/* HEAD — rests on the front paw. Single path, profile view, with
-          a boxy real-bear snout. */}
+      {/* HEAD — drawn as a separate shape that nestles into a clear
+          NECK NOTCH on the right side of the body. The head's chin
+          rests on the front paw. Boxy real-bear snout, single visible
+          closed eye, ears. */}
       <motion.g
-        animate={reducedMotion ? undefined : { y: [0, -1, 0] }}
+        animate={reducedMotion ? undefined : { y: [0, -1.4, 0] }}
         transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut' }}
       >
-        {/* head silhouette — single shape from forehead to chin */}
+        {/* HEAD silhouette — wedge-shaped, not perfectly round */}
         <path
-          d="M 30 -10
-             C 24 -22, 36 -34, 54 -34
-             C 70 -34, 80 -28, 84 -16
-             C 86 -10, 88 -4, 92 2
-             C 96 8, 92 14, 86 16
-             C 80 20, 70 22, 60 22
-             C 48 24, 38 22, 32 16
-             C 28 8, 28 -2, 30 -10 Z"
+          d="M 18 -22
+             C 14 -34, 28 -42, 46 -42
+             C 64 -42, 76 -36, 80 -22
+             C 84 -12, 86 -2, 84 8
+             C 80 18, 68 22, 54 22
+             C 38 22, 22 18, 18 6
+             C 14 -4, 14 -14, 18 -22 Z"
           fill={FUR} stroke={LINE} strokeWidth={2} strokeLinejoin="round"
         />
-        {/* MUZZLE — protruding boxy snout, paler */}
+        {/* CHEEK SHADING — defines the side of the head */}
         <path
-          d="M 80 6 C 86 8, 92 8, 96 4
-             C 100 0, 100 -6, 96 -10
-             C 92 -12, 84 -10, 80 -6
-             C 78 -2, 78 2, 80 6 Z"
-          fill={BELLY} stroke={LINE} strokeWidth={1.3} strokeLinejoin="round"
+          d="M 24 0 Q 30 14 50 16 Q 64 16 70 8 Q 56 12 40 8 Q 28 4 24 0 Z"
+          fill={FUR_DARK} opacity={0.45} pointerEvents="none"
         />
-        {/* head highlight on top of skull */}
-        <path d="M 36 -28 Q 56 -34, 76 -28 Q 56 -24, 36 -28 Z"
-              fill={FUR_HI} opacity={0.6} />
+        {/* TOP-OF-HEAD highlight */}
+        <path
+          d="M 26 -36 Q 46 -42 66 -36 Q 46 -32 26 -36 Z"
+          fill={FUR_HI} opacity={0.65}
+        />
+        {/* BROW RIDGE — a defined bony brow above the eye */}
+        <path
+          d="M 50 -16 Q 58 -22 66 -16 L 66 -12 Q 58 -16 50 -12 Z"
+          fill={FUR_DARK} opacity={0.55} pointerEvents="none"
+        />
 
-        {/* far ear (back-left, smaller) */}
+        {/* MUZZLE — protruding boxy snout, paler. Drawn AS ITS OWN
+            SHAPE jutting forward from the head, not blended into it. */}
         <path
-          d="M 36 -22 C 30 -28, 32 -36, 38 -36 C 42 -34, 44 -28, 42 -22 Z"
-          fill={FUR_DARK} stroke={LINE} strokeWidth={1.2}
+          d="M 70 -2
+             C 78 -2, 86 0, 88 6
+             C 88 10, 84 14, 78 14
+             C 70 14, 64 12, 62 6
+             C 62 0, 66 -2, 70 -2 Z"
+          fill={BELLY} stroke={LINE} strokeWidth={1.4} strokeLinejoin="round"
         />
-        {/* near ear (right, closer to viewer, occasionally twitches) */}
+        {/* muzzle bridge shading — small darker stripe along the top */}
+        <path d="M 64 0 Q 76 -2 86 2" stroke={LINE} strokeWidth={0.7}
+              fill="none" opacity={0.5} strokeLinecap="round" />
+
+        {/* far ear (back of head) */}
+        <path
+          d="M 28 -34
+             C 22 -42, 26 -50, 32 -50
+             C 38 -48, 40 -42, 38 -34 Z"
+          fill={FUR_DARK} stroke={LINE} strokeWidth={1.3} strokeLinejoin="round"
+        />
+        {/* near ear — twitches occasionally */}
         <motion.g
-          animate={reducedMotion ? undefined : { rotate: [0, 0, 0, -8, 0, 0] }}
+          animate={reducedMotion ? undefined : { rotate: [0, 0, 0, -10, 0, 0] }}
           transition={{ duration: 11, repeat: Infinity, ease: 'easeInOut' }}
-          style={{ originX: '60px', originY: '-30px' }}
+          style={{ originX: '54px', originY: '-38px' }}
         >
           <path
-            d="M 54 -22 C 50 -32, 56 -38, 64 -36
-               C 70 -34, 70 -26, 66 -22 Z"
+            d="M 50 -32
+               C 46 -42, 54 -50, 62 -48
+               C 68 -46, 68 -38, 64 -32 Z"
             fill={FUR} stroke={LINE} strokeWidth={1.3} strokeLinejoin="round"
           />
-          {/* inner ear pinkish */}
+          {/* pink inner ear */}
           <path
-            d="M 56 -24 C 54 -30, 60 -34, 64 -32
-               C 66 -30, 66 -26, 62 -24 Z"
+            d="M 54 -34
+               C 52 -42, 58 -46, 62 -44
+               C 64 -42, 64 -36, 60 -32 Z"
             fill={BELLY} opacity={0.7}
           />
         </motion.g>
 
-        {/* NOSE — chunky black tip, with subtle highlight */}
-        <ellipse cx={96} cy={-2} rx={3.4} ry={2.6} fill={NOSE} stroke={LINE} strokeWidth={0.9} />
-        <ellipse cx={95} cy={-3} rx={1.0} ry={0.6} fill="#FFFFFF" opacity={0.5} />
-        {/* philtrum — small line from nose down */}
-        <line x1={96} y1={1} x2={96} y2={4} stroke={LINE} strokeWidth={0.7} />
+        {/* NOSE — chunky black tip with highlight */}
+        <ellipse cx={86} cy={6} rx={3.4} ry={2.6} fill={NOSE} stroke={LINE} strokeWidth={0.9} />
+        <ellipse cx={85} cy={5} rx={1.0} ry={0.6} fill="#FFFFFF" opacity={0.55} />
+        {/* nostril hint */}
+        <ellipse cx={87} cy={7} rx={0.6} ry={0.4} fill={LINE} opacity={0.7} />
+        {/* philtrum line */}
+        <line x1={86} y1={9} x2={86} y2={12} stroke={LINE} strokeWidth={0.7} />
 
-        {/* CLOSED EYE — single visible eye on this side, gentle upturned
-            crescent (sleeping + content) */}
-        <path d="M 64 -16 Q 70 -12 76 -16"
-              stroke={LINE} strokeWidth={1.5} fill="none" strokeLinecap="round" />
+        {/* CLOSED EYE — gentle upturned crescent, sleeping + content */}
+        <path d="M 56 -8 Q 62 -4 68 -8"
+              stroke={LINE} strokeWidth={1.6} fill="none" strokeLinecap="round" />
         {/* eyelashes */}
-        <path d="M 65 -15 L 64 -13" stroke={LINE} strokeWidth={0.5} strokeLinecap="round" />
-        <path d="M 70 -13 L 70 -11" stroke={LINE} strokeWidth={0.5} strokeLinecap="round" />
-        <path d="M 75 -15 L 76 -13" stroke={LINE} strokeWidth={0.5} strokeLinecap="round" />
-        {/* eyebrow ridge */}
-        <path d="M 64 -20 Q 70 -22 76 -20"
-              stroke={LINE} strokeWidth={0.7} fill="none" opacity={0.65} strokeLinecap="round" />
+        <path d="M 57 -7 L 56 -5" stroke={LINE} strokeWidth={0.5} strokeLinecap="round" />
+        <path d="M 62 -5 L 62 -3" stroke={LINE} strokeWidth={0.5} strokeLinecap="round" />
+        <path d="M 67 -7 L 68 -5" stroke={LINE} strokeWidth={0.5} strokeLinecap="round" />
 
-        {/* MOUTH — small content curve below the muzzle */}
-        <path d="M 88 6 Q 86 10, 82 9" stroke={LINE} strokeWidth={1.0} fill="none" strokeLinecap="round" />
-        <path d="M 92 6 Q 94 10, 92 12" stroke={LINE} strokeWidth={1.0} fill="none" strokeLinecap="round" />
+        {/* MOUTH — small content smile below the muzzle */}
+        <path d="M 80 14 Q 78 18 74 17" stroke={LINE} strokeWidth={1.0} fill="none" strokeLinecap="round" />
+        <path d="M 84 14 Q 86 18 84 20" stroke={LINE} strokeWidth={1.0} fill="none" strokeLinecap="round" />
 
-        {/* WHISKERS */}
-        <line x1={84} y1={2} x2={92} y2={1}  stroke={LINE} strokeWidth={0.5} opacity={0.6} />
-        <line x1={84} y1={4} x2={94} y2={5}  stroke={LINE} strokeWidth={0.5} opacity={0.6} />
+        {/* WHISKERS — three thin lines on each side of the muzzle */}
+        <line x1={62} y1={6}  x2={56} y2={4} stroke={LINE} strokeWidth={0.5} opacity={0.6} />
+        <line x1={62} y1={9}  x2={56} y2={9} stroke={LINE} strokeWidth={0.5} opacity={0.6} />
+        <line x1={88} y1={4}  x2={94} y2={2} stroke={LINE} strokeWidth={0.5} opacity={0.6} />
+        <line x1={88} y1={8}  x2={94} y2={9} stroke={LINE} strokeWidth={0.5} opacity={0.6} />
       </motion.g>
 
-      {/* WARM GLOW around the head — suggests the fire's light catching
-          the bear's face */}
-      <ellipse cx={70} cy={-10} rx={70} ry={40} fill="#FFD06B" opacity={0.10} pointerEvents="none" />
+      {/* WARM GLOW catching the face */}
+      <ellipse cx={60} cy={0} rx={70} ry={42} fill="#FFD06B" opacity={0.10} pointerEvents="none" />
 
-      {/* SOFT BREATH PARTICLES drifting up from the muzzle (replaces
-          cartoon Zzz). */}
+      {/* SOFT BREATH PARTICLES drifting up from the muzzle */}
       {!reducedMotion && (
         <>
           <motion.circle
-            cx={102} cy={-8} r={1.4} fill="#FFE89A"
+            cx={92} cy={-2} r={1.4} fill="#FFE89A"
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: [0, 0.6, 0], y: [6, -10, -28] }}
             transition={{ duration: 6, repeat: Infinity, ease: 'easeOut' }}
           />
           <motion.circle
-            cx={106} cy={-12} r={1.0} fill="#FFE89A"
+            cx={96} cy={-6} r={1.0} fill="#FFE89A"
             initial={{ opacity: 0, y: 4 }}
             animate={{ opacity: [0, 0.5, 0], y: [4, -14, -32] }}
             transition={{ duration: 6, delay: 2.4, repeat: Infinity, ease: 'easeOut' }}
@@ -385,6 +413,151 @@ function FirePit({ x, y, reducedMotion }: { x: number; y: number; reducedMotion:
       )}
     </g>
   );
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// CAVE SKILL ICONS — bespoke SVG markers for each skill stop. Each
+// icon is a small storybook scene tile (~40px) that sits on the stone
+// slab where its skill stop lives. NO emoji.
+// ─────────────────────────────────────────────────────────────────────────
+function CaveSkillIcon({
+  code, completed, unlocked,
+}: { code: string; completed: boolean; unlocked: boolean }) {
+  const opacity = unlocked ? 1 : 0.62;
+  const filter = unlocked ? undefined : 'grayscale(1) brightness(0.65)';
+
+  // FAST FACTS — stylized lightning bolt as a glowing crystal shard
+  if (code === 'mm_fast_facts') {
+    return (
+      <g transform="translate(0, -6)" style={{ opacity, filter }}>
+        {completed && (
+          <circle cx={0} cy={0} r={26} fill="#FFD93D" opacity={0.35} />
+        )}
+        {/* outer glow halo */}
+        <ellipse cx={0} cy={4} rx={20} ry={26} fill="#FFD06B" opacity={0.30} />
+        {/* lightning bolt — 8-point zigzag, golden */}
+        <path
+          d="M 6 -22
+             L -8 -2
+             L 0 -2
+             L -6 18
+             L -10 22
+             L -2 22
+             L 4 8
+             L -3 8
+             L 6 -22 Z
+             M 6 -22 L 12 -22 L 0 -2 L -2 -2 Z"
+          fill="#FFD06B" stroke="#7A4F00" strokeWidth={1.4} strokeLinejoin="round"
+        />
+        {/* inner highlight on the bolt */}
+        <path
+          d="M 4 -18 L -4 -3 L 1 -3 L -3 12"
+          stroke="#FFFAF2" strokeWidth={1.2} fill="none" strokeLinecap="round" opacity={0.85}
+        />
+        {/* sparkle dots around the bolt */}
+        <circle cx={-14} cy={-12} r={1.2} fill="#FFFAF2" opacity={0.85} />
+        <circle cx={14}  cy={-6}  r={0.9} fill="#FFFAF2" opacity={0.75} />
+        <circle cx={12}  cy={14}  r={1.0} fill="#FFFAF2" opacity={0.80} />
+      </g>
+    );
+  }
+
+  // HUNDRED'S HOLLOW — a hollow oak tree silhouette with a dark
+  // knot-hole (the "hollow") and a faint glow inside
+  if (code === 'mm_hundreds_hollow') {
+    return (
+      <g transform="translate(0, -6)" style={{ opacity, filter }}>
+        {completed && (
+          <circle cx={0} cy={0} r={26} fill="#FFD93D" opacity={0.35} />
+        )}
+        {/* shadow at the trunk base */}
+        <ellipse cx={0} cy={20} rx={18} ry={3} fill="#000" opacity={0.4} />
+        {/* trunk — broad, with a hollow knothole */}
+        <path
+          d="M -8 18
+             L -10 4
+             C -10 -4, -8 -10, -2 -12
+             L 4 -12
+             C 8 -10, 10 -4, 8 4
+             L 6 18
+             C 4 22, -4 22, -8 18 Z"
+          fill="#7B4F2C" stroke="#3F2614" strokeWidth={1.5} strokeLinejoin="round"
+        />
+        {/* bark texture lines */}
+        <path d="M -7 12 Q -5 6 -6 0" stroke="#5A3B1F" strokeWidth={0.6} fill="none" opacity={0.7} />
+        <path d="M 5 12 Q 7 6 6 0" stroke="#5A3B1F" strokeWidth={0.6} fill="none" opacity={0.7} />
+        {/* THE HOLLOW — dark oval opening with warm glow inside */}
+        <ellipse cx={0} cy={4} rx={5} ry={6} fill="#1A0F08" stroke="#3F2614" strokeWidth={0.9} />
+        <ellipse cx={-1} cy={5} rx={3.5} ry={4.5} fill="#FFD06B" opacity={0.5} />
+        <ellipse cx={-1.5} cy={4} rx={1.5} ry={2.5} fill="#FFE89A" opacity={0.7} />
+        {/* small twig roots at the base */}
+        <path d="M -8 18 Q -14 20 -16 18" stroke="#3F2614" strokeWidth={1.4} fill="none" strokeLinecap="round" />
+        <path d="M 8 18 Q 14 20 16 18" stroke="#3F2614" strokeWidth={1.4} fill="none" strokeLinecap="round" />
+        {/* leafy CANOPY above the trunk — three overlapping organic blobs */}
+        <circle cx={-10} cy={-16} r={9} fill="#5C7E4F" stroke="#3D5C32" strokeWidth={1.2} />
+        <circle cx={8}   cy={-18} r={10} fill="#7BA46F" stroke="#3D5C32" strokeWidth={1.2} />
+        <circle cx={0}   cy={-22} r={9} fill="#5C7E4F" stroke="#3D5C32" strokeWidth={1.2} />
+        {/* canopy highlights */}
+        <circle cx={-12} cy={-19} r={3} fill="#A2C794" opacity={0.7} />
+        <circle cx={4}   cy={-22} r={3.5} fill="#A2C794" opacity={0.7} />
+        {/* tiny acorn hanging from the canopy */}
+        <ellipse cx={6} cy={-10} rx={1.4} ry={1.8} fill="#7B4F2C" stroke="#3F2614" strokeWidth={0.5} />
+        <path d="M 4.6 -11.5 Q 6 -12 7.4 -11.5" stroke="#5A3B1F" strokeWidth={0.6} fill="none" />
+      </g>
+    );
+  }
+
+  // REGROUPING RIDGE — three mountain peaks with snow caps + a pale
+  // moon behind, like a tiny landscape carved into the slab
+  if (code === 'mm_regroup_ridge') {
+    return (
+      <g transform="translate(0, -6)" style={{ opacity, filter }}>
+        {completed && (
+          <circle cx={0} cy={0} r={26} fill="#FFD93D" opacity={0.35} />
+        )}
+        {/* sky disc / glow */}
+        <circle cx={0} cy={0} r={22} fill="#F5D99C" opacity={0.55} />
+        {/* moon behind the peaks */}
+        <circle cx={-10} cy={-10} r={5.5} fill="#FFFAF2" stroke="#C9A66A" strokeWidth={0.8} />
+        <circle cx={-12} cy={-12} r={2.4} fill="#FFE89A" opacity={0.7} />
+        <circle cx={-9}  cy={-8}  r={0.8} fill="#C9A66A" opacity={0.6} />
+        <circle cx={-7}  cy={-11} r={0.6} fill="#C9A66A" opacity={0.5} />
+        {/* MOUNTAIN RIDGE — three peaks of varying heights */}
+        {/* far-left smaller peak */}
+        <path
+          d="M -22 18 L -14 -2 L -6 18 Z"
+          fill="#5A8F95" stroke="#1F4E54" strokeWidth={1.3} strokeLinejoin="round"
+        />
+        {/* middle tallest peak */}
+        <path
+          d="M -10 18 L 2 -16 L 14 18 Z"
+          fill="#3F5260" stroke="#1A2530" strokeWidth={1.4} strokeLinejoin="round"
+        />
+        {/* right medium peak */}
+        <path
+          d="M 8 18 L 16 -6 L 22 18 Z"
+          fill="#5A8F95" stroke="#1F4E54" strokeWidth={1.3} strokeLinejoin="round"
+        />
+        {/* SNOW CAPS on the peaks */}
+        <path d="M -16 4 L -14 -2 L -12 4 L -14 6 Z" fill="#FFFAF2" stroke="#A8B4C8" strokeWidth={0.6} strokeLinejoin="round" />
+        <path d="M -2 -8 L 2 -16 L 6 -8 L 4 -6 L 0 -6 Z" fill="#FFFAF2" stroke="#A8B4C8" strokeWidth={0.7} strokeLinejoin="round" />
+        <path d="M 14 0 L 16 -6 L 18 0 L 16 2 Z" fill="#FFFAF2" stroke="#A8B4C8" strokeWidth={0.6} strokeLinejoin="round" />
+        {/* shaded right side of middle peak */}
+        <path d="M 2 -16 L 14 18 L 8 18 Z" fill="#1A2530" opacity={0.45} />
+        {/* tiny pine silhouette at the base of the middle peak */}
+        <g transform="translate(-2, 16)">
+          <line x1={0} y1={0} x2={0} y2={4} stroke="#3F2614" strokeWidth={0.7} />
+          <path d="M 0 0 L -2 -3 L 2 -3 Z M 0 -3 L -2 -6 L 2 -6 Z M 0 -6 L -1.5 -8 L 1.5 -8 Z"
+                fill="#3D5C32" stroke="#1F3018" strokeWidth={0.5} strokeLinejoin="round" />
+        </g>
+        {/* ground line at the base */}
+        <line x1={-22} y1={18} x2={22} y2={18} stroke="#3F2614" strokeWidth={0.9} opacity={0.7} />
+      </g>
+    );
+  }
+
+  // fallback: render the original emoji if an unknown code is passed
+  return null;
 }
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -821,23 +994,20 @@ export default function CaveInterior({
               <ellipse cx={-32} cy={28} rx={3} ry={1.2} fill="#7A6B58" stroke="#3F3026" strokeWidth={0.5} />
               <ellipse cx={32} cy={28} rx={2.5} ry={1.0} fill="#9B8868" stroke="#3F3026" strokeWidth={0.4} />
 
-              {/* the structure emoji */}
-              <text
-                textAnchor="middle"
-                dominantBaseline="central"
-                fontSize={36}
-                y={-6}
+              {/* BESPOKE SVG ICON for the cave skill — replaces the
+                  emoji. Each skill has a distinct illustrated marker
+                  (lightning, hollow tree, mountain ridge). */}
+              <g
                 style={{
                   filter: stop.completed
                     ? 'drop-shadow(0 0 8px rgba(255, 217, 61, 0.75))'
                     : stop.unlocked
-                      ? 'drop-shadow(0 1px 3px rgba(255, 220, 130, 0.55))'
-                      : 'grayscale(1) brightness(0.7)',
-                  opacity: stop.unlocked ? 1 : 0.62,
+                      ? 'drop-shadow(0 1px 3px rgba(0, 0, 0, 0.45))'
+                      : undefined,
                 }}
               >
-                {stop.emoji}
-              </text>
+                <CaveSkillIcon code={stop.code} completed={stop.completed} unlocked={stop.unlocked} />
+              </g>
 
               {!stop.unlocked && (
                 <g pointerEvents="none">

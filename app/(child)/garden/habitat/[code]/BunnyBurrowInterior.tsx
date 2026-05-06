@@ -30,11 +30,16 @@ interface BunnyBurrowInteriorProps {
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// CottontailBunny — SIDE PROFILE rabbit, facing right. Sits upright on
-// its haunches like Beatrix Potter's Peter Rabbit. No body parts that
-// can read as boobs (no front-facing paw circles); the cottontail puff
-// is at the BACK where it belongs (peeking behind the hindquarters,
-// not on the side of the chest).
+// CottontailBunny — side-profile rabbit facing right with REAL ANATOMY.
+// Pose drawn with structural definition, not stacked circles:
+//   • Distinct shoulder bump where neck meets back
+//   • Distinct hip bump where back meets haunch
+//   • Defined chest curve descending into belly fluff
+//   • Wedge-shaped head (not a circle) with a defined cheek + jaw
+//   • Almond-shaped eye (not a perfect circle)
+//   • Folded near-ear with visible inner ridge + tip notch
+//   • Hind leg as a clear L-shape (thigh visible, foot extending forward)
+//   • Cottontail as a textured fluffy puff with visible tufts
 // ─────────────────────────────────────────────────────────────────────────
 function CottontailBunny({
   scale = 1, reducedMotion,
@@ -46,67 +51,121 @@ function CottontailBunny({
   const BELLY = '#F0DCB8';
   const NOSE_PINK = '#C38D9E';
   const TAIL_WHITE = '#FFFAF2';
+  const TAIL_SHADE = '#E0D6BC';
 
   return (
     <g transform={`scale(${scale})`}>
       {/* ground shadow */}
       <ellipse cx={2} cy={56} rx={28} ry={4} fill="#000" opacity={0.32} />
 
-      {/* COTTONTAIL — small white puff at the BACK (left side from
-          viewer, since bunny faces right). Peeks behind the hindquarter. */}
-      <circle cx={-22} cy={32} r={8} fill={TAIL_WHITE} stroke={LINE} strokeWidth={1.2} />
-      <circle cx={-24} cy={30} r={3.5} fill="#FFFFFF" opacity={0.9} />
-      <circle cx={-20} cy={34} r={2.2} fill="#E8E0D0" opacity={0.6} />
+      {/* COTTONTAIL — fluffy puff at the back, drawn as TEXTURED
+          irregular shape (not a smooth circle). Has visible tufts
+          radiating outward. */}
+      <g>
+        {/* base cloud silhouette — irregular bumpy outline */}
+        <path
+          d="M -28 26
+             C -34 22, -34 16, -28 14
+             C -26 10, -22 10, -20 12
+             C -18 8, -14 8, -12 12
+             C -10 10, -10 16, -14 18
+             C -12 22, -16 28, -20 28
+             C -22 32, -28 32, -28 26 Z"
+          fill={TAIL_WHITE} stroke={LINE} strokeWidth={1.2} strokeLinejoin="round"
+        />
+        {/* fur tuft ridges — tiny arcs suggesting fluff direction */}
+        <path d="M -28 18 Q -25 17 -23 19" stroke={TAIL_SHADE} strokeWidth={0.8} fill="none" strokeLinecap="round" />
+        <path d="M -25 24 Q -22 23 -20 25" stroke={TAIL_SHADE} strokeWidth={0.8} fill="none" strokeLinecap="round" />
+        <path d="M -18 14 Q -16 13 -14 15" stroke={TAIL_SHADE} strokeWidth={0.8} fill="none" strokeLinecap="round" />
+        {/* highlight sparkle */}
+        <ellipse cx={-22} cy={16} rx={3} ry={2} fill="#FFFFFF" opacity={0.85} />
+      </g>
 
-      {/* HIND LEG / HAUNCH — the big rear leg folded under, viewed from
-          the side. A single elongated bean shape running along the
-          ground-level. */}
+      {/* HIND LEG / HAUNCH — clear L-shape: thigh bulge running back-
+          and-down, foot extending forward at the bottom.
+          Drawn as TWO defined shapes (thigh + foot) joined together,
+          not a single bean. */}
+      {/* THIGH — visible bulge above and behind the hip */}
       <path
-        d="M -18 50
-           C -22 48, -24 42, -20 36
-           C -14 30, -2 30, 8 34
-           C 18 38, 22 46, 18 52
-           C 8 56, -10 56, -18 50 Z"
+        d="M -14 50
+           C -20 48, -22 38, -16 30
+           C -8 22, 4 22, 14 28
+           C 16 36, 12 46, 4 50
+           C -4 54, -10 54, -14 50 Z"
         fill={FUR} stroke={LINE} strokeWidth={1.6} strokeLinejoin="round"
       />
-      {/* hind paw pad detail — visible at the front of the hind leg */}
-      <ellipse cx={14} cy={50} rx={5} ry={2.2} fill={FUR_DARK} opacity={0.7} />
-      <circle cx={12} cy={50} r={0.6} fill={LINE} />
-      <circle cx={15} cy={51} r={0.6} fill={LINE} />
-      <circle cx={17} cy={49} r={0.6} fill={LINE} />
-
-      {/* BODY — vertical teardrop, viewed from the side. Narrower at
-          the shoulders, broader at the haunches. NO front-facing paws
-          drawn as bumps on the chest. */}
+      {/* thigh shading — defines the muscle */}
       <path
-        d="M -14 32
-           C -20 24, -20 12, -16 4
-           C -12 -4, -2 -10, 8 -8
-           C 18 -4, 22 6, 22 16
-           C 22 26, 18 36, 12 38
-           C 4 40, -8 40, -14 32 Z"
+        d="M -14 38 Q -8 30, 0 32 Q -2 40, -8 44 Q -14 46, -14 38 Z"
+        fill={FUR_DARK} opacity={0.5}
+      />
+      {/* FOOT — long flat shape extending FORWARD from the haunch */}
+      <path
+        d="M -2 50
+           C 2 48, 18 48, 22 50
+           C 24 54, 22 56, 16 56
+           L -2 56
+           C -6 54, -6 52, -2 50 Z"
+        fill={FUR} stroke={LINE} strokeWidth={1.5} strokeLinejoin="round"
+      />
+      {/* foot pad — paler underside */}
+      <ellipse cx={12} cy={54} rx={8} ry={1.6} fill={FUR_DARK} opacity={0.6} />
+      <circle cx={8} cy={54} r={0.8} fill={LINE} />
+      <circle cx={13} cy={55} r={0.8} fill={LINE} />
+      <circle cx={17} cy={54} r={0.8} fill={LINE} />
+      {/* small claw hint */}
+      <path d="M 21 53 Q 22 52 22 53.5" stroke={LINE} strokeWidth={0.6} fill="none" strokeLinecap="round" />
+
+      {/* BODY — drawn AS TWO joined sections (chest bulge + belly curve)
+          to give visible STRUCTURE, not a single round teardrop. The
+          shoulder + hip bumps create a defined silhouette. */}
+      <path
+        d="
+          M -16 32
+          C -22 24, -22 12, -16 4         /* hip bump on the left */
+          C -12 -4, -2 -10, 6 -10         /* up over the back */
+          C 16 -8, 24 -2, 24 6            /* shoulder bump on the right */
+          C 26 16, 22 28, 14 32           /* descending front of chest */
+          C 6 36, -8 38, -16 32 Z         /* under-belly back to hip */
+        "
         fill={FUR} stroke={LINE} strokeWidth={1.7} strokeLinejoin="round"
       />
-      {/* belly — paler curve along the ventral side (lower-front) */}
+      {/* BELLY — defined paler curve along the lower-front of the body */}
       <path
-        d="M 0 30 C 6 36, 14 36, 18 30 C 18 22, 14 18, 8 18 C -2 18, -2 26, 0 30 Z"
+        d="M -2 26 C 6 32, 16 32, 22 26 C 24 18, 18 14, 10 16 C 0 18, -4 22, -2 26 Z"
         fill={BELLY} opacity={0.85}
       />
-      {/* fur shading on the back */}
+      {/* CHEST DIVISION LINE — subtle curve separating the chest from
+          the belly fluff (gives the body structural definition) */}
+      <path d="M 8 6 Q 18 12 22 22" stroke={FUR_DARK} strokeWidth={0.7} fill="none" opacity={0.55} strokeLinecap="round" />
+      {/* SHOULDER curve — subtle highlight on the upper-front bump */}
       <path
-        d="M -12 4 Q -4 -2, 8 -4 Q 16 0, 18 8 Q 8 4, 0 6 Q -10 8, -12 4 Z"
+        d="M 12 -8 Q 22 -2 24 8 Q 18 0 8 -2 Z"
         fill={FUR_HI} opacity={0.55}
       />
-
-      {/* SINGLE FRONT PAW visible from the side — a small foreleg
-          extending forward at the bottom of the chest. Just one
-          paw (the second is behind it from this angle), reading
-          unambiguously as a leg, not a chest bump. */}
+      {/* HIP curve — same on the rear */}
       <path
-        d="M 14 28 C 18 30, 22 36, 22 42 C 22 46, 18 48, 14 46 C 10 42, 10 32, 14 28 Z"
+        d="M -16 -2 Q -22 6 -16 16 Q -10 8 -10 -2 Z"
+        fill={FUR_HI} opacity={0.5}
+      />
+      {/* FUR DIRECTION lines along the back — short angled strokes */}
+      <path d="M -8 -8 Q -10 -10 -12 -8" stroke={FUR_DARK} strokeWidth={0.5} fill="none" opacity={0.6} strokeLinecap="round" />
+      <path d="M 0 -10 Q -2 -12 -4 -10" stroke={FUR_DARK} strokeWidth={0.5} fill="none" opacity={0.6} strokeLinecap="round" />
+      <path d="M 8 -8 Q 6 -10 4 -8" stroke={FUR_DARK} strokeWidth={0.5} fill="none" opacity={0.6} strokeLinecap="round" />
+      <path d="M 16 -4 Q 14 -6 12 -4" stroke={FUR_DARK} strokeWidth={0.5} fill="none" opacity={0.6} strokeLinecap="round" />
+
+      {/* SINGLE FRONT PAW visible from the side — clearly a leg
+          extending downward, not a chest bump. Defined ankle + foot. */}
+      <path
+        d="M 14 28
+           C 18 30, 22 36, 22 42
+           C 22 46, 18 48, 14 46
+           C 10 42, 10 32, 14 28 Z"
         fill={FUR} stroke={LINE} strokeWidth={1.3} strokeLinejoin="round"
       />
-      {/* front paw toe lines */}
+      {/* paw shadow underside */}
+      <ellipse cx={18} cy={46} rx={4} ry={1.6} fill={FUR_DARK} opacity={0.55} />
+      {/* toe lines */}
       <line x1={20} y1={45} x2={20} y2={47} stroke={LINE} strokeWidth={0.6} />
       <line x1={18} y1={46} x2={18} y2={48} stroke={LINE} strokeWidth={0.6} />
       <line x1={16} y1={45} x2={16} y2={47} stroke={LINE} strokeWidth={0.6} />
@@ -116,78 +175,110 @@ function CottontailBunny({
         animate={reducedMotion ? undefined : { y: [0, -1, 0] }}
         transition={{ duration: 3.4, repeat: Infinity, ease: 'easeInOut' }}
       >
-        {/* far ear (back) — visible behind the near ear */}
+        {/* FAR EAR (back) — slim peeking behind the near ear */}
         <path
           d="M 4 -10 C 2 -28, 6 -40, 10 -40
              C 12 -38, 12 -24, 10 -10 Z"
           fill={FUR_DARK} stroke={LINE} strokeWidth={1.3} strokeLinejoin="round"
         />
-        {/* near ear — bigger, with a pink interior. Twitches occasionally. */}
+        {/* NEAR EAR — has a defined fold ridge + tip notch (not a smooth
+            ellipse). Twitches occasionally. */}
         <motion.g
           animate={reducedMotion ? undefined : { rotate: [0, 0, 0, -10, 0, 0] }}
           transition={{ duration: 9, repeat: Infinity, ease: 'easeInOut' }}
           style={{ originX: '12px', originY: '-10px' }}
         >
+          {/* outer ear shape — slightly pinched at the tip */}
           <path
-            d="M 8 -10 C 6 -32, 12 -46, 18 -44
-               C 22 -42, 22 -26, 18 -10 Z"
+            d="M 8 -10
+               C 6 -28, 10 -42, 16 -44
+               L 18 -42
+               C 22 -32, 22 -22, 20 -14
+               L 18 -10 Z"
             fill={FUR} stroke={LINE} strokeWidth={1.3} strokeLinejoin="round"
           />
-          {/* pink inner ear */}
+          {/* inner pink ear */}
           <path
             d="M 10 -12 C 8 -28, 14 -40, 17 -38
                C 19 -36, 19 -24, 16 -12 Z"
             fill={NOSE_PINK} opacity={0.65}
           />
+          {/* CENTER FOLD RIDGE inside the ear — subtle crease */}
+          <path d="M 14 -14 Q 14 -28 16 -38"
+                stroke={NOSE_PINK} strokeWidth={0.6} fill="none" opacity={0.7} strokeLinecap="round" />
+          {/* small fur tuft at the ear base */}
+          <path d="M 8 -10 L 6 -7 M 10 -10 L 9 -7"
+                stroke={FUR_DARK} strokeWidth={0.5} strokeLinecap="round" />
         </motion.g>
 
-        {/* HEAD — viewed from the side, facing right. Cheek to nose. */}
+        {/* HEAD — WEDGE silhouette tapering into the muzzle, not a
+            circle. Has a defined CROWN, BROW, CHEEK, and JAW. */}
         <path
-          d="M -4 -8
-             C -6 -16, 2 -22, 12 -22
-             C 22 -22, 28 -16, 28 -10
-             C 28 0, 24 8, 18 12
-             C 8 14, -2 8, -4 -8 Z"
+          d="
+            M -4 -8
+            C -6 -16, 2 -22, 12 -22       /* crown of skull */
+            C 22 -22, 28 -18, 30 -12      /* brow tapering forward */
+            C 32 -6, 30 0, 24 4           /* tapering toward muzzle */
+            C 22 8, 16 12, 10 12          /* cheek line */
+            C -2 14, -6 6, -4 -8 Z         /* jaw curve back to start */
+          "
           fill={FUR} stroke={LINE} strokeWidth={1.7} strokeLinejoin="round"
         />
-        {/* head highlight — top of skull */}
+        {/* CROWN HIGHLIGHT — top of the skull */}
         <path
-          d="M 4 -18 Q 14 -22 22 -18 Q 14 -14 4 -18 Z"
-          fill={FUR_HI} opacity={0.6}
+          d="M 0 -18 Q 14 -22 26 -18 Q 14 -14 0 -18 Z"
+          fill={FUR_HI} opacity={0.65}
         />
-        {/* CHEEK — paler patch on the lower side of the head */}
-        <path d="M 0 0 Q 6 6 14 6 Q 14 2 8 0 Q 2 -2 0 0 Z"
+        {/* CHEEK shading — paler patch defining the lower jaw */}
+        <path d="M 4 0 Q 12 8 22 6 Q 22 2 14 0 Q 6 -2 4 0 Z"
               fill={BELLY} opacity={0.5} />
+        {/* BROW RIDGE above the eye — gives the face structure */}
+        <path d="M 12 -18 Q 18 -22 24 -18"
+              stroke={FUR_DARK} strokeWidth={0.8} fill="none" opacity={0.65} strokeLinecap="round" />
 
-        {/* EYE — single visible eye on the right side of the head.
-            Big round with bright highlight (kid-magnet, but in profile
-            so it doesn't read as creepy front-stare). */}
-        <circle cx={16} cy={-10} r={3.4} fill="#FFFAF2" stroke={LINE} strokeWidth={1.0} />
-        <circle cx={16} cy={-10} r={2.6} fill="#1A1208" />
-        <circle cx={17} cy={-11} r={1.0} fill="#FFFFFF" />
-        <circle cx={15} cy={-9.5} r={0.5} fill="#FFFFFF" opacity={0.75} />
-        {/* tiny eyebrow tuft above the eye */}
-        <path d="M 12 -15 Q 16 -17 20 -15"
-              stroke={LINE} strokeWidth={0.7} fill="none" opacity={0.65} strokeLinecap="round" />
+        {/* EYE — almond-shaped (not a perfect circle), with iris +
+            highlight + lower eyelid line */}
+        <path
+          d="M 13 -12 Q 16 -14 19 -12 Q 18 -8 16 -8 Q 14 -8 13 -12 Z"
+          fill="#FFFAF2" stroke={LINE} strokeWidth={1.0} strokeLinejoin="round"
+        />
+        <ellipse cx={16} cy={-11} rx={2} ry={2.4} fill="#1A1208" />
+        <circle cx={17} cy={-12} r={0.9} fill="#FFFFFF" />
+        <circle cx={15} cy={-10.5} r={0.4} fill="#FFFFFF" opacity={0.7} />
+        {/* lower eyelid line — adds depth */}
+        <path d="M 13 -10 Q 16 -8 19 -10" stroke={LINE} strokeWidth={0.6}
+              fill="none" opacity={0.55} strokeLinecap="round" />
 
-        {/* MUZZLE / NOSE — pink at the tip of the snout */}
-        <ellipse cx={26} cy={-2} rx={3} ry={2.2} fill={BELLY} stroke={LINE} strokeWidth={1.0} />
-        {/* pink nose tip — twitches */}
-        <motion.ellipse
-          cx={28} cy={-3} rx={1.8} ry={1.2} fill={NOSE_PINK}
-          stroke={LINE} strokeWidth={0.7}
+        {/* MUZZLE — paler defined wedge at the front of the head */}
+        <path
+          d="M 22 -2 C 26 -2, 30 0, 30 4
+             C 30 6, 28 8, 24 8
+             C 18 8, 16 4, 18 0
+             C 20 -2, 22 -2, 22 -2 Z"
+          fill={BELLY} stroke={LINE} strokeWidth={1.0} strokeLinejoin="round"
+        />
+        {/* PINK NOSE TIP — twitches */}
+        <motion.path
+          d="M 28 -2 C 30 -2, 32 0, 31 2
+             C 30 3, 28 3, 27 2
+             C 26 0, 27 -2, 28 -2 Z"
+          fill={NOSE_PINK} stroke={LINE} strokeWidth={0.8} strokeLinejoin="round"
           animate={reducedMotion ? undefined : { scale: [1, 1.18, 1, 1.10, 1] }}
           transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
-          style={{ originX: '28px', originY: '-3px' }}
+          style={{ originX: '29px', originY: '0px' }}
         />
-        {/* mouth — small slit below the nose */}
-        <path d="M 26 0 Q 24 2 22 1" stroke={LINE} strokeWidth={0.8} fill="none" strokeLinecap="round" />
-        <line x1={24} y1={-1} x2={24} y2={1} stroke={LINE} strokeWidth={0.6} />
+        {/* MOUTH — small line below the nose with a tiny smile curve */}
+        <line x1={28} y1={3} x2={28} y2={5} stroke={LINE} strokeWidth={0.6} strokeLinecap="round" />
+        <path d="M 28 5 Q 26 7 24 5" stroke={LINE} strokeWidth={0.7} fill="none" strokeLinecap="round" />
+        <path d="M 28 5 Q 30 7 31 5" stroke={LINE} strokeWidth={0.6} fill="none" strokeLinecap="round" />
 
-        {/* WHISKERS — three thin lines extending forward from the cheek */}
-        <line x1={20} y1={-2} x2={32} y2={-4} stroke={LINE} strokeWidth={0.5} opacity={0.75} />
-        <line x1={20} y1={0}  x2={32} y2={0}  stroke={LINE} strokeWidth={0.5} opacity={0.75} />
-        <line x1={20} y1={2}  x2={32} y2={4}  stroke={LINE} strokeWidth={0.5} opacity={0.75} />
+        {/* WHISKERS — three on each side, slightly varied lengths */}
+        <line x1={20} y1={1} x2={12} y2={-1}  stroke={LINE} strokeWidth={0.5} opacity={0.75} />
+        <line x1={20} y1={3} x2={11} y2={3}   stroke={LINE} strokeWidth={0.5} opacity={0.75} />
+        <line x1={20} y1={5} x2={12} y2={7}   stroke={LINE} strokeWidth={0.5} opacity={0.75} />
+        <line x1={32} y1={0} x2={40} y2={-2}  stroke={LINE} strokeWidth={0.5} opacity={0.75} />
+        <line x1={32} y1={2} x2={40} y2={2}   stroke={LINE} strokeWidth={0.5} opacity={0.75} />
+        <line x1={32} y1={4} x2={40} y2={6}   stroke={LINE} strokeWidth={0.5} opacity={0.75} />
       </motion.g>
     </g>
   );
