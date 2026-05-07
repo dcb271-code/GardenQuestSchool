@@ -528,101 +528,128 @@ export default function MathMountainScene({
             uncluttered.) */}
 
         {/* ── 6b. CLIFFSIDE + HORIZONTAL FOOTHILLS ──
-             SLIM vertical cliff face hugging the very left edge of
-             the screen — only a little taller than the cave (top at
-             y=580 vs cave top at y~621). Width contained: x=-50 to
-             x=20 (well left of the cave's right edge at x=71). The
-             cave sits against this cliff face so it reads as a real
-             cavity in the rock. From the cliff base, low rocky
-             FOOTHILLS extend horizontally along the bottom past the
-             cave to x=380, hugging the riverbank. */}
+             Vertical cliff face hugging the left edge that WRAPS
+             FULLY AROUND the cave — extends right to x=80, just
+             past the cave's right edge (x~71), so the cave reads
+             as a real cavity carved INTO continuous rock instead of
+             an arch sticking out of the meadow. Cliff top at y=560
+             — only ~60px above the cave top, leaving sky above.
+             Same fill (#7A6B58) and stroke (#3F3026) as the cave's
+             outer rocky face so the cliff and the cave's stone
+             entrance blend visually. From the cliff base, FOOTHILLS
+             continue eastward along the bottom; the river emerges
+             from the cave mouth and flows over them. */}
         <g pointerEvents="none">
-          {/* LEFT CLIFF — slim vertical band hugging the left edge,
-              top y=580 (just ~40px above the cave top). Right edge
-              at x=20, well left of cave's x=71. */}
+          {/* LEFT CLIFF — wraps around the cave, with rocky bumpy
+              top + right edges so it doesn't read as a rectangular
+              wall. Top y=560, right edge to x=80. */}
           <path
             d="M -50 800
-               L -50 580
-               L -40 576 L -28 586 L -16 580 L -4 590 L 8 584 L 20 596
-               L 18 640 L 22 680 L 14 720
-               L 20 760 L 10 800 Z"
+               L -50 560
+               L -40 552 L -26 564 L -12 556 L 4 568 L 18 558 L 32 570
+               L 46 562 L 60 574 L 72 568 L 80 580
+               L 78 620 L 82 660 L 74 700
+               L 80 740 L 72 780 L 76 800 Z"
             fill="#7A6B58" stroke="#3F3026" strokeWidth={1.5} strokeLinejoin="round"
           />
-          {/* CLIFF SHADING — darker right side */}
+          {/* DARKER RIGHT-SIDE SHADING — cliff face recedes back
+              into shadow, blends with the cave's interior shadow */}
           <path
-            d="M 8 600 L 20 596 L 18 640 L 22 680 L 14 720 L 20 760 L 10 800 L 8 800 Z"
+            d="M 50 580 L 80 580 L 78 620 L 82 660 L 74 700 L 80 740 L 72 780 L 76 800 L 50 800 Z"
             fill="#5C4F3F" opacity={0.55}
           />
-          {/* CLIFF HIGHLIGHT — left flank lighter */}
+          {/* LEFT FLANK HIGHLIGHT — lighter, catching the light */}
           <path
-            d="M -50 580 L -40 576 L -28 586 L -16 580 L -16 800 L -50 800 Z"
+            d="M -50 560 L -40 552 L -26 564 L -12 556 L -16 800 L -50 800 Z"
             fill="#A89878" opacity={0.30}
           />
-          {/* HORIZONTAL ROCK STRIATION lines */}
-          <path d="M -45 660 Q -10 664 18 662" stroke="#3F3026" strokeWidth={0.8}
+          {/* HORIZONTAL ROCK STRIATIONS — running across the cliff face */}
+          <path d="M -45 600 Q 16 604 78 602" stroke="#3F3026" strokeWidth={0.9}
                 fill="none" opacity={0.55} strokeLinecap="round" />
-          <path d="M -45 720 Q -10 722 16 720" stroke="#3F3026" strokeWidth={0.7}
+          <path d="M -45 670 Q 16 674 80 672" stroke="#3F3026" strokeWidth={0.8}
                 fill="none" opacity={0.50} strokeLinecap="round" />
-          {/* HAND-DRAWN crack */}
-          <path d="M 0 612 L -6 660 L 4 720" stroke="#3F3026" strokeWidth={0.9}
+          <path d="M -45 740 Q 16 742 78 740" stroke="#3F3026" strokeWidth={0.8}
+                fill="none" opacity={0.50} strokeLinecap="round" />
+          {/* HAND-DRAWN cracks */}
+          <path d="M -8 580 L -16 640 L -6 700" stroke="#3F3026" strokeWidth={0.9}
                 fill="none" strokeLinecap="round" opacity={0.60} />
-          {/* CLIFF-TOP grass strip — thin green line across the top edge */}
+          <path d="M 50 600 L 56 660 L 48 720" stroke="#3F3026" strokeWidth={0.9}
+                fill="none" strokeLinecap="round" opacity={0.55} />
+          {/* SMALL LEDGES with grass tufts on the cliff face */}
+          {[
+            { lx: 30, ly: 600 }, { lx: 56, ly: 640 },
+            { lx: 36, ly: 720 }, { lx: 60, ly: 760 },
+          ].map((l, i) => (
+            <g key={`cl-${i}`}>
+              <ellipse cx={l.lx} cy={l.ly} rx={8} ry={1.8} fill="#5C4F3F" stroke="#2A1810" strokeWidth={0.7} />
+              <path d={`M ${l.lx - 3} ${l.ly - 1} Q ${l.lx - 4} ${l.ly - 5} ${l.lx - 4} ${l.ly - 8}`}
+                    stroke="#5C7E4F" strokeWidth={0.9} fill="none" strokeLinecap="round" />
+              <path d={`M ${l.lx} ${l.ly - 1} Q ${l.lx + 1} ${l.ly - 6} ${l.lx + 1} ${l.ly - 9}`}
+                    stroke="#5C7E4F" strokeWidth={0.9} fill="none" strokeLinecap="round" />
+              <path d={`M ${l.lx + 3} ${l.ly - 1} Q ${l.lx + 4} ${l.ly - 5} ${l.lx + 5} ${l.ly - 7}`}
+                    stroke="#5C7E4F" strokeWidth={0.9} fill="none" strokeLinecap="round" />
+            </g>
+          ))}
+          {/* CLIFF-TOP grass strip — thin green line along the top */}
           <path
-            d="M -40 576 L -28 586 L -16 580 L -4 590 L 8 584 L 20 596"
+            d="M -40 552 L -26 564 L -12 556 L 4 568 L 18 558 L 32 570 L 46 562 L 60 574 L 72 568 L 80 580"
             stroke="#5C7E4F" strokeWidth={3} fill="none" strokeLinecap="round" opacity={0.85}
           />
-          {/* tiny pine perched on the cliff top */}
-          <g transform="translate(-22, 580)">
+          {/* a couple of tiny pines on the cliff top */}
+          <g transform="translate(-22, 558)">
             <line x1={0} y1={0} x2={0} y2={-10} stroke="#3F2614" strokeWidth={1.1} strokeLinecap="round" />
             <path d="M 0 -10 L -3 -7 L 3 -7 Z M 0 -7 L -3 -3 L 3 -3 Z"
                   fill="#3D5C32" stroke="#1F3018" strokeWidth={0.5} strokeLinejoin="round" />
           </g>
+          <g transform="translate(38, 562)">
+            <line x1={0} y1={0} x2={0} y2={-8} stroke="#3F2614" strokeWidth={1.0} strokeLinecap="round" />
+            <path d="M 0 -8 L -2.5 -5 L 2.5 -5 Z M 0 -5 L -2.5 -2 L 2.5 -2 Z"
+                  fill="#3D5C32" stroke="#1F3018" strokeWidth={0.5} strokeLinejoin="round" />
+          </g>
 
-          {/* HORIZONTAL FOOTHILLS — low rocky terrain extending CONTINUOUSLY
-              from the cliff base RIGHT along the bottom. Starts at x=20
-              (touching the cliff base) instead of x=100, so the cliff
-              and foothills read as ONE connected geological feature
-              rather than two separate rock formations with grass between.
-              Top edge varies from y=770 (just east of the cliff, slightly
-              taller as if the cliff's lowest stones merge with foothills)
-              down to y=786 in the east. */}
+          {/* HORIZONTAL FOOTHILLS — low rocky terrain extending
+              CONTINUOUSLY from the cliff base (now at x=80) east along
+              the bottom to x=380. Reads as the same rock that forms
+              the cliff, just lower along the riverbank. The river
+              flows OVER the rocks visible behind the cliff base
+              (rendered AFTER the cliff in section 6d), so the river
+              naturally appears to spill out from the cave-and-cliff
+              into a rocky shore. */}
           {/* mid-tone foothills body — runs from cliff base to x=380 */}
           <path
-            d="M 20 800
-               L 20 760
-               C 32 752, 50 750, 70 754
-               C 90 758, 110 760, 132 766
-               C 158 762, 188 758, 218 762
-               C 250 766, 282 762, 312 768
-               C 340 774, 360 780, 380 786
+            d="M 76 800
+               L 80 760
+               C 100 752, 130 750, 160 754
+               C 188 758, 218 762, 246 766
+               C 274 770, 302 766, 328 770
+               C 352 776, 372 782, 380 786
                L 380 800 Z"
             fill="#7A6B58" stroke="#3F3026" strokeWidth={1.4} strokeLinejoin="round"
           />
           {/* darker shading on the foothills */}
           <path
-            d="M 200 770 C 240 768, 280 770, 320 778 C 350 782, 372 786, 380 786 L 380 798 L 220 798 Z"
+            d="M 240 770 C 280 770, 320 778, 360 786 L 380 786 L 380 798 L 260 798 Z"
             fill="#5C4F3F" opacity={0.50}
           />
           {/* lighter highlight on the cliff-adjacent flank */}
           <path
-            d="M 20 760 C 32 752, 50 750, 70 754 C 60 762, 40 768, 24 776 L 20 776 Z"
+            d="M 80 760 C 100 752, 130 750, 160 754 C 140 762, 110 770, 88 778 L 80 776 Z"
             fill="#A89878" opacity={0.30}
           />
-          {/* DARK FRONT BOULDERS along the very foreground — also runs
+          {/* DARK FRONT BOULDERS along the very foreground — runs
               all the way from cliff base to x=380 */}
           <path
-            d="M 18 800
-               L 22 778
-               L 44 786 L 66 778 L 90 788 L 116 780
-               L 142 790 L 168 782 L 194 790 L 220 782
-               L 246 790 L 272 784 L 298 792 L 324 786
-               L 350 792 L 380 794
+            d="M 76 800
+               L 82 778
+               L 108 786 L 134 778 L 162 788 L 190 780
+               L 218 790 L 246 782 L 274 790 L 302 782
+               L 328 790 L 354 784 L 380 794
                L 380 800 Z"
             fill="#6B5A48" stroke="#2A1810" strokeWidth={1.4} strokeLinejoin="round"
           />
           {/* highlight ridge along the front boulders */}
           <path
-            d="M 22 778 L 44 786 L 66 778 L 90 788 L 116 780 L 142 790 L 168 782 L 194 790 L 220 782 L 246 790 L 272 784 L 298 792 L 324 786 L 350 792"
+            d="M 82 778 L 108 786 L 134 778 L 162 788 L 190 780 L 218 790 L 246 782 L 274 790 L 302 782 L 328 790 L 354 784"
             stroke="#9B8868" strokeWidth={1.3} fill="none" strokeLinecap="round" opacity={0.65}
           />
           {/* moss patches on the foothills */}
@@ -1260,60 +1287,92 @@ export default function MathMountainScene({
                 </g>
               );
             }
-            if (code === 'mm_big_bridge') {
+            // BRIDGE icons — Big Number Bridge + Skip Count Bridge.
+            // Drawn BIGGER + BOLDER than before so they read clearly
+            // at the small icon size (UNIFORM=38px). The previous
+            // version had too much fine detail that disappeared at
+            // tile size. Both bridges use the same shape with slight
+            // styling difference (Skip Count gets stepping-stone
+            // visible spans, Big Number gets a solid plank deck).
+            if (code === 'mm_big_bridge' || code === 'mm_skip_bridge') {
+              const isSkip = code === 'mm_skip_bridge';
               return (
                 <g>
-                  {/* WATER underneath the bridge — ribbon of stream
-                      flowing left-to-right beneath the deck */}
-                  <path d="M -16 6 Q -8 4, 0 6 T 16 6"
-                        stroke="#7FA9B0" strokeWidth={3.4} fill="none" strokeLinecap="round" />
-                  <path d="M -14 9 Q -6 7, 2 9 T 14 9"
-                        stroke="#A8CDD2" strokeWidth={2.4} fill="none" strokeLinecap="round" />
-                  {/* shimmer dot */}
-                  <circle cx={-4} cy={4} r={0.8} fill="#FFFFFF" opacity={0.75} />
-                  {/* ARCH BRIDGE — deck spans the stream with a curved
-                      stone arch below + handrails + two stone abutments */}
-                  {/* far/back arch shadow */}
-                  <path d="M -14 -1 Q 0 -10, 14 -1 Q 0 -7, -14 -1 Z"
-                        fill="#5A3B1F" />
-                  {/* main arch (stone-tan) */}
-                  <path d="M -13 -2 Q 0 -11, 13 -2 L 11 -2 Q 0 -9, -11 -2 Z"
-                        fill="#C9A66A" stroke="#5A3B1F" strokeWidth={1.2}
+                  {/* STREAM beneath — bold blue ribbon */}
+                  <path d="M -19 9 Q -10 7, 0 9 T 19 9"
+                        stroke="#7FA9B0" strokeWidth={4} fill="none" strokeLinecap="round" />
+                  <path d="M -16 12 Q -6 10, 4 12 T 17 12"
+                        stroke="#A8CDD2" strokeWidth={2.6} fill="none" strokeLinecap="round" />
+                  <circle cx={-6} cy={7} r={0.9} fill="#FFFFFF" opacity={0.85} />
+                  <circle cx={8} cy={11} r={0.7} fill="#FFFFFF" opacity={0.7} />
+
+                  {/* STONE ABUTMENTS at each bank — chunky mossy stones */}
+                  <ellipse cx={-18} cy={4} rx={5} ry={2.4} fill="#7A6B58"
+                           stroke="#3F3026" strokeWidth={1.0} />
+                  <ellipse cx={18}  cy={4} rx={5} ry={2.4} fill="#7A6B58"
+                           stroke="#3F3026" strokeWidth={1.0} />
+                  <ellipse cx={-18} cy={2} rx={3} ry={1.0} fill="#5C7E4F" opacity={0.7} />
+                  <ellipse cx={18}  cy={2} rx={3} ry={1.0} fill="#5C7E4F" opacity={0.7} />
+
+                  {/* STONE ARCH underneath the deck — bigger + bolder
+                      so it clearly reads as an arched bridge. Span
+                      from x=-16 to x=16 (wider than before). */}
+                  <path d="M -16 0 Q 0 -14, 16 0 Q 0 -8, -16 0 Z"
+                        fill="#3F2614" />
+                  <path d="M -15 -1 Q 0 -13, 15 -1 L 13 -1 Q 0 -10, -13 -1 Z"
+                        fill="#C9A66A" stroke="#3F2614" strokeWidth={1.4}
                         strokeLinejoin="round" />
-                  {/* arch keystone — center stone slightly raised */}
-                  <rect x={-2} y={-10} width={4} height={3} fill="#A88044"
-                        stroke="#5A3B1F" strokeWidth={0.7} />
+                  {/* CENTER KEYSTONE — chunky trapezoid, clearly visible */}
+                  <path d="M -3 -12 L 3 -12 L 2 -7 L -2 -7 Z"
+                        fill="#A88044" stroke="#3F2614" strokeWidth={1.0} strokeLinejoin="round" />
                   {/* arch underside highlight */}
-                  <path d="M -11 -2 Q 0 -9, 11 -2"
-                        stroke="#E2C690" strokeWidth={1.0} fill="none"
+                  <path d="M -13 -1 Q 0 -10, 13 -1"
+                        stroke="#E2C690" strokeWidth={1.2} fill="none"
                         strokeLinecap="round" opacity={0.85} />
-                  {/* WOODEN PLANK DECK across the top */}
-                  <rect x={-15} y={-4} width={30} height={3} fill="#7B4F2C"
-                        stroke="#3F2614" strokeWidth={1.0} />
-                  {/* plank seams */}
-                  <line x1={-9} y1={-4} x2={-9} y2={-1} stroke="#3F2614" strokeWidth={0.5} />
-                  <line x1={-3} y1={-4} x2={-3} y2={-1} stroke="#3F2614" strokeWidth={0.5} />
-                  <line x1={3}  y1={-4} x2={3}  y2={-1} stroke="#3F2614" strokeWidth={0.5} />
-                  <line x1={9}  y1={-4} x2={9}  y2={-1} stroke="#3F2614" strokeWidth={0.5} />
-                  {/* wood grain highlight */}
-                  <line x1={-15} y1={-3} x2={15} y2={-3} stroke="#A0703F" strokeWidth={0.4} opacity={0.7} />
-                  {/* HANDRAILS — top rail + posts on both sides */}
-                  <line x1={-15} y1={-7} x2={15} y2={-7} stroke="#5A3B1F" strokeWidth={1.3} strokeLinecap="round" />
-                  <line x1={-15} y1={-7} x2={-15} y2={-4} stroke="#5A3B1F" strokeWidth={1.3} strokeLinecap="round" />
-                  <line x1={-7}  y1={-7} x2={-7}  y2={-4} stroke="#5A3B1F" strokeWidth={1.0} strokeLinecap="round" />
-                  <line x1={0}   y1={-7} x2={0}   y2={-4} stroke="#5A3B1F" strokeWidth={1.0} strokeLinecap="round" />
-                  <line x1={7}   y1={-7} x2={7}   y2={-4} stroke="#5A3B1F" strokeWidth={1.0} strokeLinecap="round" />
-                  <line x1={15}  y1={-7} x2={15}  y2={-4} stroke="#5A3B1F" strokeWidth={1.3} strokeLinecap="round" />
-                  {/* STONE ABUTMENTS — small stacked stones at each
-                      end where the bridge meets land */}
-                  <ellipse cx={-15} cy={2} rx={3.5} ry={1.6} fill="#9B948A"
-                           stroke="#5A3B1F" strokeWidth={0.7} />
-                  <ellipse cx={15}  cy={2} rx={3.5} ry={1.6} fill="#9B948A"
-                           stroke="#5A3B1F" strokeWidth={0.7} />
-                  <ellipse cx={-15} cy={4} rx={4.5} ry={1.8} fill="#7A6B58"
-                           stroke="#3F3026" strokeWidth={0.7} />
-                  <ellipse cx={15}  cy={4} rx={4.5} ry={1.8} fill="#7A6B58"
-                           stroke="#3F3026" strokeWidth={0.7} />
+
+                  {/* WOODEN PLANK DECK across the top — taller + bolder.
+                      Spans x=-18 to 18, sits at y=-3. */}
+                  <rect x={-18} y={-5} width={36} height={4} fill="#7B4F2C"
+                        stroke="#3F2614" strokeWidth={1.2} strokeLinejoin="round" />
+                  {/* plank seams — Skip Count gets gaps suggesting
+                      stepping spans; Big Number gets solid seams */}
+                  {isSkip ? (
+                    <>
+                      <rect x={-12} y={-5} width={2} height={4} fill="#3F2614" />
+                      <rect x={-2}  y={-5} width={2} height={4} fill="#3F2614" />
+                      <rect x={8}   y={-5} width={2} height={4} fill="#3F2614" />
+                    </>
+                  ) : (
+                    <>
+                      <line x1={-10} y1={-5} x2={-10} y2={-1} stroke="#3F2614" strokeWidth={0.7} />
+                      <line x1={-2}  y1={-5} x2={-2}  y2={-1} stroke="#3F2614" strokeWidth={0.7} />
+                      <line x1={6}   y1={-5} x2={6}   y2={-1} stroke="#3F2614" strokeWidth={0.7} />
+                      <line x1={14}  y1={-5} x2={14}  y2={-1} stroke="#3F2614" strokeWidth={0.7} />
+                    </>
+                  )}
+                  {/* deck top highlight */}
+                  <line x1={-17} y1={-4} x2={17} y2={-4} stroke="#A0703F"
+                        strokeWidth={0.6} opacity={0.85} strokeLinecap="round" />
+
+                  {/* HANDRAILS — top rail spans the full deck width with
+                      bold visible posts at each end + middle */}
+                  <line x1={-18} y1={-9} x2={18} y2={-9} stroke="#5A3B1F"
+                        strokeWidth={1.6} strokeLinecap="round" />
+                  {/* end posts */}
+                  <line x1={-18} y1={-9} x2={-18} y2={-5} stroke="#5A3B1F"
+                        strokeWidth={1.6} strokeLinecap="round" />
+                  <line x1={18}  y1={-9} x2={18}  y2={-5} stroke="#5A3B1F"
+                        strokeWidth={1.6} strokeLinecap="round" />
+                  {/* middle posts */}
+                  <line x1={-9}  y1={-9} x2={-9}  y2={-5} stroke="#5A3B1F"
+                        strokeWidth={1.1} strokeLinecap="round" />
+                  <line x1={0}   y1={-9} x2={0}   y2={-5} stroke="#5A3B1F"
+                        strokeWidth={1.1} strokeLinecap="round" />
+                  <line x1={9}   y1={-9} x2={9}   y2={-5} stroke="#5A3B1F"
+                        strokeWidth={1.1} strokeLinecap="round" />
+                  {/* tiny end-post finials */}
+                  <circle cx={-18} cy={-10} r={1.2} fill="#5A3B1F" />
+                  <circle cx={18}  cy={-10} r={1.2} fill="#5A3B1F" />
                 </g>
               );
             }

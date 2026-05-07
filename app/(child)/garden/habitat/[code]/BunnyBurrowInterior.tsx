@@ -688,11 +688,14 @@ export default function BunnyBurrowInterior({
           </text>
         </g>
 
-        {/* THE BURROW BUNNY — sits in profile, facing left, the same
-            illustration used in the journal + arrival cards so the
-            bunny here is recognizably the SAME cottontail. */}
-        <g transform="translate(420, 660)">
-          <CottontailBunny scale={4} reducedMotion={reducedMotion} />
+        {/* THE BURROW BUNNY — large + prominent, same illustration
+            as the journal + arrival cards so the resident bunny is
+            recognizably the SAME cottontail shown elsewhere. The
+            bunny illustration is drawn in coords roughly -22 to 22
+            (about 50px square at scale 1); at scale 7 it renders at
+            ~350px square — clearly the focal character of the room. */}
+        <g transform="translate(440, 600)">
+          <CottontailBunny scale={7} reducedMotion={reducedMotion} />
         </g>
 
         {/* SIDE TABLE WITH TEACUP — beside the bunny */}
@@ -718,8 +721,8 @@ export default function BunnyBurrowInterior({
               transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut', delay: i * 0.4 }}
             >
               {isBunny ? (
-                <g transform={`translate(${x}, ${y})`}>
-                  <CottontailBunny scale={1.4} reducedMotion={reducedMotion} />
+                <g transform={`translate(${x}, ${y - 6})`}>
+                  <CottontailBunny scale={2.4} reducedMotion={reducedMotion} />
                 </g>
               ) : (
                 <text
