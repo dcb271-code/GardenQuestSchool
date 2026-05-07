@@ -720,66 +720,104 @@ export function SpringPeeper({ size = 60 }: SpeciesProps) {
 // ─────────────────────────────────────────────────────────────────────────
 
 export function CottontailRabbit({ size = 60 }: SpeciesProps) {
-  // Brown rabbit sitting in profile, ears up, signature white cotton tail.
-  const FUR = '#9B7352';
-  const FUR_HI = '#C8956A';
-  const FUR_DARK = '#5A3B1F';
+  // Front-facing 3/4 bunny — redrawn from scratch for instant
+  // recognizability. Big round head dominates the silhouette, two
+  // upright ears with pink interiors, two round black eyes with
+  // catchlights, classic Y-shaped pink nose, pear-body with cream
+  // belly, two paws, fluffy cottontail puff. Same paths used by the
+  // BunnyBurrowInterior so the resident bunny matches journal cards.
+  const FUR = '#A8825C';
+  const FUR_HI = '#D4AB7E';
+  const BELLY = '#F4DFC0';
   const TAIL = '#FFFDF2';
   const PINK = '#F8B4B4';
+  const NOSE = '#E07A8F';
   return (
     <Svg size={size}>
-      <ellipse cx={0} cy={22} rx={22} ry={3} fill="#000" opacity={0.22} />
+      {/* ground shadow */}
+      <ellipse cx={0} cy={22} rx={18} ry={2.8} fill="#000" opacity={0.22} />
 
-      {/* COTTON TAIL — drawn first so body covers its inner edge */}
-      <circle cx={20} cy={5} r={6} fill={TAIL} stroke={STROKE} strokeWidth={1.5} />
-      <circle cx={18} cy={3} r={2} fill="#FFFFFF" opacity={0.7} />
+      {/* EARS (back layer) */}
+      <ellipse cx={-7} cy={-21} rx={3.6} ry={11} fill={FUR}
+               stroke={STROKE} strokeWidth={1.6}
+               transform="rotate(-7 -7 -21)" />
+      <ellipse cx={7}  cy={-21} rx={3.6} ry={11} fill={FUR}
+               stroke={STROKE} strokeWidth={1.6}
+               transform="rotate(7 7 -21)" />
+      <ellipse cx={-7} cy={-20} rx={1.6} ry={7.5} fill={PINK}
+               transform="rotate(-7 -7 -20)" />
+      <ellipse cx={7}  cy={-20} rx={1.6} ry={7.5} fill={PINK}
+               transform="rotate(7 7 -20)" />
 
-      {/* hind leg (folded under) */}
-      <ellipse cx={10} cy={12} rx={11} ry={7} fill={FUR_DARK} stroke={STROKE} strokeWidth={1.8} />
-      <ellipse cx={9} cy={11} rx={8} ry={5} fill={FUR} />
+      {/* COTTONTAIL puff peeking from behind right hip */}
+      <circle cx={16.5} cy={9} r={5.5} fill={TAIL}
+              stroke={STROKE} strokeWidth={1.4} />
+      <circle cx={15} cy={7.5} r={1.8} fill="#FFFFFF" opacity={0.75} />
 
-      {/* body — sitting upright slightly */}
-      <ellipse cx={-1} cy={3} rx={13} ry={11} fill={FUR} stroke={STROKE} strokeWidth={2.2} />
-      {/* fur highlight */}
-      <ellipse cx={-3} cy={0} rx={7} ry={5} fill={FUR_HI} opacity={0.7} />
+      {/* BODY — pear-shape */}
+      <path
+        d="M -11 -2
+           C -14 4, -15 12, -11 18
+           C -6 22, 6 22, 11 18
+           C 15 12, 14 4, 11 -2
+           C 7 -5, -7 -5, -11 -2 Z"
+        fill={FUR} stroke={STROKE} strokeWidth={2}
+        strokeLinejoin="round"
+      />
+      <ellipse cx={0} cy={11} rx={7} ry={7.5} fill={BELLY} opacity={0.95} />
+      <path d="M -9 2 C -11 7, -11 12, -8 17"
+            stroke={FUR_HI} strokeWidth={2.5} fill="none"
+            strokeLinecap="round" opacity={0.55} />
 
-      {/* front leg/paw */}
-      <ellipse cx={-7} cy={12} rx={3} ry={5} fill={FUR} stroke={STROKE} strokeWidth={1.5} />
-      {/* paw beans */}
-      <circle cx={-7} cy={15} r={0.8} fill={PINK} />
+      {/* PAWS */}
+      <ellipse cx={-5} cy={20} rx={3.6} ry={2.6} fill={FUR}
+               stroke={STROKE} strokeWidth={1.4} />
+      <ellipse cx={5}  cy={20} rx={3.6} ry={2.6} fill={FUR}
+               stroke={STROKE} strokeWidth={1.4} />
+      <circle cx={-5.5} cy={20.4} r={0.55} fill={NOSE} />
+      <circle cx={-4}   cy={20.4} r={0.55} fill={NOSE} />
+      <circle cx={4}    cy={20.4} r={0.55} fill={NOSE} />
+      <circle cx={5.5}  cy={20.4} r={0.55} fill={NOSE} />
 
-      {/* head */}
-      <circle cx={-10} cy={-4} r={8} fill={FUR} stroke={STROKE} strokeWidth={2} />
-      <ellipse cx={-12} cy={-3} rx={4} ry={3} fill={FUR_HI} opacity={0.7} />
+      {/* HEAD */}
+      <circle cx={0} cy={-7} r={11.5} fill={FUR}
+              stroke={STROKE} strokeWidth={2} />
+      <ellipse cx={-3} cy={-12} rx={5.5} ry={3.2}
+               fill={FUR_HI} opacity={0.55} />
+      <ellipse cx={0} cy={-2} rx={5.5} ry={4.2}
+               fill={BELLY} opacity={0.92} />
 
-      {/* EARS — long upright */}
-      <ellipse cx={-13} cy={-13} rx={2.5} ry={8} fill={FUR} stroke={STROKE} strokeWidth={1.6}
-               transform="rotate(-12 -13 -13)" />
-      <ellipse cx={-7} cy={-13} rx={2.5} ry={8} fill={FUR} stroke={STROKE} strokeWidth={1.6}
-               transform="rotate(8 -7 -13)" />
-      {/* inner ear (pink) */}
-      <ellipse cx={-13} cy={-12} rx={1} ry={5.5} fill={PINK}
-               transform="rotate(-12 -13 -12)" />
-      <ellipse cx={-7} cy={-12} rx={1} ry={5.5} fill={PINK}
-               transform="rotate(8 -7 -12)" />
+      {/* EYES */}
+      <circle cx={-5} cy={-8.5} r={2.4} fill="#1F1209" />
+      <circle cx={5}  cy={-8.5} r={2.4} fill="#1F1209" />
+      <circle cx={-4.1} cy={-9.4} r={0.95} fill="#FFFFFF" />
+      <circle cx={5.9}  cy={-9.4} r={0.95} fill="#FFFFFF" />
+      <circle cx={-5.6} cy={-7.4} r={0.4} fill="#FFFFFF" opacity={0.75} />
+      <circle cx={4.4}  cy={-7.4} r={0.4} fill="#FFFFFF" opacity={0.75} />
 
-      {/* eye (single visible in profile) */}
-      <circle cx={-12} cy={-5} r={1.6} fill="#1F1209" />
-      <circle cx={-11.5} cy={-5.5} r={0.5} fill="#FFFFFF" />
+      {/* NOSE + MOUTH */}
+      <path
+        d="M -1.6 -3.2 Q 0 -3.6 1.6 -3.2 Q 1.2 -1.4 0 -0.8 Q -1.2 -1.4 -1.6 -3.2 Z"
+        fill={NOSE} stroke={STROKE} strokeWidth={0.7} strokeLinejoin="round"
+      />
+      <path d="M 0 -0.8 L 0 0.6"
+            stroke={STROKE} strokeWidth={0.7} strokeLinecap="round" />
+      <path d="M 0 0.6 Q -1.6 1.7 -2.4 0.7"
+            stroke={STROKE} strokeWidth={0.7} fill="none" strokeLinecap="round" />
+      <path d="M 0 0.6 Q 1.6 1.7 2.4 0.7"
+            stroke={STROKE} strokeWidth={0.7} fill="none" strokeLinecap="round" />
 
-      {/* nose + mouth */}
-      <path d="M -17 -3 L -18 -3 L -17.5 -2 Z" fill={PINK} stroke={STROKE} strokeWidth={0.8} />
-      <path d="M -17.5 -2 L -17.5 -1" stroke={STROKE} strokeWidth={0.8} />
-      <path d="M -17.5 -1 Q -19 -0.5 -19.5 -1.5" stroke={STROKE} strokeWidth={0.8} fill="none" strokeLinecap="round" />
-      <path d="M -17.5 -1 Q -16 -0.5 -15.5 -1.5" stroke={STROKE} strokeWidth={0.8} fill="none" strokeLinecap="round" />
+      {/* WHISKERS */}
+      <path d="M -3 -1.5 L -10 -2.5" stroke={STROKE} strokeWidth={0.5} strokeLinecap="round" opacity={0.7} />
+      <path d="M -3 0    L -10 0"    stroke={STROKE} strokeWidth={0.5} strokeLinecap="round" opacity={0.7} />
+      <path d="M -3 1.5  L -10 2.5"  stroke={STROKE} strokeWidth={0.5} strokeLinecap="round" opacity={0.7} />
+      <path d="M 3 -1.5 L 10 -2.5"   stroke={STROKE} strokeWidth={0.5} strokeLinecap="round" opacity={0.7} />
+      <path d="M 3 0    L 10 0"      stroke={STROKE} strokeWidth={0.5} strokeLinecap="round" opacity={0.7} />
+      <path d="M 3 1.5  L 10 2.5"    stroke={STROKE} strokeWidth={0.5} strokeLinecap="round" opacity={0.7} />
 
-      {/* whiskers */}
-      <path d="M -16 -2 L -22 -3" stroke={STROKE} strokeWidth={0.6} strokeLinecap="round" opacity={0.7} />
-      <path d="M -16 -1 L -22 -1" stroke={STROKE} strokeWidth={0.6} strokeLinecap="round" opacity={0.7} />
-      <path d="M -16 0 L -22 1" stroke={STROKE} strokeWidth={0.6} strokeLinecap="round" opacity={0.7} />
-
-      {/* cheek blush */}
-      <ellipse cx={-14} cy={-2} rx={1.5} ry={0.8} fill={PINK} opacity={0.5} />
+      {/* CHEEK BLUSH */}
+      <ellipse cx={-7} cy={-3.5} rx={2.2} ry={1.3} fill={NOSE} opacity={0.38} />
+      <ellipse cx={7}  cy={-3.5} rx={2.2} ry={1.3} fill={NOSE} opacity={0.38} />
     </Svg>
   );
 }

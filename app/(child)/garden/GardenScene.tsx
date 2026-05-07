@@ -1137,7 +1137,14 @@ export default function GardenScene({
                     fontSize={10} fontWeight={700}
                     fill={u.unlocked ? '#6b4423' : '#fffaf2'}
                   >
-                    {u.unlocked ? `${dest} →` : `🔒 ${dest}`}
+                    {/* Direction-aware arrow: Math Mountain gate sits on
+                        the NE edge (x:1410) — path leads east, so "→".
+                        Reading Forest gate sits on the NW edge (x:30) —
+                        path leads west, so "←". Previously both used "→"
+                        which pointed AWAY from Reading Forest. */}
+                    {u.unlocked
+                      ? (isMountain ? `${dest} →` : `← ${dest}`)
+                      : `🔒 ${dest}`}
                   </text>
                 </g>
               );

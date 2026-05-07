@@ -527,313 +527,310 @@ export default function MathMountainScene({
             features now; the meadow between them stays open and
             uncluttered.) */}
 
-        {/* ── 6b. CLIFFSIDE + HORIZONTAL FOOTHILLS ──
-             Vertical cliff face hugging the left edge that WRAPS
-             FULLY AROUND the cave — extends right to x=80, just
-             past the cave's right edge (x~71), so the cave reads
-             as a real cavity carved INTO continuous rock instead of
-             an arch sticking out of the meadow. Cliff top at y=560
-             — only ~60px above the cave top, leaving sky above.
-             Same fill (#7A6B58) and stroke (#3F3026) as the cave's
-             outer rocky face so the cliff and the cave's stone
-             entrance blend visually. From the cliff base, FOOTHILLS
-             continue eastward along the bottom; the river emerges
-             from the cave mouth and flows over them. */}
+        {/* ── 6b. MOSSY HILL with CAVE MOUTH + soft FOOTHILLS ──
+             COMPLETELY REDESIGNED as a Miyazaki-whimsical hillside.
+             A soft round mossy mound sits in the lower-left, contained
+             ENTIRELY within the visible canvas (no overflow). The cave
+             is a generous arched cavity carved INTO the hillside with
+             warm golden light spilling out, hanging vines, mossy rim,
+             and stepping stones leading to the river. A crooked pine
+             leans on the crest; a worn standing-stone marks the top.
+             Foothills extend gently to meet the river on the right.
+
+             LAYERING NOTE: This block renders BEFORE the river (6d),
+             so the river will overlap the lower band of this hill.
+             The cave mouth is positioned ABOVE the river (top y=600,
+             bottom y=685) so its warm glow stays fully visible. The
+             threshold boulders + ferns sit JUST AT THE RIVER EDGE,
+             reading as the cave-mouth bank from which water flows. */}
         <g pointerEvents="none">
-          {/* LEFT CLIFF — wraps around the cave, with rocky bumpy
-              top + right edges so it doesn't read as a rectangular
-              wall. Top y=560, right edge to x=80. */}
+          {/* ── FAR-DISTANT HILL SILHOUETTE ────────────────────────
+              Soft mid-tone shape behind the main hill for atmospheric
+              depth. */}
           <path
-            d="M -50 800
-               L -50 560
-               L -40 552 L -26 564 L -12 556 L 4 568 L 18 558 L 32 570
-               L 46 562 L 60 574 L 72 568 L 80 580
-               L 78 620 L 82 660 L 74 700
-               L 80 740 L 72 780 L 76 800 Z"
-            fill="#7A6B58" stroke="#3F3026" strokeWidth={1.5} strokeLinejoin="round"
+            d="M -10 790
+               C 10 700, 50 620, 120 590
+               C 200 574, 270 600, 330 660
+               C 370 710, 390 760, 400 790 Z"
+            fill="#9B8868" opacity={0.45}
           />
-          {/* DARKER RIGHT-SIDE SHADING — cliff face recedes back
-              into shadow, blends with the cave's interior shadow */}
+
+          {/* ── MAIN HILL BODY ────────────────────────────────────
+              Soft round mound, hand-drawn organic curves only.
+              Spans x=-10..240 horizontally, peaking at y=545, base
+              at y=790 — fully contained in the viewBox. Warm earthy
+              tone (#A8956F) instead of grey stone. */}
           <path
-            d="M 50 580 L 80 580 L 78 620 L 82 660 L 74 700 L 80 740 L 72 780 L 76 800 L 50 800 Z"
-            fill="#5C4F3F" opacity={0.55}
+            d="M -10 790
+               C -10 720, 0 640, 25 590
+               C 50 560, 90 545, 130 545
+               C 178 548, 218 575, 240 615
+               C 260 650, 268 740, 268 790 Z"
+            fill="#A8956F" stroke="#3F2614" strokeWidth={1.6} strokeLinejoin="round"
           />
-          {/* LEFT FLANK HIGHLIGHT — lighter, catching the light */}
+
+          {/* HILL SHADOW — right-side falls into shadow, blending
+              into the foothills */}
           <path
-            d="M -50 560 L -40 552 L -26 564 L -12 556 L -16 800 L -50 800 Z"
-            fill="#A89878" opacity={0.30}
+            d="M 175 600 C 200 625, 230 660, 252 720 C 260 750, 264 780, 268 790
+               L 175 790 Z"
+            fill="#7A6651" opacity={0.55}
           />
-          {/* HORIZONTAL ROCK STRIATIONS — running across the cliff face */}
-          <path d="M -45 600 Q 16 604 78 602" stroke="#3F3026" strokeWidth={0.9}
-                fill="none" opacity={0.55} strokeLinecap="round" />
-          <path d="M -45 670 Q 16 674 80 672" stroke="#3F3026" strokeWidth={0.8}
-                fill="none" opacity={0.50} strokeLinecap="round" />
-          <path d="M -45 740 Q 16 742 78 740" stroke="#3F3026" strokeWidth={0.8}
-                fill="none" opacity={0.50} strokeLinecap="round" />
-          {/* HAND-DRAWN cracks */}
-          <path d="M -8 580 L -16 640 L -6 700" stroke="#3F3026" strokeWidth={0.9}
-                fill="none" strokeLinecap="round" opacity={0.60} />
-          <path d="M 50 600 L 56 660 L 48 720" stroke="#3F3026" strokeWidth={0.9}
-                fill="none" strokeLinecap="round" opacity={0.55} />
-          {/* SMALL LEDGES with grass tufts on the cliff face */}
+
+          {/* HILL HIGHLIGHT — sun catches the upper-left curve */}
+          <path
+            d="M -8 760
+               C 0 680, 20 615, 60 565
+               C 50 605, 30 660, 18 760 Z"
+            fill="#D4BB8E" opacity={0.50}
+          />
+
+          {/* ── MOSSY CROWN ───────────────────────────────────────
+              Wash of green grass along the top of the hill — a soft
+              moss-line that follows the crest. */}
+          <path
+            d="M 5 600 C 30 572, 70 552, 130 548 C 180 550, 218 572, 245 615"
+            stroke="#6B8E5A" strokeWidth={11} fill="none" strokeLinecap="round" opacity={0.85}
+          />
+          <path
+            d="M 12 594 C 36 566, 76 548, 130 544 C 178 546, 215 566, 240 605"
+            stroke="#7BA46F" strokeWidth={5} fill="none" strokeLinecap="round" opacity={0.7}
+          />
+          {/* tiny grass-tuft accents along the crest */}
           {[
-            { lx: 30, ly: 600 }, { lx: 56, ly: 640 },
-            { lx: 36, ly: 720 }, { lx: 60, ly: 760 },
-          ].map((l, i) => (
-            <g key={`cl-${i}`}>
-              <ellipse cx={l.lx} cy={l.ly} rx={8} ry={1.8} fill="#5C4F3F" stroke="#2A1810" strokeWidth={0.7} />
-              <path d={`M ${l.lx - 3} ${l.ly - 1} Q ${l.lx - 4} ${l.ly - 5} ${l.lx - 4} ${l.ly - 8}`}
-                    stroke="#5C7E4F" strokeWidth={0.9} fill="none" strokeLinecap="round" />
-              <path d={`M ${l.lx} ${l.ly - 1} Q ${l.lx + 1} ${l.ly - 6} ${l.lx + 1} ${l.ly - 9}`}
-                    stroke="#5C7E4F" strokeWidth={0.9} fill="none" strokeLinecap="round" />
-              <path d={`M ${l.lx + 3} ${l.ly - 1} Q ${l.lx + 4} ${l.ly - 5} ${l.lx + 5} ${l.ly - 7}`}
-                    stroke="#5C7E4F" strokeWidth={0.9} fill="none" strokeLinecap="round" />
+            { tx: 30, ty: 590 }, { tx: 70, ty: 562 },
+            { tx: 110, ty: 552 }, { tx: 152, ty: 554 },
+            { tx: 195, ty: 572 }, { tx: 228, ty: 600 },
+          ].map((t, i) => (
+            <g key={`crest-tuft-${i}`} transform={`translate(${t.tx}, ${t.ty})`}>
+              <path d="M 0 0 Q -2 -7 -1 -10" stroke="#3D5C32" strokeWidth={1.1} fill="none" strokeLinecap="round" />
+              <path d="M 0 0 Q 1 -8 3 -10" stroke="#3D5C32" strokeWidth={1.1} fill="none" strokeLinecap="round" />
+              <path d="M 0 0 Q 3 -6 5 -8" stroke="#3D5C32" strokeWidth={1.0} fill="none" strokeLinecap="round" />
             </g>
           ))}
-          {/* CLIFF-TOP grass strip — thin green line along the top */}
+
+          {/* ── CROOKED PINE on the hill crest — Miyazaki signature.
+              Trunk leans, knotted base, three little needle clouds. */}
+          <g transform="translate(165, 555)">
+            {/* base shadow */}
+            <ellipse cx={0} cy={2} rx={5} ry={1.4} fill="#000" opacity={0.25} />
+            {/* trunk — leaning right with character */}
+            <path d="M 0 0 Q -2 -10 2 -22 Q 6 -32 5 -44"
+                  stroke="#3F2614" strokeWidth={3.2} fill="none" strokeLinecap="round" />
+            {/* trunk highlight */}
+            <path d="M -1 -2 Q -3 -12 1 -24"
+                  stroke="#7A5238" strokeWidth={1.1} fill="none" strokeLinecap="round" opacity={0.7} />
+            {/* needle clouds — three layered tufts */}
+            <ellipse cx={-4} cy={-30} rx={6} ry={3.5} fill="#3D5C32" stroke="#1F3018" strokeWidth={0.9} />
+            <ellipse cx={7} cy={-38} rx={5} ry={3.2} fill="#3D5C32" stroke="#1F3018" strokeWidth={0.9} />
+            <ellipse cx={4} cy={-46} rx={4} ry={2.6} fill="#5C7E4F" stroke="#1F3018" strokeWidth={0.9} />
+            {/* tiny pinecones */}
+            <circle cx={-2} cy={-30} r={0.7} fill="#5A3B1F" />
+            <circle cx={6} cy={-40} r={0.7} fill="#5A3B1F" />
+          </g>
+
+          {/* ── STANDING STONE on the hilltop — small worn obelisk
+              with a carved spiral, moss at its base. Adds a "this
+              place is OLD" beat without being heavy. */}
+          <g transform="translate(95, 552)">
+            <ellipse cx={0} cy={2} rx={6} ry={1.2} fill="#000" opacity={0.22} />
+            <path d="M -5 0 Q -6 -16 -3 -22 Q 0 -25 3 -22 Q 6 -16 5 0 Z"
+                  fill="#9B948A" stroke="#3F3026" strokeWidth={1.4} strokeLinejoin="round" />
+            <path d="M -4 -2 Q -5 -14 -2 -20"
+                  stroke="#C2BBB0" strokeWidth={1.0} fill="none" strokeLinecap="round" opacity={0.7} />
+            {/* tiny carved spiral */}
+            <circle cx={1} cy={-13} r={1.3} fill="none" stroke="#3F3026" strokeWidth={0.7} />
+            <circle cx={1} cy={-13} r={0.5} fill="#3F3026" />
+            {/* moss skirt at the base */}
+            <ellipse cx={0} cy={1} rx={6} ry={1.4} fill="#7BA46F" opacity={0.75} />
+          </g>
+
+          {/* ── CAVE MOUTH ─────────────────────────────────────────
+              Generous arched cavity carved into the hillside. Top
+              y=600, bottom y=683 (sits right at the river surface).
+              Layered: dark interior → warm glow → mossy rim →
+              hanging vines. The river appears to flow OUT from the
+              bottom edge of the mouth into the meadow. */}
+
+          {/* dark interior — the cave depth */}
           <path
-            d="M -40 552 L -26 564 L -12 556 L 4 568 L 18 558 L 32 570 L 46 562 L 60 574 L 72 568 L 80 580"
-            stroke="#5C7E4F" strokeWidth={3} fill="none" strokeLinecap="round" opacity={0.85}
+            d="M 12 683
+               C 6 660, 14 632, 36 618
+               C 60 606, 92 606, 110 618
+               C 124 628, 132 650, 130 670
+               C 128 678, 124 682, 118 683 Z"
+            fill="#1A0F08"
           />
-          {/* a couple of tiny pines on the cliff top */}
-          <g transform="translate(-22, 558)">
-            <line x1={0} y1={0} x2={0} y2={-10} stroke="#3F2614" strokeWidth={1.1} strokeLinecap="round" />
-            <path d="M 0 -10 L -3 -7 L 3 -7 Z M 0 -7 L -3 -3 L 3 -3 Z"
+          {/* deeper shadow pocket toward the back of the cave */}
+          <ellipse cx={56} cy={655} rx={36} ry={20} fill="#000" opacity={0.55} />
+
+          {/* WARM GOLDEN INTERIOR GLOW — the Miyazaki signature.
+              Three concentric warm-light pools that suggest a fire
+              or amber sunset deep in the cave. All sit ABOVE the
+              river surface (y≤680) so they read clearly. */}
+          <ellipse cx={56} cy={668} rx={38} ry={16} fill="#FFD06B" opacity={0.30} />
+          <ellipse cx={58} cy={675} rx={26} ry={9} fill="#FFE89A" opacity={0.45} />
+          <ellipse cx={60} cy={679} rx={14} ry={5} fill="#FFFAF2" opacity={0.55} />
+
+          {/* tiny floating amber dust motes inside the cave */}
+          <circle cx={40} cy={650} r={0.9} fill="#FFE89A" opacity={0.7} />
+          <circle cx={64} cy={644} r={0.7} fill="#FFD06B" opacity={0.65} />
+          <circle cx={84} cy={656} r={0.8} fill="#FFE89A" opacity={0.6} />
+          <circle cx={50} cy={666} r={0.6} fill="#FFD06B" opacity={0.55} />
+
+          {/* MOSSY RIM along the top of the arch — soft green crust */}
+          <path
+            d="M 12 644 C 32 614, 60 600, 92 600 C 116 604, 130 624, 132 644"
+            stroke="#7BA46F" strokeWidth={6} fill="none" strokeLinecap="round" opacity={0.85}
+          />
+          <path
+            d="M 18 636 C 36 612, 62 598, 90 598 C 112 602, 126 618, 128 636"
+            stroke="#A2C794" strokeWidth={2.6} fill="none" strokeLinecap="round" opacity={0.7}
+          />
+          {/* moss tufts at irregular spots along the rim */}
+          <circle cx={20} cy={630} r={3} fill="#7BA46F" opacity={0.75} />
+          <circle cx={48} cy={612} r={2.5} fill="#A2C794" opacity={0.7} />
+          <circle cx={86} cy={612} r={2.8} fill="#7BA46F" opacity={0.7} />
+          <circle cx={120} cy={630} r={3} fill="#A2C794" opacity={0.7} />
+
+          {/* HANGING VINES from the cave mouth — five soft strands.
+              Originate at y=618 (the rim), drape down 18-26px. */}
+          {[
+            { vx: 22, len: 22 }, { vx: 42, len: 28 },
+            { vx: 64, len: 20 }, { vx: 86, len: 26 }, { vx: 108, len: 18 },
+          ].map((v, i) => (
+            <g key={`cave-vine-${i}`}>
+              <path
+                d={`M ${v.vx} 618 Q ${v.vx + 1} ${618 + v.len * 0.6} ${v.vx - 1} ${618 + v.len}`}
+                stroke="#5C7E4F" strokeWidth={1.3} fill="none" strokeLinecap="round" opacity={0.82}
+              />
+              <ellipse cx={v.vx - 1} cy={618 + v.len * 0.5} rx={1.7} ry={1.1}
+                       fill="#7BA46F" opacity={0.85}
+                       transform={`rotate(${i % 2 === 0 ? -20 : 18} ${v.vx - 1} ${618 + v.len * 0.5})`} />
+              <ellipse cx={v.vx - 1} cy={618 + v.len * 0.85} rx={1.5} ry={1.0}
+                       fill="#A2C794" opacity={0.78} />
+            </g>
+          ))}
+
+          {/* ── CAVE-MOUTH THRESHOLD — boulders + ferns flanking the
+              entrance, sitting RIGHT at the river edge (y≈685) so
+              they read as the bank from which the water emerges. */}
+          {/* left boulder cluster */}
+          <ellipse cx={6} cy={685} rx={14} ry={5} fill="#7A6B58" stroke="#3F3026" strokeWidth={1.4} />
+          <ellipse cx={4} cy={682} rx={9} ry={3} fill="#A89878" opacity={0.85} />
+          {/* right boulder cluster */}
+          <ellipse cx={130} cy={685} rx={13} ry={5} fill="#7A6B58" stroke="#3F3026" strokeWidth={1.4} />
+          <ellipse cx={134} cy={682} rx={8} ry={2.8} fill="#A89878" opacity={0.85} />
+
+          {/* FERNS at left of the mouth — small fronds at the threshold */}
+          <g transform="translate(28, 686)">
+            <path d="M 0 0 Q -3 -10 -7 -16" stroke="#3F5A30" strokeWidth={1.4} fill="none" strokeLinecap="round" />
+            <path d="M 0 0 Q 0 -12 -2 -20" stroke="#3F5A30" strokeWidth={1.4} fill="none" strokeLinecap="round" />
+            <path d="M 0 0 Q 3 -10 5 -16" stroke="#3F5A30" strokeWidth={1.3} fill="none" strokeLinecap="round" />
+            {/* leaflet pinnae on the central frond */}
+            <path d="M 0 -4 Q -2 -5 -3 -3" stroke="#5C7E4F" strokeWidth={0.6} fill="none" />
+            <path d="M -1 -10 Q -3 -11 -4 -9" stroke="#5C7E4F" strokeWidth={0.6} fill="none" />
+            <path d="M -1 -16 Q -3 -17 -4 -15" stroke="#5C7E4F" strokeWidth={0.6} fill="none" />
+          </g>
+          {/* FERNS at right of the mouth */}
+          <g transform="translate(118, 686)">
+            <path d="M 0 0 Q -3 -10 -6 -16" stroke="#3F5A30" strokeWidth={1.4} fill="none" strokeLinecap="round" />
+            <path d="M 0 0 Q 0 -12 -1 -18" stroke="#3F5A30" strokeWidth={1.4} fill="none" strokeLinecap="round" />
+            <path d="M 0 0 Q 3 -10 4 -16" stroke="#3F5A30" strokeWidth={1.3} fill="none" strokeLinecap="round" />
+          </g>
+
+          {/* tiny mushrooms at the threshold — Miyazaki forest detail */}
+          <g transform="translate(15, 690)">
+            <ellipse cx={0} cy={0} rx={3} ry={1.6} fill="#C84A3A" stroke="#3F2614" strokeWidth={0.7} />
+            <rect x={-1} y={0} width={2} height={3} fill="#FFFAF2" stroke="#3F2614" strokeWidth={0.5} />
+            <circle cx={-1} cy={-0.3} r={0.5} fill="#FFFAF2" />
+            <circle cx={1} cy={0.2} r={0.4} fill="#FFFAF2" />
+          </g>
+
+          {/* ── FOOTHILLS extending from hill base to the right ──
+              Gentle rolling shapes (NOT jagged rocks) that carry the
+              hillside's earthy palette toward the meadow. They sit
+              BELOW the river surface so the river covers their crest
+              naturally — reading as a low ridge along the river's
+              south bank. */}
+          <path
+            d="M 240 790
+               C 270 752, 308 740, 348 744
+               C 388 752, 428 760, 460 768
+               L 460 800 L 240 800 Z"
+            fill="#A8956F" stroke="#3F2614" strokeWidth={1.3} strokeLinejoin="round"
+          />
+          {/* foothill darker shading */}
+          <path
+            d="M 360 752 C 400 760, 440 766, 460 770 L 460 800 L 360 800 Z"
+            fill="#7A6651" opacity={0.45}
+          />
+          {/* mossy crest along foothill tops */}
+          <path
+            d="M 250 768 C 280 750, 320 745, 360 748 C 400 754, 430 762, 455 768"
+            stroke="#6B8E5A" strokeWidth={4} fill="none" strokeLinecap="round" opacity={0.85}
+          />
+          <path
+            d="M 252 766 C 280 748, 320 743, 360 746 C 400 752, 428 760, 452 766"
+            stroke="#7BA46F" strokeWidth={1.8} fill="none" strokeLinecap="round" opacity={0.65}
+          />
+
+          {/* tiny pines on the foothill crests */}
+          <g transform="translate(290, 745)">
+            <line x1={0} y1={0} x2={0} y2={-9} stroke="#3F2614" strokeWidth={1.0} strokeLinecap="round" />
+            <path d="M 0 -9 L -3 -6 L 3 -6 Z M 0 -6 L -2.5 -3 L 2.5 -3 Z"
                   fill="#3D5C32" stroke="#1F3018" strokeWidth={0.5} strokeLinejoin="round" />
           </g>
-          <g transform="translate(38, 562)">
+          <g transform="translate(370, 750)">
             <line x1={0} y1={0} x2={0} y2={-8} stroke="#3F2614" strokeWidth={1.0} strokeLinecap="round" />
             <path d="M 0 -8 L -2.5 -5 L 2.5 -5 Z M 0 -5 L -2.5 -2 L 2.5 -2 Z"
                   fill="#3D5C32" stroke="#1F3018" strokeWidth={0.5} strokeLinejoin="round" />
           </g>
 
-          {/* HORIZONTAL FOOTHILLS — low rocky terrain extending
-              CONTINUOUSLY from the cliff base (now at x=80) east along
-              the bottom to x=380. Reads as the same rock that forms
-              the cliff, just lower along the riverbank. The river
-              flows OVER the rocks visible behind the cliff base
-              (rendered AFTER the cliff in section 6d), so the river
-              naturally appears to spill out from the cave-and-cliff
-              into a rocky shore. */}
-          {/* mid-tone foothills body — runs from cliff base to x=380 */}
-          <path
-            d="M 76 800
-               L 80 760
-               C 100 752, 130 750, 160 754
-               C 188 758, 218 762, 246 766
-               C 274 770, 302 766, 328 770
-               C 352 776, 372 782, 380 786
-               L 380 800 Z"
-            fill="#7A6B58" stroke="#3F3026" strokeWidth={1.4} strokeLinejoin="round"
-          />
-          {/* darker shading on the foothills */}
-          <path
-            d="M 240 770 C 280 770, 320 778, 360 786 L 380 786 L 380 798 L 260 798 Z"
-            fill="#5C4F3F" opacity={0.50}
-          />
-          {/* lighter highlight on the cliff-adjacent flank */}
-          <path
-            d="M 80 760 C 100 752, 130 750, 160 754 C 140 762, 110 770, 88 778 L 80 776 Z"
-            fill="#A89878" opacity={0.30}
-          />
-          {/* DARK FRONT BOULDERS along the very foreground — runs
-              all the way from cliff base to x=380 */}
-          <path
-            d="M 76 800
-               L 82 778
-               L 108 786 L 134 778 L 162 788 L 190 780
-               L 218 790 L 246 782 L 274 790 L 302 782
-               L 328 790 L 354 784 L 380 794
-               L 380 800 Z"
-            fill="#6B5A48" stroke="#2A1810" strokeWidth={1.4} strokeLinejoin="round"
-          />
-          {/* highlight ridge along the front boulders */}
-          <path
-            d="M 82 778 L 108 786 L 134 778 L 162 788 L 190 780 L 218 790 L 246 782 L 274 790 L 302 782 L 328 790 L 354 784"
-            stroke="#9B8868" strokeWidth={1.3} fill="none" strokeLinecap="round" opacity={0.65}
-          />
-          {/* moss patches on the foothills */}
-          <ellipse cx={150} cy={780} rx={10} ry={2.6} fill="#7BA46F" opacity={0.7} />
-          <ellipse cx={228} cy={786} rx={12} ry={3} fill="#7BA46F" opacity={0.7} />
-          <ellipse cx={310} cy={788} rx={9}  ry={2.4} fill="#7BA46F" opacity={0.65} />
-          {/* tiny wildflowers on the moss */}
+          {/* wildflowers scattered on the foothills */}
           {[
-            { fx: 146, fy: 778, c: '#FFD166' },
-            { fx: 156, fy: 781, c: '#FFB7C5' },
-            { fx: 226, fy: 786, c: '#E6B0D0' },
-            { fx: 232, fy: 788, c: '#FFD166' },
-            { fx: 312, fy: 788, c: '#FFB7C5' },
+            { fx: 270, fy: 760, c: '#FFD166' },
+            { fx: 320, fy: 752, c: '#FFB7C5' },
+            { fx: 340, fy: 754, c: '#E6B0D0' },
+            { fx: 410, fy: 762, c: '#FFD166' },
+            { fx: 432, fy: 766, c: '#FFB7C5' },
           ].map((f, i) => (
-            <g key={`mf-${i}`} transform={`translate(${f.fx}, ${f.fy})`}>
+            <g key={`fh-flower-${i}`} transform={`translate(${f.fx}, ${f.fy})`}>
               {[0, 90, 180, 270].map(deg => (
-                <ellipse key={deg} cx={0} cy={-1.2} rx={0.9} ry={1.6} fill={f.c}
+                <ellipse key={deg} cx={0} cy={-1.3} rx={1} ry={1.7} fill={f.c}
                          stroke="#8B6938" strokeWidth={0.25} transform={`rotate(${deg})`} />
               ))}
               <circle cx={0} cy={0} r={0.7} fill="#FFD166" />
             </g>
           ))}
-          {/* grass tufts cresting the foothills */}
-          {[
-            { tx: 130, ty: 760 }, { tx: 200, ty: 758 },
-            { tx: 270, ty: 762 }, { tx: 340, ty: 770 },
-          ].map((t, i) => (
-            <g key={`fh-tuft-${i}`} transform={`translate(${t.tx}, ${t.ty})`}>
-              <path d="M 0 0 Q -2 -6 -1 -9" stroke="#5C7E4F" strokeWidth={1.0} fill="none" strokeLinecap="round" />
-              <path d="M 0 0 Q 1 -7 3 -9" stroke="#5C7E4F" strokeWidth={1.0} fill="none" strokeLinecap="round" />
-              <path d="M 0 0 Q 3 -5 5 -7" stroke="#5C7E4F" strokeWidth={0.9} fill="none" strokeLinecap="round" />
-            </g>
-          ))}
-          {/* small fern at the foothills' end near the river */}
-          <g transform="translate(372, 786)">
-            <path d="M 0 0 Q -3 -8 -6 -14" stroke="#6B8E5A" strokeWidth={1.2} fill="none" strokeLinecap="round" />
-            <path d="M 0 0 Q 0 -10 -1 -16" stroke="#6B8E5A" strokeWidth={1.2} fill="none" strokeLinecap="round" />
-            <path d="M 0 0 Q 3 -8 4 -14" stroke="#6B8E5A" strokeWidth={1.1} fill="none" strokeLinecap="round" />
+
+          {/* a small fern at the foothill's eastern end, near the river bank */}
+          <g transform="translate(450, 768)">
+            <path d="M 0 0 Q -3 -8 -6 -14" stroke="#3F5A30" strokeWidth={1.2} fill="none" strokeLinecap="round" />
+            <path d="M 0 0 Q 0 -10 -1 -16" stroke="#3F5A30" strokeWidth={1.2} fill="none" strokeLinecap="round" />
+            <path d="M 0 0 Q 3 -8 4 -14" stroke="#3F5A30" strokeWidth={1.1} fill="none" strokeLinecap="round" />
           </g>
-          {/* a couple of pebbles where foothills meet the river bank */}
-          <ellipse cx={392} cy={790} rx={4.5} ry={1.6} fill="#9B948A" stroke="#5A3B1F" strokeWidth={0.5} />
-          <ellipse cx={402} cy={792} rx={3.5} ry={1.4} fill="#B5ACA0" stroke="#5A3B1F" strokeWidth={0.5} />
         </g>
 
-        {/* ── 6c. CAVE — natural rocky archway at the far-left edge ──
-             The river flows OUT of the cave mouth on the right side,
-             so it's clearly the source of the watercourse — not just
-             a rectangle plopped in front of the river. Cave occupies
-             x:-30 to 230, y:570-740; river starts at x:230, y:705.
-             Tapping navigates to the cave's interior route — same
-             pattern as Bunny Burrow on the central garden. The three
-             cave skills (Hundred's Hollow, Fast Facts, Regroup Ridge)
-             live INSIDE the route, not as inline-expand pins on this
-             scene. */}
+        {/* ── 6c. CAVE CLICK-TARGET ─────────────────────────────
+             The cave VISUAL is rendered above (section 6b — the cave
+             mouth carved into the mossy hillside). This is just an
+             invisible hit-target covering that cave-mouth area so a
+             tap navigates to the operations_cave habitat interior
+             (same pattern as Bunny Burrow). The three cave skills
+             (Hundred's Hollow, Fast Facts, Regroup Ridge) live
+             INSIDE that route, not as inline-expand pins here. */}
         <g
           style={{ cursor: 'pointer', touchAction: 'manipulation' }}
           onClick={() => router.push(`/garden/habitat/operations_cave?learner=${learnerId}`)}
-          // Cave at 50% size, anchored to the LEFT edge. Lifted so
-          // its bottom lip sits on the river's bottom bank — the
-          // river fills the lower half of the cave mouth, with the
-          // upper half showing the dark interior + glow above the
-          // water line (so it reads "cave above, river below").
-          transform="translate(-4, 336) scale(0.5)"
         >
-          {/* invisible hit target covering the cave area */}
-          <rect x={-12} y={616} width={172} height={136} fill="transparent" />
-
-          {/* outer rocky face — smaller (~15% reduction). Extends just
-              past the left edge with a whimsical curve (Miyazaki-soft).
-              Open at bottom-right for river. */}
-          <path
-            d="M -12 740
-               L -12 706
-               C -8 682, 0 656, 14 638
-               C 30 622, 54 614, 80 614
-               C 108 616, 130 626, 144 644
-               C 154 660, 158 680, 154 696
-               C 152 702, 150 706, 150 710
-               L 150 740
-               Z"
-            fill="#7A6B58" stroke="#3F3026" strokeWidth={2}
-          />
-          {/* darker rock shading on the right (depth) */}
-          <path
-            d="M 124 624 C 138 638, 152 658, 152 680 L 150 710 L 142 710
-               C 146 680, 140 644, 130 632 Z"
-            fill="#5C4F3F" opacity={0.5}
-          />
-
-          {/* inner cave shadow — soft organic opening, opens at the
-              bottom-right where river emerges. */}
-          <path
-            d="M 0 740
-               C -4 716, 0 686, 14 664
-               C 30 644, 54 634, 78 634
-               C 102 636, 122 644, 136 662
-               C 146 680, 148 700, 142 712
-               C 138 720, 134 730, 132 740
-               Z"
-            fill="#1A1208" opacity={0.86}
-          />
-          {/* deeper pocket */}
-          <ellipse cx={70} cy={700} rx={40} ry={20} fill="#000" opacity={0.32} />
-
-          {/* INTERIOR WATER POOL — the river's source, visible inside
-              the cave. Shaded slightly bluer-than-black so the eye
-              reads "water flowing out of the dark." */}
-          <path
-            d="M 24 738
-               C 30 720, 60 712, 100 716
-               C 130 720, 148 728, 150 740 Z"
-            fill="#3F5260" opacity={0.92}
-          />
-          <path
-            d="M 36 734
-               C 46 724, 78 720, 110 724
-               C 130 728, 144 732, 148 738"
-            stroke="#7FA9B0" strokeWidth={1.2} fill="none" strokeLinecap="round" opacity={0.6}
-          />
-          {/* tiny ripple on the interior pool */}
-          <path d="M 70 728 Q 80 726 90 728" stroke="#FFFFFF" strokeWidth={0.8} fill="none" opacity={0.45} strokeLinecap="round" />
-          <path d="M 110 730 Q 120 728 130 730" stroke="#FFFFFF" strokeWidth={0.8} fill="none" opacity={0.4} strokeLinecap="round" />
-
-          {/* mossy rim along the top of the arch */}
-          <path
-            d="M 4 648 C 22 632, 46 624, 76 622 C 102 622, 124 632, 140 646"
-            stroke="#7BA46F" strokeWidth={5} fill="none" strokeLinecap="round" opacity={0.82}
-          />
-          <path
-            d="M 16 638 C 32 630, 52 624, 76 626 C 100 630, 118 638, 130 646"
-            stroke="#A2C794" strokeWidth={2.4} fill="none" strokeLinecap="round" opacity={0.68}
-          />
-          {/* moss tufts on the rock face */}
-          <circle cx={-4} cy={690} r={4} fill="#7BA46F" opacity={0.7} />
-          <circle cx={2} cy={708} r={3} fill="#7BA46F" opacity={0.6} />
-          <circle cx={146} cy={668} r={3.5} fill="#7BA46F" opacity={0.7} />
-          <circle cx={154} cy={690} r={3} fill="#7BA46F" opacity={0.6} />
-
-          {/* atmospheric warm glow inside (no lantern) — soft suggestion
-              of warmth deep in the cave, not a discrete light source. */}
-          <ellipse cx={60} cy={696} rx={46} ry={20} fill="#FFE89A" opacity={0.14} />
-          <ellipse cx={54} cy={706} rx={28} ry={12} fill="#FFD06B" opacity={0.10} />
-
-          {/* HANGING VINES at the cave mouth — Miyazaki-soft */}
-          <g pointerEvents="none">
-            <path
-              d="M 20 622 C 20 634, 18 646, 22 658 C 24 672, 20 682, 18 692"
-              stroke="#5C7E4F" strokeWidth={1.4} fill="none" strokeLinecap="round" opacity={0.85}
-            />
-            <ellipse cx={22} cy={642} rx={2.6} ry={1.7} fill="#7BA46F" opacity={0.85} transform="rotate(-30 22 642)" />
-            <ellipse cx={20} cy={656} rx={2.3} ry={1.5} fill="#A2C794" opacity={0.78} transform="rotate(20 20 656)" />
-            <ellipse cx={18} cy={680} rx={2.6} ry={1.7} fill="#7BA46F" opacity={0.85} transform="rotate(-10 18 680)" />
-
-            <path
-              d="M 76 614 C 74 628, 78 640, 74 654 C 72 668, 76 678, 74 692"
-              stroke="#5C7E4F" strokeWidth={1.3} fill="none" strokeLinecap="round" opacity={0.78}
-            />
-            <ellipse cx={75} cy={634} rx={2.4} ry={1.6} fill="#7BA46F" opacity={0.8} transform="rotate(15 75 634)" />
-            <ellipse cx={74} cy={660} rx={2.2} ry={1.4} fill="#A2C794" opacity={0.74} transform="rotate(-25 74 660)" />
-            <ellipse cx={75} cy={682} rx={2.3} ry={1.5} fill="#7BA46F" opacity={0.78} transform="rotate(10 75 682)" />
-
-            <path
-              d="M 142 622 C 144 634, 142 646, 146 658 C 148 672, 144 682, 146 692"
-              stroke="#5C7E4F" strokeWidth={1.3} fill="none" strokeLinecap="round" opacity={0.82}
-            />
-            <ellipse cx={144} cy={640} rx={2.5} ry={1.6} fill="#7BA46F" opacity={0.85} transform="rotate(-15 144 640)" />
-            <ellipse cx={146} cy={664} rx={2.2} ry={1.4} fill="#A2C794" opacity={0.78} transform="rotate(20 146 664)" />
-            <ellipse cx={144} cy={684} rx={2.3} ry={1.5} fill="#7BA46F" opacity={0.82} transform="rotate(-5 144 684)" />
-          </g>
-
-          {/* small rocks at the cave mouth ground */}
-          <ellipse cx={-6} cy={740} rx={14} ry={4} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.1} />
-          <ellipse cx={-4} cy={737} rx={9} ry={2.2} fill="#A89D8A" />
-          <ellipse cx={142} cy={740} rx={12} ry={4} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.1} />
-          {/* ferns at the entrance */}
-          <g transform="translate(2, 740)">
-            <path d="M 0 0 Q -3 -10 -7 -16" stroke="#6B8E5A" strokeWidth={1.3} fill="none" strokeLinecap="round" />
-            <path d="M 0 0 Q 0 -12 -2 -20" stroke="#6B8E5A" strokeWidth={1.3} fill="none" strokeLinecap="round" />
-            <path d="M 0 0 Q 3 -10 5 -16" stroke="#6B8E5A" strokeWidth={1.2} fill="none" strokeLinecap="round" />
-          </g>
-          <g transform="translate(146, 740)">
-            <path d="M 0 0 Q -3 -10 -6 -16" stroke="#6B8E5A" strokeWidth={1.3} fill="none" strokeLinecap="round" />
-            <path d="M 0 0 Q 0 -10 1 -18" stroke="#6B8E5A" strokeWidth={1.3} fill="none" strokeLinecap="round" />
-          </g>
+          {/* invisible hit target — generous box over the new cave
+              mouth area (cave mouth top y=600, bottom y=683 sitting
+              right at the river edge, horizontal extent x=12..132). */}
+          <rect x={-10} y={595} width={150} height={100} fill="transparent" />
+          {/* (the cave VISUAL lives in section 6b above as an
+              integrated part of the mossy hillside; this wrapper
+              just provides the navigation hit-target.) */}
         </g>
 
         {/* ── 6d. RIVER — emerges from cave, meanders naturally east ──
@@ -1398,6 +1395,319 @@ export default function MathMountainScene({
                   {/* foam splash */}
                   <circle cx={-7} cy={9} r={1.6} fill="#FFFFFF" opacity={0.7} />
                   <circle cx={6} cy={10} r={1.5} fill="#FFFFFF" opacity={0.7} />
+                </g>
+              );
+            }
+            // ── 3-DIGIT TOWER — a small whimsical pagoda-tower with
+            //    three stacked tiers, narrower at the top. Soft beige
+            //    stone, dark bark outlines, a tiny pennant flag. */
+            if (code === 'mm_three_digit_tower') {
+              return (
+                <g>
+                  {/* ground shadow */}
+                  <ellipse cx={0} cy={15} rx={11} ry={1.6} fill="#000" opacity={0.22} />
+                  {/* base tier (largest) */}
+                  <rect x={-10} y={6} width={20} height={9} rx={1.2}
+                        fill="#D4B68A" stroke="#3F2614" strokeWidth={1.4} />
+                  {/* base roof eaves */}
+                  <path d="M -12 6 L 12 6 L 9 3 L -9 3 Z"
+                        fill="#7B4F2C" stroke="#3F2614" strokeWidth={1.2} strokeLinejoin="round" />
+                  {/* middle tier */}
+                  <rect x={-7.5} y={-3} width={15} height={7} rx={1}
+                        fill="#E2C290" stroke="#3F2614" strokeWidth={1.3} />
+                  <path d="M -9.5 -3 L 9.5 -3 L 7 -5.5 L -7 -5.5 Z"
+                        fill="#7B4F2C" stroke="#3F2614" strokeWidth={1.2} strokeLinejoin="round" />
+                  {/* top tier (smallest) */}
+                  <rect x={-5} y={-10} width={10} height={5.5} rx={0.9}
+                        fill="#F0D2A0" stroke="#3F2614" strokeWidth={1.2} />
+                  <path d="M -7 -10 L 7 -10 L 5 -12 L -5 -12 Z"
+                        fill="#7B4F2C" stroke="#3F2614" strokeWidth={1.1} strokeLinejoin="round" />
+                  {/* tiny windows on each tier */}
+                  <rect x={-2} y={8} width={4} height={5} rx={0.5} fill="#3F2614" />
+                  <rect x={-1.5} y={-1} width={3} height={4} rx={0.4} fill="#3F2614" />
+                  <rect x={-1} y={-8} width={2} height={3} rx={0.3} fill="#3F2614" />
+                  {/* pennant flag on top — pole + triangle */}
+                  <line x1={0} y1={-12} x2={0} y2={-17}
+                        stroke="#3F2614" strokeWidth={0.8} strokeLinecap="round" />
+                  <path d="M 0 -17 L 4 -16 L 0 -14.5 Z"
+                        fill="#C84A3A" stroke="#3F2614" strokeWidth={0.7} strokeLinejoin="round" />
+                </g>
+              );
+            }
+            // ── MOUNTAIN HEIGHTS COMPARE — twin snow-capped peaks,
+            //    one taller than the other (the "compare" cue). */
+            if (code === 'mm_mountain_compare') {
+              return (
+                <g>
+                  {/* ground shadow */}
+                  <ellipse cx={0} cy={14} rx={14} ry={1.6} fill="#000" opacity={0.22} />
+                  {/* far/smaller peak */}
+                  <path d="M -14 13 L -7 -2 L 1 13 Z"
+                        fill="#7A6B58" stroke="#3F3026" strokeWidth={1.4} strokeLinejoin="round" />
+                  {/* far peak snow cap */}
+                  <path d="M -10 4 L -7 -2 L -4 4 L -6 5 L -8 4 Z"
+                        fill="#FFFAF2" stroke="#3F3026" strokeWidth={0.9} strokeLinejoin="round" />
+                  {/* near/taller peak — overlaps the small one */}
+                  <path d="M -3 13 L 6 -10 L 14 13 Z"
+                        fill="#9B8868" stroke="#3F3026" strokeWidth={1.5} strokeLinejoin="round" />
+                  {/* near peak snow cap — bigger */}
+                  <path d="M 1 1 L 6 -10 L 11 1 L 8 3 L 5 2 L 2 3 Z"
+                        fill="#FFFAF2" stroke="#3F3026" strokeWidth={1} strokeLinejoin="round" />
+                  {/* shading on the near peak's right face */}
+                  <path d="M 6 -10 L 14 13 L 9 13 Z"
+                        fill="#5C4F3F" opacity={0.45} />
+                  {/* sun behind the peaks */}
+                  <circle cx={11} cy={-8} r={2.6} fill="#FFD06B" opacity={0.85} />
+                </g>
+              );
+            }
+            // ── TEN MORE / TEN LESS — a leaf with two tiny arrow
+            //    indicators on either side suggesting bidirectional
+            //    movement (±10). Stays in the nature palette. */
+            if (code === 'mm_ten_more_less') {
+              return (
+                <g>
+                  {/* ground shadow */}
+                  <ellipse cx={0} cy={14} rx={11} ry={1.4} fill="#000" opacity={0.22} />
+                  {/* leaf body — almond shape */}
+                  <path d="M 0 -12 C 8 -8, 10 4, 0 13 C -10 4, -8 -8, 0 -12 Z"
+                        fill="#7BA46F" stroke="#3F5A30" strokeWidth={1.6} strokeLinejoin="round" />
+                  {/* leaf vein (center) */}
+                  <path d="M 0 -10 L 0 11"
+                        stroke="#3F5A30" strokeWidth={1} strokeLinecap="round" opacity={0.85} />
+                  {/* side veins */}
+                  <path d="M 0 -4 Q -4 -3 -6 -1" stroke="#3F5A30" strokeWidth={0.7} fill="none" opacity={0.7} />
+                  <path d="M 0 -4 Q 4 -3 6 -1" stroke="#3F5A30" strokeWidth={0.7} fill="none" opacity={0.7} />
+                  <path d="M 0 2 Q -4 3 -6 5" stroke="#3F5A30" strokeWidth={0.7} fill="none" opacity={0.7} />
+                  <path d="M 0 2 Q 4 3 6 5" stroke="#3F5A30" strokeWidth={0.7} fill="none" opacity={0.7} />
+                  {/* leaf highlight */}
+                  <path d="M -3 -8 C -5 -4, -5 0, -3 4"
+                        stroke="#A2C794" strokeWidth={1.6} fill="none" strokeLinecap="round" opacity={0.7} />
+                  {/* LEFT down-arrow indicator (10 less) */}
+                  <g transform="translate(-15, 0)">
+                    <line x1={0} y1={-3} x2={0} y2={3}
+                          stroke="#3F2614" strokeWidth={1.4} strokeLinecap="round" />
+                    <path d="M -2 1 L 0 3 L 2 1"
+                          stroke="#3F2614" strokeWidth={1.4} fill="none"
+                          strokeLinecap="round" strokeLinejoin="round" />
+                  </g>
+                  {/* RIGHT up-arrow indicator (10 more) */}
+                  <g transform="translate(15, 0)">
+                    <line x1={0} y1={-3} x2={0} y2={3}
+                          stroke="#3F2614" strokeWidth={1.4} strokeLinecap="round" />
+                    <path d="M -2 -1 L 0 -3 L 2 -1"
+                          stroke="#3F2614" strokeWidth={1.4} fill="none"
+                          strokeLinecap="round" strokeLinejoin="round" />
+                  </g>
+                </g>
+              );
+            }
+            // ── ROUND TO 10 / ROUND TO 100 — a curled fern frond
+            //    (koru-style spiral). Round-100 gets a thicker spiral
+            //    + a second tiny sprout to differentiate. */
+            if (code === 'mm_round_10' || code === 'mm_round_100') {
+              const isHundred = code === 'mm_round_100';
+              return (
+                <g>
+                  {/* ground shadow */}
+                  <ellipse cx={0} cy={14} rx={10} ry={1.4} fill="#000" opacity={0.22} />
+                  {/* stem rising from the base */}
+                  <path d="M 0 13 C 2 8, -2 4, 1 -2"
+                        stroke="#3F5A30" strokeWidth={2.2} fill="none" strokeLinecap="round" />
+                  {/* main spiral frond — koru curl */}
+                  <path
+                    d={isHundred
+                      ? "M 1 -2 C -10 -4, -12 8, -2 9 C 6 9, 7 1, 1 0 C -3 0, -3 5, 1 5"
+                      : "M 1 -2 C -8 -3, -10 6, -2 7 C 4 7, 5 1, 1 0"}
+                    stroke="#5C7E4F" strokeWidth={isHundred ? 3.2 : 2.6}
+                    fill="none" strokeLinecap="round"
+                  />
+                  {/* highlight along the spiral */}
+                  <path
+                    d={isHundred
+                      ? "M 1 -2 C -8 -3, -10 7, -3 8"
+                      : "M 1 -2 C -7 -3, -9 5, -2 6"}
+                    stroke="#A2C794" strokeWidth={1.0}
+                    fill="none" strokeLinecap="round" opacity={0.75}
+                  />
+                  {/* tiny dot at the center of the spiral */}
+                  <circle cx={1} cy={isHundred ? 4 : 2} r={1} fill="#3F5A30" />
+                  {/* a small leaf on the stem for round-100 to read different */}
+                  {isHundred && (
+                    <>
+                      <path d="M 1 4 Q 7 3, 9 -1 Q 5 0, 1 4 Z"
+                            fill="#7BA46F" stroke="#3F5A30" strokeWidth={1} strokeLinejoin="round" />
+                    </>
+                  )}
+                </g>
+              );
+            }
+            // ── FAST FACTS — bold lightning bolt (the cave-skill icon
+            //    we already use, but exposed on the main scene too so
+            //    expanded-cave stops aren't emoji-only). */
+            if (code === 'mm_fast_facts') {
+              return (
+                <g>
+                  {/* ground shadow */}
+                  <ellipse cx={0} cy={14} rx={9} ry={1.3} fill="#000" opacity={0.22} />
+                  {/* bolt back-glow */}
+                  <path d="M -1 -13 L -7 4 L -1 4 L 2 13 L 9 -2 L 3 -2 L 6 -13 Z"
+                        fill="#FFD06B" opacity={0.55} transform="translate(0.4 0.6)" />
+                  {/* bolt body */}
+                  <path d="M -1 -13 L -7 4 L -1 4 L 2 13 L 9 -2 L 3 -2 L 6 -13 Z"
+                        fill="#FFD93D" stroke="#7B4F2C" strokeWidth={1.6}
+                        strokeLinejoin="round" />
+                  {/* highlight stroke down the front */}
+                  <path d="M -1 -10 L -4 2"
+                        stroke="#FFFAF2" strokeWidth={1.2} fill="none"
+                        strokeLinecap="round" opacity={0.75} />
+                </g>
+              );
+            }
+            // ── REGROUPING RIDGE — three layered ridge silhouettes. */
+            if (code === 'mm_regroup_ridge') {
+              return (
+                <g>
+                  {/* ground shadow */}
+                  <ellipse cx={0} cy={14} rx={14} ry={1.6} fill="#000" opacity={0.22} />
+                  {/* far ridge */}
+                  <path d="M -16 6 L -10 -3 L -3 4 L 4 -6 L 12 2 L 16 -1 L 16 13 L -16 13 Z"
+                        fill="#9B8868" stroke="#3F3026" strokeWidth={1.4} strokeLinejoin="round" />
+                  {/* near ridge — lower + darker */}
+                  <path d="M -16 10 L -12 5 L -6 9 L 0 4 L 6 8 L 12 5 L 16 8 L 16 13 L -16 13 Z"
+                        fill="#7A6B58" stroke="#3F3026" strokeWidth={1.4} strokeLinejoin="round" />
+                  {/* tiny snow caps on the far peaks */}
+                  <path d="M -11 -2 L -10 -3 L -8 -1 Z" fill="#FFFAF2" />
+                  <path d="M 3 -5 L 4 -6 L 6 -3 Z" fill="#FFFAF2" />
+                  {/* a couple of pine silhouettes */}
+                  <path d="M -7 9 L -8 6 L -6 6 Z M -6.5 6 L -7.5 4 L -5.5 4 Z"
+                        fill="#3D5C32" />
+                  <path d="M 5 9 L 4 6 L 6 6 Z" fill="#3D5C32" />
+                </g>
+              );
+            }
+            // ── EQUAL GARDENS — three equal flower clusters in a row
+            //    (the "equal groups" idea behind multiplication). */
+            if (code === 'mm_equal_garden') {
+              return (
+                <g>
+                  {/* ground shadow */}
+                  <ellipse cx={0} cy={14} rx={14} ry={1.6} fill="#000" opacity={0.22} />
+                  {/* three identical flower bunches */}
+                  {[-11, 0, 11].map((cx, i) => (
+                    <g key={`fb-${i}`} transform={`translate(${cx}, 4)`}>
+                      {/* stem */}
+                      <line x1={0} y1={9} x2={0} y2={-2}
+                            stroke="#3F5A30" strokeWidth={1.2} strokeLinecap="round" />
+                      {/* leaves */}
+                      <ellipse cx={-2.5} cy={4} rx={2} ry={1} fill="#5C7E4F"
+                               stroke="#3F5A30" strokeWidth={0.6} transform="rotate(-30 -2.5 4)" />
+                      <ellipse cx={2.5} cy={6} rx={2} ry={1} fill="#5C7E4F"
+                               stroke="#3F5A30" strokeWidth={0.6} transform="rotate(30 2.5 6)" />
+                      {/* petals */}
+                      <circle cx={0} cy={-5} r={2.2} fill="#FFD93D" stroke="#7B4F2C" strokeWidth={0.7} />
+                      <circle cx={-2.4} cy={-3} r={2} fill="#FFD06B" stroke="#7B4F2C" strokeWidth={0.7} />
+                      <circle cx={2.4} cy={-3} r={2} fill="#FFD06B" stroke="#7B4F2C" strokeWidth={0.7} />
+                      <circle cx={0} cy={-1.5} r={2} fill="#FFB7C5" stroke="#7B4F2C" strokeWidth={0.7} />
+                      {/* center */}
+                      <circle cx={0} cy={-3} r={1.2} fill="#7B4F2C" />
+                    </g>
+                  ))}
+                </g>
+              );
+            }
+            // ── TIMES TABLES (×) — two crossed leafy twigs forming a
+            //    natural "×". Two variants share this drawing. */
+            if (code === 'mm_times_to_5' || code === 'mm_times_to_10') {
+              const isTen = code === 'mm_times_to_10';
+              return (
+                <g>
+                  {/* ground shadow */}
+                  <ellipse cx={0} cy={14} rx={12} ry={1.6} fill="#000" opacity={0.22} />
+                  {/* twig 1 — top-left to bottom-right */}
+                  <path d="M -11 -10 Q 0 0, 11 11"
+                        stroke="#7B4F2C" strokeWidth={3.2} fill="none" strokeLinecap="round" />
+                  {/* twig 2 — top-right to bottom-left */}
+                  <path d="M 11 -10 Q 0 0, -11 11"
+                        stroke="#7B4F2C" strokeWidth={3.2} fill="none" strokeLinecap="round" />
+                  {/* twig highlights */}
+                  <path d="M -10 -9 Q 0 0, 10 10"
+                        stroke="#A0703F" strokeWidth={0.9} fill="none" strokeLinecap="round" opacity={0.7} />
+                  <path d="M 10 -9 Q 0 0, -10 10"
+                        stroke="#A0703F" strokeWidth={0.9} fill="none" strokeLinecap="round" opacity={0.7} />
+                  {/* tiny leaves at twig ends */}
+                  <ellipse cx={-12} cy={-11} rx={2.4} ry={1.4} fill="#7BA46F"
+                           stroke="#3F5A30" strokeWidth={0.6} transform="rotate(-45 -12 -11)" />
+                  <ellipse cx={12} cy={12} rx={2.4} ry={1.4} fill="#7BA46F"
+                           stroke="#3F5A30" strokeWidth={0.6} transform="rotate(-45 12 12)" />
+                  <ellipse cx={12} cy={-11} rx={2.4} ry={1.4} fill="#7BA46F"
+                           stroke="#3F5A30" strokeWidth={0.6} transform="rotate(45 12 -11)" />
+                  <ellipse cx={-12} cy={12} rx={2.4} ry={1.4} fill="#7BA46F"
+                           stroke="#3F5A30" strokeWidth={0.6} transform="rotate(45 -12 12)" />
+                  {/* center dot */}
+                  <circle cx={0} cy={0} r={1.8} fill="#FFD93D" stroke="#7B4F2C" strokeWidth={0.8} />
+                  {/* extra inner ring on ×10 to differentiate */}
+                  {isTen && <circle cx={0} cy={0} r={3.4} fill="none" stroke="#7B4F2C" strokeWidth={0.8} />}
+                </g>
+              );
+            }
+            // ── DIVISION FACTS — three stacked pebbles forming a
+            //    vertical ÷ shape (top dot, dash, bottom dot). */
+            if (code === 'mm_division_facts') {
+              return (
+                <g>
+                  {/* ground shadow */}
+                  <ellipse cx={0} cy={14} rx={10} ry={1.5} fill="#000" opacity={0.22} />
+                  {/* top pebble */}
+                  <ellipse cx={0} cy={-9} rx={3.5} ry={3} fill="#9B948A"
+                           stroke="#3F2614" strokeWidth={1.3} />
+                  <ellipse cx={-1} cy={-10} rx={1.4} ry={0.8} fill="#C2BBB0" opacity={0.85} />
+                  {/* middle dash — long flat stone */}
+                  <ellipse cx={0} cy={0} rx={11} ry={2.4} fill="#7A6B58"
+                           stroke="#3F2614" strokeWidth={1.4} />
+                  <ellipse cx={-2} cy={-1} rx={6} ry={0.9} fill="#A89878" opacity={0.8} />
+                  {/* bottom pebble */}
+                  <ellipse cx={0} cy={9} rx={3.5} ry={3} fill="#9B948A"
+                           stroke="#3F2614" strokeWidth={1.3} />
+                  <ellipse cx={-1} cy={8} rx={1.4} ry={0.8} fill="#C2BBB0" opacity={0.85} />
+                  {/* a tiny leaf tucked behind the dash */}
+                  <ellipse cx={-12} cy={1} rx={2.2} ry={1.1} fill="#7BA46F"
+                           stroke="#3F5A30" strokeWidth={0.5} transform="rotate(-25 -12 1)" />
+                </g>
+              );
+            }
+            // ── MISSING NUMBER — wooden puzzle piece with a "?" */
+            if (code === 'mm_missing_number') {
+              return (
+                <g>
+                  {/* ground shadow */}
+                  <ellipse cx={0} cy={14} rx={11} ry={1.5} fill="#000" opacity={0.22} />
+                  {/* puzzle piece with classic knob on top + slot on right */}
+                  <path
+                    d="M -10 -7
+                       L -3 -7
+                       C -3 -10, 3 -10, 3 -7
+                       L 10 -7
+                       L 10 -1
+                       C 13 -1, 13 5, 10 5
+                       L 10 11
+                       L -10 11 Z"
+                    fill="#D4B68A" stroke="#3F2614" strokeWidth={1.6} strokeLinejoin="round"
+                  />
+                  {/* wood grain hints */}
+                  <path d="M -8 -3 Q 0 -2, 8 -3"
+                        stroke="#A0703F" strokeWidth={0.6} fill="none" opacity={0.6} />
+                  <path d="M -8 5 Q 0 6, 8 5"
+                        stroke="#A0703F" strokeWidth={0.6} fill="none" opacity={0.6} />
+                  {/* highlight along the top edge */}
+                  <path d="M -9 -6 L -3.5 -6"
+                        stroke="#F0D2A0" strokeWidth={0.9} fill="none"
+                        strokeLinecap="round" opacity={0.85} />
+                  {/* the question mark — burned/etched into the wood */}
+                  <text x={0} y={6} textAnchor="middle" fontSize={11}
+                        fontWeight={800} fill="#3F2614" fontFamily="Georgia, serif">
+                    ?
+                  </text>
                 </g>
               );
             }

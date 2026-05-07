@@ -30,81 +30,139 @@ interface BunnyBurrowInteriorProps {
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// CottontailBunny — INLINED version of the existing CottontailRabbit
-// illustration from components/child/garden/speciesIllustrations.tsx,
-// adapted to render as an SVG group inside a parent <svg>. Uses the
-// same paths that already power the journal cards + arrival cards
-// (so the bunny here matches the bunny shown elsewhere in the world).
+// CottontailBunny — front-facing, recognizable, Miyazaki-cute bunny.
+// Designed FROM SCRATCH after multiple side-profile attempts read as
+// "rolly-poly snails." Big round head, two distinct upright ears with
+// pink interiors, two round black eyes with white catchlights, classic
+// Y-shaped pink nose, pear-shaped body with cream belly, two tiny front
+// paws, fluffy cottontail puff peeking from the side.
+//
+// Coordinate system: origin (0,0) at the bunny's geometric center.
+// Total figure spans ~x: -17..18, y: -28..22 (35 wide × 50 tall) at
+// scale 1. At scale 6 in the burrow that's ~210 × 300px.
+//
+// This same figure powers the resident bunny + species cards + the
+// global CottontailRabbit illustration (kept in sync intentionally).
 // ─────────────────────────────────────────────────────────────────────────
 function CottontailBunny({
   scale = 1, reducedMotion,
 }: { scale?: number; reducedMotion: boolean }) {
   const STROKE = '#5A3B1F';
-  const FUR = '#9B7352';
-  const FUR_HI = '#C8956A';
-  const FUR_DARK = '#5A3B1F';
-  const TAIL = '#FFFDF2';
-  const PINK = '#F8B4B4';
+  const FUR = '#A8825C';        // warm tan — friendlier than dull brown
+  const FUR_HI = '#D4AB7E';     // light cream-tan highlight
+  const BELLY = '#F4DFC0';      // pale cream belly + snout patch
+  const TAIL = '#FFFDF2';       // cottontail white
+  const PINK = '#F8B4B4';       // inner-ear soft pink
+  const NOSE = '#E07A8F';       // deeper pink for nose + paw beans
 
   return (
     <motion.g
       transform={`scale(${scale})`}
-      animate={reducedMotion ? undefined : { y: [0, -1, 0] }}
+      animate={reducedMotion ? undefined : { y: [0, -1.2, 0] }}
       transition={{ duration: 3.4, repeat: Infinity, ease: 'easeInOut' }}
     >
-      {/* ground shadow */}
-      <ellipse cx={0} cy={22} rx={22} ry={3} fill="#000" opacity={0.22} />
+      {/* ── ground shadow ───────────────────────────────────────── */}
+      <ellipse cx={0} cy={22} rx={18} ry={2.8} fill="#000" opacity={0.22} />
 
-      {/* COTTON TAIL — drawn first so body covers its inner edge */}
-      <circle cx={20} cy={5} r={6} fill={TAIL} stroke={STROKE} strokeWidth={1.5} />
-      <circle cx={18} cy={3} r={2} fill="#FFFFFF" opacity={0.7} />
+      {/* ── EARS (back layer so head covers their roots) ────────── */}
+      {/* outer ear shapes — long ovals with slight V-spread */}
+      <ellipse cx={-7} cy={-21} rx={3.6} ry={11} fill={FUR}
+               stroke={STROKE} strokeWidth={1.6}
+               transform="rotate(-7 -7 -21)" />
+      <ellipse cx={7}  cy={-21} rx={3.6} ry={11} fill={FUR}
+               stroke={STROKE} strokeWidth={1.6}
+               transform="rotate(7 7 -21)" />
+      {/* inner-ear pink centers */}
+      <ellipse cx={-7} cy={-20} rx={1.6} ry={7.5} fill={PINK}
+               transform="rotate(-7 -7 -20)" />
+      <ellipse cx={7}  cy={-20} rx={1.6} ry={7.5} fill={PINK}
+               transform="rotate(7 7 -20)" />
 
-      {/* hind leg (folded under) */}
-      <ellipse cx={10} cy={12} rx={11} ry={7} fill={FUR_DARK} stroke={STROKE} strokeWidth={1.8} />
-      <ellipse cx={9} cy={11} rx={8} ry={5} fill={FUR} />
+      {/* ── COTTONTAIL PUFF — peeking from behind right hip ───── */}
+      <circle cx={16.5} cy={9} r={5.5} fill={TAIL}
+              stroke={STROKE} strokeWidth={1.4} />
+      <circle cx={15} cy={7.5} r={1.8} fill="#FFFFFF" opacity={0.75} />
 
-      {/* body — sitting upright slightly */}
-      <ellipse cx={-1} cy={3} rx={13} ry={11} fill={FUR} stroke={STROKE} strokeWidth={2.2} />
-      {/* fur highlight */}
-      <ellipse cx={-3} cy={0} rx={7} ry={5} fill={FUR_HI} opacity={0.7} />
+      {/* ── BODY — pear-shape, wider at hips, narrower at chest ─ */}
+      <path
+        d="M -11 -2
+           C -14 4, -15 12, -11 18
+           C -6 22, 6 22, 11 18
+           C 15 12, 14 4, 11 -2
+           C 7 -5, -7 -5, -11 -2 Z"
+        fill={FUR} stroke={STROKE} strokeWidth={2}
+        strokeLinejoin="round"
+      />
+      {/* belly cream patch — soft oval up the front */}
+      <ellipse cx={0} cy={11} rx={7} ry={7.5} fill={BELLY} opacity={0.95} />
+      {/* fur highlight on the left flank — soft sweep */}
+      <path
+        d="M -9 2 C -11 7, -11 12, -8 17"
+        stroke={FUR_HI} strokeWidth={2.5} fill="none"
+        strokeLinecap="round" opacity={0.55}
+      />
 
-      {/* front leg/paw */}
-      <ellipse cx={-7} cy={12} rx={3} ry={5} fill={FUR} stroke={STROKE} strokeWidth={1.5} />
-      {/* paw beans */}
-      <circle cx={-7} cy={15} r={0.8} fill={PINK} />
+      {/* ── FRONT PAWS — two small bumps at the bottom front ──── */}
+      <ellipse cx={-5} cy={20} rx={3.6} ry={2.6} fill={FUR}
+               stroke={STROKE} strokeWidth={1.4} />
+      <ellipse cx={5}  cy={20} rx={3.6} ry={2.6} fill={FUR}
+               stroke={STROKE} strokeWidth={1.4} />
+      {/* paw beans — tiny pink toe spots */}
+      <circle cx={-5.5} cy={20.4} r={0.55} fill={NOSE} />
+      <circle cx={-4}   cy={20.4} r={0.55} fill={NOSE} />
+      <circle cx={4}    cy={20.4} r={0.55} fill={NOSE} />
+      <circle cx={5.5}  cy={20.4} r={0.55} fill={NOSE} />
 
-      {/* head */}
-      <circle cx={-10} cy={-4} r={8} fill={FUR} stroke={STROKE} strokeWidth={2} />
-      <ellipse cx={-12} cy={-3} rx={4} ry={3} fill={FUR_HI} opacity={0.7} />
+      {/* ── HEAD — large round, sits on top of body ───────────── */}
+      <circle cx={0} cy={-7} r={11.5} fill={FUR}
+              stroke={STROKE} strokeWidth={2} />
+      {/* forehead highlight wash */}
+      <ellipse cx={-3} cy={-12} rx={5.5} ry={3.2}
+               fill={FUR_HI} opacity={0.55} />
+      {/* lower-face snout patch (lighter) — frames the nose+mouth */}
+      <ellipse cx={0} cy={-2} rx={5.5} ry={4.2}
+               fill={BELLY} opacity={0.92} />
 
-      {/* EARS — long upright */}
-      <ellipse cx={-13} cy={-13} rx={2.5} ry={8} fill={FUR} stroke={STROKE} strokeWidth={1.6}
-               transform="rotate(-12 -13 -13)" />
-      <ellipse cx={-7} cy={-13} rx={2.5} ry={8} fill={FUR} stroke={STROKE} strokeWidth={1.6}
-               transform="rotate(8 -7 -13)" />
-      {/* inner ear (pink) */}
-      <ellipse cx={-13} cy={-12} rx={1} ry={5.5} fill={PINK}
-               transform="rotate(-12 -13 -12)" />
-      <ellipse cx={-7} cy={-12} rx={1} ry={5.5} fill={PINK}
-               transform="rotate(8 -7 -12)" />
+      {/* ── EYES — large round black with double catchlight ───── */}
+      <circle cx={-5} cy={-8.5} r={2.4} fill="#1F1209" />
+      <circle cx={5}  cy={-8.5} r={2.4} fill="#1F1209" />
+      {/* main catchlight */}
+      <circle cx={-4.1} cy={-9.4} r={0.95} fill="#FFFFFF" />
+      <circle cx={5.9}  cy={-9.4} r={0.95} fill="#FFFFFF" />
+      {/* lower sparkle */}
+      <circle cx={-5.6} cy={-7.4} r={0.4} fill="#FFFFFF" opacity={0.75} />
+      <circle cx={4.4}  cy={-7.4} r={0.4} fill="#FFFFFF" opacity={0.75} />
 
-      {/* eye (single visible in profile) */}
-      <circle cx={-12} cy={-5} r={1.6} fill="#1F1209" />
-      <circle cx={-11.5} cy={-5.5} r={0.5} fill="#FFFFFF" />
+      {/* ── NOSE — rounded pink trapezoid (classic bunny shape) ── */}
+      <path
+        d="M -1.6 -3.2 Q 0 -3.6 1.6 -3.2 Q 1.2 -1.4 0 -0.8 Q -1.2 -1.4 -1.6 -3.2 Z"
+        fill={NOSE} stroke={STROKE} strokeWidth={0.7} strokeLinejoin="round"
+      />
+      {/* mouth Y — short stem then two soft curves */}
+      <path d="M 0 -0.8 L 0 0.6"
+            stroke={STROKE} strokeWidth={0.7} strokeLinecap="round" />
+      <path d="M 0 0.6 Q -1.6 1.7 -2.4 0.7"
+            stroke={STROKE} strokeWidth={0.7} fill="none" strokeLinecap="round" />
+      <path d="M 0 0.6 Q 1.6 1.7 2.4 0.7"
+            stroke={STROKE} strokeWidth={0.7} fill="none" strokeLinecap="round" />
 
-      {/* nose + mouth */}
-      <path d="M -17 -3 L -18 -3 L -17.5 -2 Z" fill={PINK} stroke={STROKE} strokeWidth={0.8} />
-      <path d="M -17.5 -2 L -17.5 -1" stroke={STROKE} strokeWidth={0.8} />
-      <path d="M -17.5 -1 Q -19 -0.5 -19.5 -1.5" stroke={STROKE} strokeWidth={0.8} fill="none" strokeLinecap="round" />
-      <path d="M -17.5 -1 Q -16 -0.5 -15.5 -1.5" stroke={STROKE} strokeWidth={0.8} fill="none" strokeLinecap="round" />
+      {/* ── WHISKERS — three on each side, fanning slightly ───── */}
+      <path d="M -3 -1.5 L -10 -2.5"
+            stroke={STROKE} strokeWidth={0.5} strokeLinecap="round" opacity={0.7} />
+      <path d="M -3 0    L -10 0"
+            stroke={STROKE} strokeWidth={0.5} strokeLinecap="round" opacity={0.7} />
+      <path d="M -3 1.5  L -10 2.5"
+            stroke={STROKE} strokeWidth={0.5} strokeLinecap="round" opacity={0.7} />
+      <path d="M 3 -1.5 L 10 -2.5"
+            stroke={STROKE} strokeWidth={0.5} strokeLinecap="round" opacity={0.7} />
+      <path d="M 3 0    L 10 0"
+            stroke={STROKE} strokeWidth={0.5} strokeLinecap="round" opacity={0.7} />
+      <path d="M 3 1.5  L 10 2.5"
+            stroke={STROKE} strokeWidth={0.5} strokeLinecap="round" opacity={0.7} />
 
-      {/* whiskers */}
-      <path d="M -16 -2 L -22 -3" stroke={STROKE} strokeWidth={0.6} strokeLinecap="round" opacity={0.7} />
-      <path d="M -16 -1 L -22 -1" stroke={STROKE} strokeWidth={0.6} strokeLinecap="round" opacity={0.7} />
-      <path d="M -16 0 L -22 1" stroke={STROKE} strokeWidth={0.6} strokeLinecap="round" opacity={0.7} />
-
-      {/* cheek blush */}
-      <ellipse cx={-14} cy={-2} rx={1.5} ry={0.8} fill={PINK} opacity={0.5} />
+      {/* ── CHEEK BLUSH — soft pink rounds under each eye ─────── */}
+      <ellipse cx={-7} cy={-3.5} rx={2.2} ry={1.3} fill={NOSE} opacity={0.38} />
+      <ellipse cx={7}  cy={-3.5} rx={2.2} ry={1.3} fill={NOSE} opacity={0.38} />
     </motion.g>
   );
 }
@@ -688,14 +746,14 @@ export default function BunnyBurrowInterior({
           </text>
         </g>
 
-        {/* THE BURROW BUNNY — large + prominent, same illustration
-            as the journal + arrival cards so the resident bunny is
-            recognizably the SAME cottontail shown elsewhere. The
-            bunny illustration is drawn in coords roughly -22 to 22
-            (about 50px square at scale 1); at scale 7 it renders at
-            ~350px square — clearly the focal character of the room. */}
-        <g transform="translate(440, 600)">
-          <CottontailBunny scale={7} reducedMotion={reducedMotion} />
+        {/* THE BURROW BUNNY — large + prominent, the focal
+            character of the room. Redrawn front-facing, ~35×50 at
+            scale 1; at scale 8 that's ~280px wide × 400px tall —
+            the figure clearly dominates and reads INSTANTLY as a
+            bunny (no more "rolly-poly snail" silhouette). Same
+            paths as the journal + arrival cards (kept in sync). */}
+        <g transform="translate(440, 580)">
+          <CottontailBunny scale={8} reducedMotion={reducedMotion} />
         </g>
 
         {/* SIDE TABLE WITH TEACUP — beside the bunny */}
@@ -721,8 +779,8 @@ export default function BunnyBurrowInterior({
               transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut', delay: i * 0.4 }}
             >
               {isBunny ? (
-                <g transform={`translate(${x}, ${y - 6})`}>
-                  <CottontailBunny scale={2.4} reducedMotion={reducedMotion} />
+                <g transform={`translate(${x}, ${y - 8})`}>
+                  <CottontailBunny scale={3} reducedMotion={reducedMotion} />
                 </g>
               ) : (
                 <text
