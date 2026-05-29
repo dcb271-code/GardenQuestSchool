@@ -542,8 +542,18 @@ export default function MathMountainScene({
              The cave mouth is positioned ABOVE the river (top y=600,
              bottom y=685) so its warm glow stays fully visible. The
              threshold boulders + ferns sit JUST AT THE RIVER EDGE,
-             reading as the cave-mouth bank from which water flows. */}
-        <g pointerEvents="none">
+             reading as the cave-mouth bank from which water flows.
+
+             SIZE/POSITION: The whole composition is wrapped in
+             transform="translate(0, 168) scale(0.82)" — 18% smaller
+             and shifted down so the hill peak lands at screen y≈615
+             (below the sisters' rest spot at cottage front, y=577,
+             so the figures stand IN FRONT of the hill, not on it).
+             The cave glow sits at screen y≈716-725, below the river
+             surface so the warm light pools peek out beneath the
+             water flowing past — a nice "cave continues deeper"
+             read instead of getting clipped. */}
+        <g pointerEvents="none" transform="translate(0, 168) scale(0.82)">
           {/* ── FAR-DISTANT HILL SILHOUETTE ────────────────────────
               Soft mid-tone shape behind the main hill for atmospheric
               depth. */}
@@ -824,10 +834,10 @@ export default function MathMountainScene({
           style={{ cursor: 'pointer', touchAction: 'manipulation' }}
           onClick={() => router.push(`/garden/habitat/operations_cave?learner=${learnerId}`)}
         >
-          {/* invisible hit target — generous box over the new cave
-              mouth area (cave mouth top y=600, bottom y=683 sitting
-              right at the river edge, horizontal extent x=12..132). */}
-          <rect x={-10} y={595} width={150} height={100} fill="transparent" />
+          {/* invisible hit target — covers the cave-mouth area in
+              SCREEN coords (after the section-6b transform shifts the
+              mouth to roughly screen x=10..108, y=660..728). */}
+          <rect x={-10} y={655} width={130} height={80} fill="transparent" />
           {/* (the cave VISUAL lives in section 6b above as an
               integrated part of the mossy hillside; this wrapper
               just provides the navigation hit-target.) */}

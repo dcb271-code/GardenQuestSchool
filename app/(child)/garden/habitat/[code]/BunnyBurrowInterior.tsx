@@ -748,12 +748,12 @@ export default function BunnyBurrowInterior({
 
         {/* THE BURROW BUNNY — large + prominent, the focal
             character of the room. Redrawn front-facing, ~35×50 at
-            scale 1; at scale 8 that's ~280px wide × 400px tall —
-            the figure clearly dominates and reads INSTANTLY as a
-            bunny (no more "rolly-poly snail" silhouette). Same
-            paths as the journal + arrival cards (kept in sync). */}
-        <g transform="translate(440, 580)">
-          <CottontailBunny scale={8} reducedMotion={reducedMotion} />
+            scale 1; at scale 6 that's ~210×300px. Centered at
+            (440, 600) so the front paws (internal y=20) land at
+            screen y=720 — right on the visible floor surface where
+            the side table sits, not floating above and not sunk in. */}
+        <g transform="translate(440, 600)">
+          <CottontailBunny scale={6} reducedMotion={reducedMotion} />
         </g>
 
         {/* SIDE TABLE WITH TEACUP — beside the bunny */}
@@ -779,8 +779,13 @@ export default function BunnyBurrowInterior({
               transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut', delay: i * 0.4 }}
             >
               {isBunny ? (
-                <g transform={`translate(${x}, ${y - 8})`}>
-                  <CottontailBunny scale={3} reducedMotion={reducedMotion} />
+                /* SPECIES-CARD BUNNY: scale 1.6 (~56×80px) so the
+                   bunny matches the size of the emoji species above
+                   the label and the front paws (internal y=20) land
+                   at screen y=687 — just above the label ribbon at
+                   y=712, not overflowing into it. */
+                <g transform={`translate(${x}, ${y - 33})`}>
+                  <CottontailBunny scale={1.6} reducedMotion={reducedMotion} />
                 </g>
               ) : (
                 <text
