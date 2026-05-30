@@ -147,4 +147,121 @@ export const FLORA_CATALOG: FloraData[] = [
     inatTaxonId: 60703,
     photoRoles: ['whole', 'leaf', 'bark', 'fruit'],
   },
+
+  // ─── WILDFLOWERS ───────────────────────────────────────────────────
+
+  {
+    code: 'virginia_bluebells',
+    commonName: 'Virginia Bluebells',
+    scientificName: 'Mertensia virginica',
+    kind: 'flower',
+    localTier: 'hyper_local',
+    emoji: '🌸',
+    seasons: ['spring'],
+    notableFeatures: [
+      'pink buds that open into sky-blue trumpet-shaped flowers',
+      'oval blue-green leaves',
+      'grows in big patches in damp woods',
+    ],
+    facts: [
+      'The flower buds start out pink and turn blue as they open.',
+      'Virginia Bluebells are a spring ephemeral — they appear, bloom, and disappear in just a few weeks.',
+      'You can find them in the Red River Gorge in April.',
+    ],
+    wikiSpecies: 'Mertensia_virginica',
+    inatTaxonId: 56889,
+    photoRoles: ['whole', 'flower', 'leaf'],
+  },
+
+  {
+    code: 'mayapple',
+    commonName: 'Mayapple',
+    scientificName: 'Podophyllum peltatum',
+    kind: 'flower',
+    localTier: 'hyper_local',
+    emoji: '🌿',
+    seasons: ['spring', 'summer'],
+    notableFeatures: [
+      'big umbrella-shaped leaf',
+      'single white flower hidden under the leaf',
+      'green apple-shaped fruit (only ripe fruit is safe — everything else is toxic)',
+    ],
+    facts: [
+      'The leaf looks like a tiny green umbrella.',
+      'The white flower hides under the leaf — you have to bend down to see it.',
+      'Only the ripe yellow fruit is safe to eat. Every other part of the plant is toxic.',
+    ],
+    wikiSpecies: 'Podophyllum_peltatum',
+    inatTaxonId: 49108,
+    photoRoles: ['whole', 'leaf', 'flower', 'fruit'],
+  },
+
+  {
+    code: 'trillium',
+    commonName: 'Trillium',
+    scientificName: 'Trillium',
+    kind: 'flower',
+    localTier: 'hyper_local',
+    emoji: '🌸',
+    seasons: ['spring'],
+    notableFeatures: [
+      'three petals',
+      'three leaves',
+      'one flower per stem, on the forest floor',
+    ],
+    facts: [
+      'Everything about a Trillium comes in threes — three petals, three leaves, three sepals.',
+      'Trilliums are spring ephemerals and take up to seven years to bloom for the first time.',
+      'Please never pick a Trillium — it might not bloom again for many years.',
+    ],
+    wikiSpecies: 'Trillium',
+    inatTaxonId: 50872,
+    photoRoles: ['whole', 'flower', 'leaf'],
+  },
+
+  {
+    code: 'cardinal_flower',
+    commonName: 'Cardinal Flower',
+    scientificName: 'Lobelia cardinalis',
+    kind: 'flower',
+    localTier: 'hyper_local',
+    emoji: '🌺',
+    seasons: ['summer'],
+    notableFeatures: [
+      'bright scarlet-red flowers in a tall spike',
+      'long pointed dark green leaves',
+      'grows near streams and wet meadows',
+    ],
+    facts: [
+      'It is named after the red robes of Catholic cardinals.',
+      'Hummingbirds love Cardinal Flowers — the long red tubes fit a hummingbird beak perfectly.',
+      'It grows in wet places near streams.',
+    ],
+    wikiSpecies: 'Lobelia_cardinalis',
+    inatTaxonId: 51385,
+    photoRoles: ['whole', 'flower', 'leaf'],
+  },
+
+  {
+    code: 'common_milkweed',
+    commonName: 'Common Milkweed',
+    scientificName: 'Asclepias syriaca',
+    kind: 'flower',
+    localTier: 'hyper_local',
+    emoji: '🌸',
+    seasons: ['summer', 'fall'],
+    notableFeatures: [
+      'pink-purple ball-shaped flower clusters',
+      'broad oval leaves',
+      'long pointy seedpods that split open with silky white floss in fall',
+    ],
+    facts: [
+      'Monarch butterflies lay their eggs only on milkweed plants — the caterpillars eat nothing else.',
+      'The stems make a sticky white sap that looks like milk if you snap a leaf.',
+      'The seedpods split open in fall and float their seeds away on silky white parachutes.',
+    ],
+    wikiSpecies: 'Asclepias_syriaca',
+    inatTaxonId: 54776,
+    photoRoles: ['whole', 'flower', 'leaf', 'fruit'],
+  },
 ];

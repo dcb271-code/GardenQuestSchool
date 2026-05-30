@@ -87,3 +87,24 @@ describe('FLORA_CATALOG — invariants per entry', () => {
     });
   }
 });
+
+describe('FLORA_CATALOG — pilot composition', () => {
+  it('contains exactly 10 species', () => {
+    expect(FLORA_CATALOG.length).toBe(10);
+  });
+
+  it('contains 5 trees and 5 flowers', () => {
+    const trees = FLORA_CATALOG.filter(f => f.kind === 'tree');
+    const flowers = FLORA_CATALOG.filter(f => f.kind === 'flower');
+    expect(trees.length).toBe(5);
+    expect(flowers.length).toBe(5);
+  });
+
+  it('covers all four seasons across the catalog', () => {
+    const allSeasons = new Set(FLORA_CATALOG.flatMap(f => f.seasons));
+    expect(allSeasons.has('spring')).toBe(true);
+    expect(allSeasons.has('summer')).toBe(true);
+    expect(allSeasons.has('fall')).toBe(true);
+    expect(allSeasons.has('winter')).toBe(true);
+  });
+});
