@@ -1987,8 +1987,8 @@ export default function MathMountainScene({
 
                   {/* TWO TRIANGULAR GABLE WINDOWS — wider and shorter
                       than the previous version (x:±36 at the eave-bar
-                      level up to x:0 at y:-42, instead of x:±28 up to
-                      y:-50). Reads less spire-y, more like the
+                      rising to x:0 at y:-42, instead of x:±28 rising
+                      to y:-50). Reads less spire-y, more like the
                       photo's short-and-wide gable vents. */}
                   <path d="M -36 -14 L -2 -42 L -2 -14 Z" fill="#FFD06B" stroke="#5A3B1F" strokeWidth={1.1} strokeLinejoin="miter" />
                   <path d="M  2 -14 L  2 -42 L 36 -14 Z" fill="#FFD06B" stroke="#5A3B1F" strokeWidth={1.1} strokeLinejoin="miter" />
