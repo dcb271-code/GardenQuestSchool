@@ -36,3 +36,54 @@ describe('FLORA_CATALOG — shape', () => {
     expect(sample.code).toBe('sample');
   });
 });
+
+describe('FLORA_CATALOG — invariants per entry', () => {
+  const VALID_KINDS = new Set(['tree', 'flower', 'fern', 'shrub']);
+  const VALID_SEASONS = new Set(['spring', 'summer', 'fall', 'winter']);
+  const VALID_LOCAL_TIERS = new Set(['hyper_local', 'canonical_native']);
+  const VALID_PHOTO_ROLES = new Set(['whole', 'leaf', 'bark', 'flower', 'fruit']);
+
+  it('catalog is defined (invariant suite ready)', () => {
+    expect(FLORA_CATALOG).toBeDefined();
+  });
+
+  for (const f of FLORA_CATALOG) {
+    describe(`${f.code}`, () => {
+      it('has valid kind', () => {
+        expect(VALID_KINDS.has(f.kind)).toBe(true);
+      });
+      it('has valid localTier', () => {
+        expect(VALID_LOCAL_TIERS.has(f.localTier)).toBe(true);
+      });
+      it('has at least one season', () => {
+        expect(f.seasons.length).toBeGreaterThan(0);
+      });
+      it('every season is valid', () => {
+        for (const s of f.seasons) expect(VALID_SEASONS.has(s)).toBe(true);
+      });
+      it('has at least one notable feature', () => {
+        expect(f.notableFeatures.length).toBeGreaterThan(0);
+      });
+      it('has 1-3 facts', () => {
+        expect(f.facts.length).toBeGreaterThanOrEqual(1);
+        expect(f.facts.length).toBeLessThanOrEqual(3);
+      });
+      it('wikiSpecies is non-empty', () => {
+        expect(f.wikiSpecies.length).toBeGreaterThan(0);
+      });
+      it('inatTaxonId is a positive integer', () => {
+        expect(Number.isInteger(f.inatTaxonId)).toBe(true);
+        expect(f.inatTaxonId).toBeGreaterThan(0);
+      });
+      it('has at least one photoRole', () => {
+        expect(f.photoRoles.length).toBeGreaterThan(0);
+      });
+      it('every photoRole is valid', () => {
+        for (const r of f.photoRoles) expect(VALID_PHOTO_ROLES.has(r)).toBe(true);
+      });
+      it('photoRoles are unique', () => {
+        expect(new Set(f.photoRoles).size).toBe(f.photoRoles.length);
+      });
+    });
+  }
+});
