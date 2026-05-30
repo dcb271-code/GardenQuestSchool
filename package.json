@@ -12,7 +12,9 @@
     "test:ui": "vitest --ui",
     "test:e2e": "playwright test",
     "db:migrate": "tsx scripts/migrate.ts",
-    "db:seed": "tsx scripts/seed.ts"
+    "db:seed": "tsx scripts/seed.ts",
+    "naturalist:harvest": "tsx scripts/seed-flora-photos.ts",
+    "naturalist:upload": "tsx scripts/upload-flora-photos.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.90.0",

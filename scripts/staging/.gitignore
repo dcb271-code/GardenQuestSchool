@@ -1,0 +1,9 @@
+# Ignore everything in staging EXCEPT:
+#  - the .gitkeep that makes the dir exist
+#  - selections.json files (the hand-edited tagging output)
+#  - the .gitignore itself
+*
+!.gitignore
+!.gitkeep
+!*/
+!*/selections.json
