@@ -1,0 +1,32 @@
+[
+  {
+    "filename": "inat_64146147.jpg",
+    "role": "whole",
+    "tier": 1,
+    "altText": "Mayapple — whole reference"
+  },
+  {
+    "filename": "inat_141016103.jpg",
+    "role": "leaf",
+    "tier": 1,
+    "altText": "Mayapple — leaf reference"
+  },
+  {
+    "filename": "inat_141016133.jpg",
+    "role": "flower",
+    "tier": 1,
+    "altText": "Mayapple — flower reference"
+  },
+  {
+    "filename": "inat_141016161.jpg",
+    "role": "fruit",
+    "tier": 1,
+    "altText": "Mayapple — fruit reference"
+  },
+  {
+    "filename": "inat_141016177.jpg",
+    "role": "whole",
+    "tier": 1,
+    "altText": "Mayapple — whole reference"
+  }
+]

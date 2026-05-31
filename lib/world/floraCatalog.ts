@@ -52,7 +52,7 @@ export const FLORA_CATALOG: FloraData[] = [
       'It can grow taller than almost any other tree in the eastern forest.',
     ],
     wikiSpecies: 'Liriodendron_tulipifera',
-    inatTaxonId: 48719,
+    inatTaxonId: 53582,
     photoRoles: ['whole', 'leaf', 'bark', 'flower'],
   },
 
@@ -75,7 +75,7 @@ export const FLORA_CATALOG: FloraData[] = [
       'A redbud rarely grows taller than about 25 feet.',
     ],
     wikiSpecies: 'Cercis_canadensis',
-    inatTaxonId: 49083,
+    inatTaxonId: 48502,
     photoRoles: ['whole', 'leaf', 'flower'],
   },
 
@@ -98,7 +98,7 @@ export const FLORA_CATALOG: FloraData[] = [
       'Its leaves turn deep red in autumn.',
     ],
     wikiSpecies: 'Cornus_florida',
-    inatTaxonId: 48835,
+    inatTaxonId: 54777,
     photoRoles: ['whole', 'leaf', 'bark', 'flower', 'fruit'],
   },
 
@@ -121,7 +121,7 @@ export const FLORA_CATALOG: FloraData[] = [
       'You will see lots of them in the Red River Gorge.',
     ],
     wikiSpecies: 'Pinus_strobus',
-    inatTaxonId: 47561,
+    inatTaxonId: 52391,
     photoRoles: ['whole', 'leaf', 'bark', 'fruit'],
   },
 
@@ -144,7 +144,7 @@ export const FLORA_CATALOG: FloraData[] = [
       'A Shagbark can live for more than 200 years.',
     ],
     wikiSpecies: 'Carya_ovata',
-    inatTaxonId: 60703,
+    inatTaxonId: 54791,
     photoRoles: ['whole', 'leaf', 'bark', 'fruit'],
   },
 
@@ -169,7 +169,7 @@ export const FLORA_CATALOG: FloraData[] = [
       'You can find them in the Red River Gorge in April.',
     ],
     wikiSpecies: 'Mertensia_virginica',
-    inatTaxonId: 56889,
+    inatTaxonId: 59771,
     photoRoles: ['whole', 'flower', 'leaf'],
   },
 
@@ -192,21 +192,21 @@ export const FLORA_CATALOG: FloraData[] = [
       'Only the ripe yellow fruit is safe to eat. Every other part of the plant is toxic.',
     ],
     wikiSpecies: 'Podophyllum_peltatum',
-    inatTaxonId: 49108,
+    inatTaxonId: 49288,
     photoRoles: ['whole', 'leaf', 'flower', 'fruit'],
   },
 
   {
     code: 'trillium',
-    commonName: 'Trillium',
-    scientificName: 'Trillium',
+    commonName: 'Large White Trillium',
+    scientificName: 'Trillium grandiflorum',
     kind: 'flower',
     localTier: 'hyper_local',
     emoji: '🌸',
     seasons: ['spring'],
     notableFeatures: [
-      'three petals',
-      'three leaves',
+      'three white petals',
+      'three broad leaves',
       'one flower per stem, on the forest floor',
     ],
     facts: [
@@ -214,8 +214,8 @@ export const FLORA_CATALOG: FloraData[] = [
       'Trilliums are spring ephemerals and take up to seven years to bloom for the first time.',
       'Please never pick a Trillium — it might not bloom again for many years.',
     ],
-    wikiSpecies: 'Trillium',
-    inatTaxonId: 50872,
+    wikiSpecies: 'Trillium_grandiflorum',
+    inatTaxonId: 55402,
     photoRoles: ['whole', 'flower', 'leaf'],
   },
 
@@ -238,7 +238,7 @@ export const FLORA_CATALOG: FloraData[] = [
       'It grows in wet places near streams.',
     ],
     wikiSpecies: 'Lobelia_cardinalis',
-    inatTaxonId: 51385,
+    inatTaxonId: 48038,
     photoRoles: ['whole', 'flower', 'leaf'],
   },
 
@@ -261,7 +261,7 @@ export const FLORA_CATALOG: FloraData[] = [
       'The seedpods split open in fall and float their seeds away on silky white parachutes.',
     ],
     wikiSpecies: 'Asclepias_syriaca',
-    inatTaxonId: 54776,
+    inatTaxonId: 47911,
     photoRoles: ['whole', 'flower', 'leaf', 'fruit'],
   },
 ];

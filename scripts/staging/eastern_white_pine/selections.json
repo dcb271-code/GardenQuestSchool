@@ -1,0 +1,32 @@
+[
+  {
+    "filename": "inat_1813546.jpg",
+    "role": "whole",
+    "tier": 1,
+    "altText": "Eastern White Pine — whole reference"
+  },
+  {
+    "filename": "inat_96695116.jpg",
+    "role": "leaf",
+    "tier": 1,
+    "altText": "Eastern White Pine — leaf reference"
+  },
+  {
+    "filename": "inat_172827545.jpg",
+    "role": "bark",
+    "tier": 1,
+    "altText": "Eastern White Pine — bark reference"
+  },
+  {
+    "filename": "inat_172827567.jpg",
+    "role": "fruit",
+    "tier": 1,
+    "altText": "Eastern White Pine — fruit reference"
+  },
+  {
+    "filename": "inat_67654091.jpg",
+    "role": "whole",
+    "tier": 1,
+    "altText": "Eastern White Pine — whole reference"
+  }
+]

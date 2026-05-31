@@ -1,0 +1,32 @@
+[
+  {
+    "filename": "inat_6561004.jpg",
+    "role": "whole",
+    "tier": 1,
+    "altText": "Flowering Dogwood — whole reference"
+  },
+  {
+    "filename": "inat_358429280.jpg",
+    "role": "leaf",
+    "tier": 1,
+    "altText": "Flowering Dogwood — leaf reference"
+  },
+  {
+    "filename": "inat_358429296.jpg",
+    "role": "bark",
+    "tier": 1,
+    "altText": "Flowering Dogwood — bark reference"
+  },
+  {
+    "filename": "inat_358429304.jpg",
+    "role": "flower",
+    "tier": 1,
+    "altText": "Flowering Dogwood — flower reference"
+  },
+  {
+    "filename": "inat_121222674.jpg",
+    "role": "fruit",
+    "tier": 1,
+    "altText": "Flowering Dogwood — fruit reference"
+  }
+]

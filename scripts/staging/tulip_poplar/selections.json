@@ -1,8 +1,32 @@
 [
   {
-    "filename": "inat_75262415.jpg",
+    "filename": "inat_427773301.jpg",
+    "role": "whole",
+    "tier": 1,
+    "altText": "Tulip Poplar — whole reference"
+  },
+  {
+    "filename": "inat_427776480.jpg",
     "role": "leaf",
     "tier": 1,
-    "altText": "Tulip Poplar leaf, four-lobed flat-top, clear reference"
+    "altText": "Tulip Poplar — leaf reference"
+  },
+  {
+    "filename": "inat_427776535.jpg",
+    "role": "bark",
+    "tier": 1,
+    "altText": "Tulip Poplar — bark reference"
+  },
+  {
+    "filename": "inat_302136608.jpg",
+    "role": "flower",
+    "tier": 1,
+    "altText": "Tulip Poplar — flower reference"
+  },
+  {
+    "filename": "inat_645803000.jpg",
+    "role": "whole",
+    "tier": 1,
+    "altText": "Tulip Poplar — whole reference"
   }
 ]
