@@ -1,4 +1,13 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(curl -sS http://localhost:*)",
+      "Bash(curl -s http://localhost:*)",
+      "Bash(npx tsc --noEmit *)",
+      "Bash(curl -sS https://api.inaturalist.org/*)",
+      "Bash(curl -sS https://commons.wikimedia.org/*)"
+    ]
+  },
   "hooks": {
     "PostToolUse": [
       {
