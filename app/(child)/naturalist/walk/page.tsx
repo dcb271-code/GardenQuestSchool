@@ -191,7 +191,7 @@ export default function NaturalistWalkPage() {
           aria-label="Exit walk"
           onClick={() => router.push(`/garden${learnerId ? `?learner=${learnerId}` : ''}`)}
           className="rounded-full bg-bark/10 text-bark hover:bg-bark/20"
-          style={{ width: 48, height: 48 }}
+          style={{ width: 60, height: 60 }}
         >
           ✕
         </button>
