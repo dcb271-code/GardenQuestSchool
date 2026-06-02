@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createServiceClient } from '@/lib/supabase/server';
+import { nextReviewAt } from '@/lib/naturalist/spacing';
 
 const Body = z.object({
   learnerId: z.string().min(1),
@@ -11,7 +12,8 @@ const Body = z.object({
 export async function POST(req: Request) {
   const body = Body.parse(await req.json());
   const db = createServiceClient();
-  const now = new Date().toISOString();
+  const now = new Date();
+  const nowIso = now.toISOString();
 
   // Try to fetch existing
   const { data: existing, error: selErr } = await db
@@ -27,18 +29,25 @@ export async function POST(req: Request) {
     const nextRoles = body.photoRole && !rolesSeen.includes(body.photoRole)
       ? [...rolesSeen, body.photoRole]
       : rolesSeen;
+    const newExposures = existing.exposures + 1;
     const { data: updated, error: upErr } = await db
       .from('flora_review')
       .update({
-        exposures: existing.exposures + 1,
-        last_seen_at: now,
+        exposures: newExposures,
+        last_seen_at: nowIso,
+        next_review_at: nextReviewAt(newExposures, now).toISOString(),
         photo_roles_seen: nextRoles,
       })
       .eq('id', existing.id)
-      .select('id, exposures')
+      .select('id, exposures, next_review_at')
       .single();
     if (upErr) return NextResponse.json({ error: upErr.message }, { status: 500 });
-    return NextResponse.json({ id: updated!.id, exposures: updated!.exposures, isNew: false });
+    return NextResponse.json({
+      id: updated!.id,
+      exposures: updated!.exposures,
+      nextReviewAt: updated!.next_review_at,
+      isNew: false,
+    });
   }
 
   const { data: created, error: insErr } = await db
@@ -47,11 +56,17 @@ export async function POST(req: Request) {
       learner_id: body.learnerId,
       flora_code: body.floraCode,
       exposures: 1,
-      last_seen_at: now,
+      last_seen_at: nowIso,
+      next_review_at: nextReviewAt(1, now).toISOString(),
       photo_roles_seen: body.photoRole ? [body.photoRole] : [],
     })
-    .select('id, exposures')
+    .select('id, exposures, next_review_at')
     .single();
   if (insErr) return NextResponse.json({ error: insErr.message }, { status: 500 });
-  return NextResponse.json({ id: created!.id, exposures: created!.exposures, isNew: true });
+  return NextResponse.json({
+    id: created!.id,
+    exposures: created!.exposures,
+    nextReviewAt: created!.next_review_at,
+    isNew: true,
+  });
 }
