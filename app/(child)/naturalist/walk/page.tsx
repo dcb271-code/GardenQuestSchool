@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback, useMemo } from 'react';
+import { useEffect, useState, useCallback, useMemo, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
@@ -38,7 +38,7 @@ interface WalkSession {
 
 type Phase = 'loading' | 'intro' | 'key' | 'reveal' | 'done' | 'error';
 
-export default function NaturalistWalkPage() {
+function NaturalistWalkInner() {
   const router = useRouter();
   const params = useSearchParams();
   const learnerId = params.get('learner');
@@ -276,5 +276,21 @@ export default function NaturalistWalkPage() {
         </AnimatePresence>
       </main>
     </div>
+  );
+}
+
+// useSearchParams() requires a Suspense boundary for static prerender in
+// Next.js 14 (the page is otherwise statically generated at build time).
+export default function NaturalistWalkPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-[100dvh] flex items-center justify-center text-bark/60 italic">
+          Looking for something growing nearby…
+        </div>
+      }
+    >
+      <NaturalistWalkInner />
+    </Suspense>
   );
 }
