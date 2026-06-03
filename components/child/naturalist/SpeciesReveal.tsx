@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import type { KeyPhotoRef } from './DichotomousStep';
+import AttributionBadge from './AttributionBadge';
 
 export interface SpeciesRevealProps {
   commonName: string;
@@ -34,6 +35,7 @@ export default function SpeciesReveal({
           ? <Image src={heroPhoto.url} alt={heroPhoto.alt} fill sizes="400px" className="object-cover" priority />
           : <div className="absolute inset-0 flex items-center justify-center text-7xl">{emoji}</div>
         }
+        {heroPhoto?.url && <AttributionBadge attribution={heroPhoto.attribution} />}
       </motion.div>
 
       <motion.div
@@ -61,6 +63,7 @@ export default function SpeciesReveal({
             aria-label={p.alt}
           >
             <Image src={p.url} alt={p.alt} fill sizes="160px" className="object-cover" />
+            <AttributionBadge attribution={p.attribution} />
           </motion.button>
         ))}
       </div>

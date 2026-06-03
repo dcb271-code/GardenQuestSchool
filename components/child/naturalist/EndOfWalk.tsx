@@ -4,6 +4,7 @@ import { motion } from 'framer-motion';
 import Image from 'next/image';
 import Link from 'next/link';
 import type { KeyPhotoRef } from './DichotomousStep';
+import AttributionBadge from './AttributionBadge';
 
 export interface WalkSummaryCard {
   floraCode: string;
@@ -42,6 +43,7 @@ export default function EndOfWalk({
                 ? <Image src={c.heroPhoto.url} alt={c.heroPhoto.alt} fill sizes="200px" className="object-cover" />
                 : <div className="absolute inset-0 flex items-center justify-center text-4xl">{c.emoji}</div>
               }
+              {c.heroPhoto?.url && <AttributionBadge attribution={c.heroPhoto.attribution} />}
             </div>
             <div className="p-3 text-center text-bark font-display">
               {c.commonName}

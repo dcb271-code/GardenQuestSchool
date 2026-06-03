@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import AttributionBadge from './AttributionBadge';
 
 export interface KeyPhotoRef {
   url: string;
@@ -70,6 +71,7 @@ export default function DichotomousStep({
                   </div>
                 )
               }
+              {opt.photo.url && <AttributionBadge attribution={opt.photo.attribution} />}
             </div>
             <div className="p-4 text-bark text-lg md:text-xl font-display">
               {opt.label}
