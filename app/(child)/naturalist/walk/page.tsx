@@ -8,6 +8,7 @@ import WalkProgress from '@/components/child/naturalist/WalkProgress';
 import DichotomousStep, { type KeyPhotoRef } from '@/components/child/naturalist/DichotomousStep';
 import SpeciesReveal from '@/components/child/naturalist/SpeciesReveal';
 import EndOfWalk from '@/components/child/naturalist/EndOfWalk';
+import AttributionBadge from '@/components/child/naturalist/AttributionBadge';
 
 interface KeyStepResolved {
   nodeId: string;
@@ -234,6 +235,7 @@ function NaturalistWalkInner() {
                   ? <img src={current.heroPhoto.url} alt={current.heroPhoto.alt} className="w-full h-full object-cover" />
                   : <div className="absolute inset-0 flex items-center justify-center text-7xl">{current.emoji}</div>
                 }
+                {current.heroPhoto?.url && <AttributionBadge attribution={current.heroPhoto.attribution} />}
               </div>
               <button
                 type="button"
@@ -263,6 +265,7 @@ function NaturalistWalkInner() {
                   ? <img src={current.heroPhoto.url} alt={current.heroPhoto.alt} className="w-full h-full object-cover" />
                   : <div className="absolute inset-0 flex items-center justify-center text-7xl">{current.emoji}</div>
                 }
+                {current.heroPhoto?.url && <AttributionBadge attribution={current.heroPhoto.attribution} />}
               </div>
               <div className="flex gap-3 flex-wrap justify-center">
                 <button
