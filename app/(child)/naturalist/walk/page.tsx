@@ -26,7 +26,10 @@ interface WalkSpecies {
   notableFeatures: string[];
   facts: string[];
   emoji: string;
+  exposures: number;
+  showQuickRecognize: boolean;
   heroPhoto: KeyPhotoRef | null;
+  heroRole: string | null;
   keyPath: KeyStepResolved[];
   revealPhotos: KeyPhotoRef[];
 }
@@ -36,7 +39,7 @@ interface WalkSession {
   species: WalkSpecies[];
 }
 
-type Phase = 'loading' | 'intro' | 'key' | 'reveal' | 'done' | 'error';
+type Phase = 'loading' | 'intro' | 'quick' | 'key' | 'reveal' | 'done' | 'error';
 
 function NaturalistWalkInner() {
   const router = useRouter();
@@ -101,7 +104,7 @@ function NaturalistWalkInner() {
         body: JSON.stringify({
           learnerId,
           floraCode: sp.floraCode,
-          photoRole: 'whole',
+          photoRole: sp.heroRole ?? 'whole',
         }),
       });
     } catch {
@@ -132,6 +135,19 @@ function NaturalistWalkInner() {
   }, [current, recordIdentified, session, speciesIdx]);
 
   const handleIntroBegin = useCallback(() => {
+    if (!current) return;
+    if (current.showQuickRecognize) { setPhase('quick'); return; }
+    if (current.keyPath.length === 0) setPhase('reveal');
+    else setPhase('key');
+  }, [current]);
+
+  // Quick-recognize: "I think so" → straight to reveal (retrieval practice).
+  const handleQuickKnow = useCallback(() => {
+    setPhase('reveal');
+  }, []);
+
+  // Quick-recognize: "Let me check" → fall through to the key flow.
+  const handleQuickCheck = useCallback(() => {
     if (!current) return;
     if (current.keyPath.length === 0) setPhase('reveal');
     else setPhase('key');
@@ -227,6 +243,45 @@ function NaturalistWalkInner() {
               >
                 Begin →
               </button>
+            </motion.div>
+          )}
+
+          {phase === 'quick' && (
+            <motion.div
+              key={`quick-${current.floraCode}`}
+              initial={reducedMotion ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={reducedMotion ? undefined : { opacity: 0 }}
+              transition={{ duration: 0.35 }}
+              className="flex flex-col items-center px-4 text-center max-w-2xl"
+            >
+              <p className="text-lg md:text-xl text-bark/70 mb-6">
+                Do you already know this one?
+              </p>
+              <div className="w-full max-w-md rounded-3xl overflow-hidden border-4 border-bark/15 bg-cream shadow-md aspect-square relative mb-6">
+                {current.heroPhoto?.url
+                  ? <img src={current.heroPhoto.url} alt={current.heroPhoto.alt} className="w-full h-full object-cover" />
+                  : <div className="absolute inset-0 flex items-center justify-center text-7xl">{current.emoji}</div>
+                }
+              </div>
+              <div className="flex gap-3 flex-wrap justify-center">
+                <button
+                  type="button"
+                  onClick={handleQuickKnow}
+                  className="px-8 py-4 rounded-full bg-forest text-cream font-display text-xl shadow-md"
+                  style={{ minHeight: 60, touchAction: 'manipulation' }}
+                >
+                  I think so
+                </button>
+                <button
+                  type="button"
+                  onClick={handleQuickCheck}
+                  className="px-8 py-4 rounded-full bg-bark/15 text-bark font-display text-xl shadow-md"
+                  style={{ minHeight: 60, touchAction: 'manipulation' }}
+                >
+                  Let me check
+                </button>
+              </div>
             </motion.div>
           )}
 
