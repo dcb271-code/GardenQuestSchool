@@ -621,6 +621,59 @@ export default function ReadingForestScene({
           <path d="M -3 -8 Q 0 -8 3 -10" stroke="#8A6635" strokeWidth={1} fill="none" strokeLinecap="round" />
         </g>
 
+        {/* ── Naturalist Grove signpost (south edge) ──
+             A second wooden signpost pointing DOWN/out of the forest to
+             the Naturalist Grove walk (real tree + wildflower ID). Taps
+             route to /naturalist/walk. Placed in open ground at the
+             bottom-center so it clears the phonics structures. */}
+        <g
+          transform="translate(720, 752)"
+          style={{ cursor: 'pointer', touchAction: 'manipulation' }}
+          onClick={() => router.push(`/naturalist/walk?learner=${learnerId}`)}
+          role="button"
+          aria-label="to Naturalist Grove"
+          tabIndex={0}
+        >
+          {/* generous invisible hit target */}
+          <rect x={-60} y={-46} width={120} height={86} fill="transparent" />
+          {/* ground shadow + post */}
+          <ellipse cx={0} cy={34} rx={11} ry={3} fill="#000" opacity={0.22} />
+          <rect x={-3.5} y={-28} width={7} height={62} rx={2} fill="#8B5A2B" stroke="#5A3B1F" strokeWidth={1.3} />
+          {/* sign board with a down-pointing arrow tab on the bottom edge */}
+          <path
+            d="M -52 -40 L 52 -40 Q 56 -40 56 -36 L 56 -16 Q 56 -12 52 -12 L 8 -12 L 0 -4 L -8 -12 L -52 -12 Q -56 -12 -56 -16 L -56 -36 Q -56 -40 -52 -40 Z"
+            fill="#FFFAF2" stroke="#8B5A2B" strokeWidth={1.6} strokeLinejoin="round"
+          />
+          <text
+            x={0} y={-29} textAnchor="middle"
+            fontSize={11} fontWeight={700} fill="#6b4423"
+            style={{ userSelect: 'none' }}
+          >
+            Naturalist
+          </text>
+          <text
+            x={0} y={-18} textAnchor="middle"
+            fontSize={11} fontWeight={700} fill="#6b4423"
+            style={{ userSelect: 'none' }}
+          >
+            Grove ↓
+          </text>
+          {/* tiny dogwood-bloom hint beside the post — four white bracts + gold center */}
+          <g transform="translate(20, 16)" pointerEvents="none">
+            {[0, 90, 180, 270].map(deg => (
+              <ellipse key={deg} cx={0} cy={-3.4} rx={2} ry={3.2} fill="#FFFAF2"
+                       stroke="#C9B79A" strokeWidth={0.5} transform={`rotate(${deg})`} />
+            ))}
+            <circle cx={0} cy={0} r={1.5} fill="#E8C493" />
+          </g>
+          {/* a couple of fern fronds at the post base */}
+          <g transform="translate(-16, 30)" pointerEvents="none">
+            <path d="M 0 0 Q -3 -8 -7 -13" stroke="#6B8E5A" strokeWidth={1.3} fill="none" strokeLinecap="round" />
+            <path d="M 0 0 Q 0 -10 -1 -16" stroke="#6B8E5A" strokeWidth={1.3} fill="none" strokeLinecap="round" />
+            <path d="M 0 0 Q 3 -8 5 -13" stroke="#6B8E5A" strokeWidth={1.2} fill="none" strokeLinecap="round" />
+          </g>
+        </g>
+
         {/* ── 11. SIGHT WORD GLADE — open clearing NW ──
              All three rf_dolch structures now at (140,400), (240,440), (160,490)
              — within the glade oval (x:80-340, y:360-510).
