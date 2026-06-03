@@ -4,6 +4,10 @@ import { createServiceClient } from '@/lib/supabase/server';
 import { SPECIES_CATALOG } from '@/lib/world/speciesCatalog';
 import { resolveLearnerId } from '@/lib/learner/activeLearner';
 import SpeciesGrid from './SpeciesGrid';
+import { buildFloraJournal } from '@/lib/naturalist/floraJournal';
+import { FLORA_CATALOG } from '@/lib/world/floraCatalog';
+import { publicUrlFor } from '@/lib/naturalist/floraPhotoStorage';
+import FloraJournalGrid from './FloraJournalGrid';
 
 export const dynamic = 'force-dynamic';
 
@@ -39,6 +43,39 @@ export default async function JournalPage({
     .select('species:species_id(code)')
     .eq('learner_id', learnerId!);
   const unlocked = new Set((journalRows ?? []).map((r: any) => r.species.code));
+
+  // ── Trees & Flowers (Naturalist Grove) ──────────────────────────
+  const { data: floraReviewRows } = await db
+    .from('flora_review')
+    .select('flora_code, exposures')
+    .eq('learner_id', learnerId!);
+  const discoveredFlora = new Map<string, number>(
+    (floraReviewRows ?? []).map((r: any) => [r.flora_code, r.exposures ?? 0]),
+  );
+
+  const heroUrlByCode = new Map<string, string>();
+  const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (baseUrl && discoveredFlora.size > 0) {
+    const { data: floraPhotoRows } = await db
+      .from('flora_photo')
+      .select('flora_code, role, storage_path')
+      .in('flora_code', Array.from(discoveredFlora.keys()))
+      .eq('tier', 1);
+    // Prefer a 'whole' photo per code; fall back to the first available.
+    const byCode = new Map<string, { role: string; storage_path: string }[]>();
+    for (const r of floraPhotoRows ?? []) {
+      const list = byCode.get(r.flora_code) ?? [];
+      list.push({ role: r.role, storage_path: r.storage_path });
+      byCode.set(r.flora_code, list);
+    }
+    for (const [code, list] of Array.from(byCode.entries())) {
+      const whole = list.find(p => p.role === 'whole') ?? list[0];
+      if (whole) heroUrlByCode.set(code, publicUrlFor(baseUrl, whole.storage_path, { widthPx: 240 }));
+    }
+  }
+
+  const floraJournal = buildFloraJournal({ discovered: discoveredFlora, heroUrlByCode });
+  const floraDiscoveredCount = floraJournal.filter(e => e.discovered).length;
 
   const backHref = learnerId ? `/garden?learner=${learnerId}` : '/picker';
 
@@ -141,6 +178,37 @@ export default async function JournalPage({
             tap a creature you&apos;ve discovered to learn more about it
           </div>
         )}
+      </section>
+
+      <section>
+        <div className="flex items-baseline justify-between mb-3">
+          <h2 className="font-display italic text-[13px] text-bark/55 tracking-[0.2em] uppercase">
+            trees &amp; flowers
+          </h2>
+          <div className="font-display text-[14px] text-bark/65">
+            <span className="font-bold text-forest">{floraDiscoveredCount}</span>
+            <span className="text-bark/40"> / {FLORA_CATALOG.length}</span>
+          </div>
+        </div>
+
+        {floraDiscoveredCount === 0 && (
+          <div className="mb-4 bg-gradient-to-br from-cream to-sage/20 border-4 border-sage/40 rounded-2xl p-5">
+            <div className="flex items-start gap-4">
+              <div className="text-5xl shrink-0">🌳</div>
+              <div className="flex-1">
+                <div className="font-display text-[22px] text-bark leading-tight" style={{ fontWeight: 600 }}>
+                  <span className="italic text-forest">take a walk</span> in the Naturalist Grove
+                </div>
+                <p className="font-display italic text-[15px] text-bark/70 mt-2 leading-snug">
+                  find the signpost in the Reading Forest. every tree and flower you identify
+                  on a walk lands here.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        <FloraJournalGrid entries={floraJournal} />
       </section>
     </main>
   );
