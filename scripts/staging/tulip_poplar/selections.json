@@ -2,31 +2,49 @@
   {
     "filename": "inat_427773301.jpg",
     "role": "whole",
+    "tier": 2,
+    "altText": "A tall tulip poplar tree with green leaves growing in a grassy park."
+  },
+  {
+    "filename": "inat_302136608.jpg",
+    "role": "leaf",
     "tier": 1,
-    "altText": "Tulip Poplar — whole reference"
+    "altText": "Green tulip poplar leaves with four points and a flat top."
   },
   {
     "filename": "inat_427776480.jpg",
     "role": "leaf",
-    "tier": 1,
-    "altText": "Tulip Poplar — leaf reference"
+    "tier": 2,
+    "altText": "Tulip poplar leaves with pointy lobes against a blue sky."
   },
   {
-    "filename": "inat_427776535.jpg",
-    "role": "bark",
-    "tier": 1,
-    "altText": "Tulip Poplar — bark reference"
+    "filename": "inat_297867930.jpg",
+    "role": "leaf",
+    "tier": 2,
+    "altText": "Young tulip poplar plants with flat-topped leaves on the forest floor."
   },
   {
-    "filename": "inat_302136608.jpg",
+    "filename": "inat_124165290.jpg",
     "role": "flower",
     "tier": 1,
-    "altText": "Tulip Poplar — flower reference"
+    "altText": "A green and orange tulip poplar flower lying next to its leaves."
   },
   {
-    "filename": "inat_645803000.jpg",
-    "role": "whole",
-    "tier": 1,
-    "altText": "Tulip Poplar — whole reference"
+    "filename": "inat_380688646.jpg",
+    "role": "flower",
+    "tier": 2,
+    "altText": "A cup-shaped tulip poplar flower with an orange band inside."
+  },
+  {
+    "filename": "wikimedia_10528828.jpg",
+    "role": "flower",
+    "tier": 2,
+    "altText": "Yellow-green tulip poplar flowers blooming high up among the leaves."
+  },
+  {
+    "filename": "wikimedia_10614088.jpg",
+    "role": "leaf",
+    "tier": 2,
+    "altText": "Many shiny green tulip poplar leaves with a few flowers on the tree."
   }
 ]

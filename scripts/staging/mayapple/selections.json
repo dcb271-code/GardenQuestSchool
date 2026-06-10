@@ -1,32 +1,50 @@
 [
   {
-    "filename": "inat_64146147.jpg",
+    "filename": "inat_127511309.jpg",
     "role": "whole",
     "tier": 1,
-    "altText": "Mayapple — whole reference"
+    "altText": "A mayapple plant with big leaves like green umbrellas and white flowers underneath."
   },
   {
-    "filename": "inat_141016103.jpg",
+    "filename": "inat_64225703.jpg",
+    "role": "whole",
+    "tier": 2,
+    "altText": "Many mayapple plants standing like little green umbrellas on the forest floor."
+  },
+  {
+    "filename": "inat_120955425.jpg",
+    "role": "whole",
+    "tier": 3,
+    "altText": "A patch of mayapple plants with big umbrella shaped leaves."
+  },
+  {
+    "filename": "inat_126235138.jpg",
     "role": "leaf",
+    "tier": 2,
+    "altText": "A big round mayapple leaf that looks like a green umbrella."
+  },
+  {
+    "filename": "inat_64220995.jpg",
+    "role": "flower",
     "tier": 1,
-    "altText": "Mayapple — leaf reference"
+    "altText": "A white mayapple flower hiding under the big umbrella leaf."
+  },
+  {
+    "filename": "inat_277640937.jpg",
+    "role": "flower",
+    "tier": 1,
+    "altText": "A close look at a white mayapple flower with a yellow middle."
+  },
+  {
+    "filename": "inat_64223380.jpg",
+    "role": "flower",
+    "tier": 2,
+    "altText": "A white mayapple flower seen from the side under the leaves."
   },
   {
     "filename": "inat_141016133.jpg",
-    "role": "flower",
-    "tier": 1,
-    "altText": "Mayapple — flower reference"
-  },
-  {
-    "filename": "inat_141016161.jpg",
     "role": "fruit",
-    "tier": 1,
-    "altText": "Mayapple — fruit reference"
-  },
-  {
-    "filename": "inat_141016177.jpg",
-    "role": "whole",
-    "tier": 1,
-    "altText": "Mayapple — whole reference"
+    "tier": 3,
+    "altText": "Small green mayapple fruits shaped like little apples under the forked stem."
   }
 ]

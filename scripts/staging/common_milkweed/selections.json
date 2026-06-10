@@ -1,32 +1,56 @@
 [
   {
-    "filename": "inat_20559686.jpg",
-    "role": "whole",
-    "tier": 1,
-    "altText": "Common Milkweed — whole reference"
-  },
-  {
-    "filename": "inat_20559694.jpg",
+    "filename": "inat_204987993.jpg",
     "role": "flower",
     "tier": 1,
-    "altText": "Common Milkweed — flower reference"
+    "altText": "A round ball of pink milkweed flowers."
   },
   {
-    "filename": "inat_20559697.jpg",
-    "role": "leaf",
+    "filename": "inat_20559686.jpg",
+    "role": "flower",
     "tier": 1,
-    "altText": "Common Milkweed — leaf reference"
+    "altText": "A bumblebee sits on a pink milkweed flower ball."
   },
   {
-    "filename": "inat_20559703.jpg",
-    "role": "fruit",
-    "tier": 1,
-    "altText": "Common Milkweed — fruit reference"
+    "filename": "inat_140021160.jpg",
+    "role": "flower",
+    "tier": 2,
+    "altText": "A pink milkweed flower ball growing on a tall plant."
   },
   {
     "filename": "inat_20559706.jpg",
-    "role": "whole",
+    "role": "flower",
+    "tier": 2,
+    "altText": "A pink milkweed flower cluster hangs over big green leaves."
+  },
+  {
+    "filename": "inat_524224209.jpg",
+    "role": "leaf",
     "tier": 1,
-    "altText": "Common Milkweed — whole reference"
+    "altText": "Big oval green leaves on a young milkweed plant."
+  },
+  {
+    "filename": "inat_204987984.jpg",
+    "role": "leaf",
+    "tier": 2,
+    "altText": "A long oval milkweed leaf next to pink flower buds."
+  },
+  {
+    "filename": "inat_115335046.jpg",
+    "role": "fruit",
+    "tier": 2,
+    "altText": "Dry pointy milkweed seedpods that have split open."
+  },
+  {
+    "filename": "inat_140021530.jpg",
+    "role": "whole",
+    "tier": 2,
+    "altText": "Two tall milkweed plants growing in a grassy field."
+  },
+  {
+    "filename": "inat_283053604.jpg",
+    "role": "whole",
+    "tier": 3,
+    "altText": "A young milkweed plant with big green leaves in the grass."
   }
 ]

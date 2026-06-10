@@ -1,32 +1,56 @@
 [
   {
-    "filename": "inat_117997126.jpg",
+    "filename": "inat_120921036.jpg",
     "role": "whole",
     "tier": 1,
-    "altText": "Eastern Redbud — whole reference"
+    "altText": "A whole redbud tree glowing pink at the edge of a field"
   },
   {
-    "filename": "inat_117997450.jpg",
-    "role": "leaf",
-    "tier": 1,
-    "altText": "Eastern Redbud — leaf reference"
+    "filename": "inat_31668287.jpg",
+    "role": "whole",
+    "tier": 2,
+    "altText": "A small redbud tree with pink flowers and a thin twisty trunk"
   },
   {
-    "filename": "inat_305869688.jpg",
+    "filename": "inat_117997126.jpg",
     "role": "flower",
     "tier": 1,
-    "altText": "Eastern Redbud — flower reference"
+    "altText": "Bright pink redbud flowers growing right out of a bare branch"
   },
   {
-    "filename": "inat_492685987.jpg",
-    "role": "whole",
+    "filename": "inat_479758596.jpg",
+    "role": "flower",
     "tier": 1,
-    "altText": "Eastern Redbud — whole reference"
+    "altText": "Pink redbud flowers up close on a dark twig with blue sky behind"
   },
   {
-    "filename": "inat_492686042.jpg",
+    "filename": "inat_31668261.jpg",
+    "role": "flower",
+    "tier": 2,
+    "altText": "Lots of little pink flowers covering the redbud branches"
+  },
+  {
+    "filename": "inat_31668175.jpg",
+    "role": "flower",
+    "tier": 3,
+    "altText": "Redbud branches turning pink with tiny spring flowers"
+  },
+  {
+    "filename": "inat_272090227.jpg",
     "role": "leaf",
     "tier": 1,
-    "altText": "Eastern Redbud — leaf reference"
+    "altText": "Green redbud leaves shaped like hearts on a thin branch"
+  },
+  {
+    "filename": "inat_420147232.jpg",
+    "role": "leaf",
+    "tier": 2,
+    "altText": "Big heart shaped redbud leaves making cool shade"
+  },
+  {
+    "filename": "inat_261492190.jpg",
+    "role": "leaf",
+    "tier": 2,
+    "altText": "A shiny new redbud leaf shaped like a heart"
   }
 ]

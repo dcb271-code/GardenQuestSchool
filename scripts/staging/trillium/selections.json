@@ -1,32 +1,56 @@
 [
   {
-    "filename": "inat_17368175.jpg",
+    "filename": "inat_506560854.jpg",
     "role": "whole",
     "tier": 1,
-    "altText": "Large White Trillium — whole reference"
+    "altText": "A white trillium flower with three petals above three big green leaves"
+  },
+  {
+    "filename": "inat_506560752.jpg",
+    "role": "leaf",
+    "tier": 1,
+    "altText": "Three big green trillium leaves under one white flower"
+  },
+  {
+    "filename": "inat_121448358.jpg",
+    "role": "whole",
+    "tier": 2,
+    "altText": "One trillium plant with a white flower and three wide leaves"
+  },
+  {
+    "filename": "inat_126904907.jpg",
+    "role": "whole",
+    "tier": 2,
+    "altText": "A trillium plant with a white flower growing on the forest floor"
+  },
+  {
+    "filename": "inat_39892922.jpg",
+    "role": "leaf",
+    "tier": 2,
+    "altText": "Trillium plants with big wide leaves and white flowers in the woods"
   },
   {
     "filename": "inat_17368278.jpg",
     "role": "flower",
-    "tier": 1,
-    "altText": "Large White Trillium — flower reference"
+    "tier": 2,
+    "altText": "A close look at a pale trillium flower with three petals"
   },
   {
-    "filename": "inat_17368284.jpg",
-    "role": "leaf",
-    "tier": 1,
-    "altText": "Large White Trillium — leaf reference"
+    "filename": "inat_652976548.jpg",
+    "role": "whole",
+    "tier": 3,
+    "altText": "A small trillium plant with one white flower next to a log"
   },
   {
     "filename": "inat_36751435.jpg",
     "role": "whole",
-    "tier": 1,
-    "altText": "Large White Trillium — whole reference"
+    "tier": 3,
+    "altText": "Many white trillium flowers covering the forest floor"
   },
   {
-    "filename": "inat_46628769.jpg",
+    "filename": "inat_116232137.jpg",
     "role": "flower",
-    "tier": 1,
-    "altText": "Large White Trillium — flower reference"
+    "tier": 3,
+    "altText": "An older trillium flower that has faded to pink"
   }
 ]

@@ -15,6 +15,7 @@
     "db:seed": "tsx scripts/seed.ts",
     "naturalist:harvest": "tsx scripts/seed-flora-photos.ts",
     "naturalist:auto-curate": "tsx scripts/auto-curate-flora-photos.ts",
+    "naturalist:validate": "tsx scripts/validate-flora-selections.ts",
     "naturalist:upload": "tsx scripts/upload-flora-photos.ts"
   },
   "dependencies": {

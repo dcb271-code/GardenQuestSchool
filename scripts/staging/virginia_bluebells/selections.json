@@ -1,32 +1,56 @@
 [
   {
-    "filename": "inat_481562291.jpg",
+    "filename": "inat_189140470.jpg",
     "role": "whole",
     "tier": 1,
-    "altText": "Virginia Bluebells — whole reference"
+    "altText": "Bluebell plants with green leaves and lots of hanging blue flowers."
   },
   {
-    "filename": "inat_15677613.jpg",
+    "filename": "inat_267745849.jpg",
+    "role": "whole",
+    "tier": 2,
+    "altText": "Tall bluebell plants reaching up with blue flowers under the trees."
+  },
+  {
+    "filename": "inat_267745802.jpg",
+    "role": "whole",
+    "tier": 2,
+    "altText": "A big patch of bluebells with round leaves growing by a fallen log."
+  },
+  {
+    "filename": "inat_116232061.jpg",
     "role": "flower",
     "tier": 1,
-    "altText": "Virginia Bluebells — flower reference"
-  },
-  {
-    "filename": "inat_121470132.jpg",
-    "role": "leaf",
-    "tier": 1,
-    "altText": "Virginia Bluebells — leaf reference"
-  },
-  {
-    "filename": "inat_7491626.jpg",
-    "role": "whole",
-    "tier": 1,
-    "altText": "Virginia Bluebells — whole reference"
+    "altText": "Sky blue bluebell flowers shaped like little trumpets."
   },
   {
     "filename": "inat_368160612.jpg",
     "role": "flower",
     "tier": 1,
-    "altText": "Virginia Bluebells — flower reference"
+    "altText": "Blue trumpet flowers hanging down next to pink buds."
+  },
+  {
+    "filename": "inat_121709530.jpg",
+    "role": "flower",
+    "tier": 2,
+    "altText": "A bunch of light blue bell flowers with little pink buds."
+  },
+  {
+    "filename": "inat_444680986.jpg",
+    "role": "flower",
+    "tier": 2,
+    "altText": "Clusters of blue trumpet flowers dangling from a green stem."
+  },
+  {
+    "filename": "inat_267748514.jpg",
+    "role": "leaf",
+    "tier": 1,
+    "altText": "Smooth oval green leaves with blue bell flowers peeking out."
+  },
+  {
+    "filename": "inat_267748500.jpg",
+    "role": "leaf",
+    "tier": 2,
+    "altText": "Big oval leaves on a bluebell plant with blue flowers hanging down."
   }
 ]

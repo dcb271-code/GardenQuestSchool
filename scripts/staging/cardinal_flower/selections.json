@@ -1,32 +1,62 @@
 [
   {
-    "filename": "inat_90644093.jpg",
-    "role": "whole",
-    "tier": 1,
-    "altText": "Cardinal Flower — whole reference"
-  },
-  {
-    "filename": "inat_90644120.jpg",
-    "role": "flower",
-    "tier": 1,
-    "altText": "Cardinal Flower — flower reference"
-  },
-  {
-    "filename": "inat_90644133.jpg",
-    "role": "leaf",
-    "tier": 1,
-    "altText": "Cardinal Flower — leaf reference"
-  },
-  {
     "filename": "inat_90644105.jpg",
     "role": "whole",
     "tier": 1,
-    "altText": "Cardinal Flower — whole reference"
+    "altText": "A tall cardinal flower plant with a bright red spike growing in a green meadow"
+  },
+  {
+    "filename": "inat_90644093.jpg",
+    "role": "whole",
+    "tier": 1,
+    "altText": "A tall spike of bright red cardinal flowers standing in tall grass"
+  },
+  {
+    "filename": "inat_349103835.jpg",
+    "role": "whole",
+    "tier": 2,
+    "altText": "A cardinal flower plant with red flowers growing next to a stream"
+  },
+  {
+    "filename": "inat_492913.jpg",
+    "role": "whole",
+    "tier": 2,
+    "altText": "A cardinal flower plant with red flowers and long green leaves in the grass"
+  },
+  {
+    "filename": "inat_90644133.jpg",
+    "role": "flower",
+    "tier": 1,
+    "altText": "Bright scarlet red cardinal flowers up close"
+  },
+  {
+    "filename": "inat_274671194.jpg",
+    "role": "flower",
+    "tier": 1,
+    "altText": "Many bright red cardinal flowers on a tall stem"
+  },
+  {
+    "filename": "inat_23497042.jpg",
+    "role": "flower",
+    "tier": 1,
+    "altText": "One bright red cardinal flower with long pointy petals"
   },
   {
     "filename": "inat_576700189.jpg",
     "role": "flower",
+    "tier": 2,
+    "altText": "Red cardinal flowers and buds on a tall green stem"
+  },
+  {
+    "filename": "inat_23497074.jpg",
+    "role": "leaf",
     "tier": 1,
-    "altText": "Cardinal Flower — flower reference"
+    "altText": "A long pointed dark green cardinal flower leaf"
+  },
+  {
+    "filename": "inat_23497084.jpg",
+    "role": "leaf",
+    "tier": 2,
+    "altText": "Long pointed green leaves on a cardinal flower stem"
   }
 ]

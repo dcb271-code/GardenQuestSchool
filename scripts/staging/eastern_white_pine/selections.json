@@ -1,32 +1,50 @@
 [
   {
-    "filename": "inat_1813546.jpg",
+    "filename": "inat_390760300.jpg",
     "role": "whole",
     "tier": 1,
-    "altText": "Eastern White Pine — whole reference"
+    "altText": "A tall eastern white pine tree with soft green branches against a blue sky"
   },
   {
-    "filename": "inat_96695116.jpg",
-    "role": "leaf",
-    "tier": 1,
-    "altText": "Eastern White Pine — leaf reference"
-  },
-  {
-    "filename": "inat_172827545.jpg",
-    "role": "bark",
-    "tier": 1,
-    "altText": "Eastern White Pine — bark reference"
-  },
-  {
-    "filename": "inat_172827567.jpg",
-    "role": "fruit",
-    "tier": 1,
-    "altText": "Eastern White Pine — fruit reference"
+    "filename": "inat_54881054.jpg",
+    "role": "whole",
+    "tier": 3,
+    "altText": "White pine trees with fluffy green needles growing at the edge of a field"
   },
   {
     "filename": "inat_67654091.jpg",
-    "role": "whole",
+    "role": "leaf",
     "tier": 1,
-    "altText": "Eastern White Pine — whole reference"
+    "altText": "Long soft white pine needles that grow in bundles of five"
+  },
+  {
+    "filename": "inat_266221838.jpg",
+    "role": "leaf",
+    "tier": 2,
+    "altText": "A small white pine branch with long thin green needles"
+  },
+  {
+    "filename": "inat_317022361.jpg",
+    "role": "bark",
+    "tier": 1,
+    "altText": "The thick trunk of a white pine covered in rough ridged bark"
+  },
+  {
+    "filename": "inat_375641994.jpg",
+    "role": "fruit",
+    "tier": 1,
+    "altText": "A long pine cone with open scales lying on the forest floor"
+  },
+  {
+    "filename": "inat_317022380.jpg",
+    "role": "fruit",
+    "tier": 2,
+    "altText": "Two long slender pine cones resting on mossy ground"
+  },
+  {
+    "filename": "inat_375641978.jpg",
+    "role": "fruit",
+    "tier": 3,
+    "altText": "Many long pine cones lying on a bed of fallen pine needles"
   }
 ]

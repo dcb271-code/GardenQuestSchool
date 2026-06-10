@@ -1,32 +1,56 @@
 [
   {
-    "filename": "inat_6561004.jpg",
+    "filename": "inat_120338827.jpg",
     "role": "whole",
-    "tier": 1,
-    "altText": "Flowering Dogwood — whole reference"
-  },
-  {
-    "filename": "inat_358429280.jpg",
-    "role": "leaf",
-    "tier": 1,
-    "altText": "Flowering Dogwood — leaf reference"
-  },
-  {
-    "filename": "inat_358429296.jpg",
-    "role": "bark",
-    "tier": 1,
-    "altText": "Flowering Dogwood — bark reference"
-  },
-  {
-    "filename": "inat_358429304.jpg",
-    "role": "flower",
-    "tier": 1,
-    "altText": "Flowering Dogwood — flower reference"
+    "tier": 3,
+    "altText": "A small dogwood tree covered in white flowers in the spring forest."
   },
   {
     "filename": "inat_121222674.jpg",
+    "role": "flower",
+    "tier": 1,
+    "altText": "Two white dogwood flowers with four big petals and yellow centers."
+  },
+  {
+    "filename": "inat_120368986.jpg",
+    "role": "flower",
+    "tier": 1,
+    "altText": "A dogwood branch full of white four petal flowers."
+  },
+  {
+    "filename": "inat_275246502.jpg",
+    "role": "flower",
+    "tier": 1,
+    "altText": "A big white dogwood flower with four petals and a yellow middle."
+  },
+  {
+    "filename": "inat_488913705.jpg",
+    "role": "flower",
+    "tier": 1,
+    "altText": "Lots of white dogwood flowers covering the branches."
+  },
+  {
+    "filename": "inat_488913650.jpg",
+    "role": "flower",
+    "tier": 2,
+    "altText": "Up close you can see the tiny real flowers in the middle of the white petals."
+  },
+  {
+    "filename": "inat_5628982.jpg",
     "role": "fruit",
     "tier": 1,
-    "altText": "Flowering Dogwood — fruit reference"
+    "altText": "Shiny red dogwood berries sitting on colorful fall leaves."
+  },
+  {
+    "filename": "inat_344524960.jpg",
+    "role": "fruit",
+    "tier": 2,
+    "altText": "Two red dogwood berries growing above a green leaf."
+  },
+  {
+    "filename": "inat_5628991.jpg",
+    "role": "leaf",
+    "tier": 2,
+    "altText": "Oval dogwood leaves turning red and green in the fall."
   }
 ]

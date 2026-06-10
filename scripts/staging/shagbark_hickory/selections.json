@@ -1,32 +1,50 @@
 [
   {
-    "filename": "inat_363547030.jpg",
+    "filename": "inat_654266135.jpg",
     "role": "whole",
     "tier": 1,
-    "altText": "Shagbark Hickory — whole reference"
+    "altText": "A tall shagbark hickory tree with shaggy bark and a big green crown."
   },
   {
     "filename": "inat_363547486.jpg",
-    "role": "leaf",
-    "tier": 1,
-    "altText": "Shagbark Hickory — leaf reference"
+    "role": "whole",
+    "tier": 2,
+    "altText": "Looking up the trunk of a hickory tree into its leafy branches."
   },
   {
-    "filename": "inat_363547697.jpg",
+    "filename": "inat_255982893.jpg",
+    "role": "whole",
+    "tier": 3,
+    "altText": "A tall hickory tree with bare branches and shaggy bark in winter."
+  },
+  {
+    "filename": "inat_363547030.jpg",
     "role": "bark",
     "tier": 1,
-    "altText": "Shagbark Hickory — bark reference"
+    "altText": "Shaggy hickory bark peeling off the trunk in long strips."
+  },
+  {
+    "filename": "inat_654266029.jpg",
+    "role": "bark",
+    "tier": 2,
+    "altText": "A hickory tree trunk covered in rough strips of peeling bark."
+  },
+  {
+    "filename": "inat_654266113.jpg",
+    "role": "leaf",
+    "tier": 1,
+    "altText": "Green hickory leaves with five leaflets in a row."
   },
   {
     "filename": "inat_363547840.jpg",
-    "role": "fruit",
-    "tier": 1,
-    "altText": "Shagbark Hickory — fruit reference"
+    "role": "leaf",
+    "tier": 2,
+    "altText": "Hickory leaves with five leaflets seen against the blue sky."
   },
   {
-    "filename": "inat_363548392.jpg",
-    "role": "whole",
-    "tier": 1,
-    "altText": "Shagbark Hickory — whole reference"
+    "filename": "inat_363547697.jpg",
+    "role": "leaf",
+    "tier": 3,
+    "altText": "Sunny green hickory leaves high up in the tree."
   }
 ]
