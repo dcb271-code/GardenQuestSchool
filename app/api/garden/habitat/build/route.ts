@@ -87,5 +87,18 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
+  // Emit interest signals — the child CHOSE this habitat, so bias the
+  // next sessions toward its themes. Non-fatal: a logging failure must
+  // never break the build.
+  const { error: sigErr } = await db.from('interest_signal').insert(
+    habitat.interestTags.map(tag => ({
+      learner_id: body.learnerId,
+      tag,
+      weight: 1.0,
+      source: 'habitat_build',
+    })),
+  );
+  if (sigErr) console.error('interest_signal insert failed:', sigErr.message);
+
   return NextResponse.json({ built: true, alreadyBuilt: false, habitatId: inserted.id });
 }

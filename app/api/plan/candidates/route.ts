@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
-import { generateExpeditionCandidates } from '@/lib/engine';
+import { generateExpeditionCandidates, computeInterestTagDecay } from '@/lib/engine';
 import { GARDEN_STRUCTURES } from '@/lib/world/gardenMap';
 import { ZONE_COMPLETION_TARGET, ZONE_SKILL_ORDER } from '@/lib/world/zoneProgress';
 
@@ -58,11 +58,36 @@ export async function GET(req: Request) {
     nextReviewAt: r.next_review_at ? new Date(r.next_review_at) : null,
   }));
 
+  // Emergent curriculum: fetch recent interest signals + the sessions
+  // started since each, decay 0.6x/session, and bias candidate scoring
+  // toward matching skill themeTags.
+  const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString();
+  const [{ data: signalRows }, { data: sessionRows }] = await Promise.all([
+    db.from('interest_signal')
+      .select('tag, weight, created_at')
+      .eq('learner_id', learnerId)
+      .gte('created_at', thirtyDaysAgo)
+      .order('created_at', { ascending: false })
+      .limit(200),
+    db.from('session')
+      .select('started_at')
+      .eq('learner_id', learnerId)
+      .gte('started_at', thirtyDaysAgo),
+  ]);
+  const interestTagDecay = computeInterestTagDecay(
+    (signalRows ?? []).map((r: any) => ({
+      tag: r.tag,
+      weight: Number(r.weight),
+      createdAt: new Date(r.created_at),
+    })),
+    (sessionRows ?? []).map((r: any) => new Date(r.started_at)),
+  );
+
   const candidates = generateExpeditionCandidates({
     skills,
     progress,
     getThemeHeader,
-    interestTagDecay: [],
+    interestTagDecay,
   });
 
   // Cumulative correct attempts per skill — drives the x/n badge so the

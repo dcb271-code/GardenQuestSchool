@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createServiceClient } from '@/lib/supabase/server';
 import { nextReviewAt } from '@/lib/naturalist/spacing';
+import { FLORA_CATALOG } from '@/lib/world/floraCatalog';
 
 const Body = z.object({
   learnerId: z.string().min(1),
@@ -63,6 +64,24 @@ export async function POST(req: Request) {
     .select('id, exposures, next_review_at')
     .single();
   if (insErr) return NextResponse.json({ error: insErr.message }, { status: 500 });
+
+  // First discovery of this species — emit gentle interest signals so
+  // the planner can surface plant/flower-themed skills next session.
+  // Non-fatal: a logging failure must never break the discovery.
+  const flora = FLORA_CATALOG.find(f => f.code === body.floraCode);
+  const floraTags = flora?.kind === 'flower'
+    ? ['flowers', 'plants', 'nature']
+    : ['plants', 'nature'];
+  const { error: sigErr } = await db.from('interest_signal').insert(
+    floraTags.map(tag => ({
+      learner_id: body.learnerId,
+      tag,
+      weight: 0.5,
+      source: 'naturalist_identify',
+    })),
+  );
+  if (sigErr) console.error('interest_signal insert failed:', sigErr.message);
+
   return NextResponse.json({
     id: created!.id,
     exposures: created!.exposures,
