@@ -7,6 +7,7 @@ import { DICHOTOMOUS_KEY } from '@/lib/world/dichotomousKey';
 import { canonicalKeyPath } from '@/lib/naturalist/walkBuilder';
 import { selectWalkSpecies, type ReviewRow } from '@/lib/naturalist/walkSelection';
 import { publicUrlFor } from '@/lib/naturalist/floraPhotoStorage';
+import { pickPhotoRow } from '@/lib/naturalist/photoPick';
 import { currentSeason, floraCodesInSeason } from '@/lib/world/season';
 import { tierForExposures, nextRoleForExposure } from '@/lib/naturalist/spacing';
 
@@ -76,35 +77,6 @@ function toPhotoRef(row: FloraPhotoRow, baseUrl: string): PhotoRef {
   };
 }
 
-// Pick a photo for (code, role) preferring `tier`, falling back to any tier.
-// Returns null if no photo of that role exists at all.
-function pickRowTiered(
-  rows: FloraPhotoRow[],
-  floraCode: string,
-  role: PhotoRole,
-  tier: number,
-  rng: () => number,
-): FloraPhotoRow | null {
-  const sameRole = rows.filter(r => r.flora_code === floraCode && r.role === role);
-  if (sameRole.length === 0) return null;
-  const preferred = sameRole.filter(r => r.tier === tier);
-  const pool = preferred.length > 0 ? preferred : sameRole;
-  return pool[Math.floor(rng() * pool.length)];
-}
-
-function pickRowAnyRole(
-  rows: FloraPhotoRow[],
-  floraCode: string,
-  tier: number,
-  rng: () => number,
-): FloraPhotoRow | null {
-  const any = rows.filter(r => r.flora_code === floraCode);
-  if (any.length === 0) return null;
-  const preferred = any.filter(r => r.tier === tier);
-  const pool = preferred.length > 0 ? preferred : any;
-  return pool[Math.floor(rng() * pool.length)];
-}
-
 function placeholderPhoto(alt: string): PhotoRef {
   return {
     url: '',
@@ -172,10 +144,16 @@ export async function POST(req: Request) {
     const rolesSeen = review?.photo_roles_seen ?? [];
     const tier = tierForExposures(exposures);
 
+    // Photos already shown for this species this walk — every pick
+    // below avoids these when the pool allows, so the mystery photo
+    // never doubles as a key choice (a giveaway) or a reveal thumbnail.
+    const used = new Set<string>();
+
     // Hero photo: role chosen by interleaved-practice rotation.
     const heroRole = nextRoleForExposure(sp.photoRoles, rolesSeen);
-    const heroRow = pickRowTiered(rows, code, heroRole, tier, rng)
-      ?? pickRowAnyRole(rows, code, tier, rng);
+    const heroRow = pickPhotoRow(rows, { floraCode: code, role: heroRole, tier, used, rng })
+      ?? pickPhotoRow(rows, { floraCode: code, tier, used, rng });
+    if (heroRow) used.add(heroRow.storage_path);
     const heroPhoto = heroRow ? toPhotoRef(heroRow, baseUrl) : null;
 
     // KeyPath: resolve each node's photo pair (key comparison photos
@@ -183,10 +161,12 @@ export async function POST(req: Request) {
     const pathNodeIds = canonicalKeyPath(code);
     const keyPath: KeyStepResolved[] = pathNodeIds.map(nid => {
       const node = DICHOTOMOUS_KEY[nid];
-      const lRow = pickRowTiered(rows, node.leftPhoto.floraCode, node.leftPhoto.role, 1, rng)
-        ?? pickRowAnyRole(rows, node.leftPhoto.floraCode, 1, rng);
-      const rRow = pickRowTiered(rows, node.rightPhoto.floraCode, node.rightPhoto.role, 1, rng)
-        ?? pickRowAnyRole(rows, node.rightPhoto.floraCode, 1, rng);
+      const lRow = pickPhotoRow(rows, { floraCode: node.leftPhoto.floraCode, role: node.leftPhoto.role, tier: 1, used, rng })
+        ?? pickPhotoRow(rows, { floraCode: node.leftPhoto.floraCode, tier: 1, used, rng });
+      if (lRow) used.add(lRow.storage_path);
+      const rRow = pickPhotoRow(rows, { floraCode: node.rightPhoto.floraCode, role: node.rightPhoto.role, tier: 1, used, rng })
+        ?? pickPhotoRow(rows, { floraCode: node.rightPhoto.floraCode, tier: 1, used, rng });
+      if (rRow) used.add(rRow.storage_path);
       return {
         nodeId: nid,
         question: node.question,
@@ -197,11 +177,19 @@ export async function POST(req: Request) {
       };
     });
 
-    // RevealPhotos: up to 3 distinct roles for this species (tier-preferred).
+    // RevealPhotos: up to 3 distinct roles for this species. Skip the
+    // hero photo outright — the reveal screen already shows it large.
     const revealRows: FloraPhotoRow[] = [];
     for (const role of sp.photoRoles) {
-      const r = pickRowTiered(rows, code, role, tier, rng);
-      if (r && !revealRows.find(x => x.storage_path === r.storage_path)) revealRows.push(r);
+      const r = pickPhotoRow(rows, { floraCode: code, role, tier, used, rng });
+      if (
+        r &&
+        r.storage_path !== heroRow?.storage_path &&
+        !revealRows.find(x => x.storage_path === r.storage_path)
+      ) {
+        revealRows.push(r);
+        used.add(r.storage_path);
+      }
       if (revealRows.length === 3) break;
     }
     const revealPhotos = revealRows.map(r => toPhotoRef(r, baseUrl));

@@ -7,6 +7,7 @@ import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySetting
 import ErrorRetryCard from '@/components/child/ErrorRetryCard';
 import WalkProgress from '@/components/child/naturalist/WalkProgress';
 import DichotomousStep, { type KeyPhotoRef } from '@/components/child/naturalist/DichotomousStep';
+import MysteryPeek from '@/components/child/naturalist/MysteryPeek';
 import SpeciesReveal from '@/components/child/naturalist/SpeciesReveal';
 import EndOfWalk from '@/components/child/naturalist/EndOfWalk';
 import AttributionBadge from '@/components/child/naturalist/AttributionBadge';
@@ -292,6 +293,13 @@ function NaturalistWalkInner() {
               transition={{ duration: 0.28 }}
               className="w-full"
             >
+              <div className="flex justify-center mb-4 px-4">
+                <MysteryPeek
+                  photo={current.heroPhoto}
+                  emoji={current.emoji}
+                  reducedMotion={reducedMotion}
+                />
+              </div>
               <DichotomousStep
                 question={current.keyPath[keyStepIdx].question}
                 leftLabel={current.keyPath[keyStepIdx].leftLabel}
