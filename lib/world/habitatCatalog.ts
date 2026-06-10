@@ -6,6 +6,12 @@ export interface HabitatTypeData {
   prereqSkillCodes: string[];
   illustrationKey: string;
   emoji: string;
+  /**
+   * Emergent-curriculum tags emitted as interest signals when the
+   * learner builds this habitat. Must match skill themeTags or they
+   * bias nothing (enforced by tests/world/habitatCatalog.test.ts).
+   */
+  interestTags: string[];
 }
 
 export const HABITAT_CATALOG: HabitatTypeData[] = [
@@ -17,6 +23,7 @@ export const HABITAT_CATALOG: HabitatTypeData[] = [
     prereqSkillCodes: ['math.counting.to_50'],
     illustrationKey: 'ant_hill',
     emoji: '🐜',
+    interestTags: ['ants', 'insects', 'counting'],
   },
   {
     code: 'butterfly_bush',
@@ -26,6 +33,7 @@ export const HABITAT_CATALOG: HabitatTypeData[] = [
     prereqSkillCodes: ['math.add.within_20.crossing_ten'],
     illustrationKey: 'butterfly_bush',
     emoji: '🦋',
+    interestTags: ['butterflies', 'insects', 'flowers'],
   },
   {
     code: 'bee_hotel',
@@ -39,6 +47,7 @@ export const HABITAT_CATALOG: HabitatTypeData[] = [
     prereqSkillCodes: ['math.number_bond.within_10'],
     illustrationKey: 'bee_hotel',
     emoji: '🐝',
+    interestTags: ['bees', 'insects', 'part_whole'],
   },
   {
     code: 'frog_pond',
@@ -48,6 +57,7 @@ export const HABITAT_CATALOG: HabitatTypeData[] = [
     prereqSkillCodes: ['math.add.within_20.no_crossing'],
     illustrationKey: 'frog_pond',
     emoji: '🐸',
+    interestTags: ['frogs', 'nature'],
   },
   {
     code: 'bunny_burrow',
@@ -57,6 +67,7 @@ export const HABITAT_CATALOG: HabitatTypeData[] = [
     prereqSkillCodes: ['math.subtract.within_10'],
     illustrationKey: 'bunny_burrow',
     emoji: '🐰',
+    interestTags: ['nature', 'subtract'],
   },
   {
     code: 'log_pile',
@@ -66,6 +77,7 @@ export const HABITAT_CATALOG: HabitatTypeData[] = [
     prereqSkillCodes: ['math.counting.skip_2s'],
     illustrationKey: 'log_pile',
     emoji: '🪵',
+    interestTags: ['insects', 'nature', 'patterns'],
   },
   {
     // Math Mountain side-habitat — the cave at the foot of the
@@ -80,6 +92,7 @@ export const HABITAT_CATALOG: HabitatTypeData[] = [
     prereqSkillCodes: ['math.add.within_100.no_regrouping'],
     illustrationKey: 'operations_cave',
     emoji: '🕳️',
+    interestTags: ['regrouping', 'mental_math'],
   },
 ];
 
