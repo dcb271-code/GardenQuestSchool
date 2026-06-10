@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
+import ErrorRetryCard from '@/components/child/ErrorRetryCard';
 import LessonHeader from '@/components/child/LessonHeader';
 import SkillIntroOverlay from '@/components/child/SkillIntroOverlay';
 import { getItemHandler, getPromptText } from '@/lib/packs';
@@ -22,7 +23,7 @@ interface ItemPayload {
   progress?: { attempted: number; cap: number; tier?: 'easy' | 'mid' | 'hard' };
 }
 
-type LessonStatus = 'loading' | 'ready' | 'correct' | 'retry' | 'moving-on';
+type LessonStatus = 'loading' | 'ready' | 'correct' | 'retry' | 'moving-on' | 'error';
 
 export default function LessonPage({ params }: { params: { sessionId: string } }) {
   const router = useRouter();
@@ -79,8 +80,9 @@ export default function LessonPage({ params }: { params: { sessionId: string } }
       playPageTurn();
     } catch (err) {
       console.error('Failed to load next item:', err);
-      // Don't crash — push the user back to the garden gracefully.
-      router.push('/picker');
+      // Don't crash and don't silently leave the lesson — show a
+      // kid-friendly error screen with a retry button.
+      setStatus('error');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params.sessionId, endSession, router, settings.challengeLevel]);
@@ -89,17 +91,26 @@ export default function LessonPage({ params }: { params: { sessionId: string } }
 
   const submit = async (response: any) => {
     if (!item) return;
-    const res = await fetch(`/api/session/${params.sessionId}/attempt`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({
-        itemId: item.itemId,
-        response,
-        timeMs: Date.now() - startTime.current,
-        retries,
-      }),
-    });
-    const data = await res.json();
+    let data;
+    try {
+      const res = await fetch(`/api/session/${params.sessionId}/attempt`, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          itemId: item.itemId,
+          response,
+          timeMs: Date.now() - startTime.current,
+          retries,
+        }),
+      });
+      data = await res.json();
+    } catch (err) {
+      // Transient network blip — keep the item on screen so the child
+      // can simply tap their answer again.
+      console.error('Failed to submit attempt:', err);
+      playSoftTap();
+      return;
+    }
     if (data.outcome === 'correct') {
       setStatus('correct');
       playCorrectChime();
@@ -232,6 +243,22 @@ export default function LessonPage({ params }: { params: { sessionId: string } }
               </motion.div>
             );
           })()}
+
+          {status === 'error' && (
+            <motion.div
+              key="error"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            >
+              <ErrorRetryCard
+                message="We could not find the next one just now."
+                onRetry={loadNext}
+                secondaryLabel="Back to the garden"
+                onSecondary={() => router.push(learnerId ? `/garden?learner=${learnerId}` : '/picker')}
+              />
+            </motion.div>
+          )}
 
           {status === 'correct' && (
             <CorrectFeedback

@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback, useMemo, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
+import ErrorRetryCard from '@/components/child/ErrorRetryCard';
 import WalkProgress from '@/components/child/naturalist/WalkProgress';
 import DichotomousStep, { type KeyPhotoRef } from '@/components/child/naturalist/DichotomousStep';
 import SpeciesReveal from '@/components/child/naturalist/SpeciesReveal';
@@ -55,40 +56,37 @@ function NaturalistWalkInner() {
   const [keyStepIdx, setKeyStepIdx] = useState(0);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
-  // Fetch on mount
-  useEffect(() => {
+  // Fetch on mount; also re-run from the error screen's "Try again".
+  const loadWalk = useCallback(async () => {
     if (!learnerId) {
       setErrorMsg('Missing ?learner=… in URL.');
       setPhase('error');
       return;
     }
-    let cancelled = false;
-    (async () => {
-      try {
-        const res = await fetch('/api/naturalist/walk', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ learnerId, n: 3 }),
-        });
-        if (!res.ok) {
-          const body = await res.json().catch(() => ({}));
-          throw new Error(body.error ?? `walk fetch failed: ${res.status}`);
-        }
-        const ws: WalkSession = await res.json();
-        if (cancelled) return;
-        if (!ws.species || ws.species.length === 0) throw new Error('walk has no species');
-        setSession(ws);
-        setSpeciesIdx(0);
-        setKeyStepIdx(0);
-        setPhase('intro');
-      } catch (e) {
-        if (cancelled) return;
-        setErrorMsg((e as Error).message);
-        setPhase('error');
+    setPhase('loading');
+    try {
+      const res = await fetch('/api/naturalist/walk', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ learnerId, n: 3 }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body.error ?? `walk fetch failed: ${res.status}`);
       }
-    })();
-    return () => { cancelled = true; };
+      const ws: WalkSession = await res.json();
+      if (!ws.species || ws.species.length === 0) throw new Error('walk has no species');
+      setSession(ws);
+      setSpeciesIdx(0);
+      setKeyStepIdx(0);
+      setPhase('intro');
+    } catch (e) {
+      setErrorMsg((e as Error).message);
+      setPhase('error');
+    }
   }, [learnerId]);
+
+  useEffect(() => { loadWalk(); }, [loadWalk]);
 
   const current: WalkSpecies | null = useMemo(
     () => session?.species[speciesIdx] ?? null,
@@ -165,17 +163,14 @@ function NaturalistWalkInner() {
 
   if (phase === 'error') {
     return (
-      <div className="min-h-[100dvh] flex flex-col items-center justify-center text-bark gap-3 px-4 text-center">
-        <p className="text-xl">We could not start a walk just now.</p>
-        <p className="text-bark/60">{errorMsg}</p>
-        <button
-          type="button"
-          onClick={() => router.push(`/garden${learnerId ? `?learner=${learnerId}` : ''}`)}
-          className="mt-4 px-6 py-3 rounded-full bg-bark/80 text-cream font-display"
-          style={{ minHeight: 60 }}
-        >
-          Back to the garden
-        </button>
+      <div className="min-h-[100dvh] flex items-center justify-center">
+        <ErrorRetryCard
+          message="We could not start a walk just now."
+          detail={errorMsg}
+          onRetry={loadWalk}
+          secondaryLabel="Back to the garden"
+          onSecondary={() => router.push(`/garden${learnerId ? `?learner=${learnerId}` : ''}`)}
+        />
       </div>
     );
   }
