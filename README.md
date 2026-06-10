@@ -33,7 +33,7 @@ npm run test:e2e      # Playwright golden path on Chromium
 ## Database
 
 Migrations live in `lib/supabase/migrations/` and were applied manually via Supabase SQL Editor.
-Seed data (Cecily, Math pack, ~52 hand-authored items) applies via `npm run db:seed` using the service role key.
+Seed data (Cecily, Math + Reading packs, ~2,500 hand-authored items) applies via `npm run db:seed` using the service role key.
 A migration runner (`npm run db:migrate`) is wired for future migrations once `DATABASE_URL` is added to `.env.local`.
 
 ## Status
@@ -43,6 +43,7 @@ A migration runner (`npm run db:migrate`) is wired for future migrations once `D
 - **Plan 4 — World Delight (MVP)** — ✅ complete + deployed
 - **Plan 5 — Interactive Garden + Species Arrivals** — ✅ complete + deployed
 - **Plan 3 — Content Generation + Parent Zone** — pending
+- **Curriculum roadmap Phase 1 — Interest Signal Wiring (emergent curriculum)** — ✅ code complete; apply `012_interest_signal.sql` to activate ([roadmap](docs/superpowers/plans/2026-06-10-curriculum-improvement-roadmap.md))
 
 ## Subject Packs
 

@@ -36,6 +36,12 @@ Also: update README's stale "~52 hand-authored items" line when convenient.
 
 ## Phase 1: Interest Signal Wiring — detailed tasks
 
+> **STATUS 2026-06-10: code complete.** Tasks 1, 3, 4, 5, 6 implemented, tested (479 passing), committed.
+> **Remaining manual steps:** (a) apply `lib/supabase/migrations/012_interest_signal.sql` to the live DB
+> (`npm run db:migrate` or Supabase SQL Editor) — until then the candidates route safely degrades to
+> empty interest tags; (b) after applying, run the Task 6 smoke test (insert a `frogs` signal for
+> Cecily, hit `/api/plan/candidates`, confirm a frog-tagged skill rises).
+
 ### Design decisions
 
 - **Decay model:** effective weight = `rawWeight * 0.6^(sessions started since signal)`, dropped below 0.05, summed per tag, capped at 2.0 per tag. Cap rationale: planner scores `tagBonus * 5`; cap 2.0 -> max +10, equal to "new skill" priority, so interests nudge but never outrank due reviews (+50).
