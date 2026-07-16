@@ -20,7 +20,7 @@ interface Learner {
 }
 
 export default function PickerClient({ learners: initial }: { learners: Learner[] }) {
-  const { settings } = useAccessibilitySettings();
+  const { settings, update } = useAccessibilitySettings();
   const reducedMotion = settings.reducedMotion;
   const [learners, setLearners] = useState<Learner[]>(initial);
   const [addOpen, setAddOpen] = useState(false);
@@ -71,6 +71,13 @@ export default function PickerClient({ learners: initial }: { learners: Learner[
                 show: { opacity: 1, y: 0, scale: 1 },
               }}
               transition={{ duration: 0.55, ease: [0.22, 0.9, 0.34, 1] }}
+              // Seed this device's challenge chip from the parent-set
+              // default. Without this, the parent choosing "harder" on
+              // the dashboard never reached the lesson — the chip
+              // always started at "just right".
+              onClickCapture={() => {
+                if (l.default_challenge) update({ challengeLevel: l.default_challenge });
+              }}
             >
               <ProfileTile
                 name={l.first_name}

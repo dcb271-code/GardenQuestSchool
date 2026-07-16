@@ -53,4 +53,55 @@ describe('sessionPlanner — generateExpeditionCandidates', () => {
     });
     expect(out[0].skillCode).toBe('a');
   });
+
+  it('caps due reviews at one slot so a backlog cannot crowd out new skills', () => {
+    // Four overdue reviews of mastered material + two ready new skills.
+    const skills = [
+      mkSkill('r1'), mkSkill('r2'), mkSkill('r3'), mkSkill('r4'),
+      mkSkill('new1', 0.6), mkSkill('new2', 0.7),
+    ];
+    const overdue = new Date('2026-04-01T00:00:00Z');
+    const progress = [
+      mkProgress('r1', { masteryState: 'mastered', nextReviewAt: overdue }),
+      mkProgress('r2', { masteryState: 'mastered', nextReviewAt: overdue }),
+      mkProgress('r3', { masteryState: 'mastered', nextReviewAt: overdue }),
+      mkProgress('r4', { masteryState: 'mastered', nextReviewAt: overdue }),
+    ];
+    const out = generateExpeditionCandidates({
+      skills, progress,
+      getThemeHeader: (code) => ({ title: code, themeEmoji: '🌿', skillHint: '' }),
+      interestTagDecay: [],
+      now: new Date('2026-04-22T12:00:00Z'),
+    });
+    const dueCount = out.filter(c => c.skillCode.startsWith('r')).length;
+    expect(dueCount).toBe(1);
+    expect(out.map(c => c.skillCode)).toContain('new1');
+    expect(out.map(c => c.skillCode)).toContain('new2');
+  });
+
+  it('prefers higher-level frontier skills over easier ones', () => {
+    const skills = [mkSkill('easy', 0.2), mkSkill('mid', 0.5), mkSkill('hard', 0.8)];
+    const out = generateExpeditionCandidates({
+      skills, progress: [],
+      getThemeHeader: (code) => ({ title: code, themeEmoji: '🌿', skillHint: '' }),
+      interestTagDecay: [],
+    });
+    expect(out[0].skillCode).toBe('hard');
+    expect(out[1].skillCode).toBe('mid');
+  });
+
+  it('backfills with due reviews when the frontier is empty', () => {
+    const skills = [mkSkill('r1'), mkSkill('r2'), mkSkill('r3'), mkSkill('r4')];
+    const overdue = new Date('2026-04-01T00:00:00Z');
+    const progress = skills.map(s =>
+      mkProgress(s.code, { masteryState: 'mastered', nextReviewAt: overdue }),
+    );
+    const out = generateExpeditionCandidates({
+      skills, progress,
+      getThemeHeader: (code) => ({ title: code, themeEmoji: '🌿', skillHint: '' }),
+      interestTagDecay: [],
+      now: new Date('2026-04-22T12:00:00Z'),
+    });
+    expect(out.length).toBe(3);
+  });
 });

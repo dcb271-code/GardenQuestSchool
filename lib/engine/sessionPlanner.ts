@@ -34,14 +34,38 @@ export function generateExpeditionCandidates(input: PlannerInput): ExpeditionCan
       };
       const stateScore = statePriority[prog?.masteryState ?? 'new'] ?? 0;
 
-      const score = (isDue ? 50 : 0) + stateScore + tagBonus * 5;
-      return { skill: s, score };
+      // Level bonus: among equally-ready skills, surface the hardest
+      // material at the edge of the tree rather than whichever easy
+      // skill happens to come first in catalog order.
+      const score = stateScore + tagBonus * 5 + s.level * 20;
+      return { skill: s, score, isDue };
     })
-    .filter((x): x is { skill: SkillDefinition; score: number } => x !== null)
-    .sort((a, b) => b.score - a.score)
-    .slice(0, candidateCount);
+    .filter((x): x is { skill: SkillDefinition; score: number; isDue: boolean } => x !== null);
 
-  return scored.map(({ skill }) => {
+  // Due reviews get AT MOST ONE candidate slot. A learner with a big
+  // review backlog (weeks away, early skills all cycling due) would
+  // otherwise see nothing but re-runs of mastered material — the
+  // backlog crowded out every new skill and sessions stopped getting
+  // harder. One review keeps spaced repetition alive; the remaining
+  // slots always go to the learning frontier.
+  const due = scored.filter(x => x.isDue).sort((a, b) => b.score - a.score);
+  const frontier = scored.filter(x => !x.isDue).sort((a, b) => b.score - a.score);
+
+  const picks: typeof scored = [];
+  if (due.length > 0) picks.push(due[0]);
+  for (const f of frontier) {
+    if (picks.length >= candidateCount) break;
+    picks.push(f);
+  }
+  // Not enough ready frontier skills (e.g. everything's mastered) —
+  // backfill with additional due reviews rather than returning fewer
+  // candidates.
+  for (const d of due.slice(1)) {
+    if (picks.length >= candidateCount) break;
+    picks.push(d);
+  }
+
+  return picks.map(({ skill }) => {
     const header = getThemeHeader(skill.code);
     return {
       skillCode: skill.code,
