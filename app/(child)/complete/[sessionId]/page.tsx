@@ -21,6 +21,24 @@ export default async function CompletePage({ params }: { params: { sessionId: st
     .eq('id', params.sessionId)
     .single();
 
+  // A bad/expired sessionId shouldn't crash to the error boundary —
+  // give the child a gentle way back instead.
+  if (!session) {
+    return (
+      <main className="max-w-xl mx-auto p-6 pt-16 text-center space-y-4">
+        <p className="font-display italic text-[20px] text-bark/80">
+          hmm, we couldn&apos;t find that session
+        </p>
+        <Link
+          href="/picker"
+          className="inline-block font-display text-[17px] text-forest underline underline-offset-4"
+        >
+          back to the garden
+        </Link>
+      </main>
+    );
+  }
+
   const { data: attempts } = await db
     .from('attempt')
     .select('outcome, retry_count, time_ms, item:item_id(type, skill:skill_id(code, name))')

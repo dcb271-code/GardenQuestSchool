@@ -23,7 +23,7 @@ export async function getCumulativeCorrect(
 }
 
 // For the session-end celebration card we need the count BEFORE the
-// session started. Same shape as above but with a created_at upper bound.
+// session started. Same shape as above but with an attempted_at upper bound.
 export async function getCumulativeCorrectAt(
   db: SupabaseClient,
   learnerId: string,
@@ -34,7 +34,7 @@ export async function getCumulativeCorrectAt(
     .select('*', { count: 'exact', head: true })
     .eq('learner_id', learnerId)
     .eq('outcome', 'correct')
-    .lt('created_at', before.toISOString());
+    .lt('attempted_at', before.toISOString());
   if (error) throw new Error(error.message);
   return count ?? 0;
 }
