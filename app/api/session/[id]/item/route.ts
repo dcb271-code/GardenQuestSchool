@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
-import { chooseDifficultyBand } from '@/lib/engine';
+import {
+  chooseDifficultyBand, isFocusPlan, focusSubjectOf, pickFocusSkill,
+} from '@/lib/engine';
 import { getThemeHeader as getMathThemeHeader } from '@/lib/packs/math/themes';
 import { getReadingThemeHeader } from '@/lib/packs/reading/themes';
 
@@ -42,10 +44,38 @@ export async function GET(
     return NextResponse.json({ ended: true, learnerId: session.learner_id });
   }
 
-  const theme = getThemeHeader(session.skill_planned);
+  // Focus sessions ("practice Reading") aren't pinned to one skill —
+  // each question rotates through the learner's skills in the subject:
+  // due reviews first, then the shakiest in-progress skills, then a
+  // mastered refresh. Exploration sessions keep their single skill.
+  let plannedSkillCode = session.skill_planned as string;
+  if (isFocusPlan(plannedSkillCode)) {
+    const subjectCode = focusSubjectOf(plannedSkillCode);
+    const { data: progRows } = await db
+      .from('skill_progress')
+      .select('mastery_state, student_elo, next_review_at, last_attempted_at, skill:skill_id(code, strand:strand_id(subject:subject_id(code)))')
+      .eq('learner_id', session.learner_id);
+    const focusRows = (progRows ?? [])
+      .filter((r: any) => r.skill?.strand?.subject?.code === subjectCode)
+      .map((r: any) => ({
+        skillCode: r.skill.code as string,
+        masteryState: r.mastery_state,
+        studentElo: r.student_elo ?? 1000,
+        nextReviewAt: r.next_review_at ? new Date(r.next_review_at) : null,
+        lastAttemptedAt: r.last_attempted_at ? new Date(r.last_attempted_at) : null,
+      }));
+    const picked = pickFocusSkill(focusRows, session.items_attempted ?? 0);
+    if (!picked) {
+      // Nothing practiced in this subject yet — nothing to review.
+      return NextResponse.json({ ended: true, learnerId: session.learner_id });
+    }
+    plannedSkillCode = picked;
+  }
+
+  const theme = getThemeHeader(plannedSkillCode);
 
   const { data: skill } = await db
-    .from('skill').select('id, code').eq('code', session.skill_planned).single();
+    .from('skill').select('id, code').eq('code', plannedSkillCode).single();
   if (!skill) return NextResponse.json({ error: 'skill missing' }, { status: 500 });
 
   const { data: progress } = await db
@@ -153,7 +183,7 @@ export async function GET(
     content: picked.content,
     audioUrl: picked.audio_url,
     learnerId: session.learner_id,
-    skillCode: session.skill_planned,
+    skillCode: plannedSkillCode,
     themeTitle: theme.title,
     themeEmoji: theme.themeEmoji,
     progress: {

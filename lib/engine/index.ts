@@ -4,6 +4,7 @@ export * from './masteryTracker';
 export * from './spacedReview';
 export * from './adaptiveDifficulty';
 export * from './sessionPlanner';
+export * from './focusPlanner';
 export * from './eventBus';
 export * from './interestMixer';
 export * from './virtueDetector';

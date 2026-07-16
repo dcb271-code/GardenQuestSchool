@@ -339,6 +339,13 @@ export default function GardenScene({
             {settings.gardenSoundtrack ? '♪' : '♫'}
           </button>
           <Link
+            href={`/focus?learner=${learnerId}`}
+            className="text-lg p-1.5 rounded-full bg-white border border-ochre"
+            aria-label="practice nook — pick a subject to review"
+            title="Practice Nook"
+            style={{ minWidth: 40, minHeight: 40, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+          >🎯</Link>
+          <Link
             href={`/journal?learner=${learnerId}`}
             className="text-lg p-1.5 rounded-full bg-white border border-ochre"
             aria-label="field journal"
