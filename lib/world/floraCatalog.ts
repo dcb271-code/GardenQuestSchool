@@ -10,10 +10,19 @@
 //
 // Design spec: docs/superpowers/specs/2026-05-29-naturalist-grove-design.md §5
 
-export type FloraKind = 'tree' | 'flower' | 'fern' | 'shrub';
+export type FloraKind = 'tree' | 'flower' | 'fern' | 'shrub' | 'vine';
 export type Season = 'spring' | 'summer' | 'fall' | 'winter';
 export type LocalTier = 'hyper_local' | 'canonical_native';
 export type PhotoRole = 'whole' | 'leaf' | 'bark' | 'flower' | 'fruit';
+
+// Species that can hurt the learner on contact. Only 'touch' exists
+// today (urushiol — the poison ivy rash). This flag inverts how the
+// walk treats uncertainty: for every other species the walk eventually
+// shows the answer, because a wrong guess about a trillium costs
+// nothing. For a hazard species the *safe* answer IS "I'm not sure, so
+// I won't touch it" — so repeated misses resolve to caution rather
+// than to the answer, and the reveal is calm instead of celebratory.
+export type FloraHazard = 'touch';
 
 export interface FloraData {
   code: string;                  // 'red_maple', 'eastern_redbud'
@@ -28,6 +37,13 @@ export interface FloraData {
   wikiSpecies: string;           // 'Acer_rubrum' — for Wikimedia category lookup
   inatTaxonId: number;           // iNaturalist taxon id
   photoRoles: PhotoRole[];       // which photo roles exist for this species
+  hazard?: FloraHazard;          // set → walk switches to caution mode
+  safetyNote?: string;           // shown on the reveal for hazard species
+  // Harmless species that get mistaken for a hazard species. Their
+  // reveal carries the reassurance half of the lesson ("this one is
+  // safe — and leaving it alone was still a fine choice"), which is
+  // what stops the hazard lesson from becoming a fear of all plants.
+  hazardLookalike?: boolean;
 }
 
 export const FLORA_CATALOG: FloraData[] = [
@@ -263,5 +279,125 @@ export const FLORA_CATALOG: FloraData[] = [
     wikiSpecies: 'Asclepias_syriaca',
     inatTaxonId: 47911,
     photoRoles: ['whole', 'flower', 'leaf', 'fruit'],
+  },
+
+  // ─── LEAVES OF THREE ───────────────────────────────────────────────
+  // Poison ivy plus the three plants it actually gets confused with.
+  // The lookalikes are not optional decoration: "leaves of three, let
+  // it be" is uselessly overbroad on its own — box elder and fragrant
+  // sumac ALSO have three leaflets, and Virginia creeper is what most
+  // "is that poison ivy?" panics turn out to be. Without them in the
+  // key, the lesson is "fear every plant"; with them it's a real
+  // discrimination a 7-year-old can make.
+  //
+  // Kentucky observation counts (iNaturalist, place_id=26, checked
+  // 2026-07-16) — all four are genuinely present in her world:
+  //   poison ivy 2035 · virginia creeper 2258 · box elder 1742
+  //   fragrant sumac 427
+  // Atlantic poison oak (Toxicodendron pubescens) is deliberately
+  // ABSENT: 0 observations in Kentucky. Teaching it here would spend a
+  // child's attention on a plant she cannot meet.
+
+  {
+    code: 'poison_ivy',
+    commonName: 'Poison Ivy',
+    scientificName: 'Toxicodendron radicans',
+    kind: 'vine',
+    localTier: 'hyper_local',
+    emoji: '⚠️',
+    // Leaves needed to key it out. The bare winter vine is still
+    // hazardous, but identifying it then is a different (harder) skill.
+    seasons: ['spring', 'summer', 'fall'],
+    notableFeatures: [
+      'always exactly three leaflets',
+      'the middle leaflet sits on its own little stalk',
+      'leaves grow one at a time up the stem, never in pairs',
+      'climbs trees on a rope that looks hairy',
+    ],
+    facts: [
+      'Poison ivy always has three leaflets — never four, never five. "Leaves of three, let it be."',
+      'The itch comes from an oil called urushiol. It is on every part of the plant, all year long.',
+      'Birds eat the white berries and are not bothered at all — the oil only bothers people.',
+    ],
+    wikiSpecies: 'Toxicodendron_radicans',
+    inatTaxonId: 58732,
+    photoRoles: ['whole', 'leaf', 'bark', 'fruit'],
+    hazard: 'touch',
+    safetyNote: 'Do not touch it — the oil on the leaves gives most people an itchy rash. You do not need to be sure. If you think it might be poison ivy, leave it alone and tell a grown-up.',
+  },
+
+  {
+    code: 'virginia_creeper',
+    commonName: 'Virginia Creeper',
+    scientificName: 'Parthenocissus quinquefolia',
+    kind: 'vine',
+    localTier: 'hyper_local',
+    emoji: '🍃',
+    seasons: ['spring', 'summer', 'fall'],
+    notableFeatures: [
+      'five leaflets spreading from one point, like fingers on a hand',
+      'climbs walls and trees',
+      'leaves turn bright red early in the fall',
+    ],
+    facts: [
+      'Virginia creeper has FIVE leaflets — count them and you know it is not poison ivy.',
+      'It climbs using tiny sticky pads on the ends of its tendrils, like little suction cups.',
+      'It is one of the first plants to turn red in the fall.',
+    ],
+    wikiSpecies: 'Parthenocissus_quinquefolia',
+    inatTaxonId: 50278,
+    // No 'fruit' yet — the harvested berry candidates were macros that
+    // showed no leaflets, and the five-leaflet leaf is the whole lesson.
+    photoRoles: ['whole', 'leaf'],
+    hazardLookalike: true,
+  },
+
+  {
+    code: 'box_elder',
+    commonName: 'Box Elder',
+    scientificName: 'Acer negundo',
+    kind: 'tree',
+    localTier: 'hyper_local',
+    emoji: '🌳',
+    seasons: ['spring', 'summer', 'fall'],
+    notableFeatures: [
+      'three leaflets, like poison ivy',
+      'but its leaves grow in PAIRS, straight across from each other',
+      'a young tree, not a climbing vine',
+    ],
+    facts: [
+      'Box elder fools people all the time — it has three leaflets just like poison ivy.',
+      'The trick: box elder leaves grow in pairs across from each other. Poison ivy leaves take turns up the stem.',
+      'Box elder is a kind of maple, so it makes little helicopter seeds.',
+    ],
+    wikiSpecies: 'Acer_negundo',
+    inatTaxonId: 47726,
+    photoRoles: ['whole', 'leaf', 'bark'],
+    hazardLookalike: true,
+  },
+
+  {
+    code: 'fragrant_sumac',
+    commonName: 'Fragrant Sumac',
+    scientificName: 'Rhus aromatica',
+    kind: 'shrub',
+    localTier: 'hyper_local',
+    emoji: '🌿',
+    seasons: ['spring', 'summer', 'fall'],
+    notableFeatures: [
+      'three leaflets, like poison ivy',
+      'but the middle leaflet sits right against the stem with no stalk',
+      'a low bushy shrub',
+      'fuzzy red berries',
+    ],
+    facts: [
+      'Fragrant sumac has three leaflets too — but its middle leaflet has no little stalk.',
+      'Crush a leaf and it smells citrusy. That is how it got the name "fragrant".',
+      'Its fuzzy red berries feed birds through the winter.',
+    ],
+    wikiSpecies: 'Rhus_aromatica',
+    inatTaxonId: 58738,
+    photoRoles: ['whole', 'leaf', 'fruit'],
+    hazardLookalike: true,
   },
 ];

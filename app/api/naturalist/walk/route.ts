@@ -49,6 +49,9 @@ interface WalkSpeciesPayload {
   exposures: number;
   showQuickRecognize: boolean;
   quizOptions: string[];
+  hazard: string | null;
+  safetyNote: string | null;
+  hazardLookalike: boolean;
   heroPhoto: PhotoRef | null;
   heroRole: PhotoRole | null;
   keyPath: KeyStepResolved[];
@@ -194,8 +197,19 @@ export async function POST(req: Request) {
     let quizOptions: string[] = [];
     if (showQuickRecognize) {
       const others = FLORA_CATALOG.filter(f => f.code !== code);
+      // For anything in the poison-ivy confusion group, the only quiz
+      // worth asking is against the OTHER members of that group —
+      // "Poison Ivy / Virginia Creeper / Box Elder" is the real-world
+      // discrimination. Falling back to same-kind would pair poison ivy
+      // (a vine) against random trees, which teaches nothing.
+      const inConfusionGroup = !!sp.hazard || !!sp.hazardLookalike;
+      const confusionPeers = others.filter(f => f.hazard || f.hazardLookalike);
       const sameKind = others.filter(f => f.kind === sp.kind);
-      const pool = [...(sameKind.length >= 2 ? sameKind : others)];
+      const pool = [...(
+        inConfusionGroup && confusionPeers.length >= 2 ? confusionPeers
+          : sameKind.length >= 2 ? sameKind
+            : others
+      )];
       const distractors: string[] = [];
       while (distractors.length < 2 && pool.length > 0) {
         const [d] = pool.splice(Math.floor(rng() * pool.length), 1);
@@ -274,6 +288,9 @@ export async function POST(req: Request) {
       exposures,
       showQuickRecognize,
       quizOptions,
+      hazard: sp.hazard ?? null,
+      safetyNote: sp.safetyNote ?? null,
+      hazardLookalike: sp.hazardLookalike ?? false,
       heroPhoto,
       heroRole: heroRow ? heroRole : null,
       keyPath,

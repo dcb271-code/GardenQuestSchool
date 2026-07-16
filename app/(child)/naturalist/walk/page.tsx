@@ -33,6 +33,9 @@ interface WalkSpecies {
   exposures: number;
   showQuickRecognize: boolean;
   quizOptions?: string[];
+  hazard?: string | null;
+  safetyNote?: string | null;
+  hazardLookalike?: boolean;
   heroPhoto: KeyPhotoRef | null;
   heroRole: string | null;
   keyPath: KeyStepResolved[];
@@ -128,9 +131,22 @@ function NaturalistWalkInner() {
     if (step && side !== step.correctSide) {
       // Wrong turn: nudge, count it, and let her look again. After two
       // misses the correct choice gets highlighted so she's never stuck.
-      setWrongSide(side);
-      setStepMisses(m => m + 1);
+      //
+      // EXCEPT for a hazard species, where that would teach exactly the
+      // wrong reflex. In front of real poison ivy nobody hands you the
+      // answer — and "I couldn't tell" is not a failure state there,
+      // it's the correct one. So a second miss resolves to caution
+      // instead of to the answer, and we go straight to the reveal.
+      const misses = stepMisses + 1;
       setSpeciesMistakes(m => m + 1);
+      if (current.hazard && misses >= 2) {
+        setWrongSide(null);
+        setStepMisses(0);
+        setPhase('reveal');
+        return;
+      }
+      setWrongSide(side);
+      setStepMisses(misses);
       return;
     }
     setWrongSide(null);
@@ -357,7 +373,14 @@ function NaturalistWalkInner() {
                 rightPhoto={current.keyPath[keyStepIdx].rightPhoto}
                 onChoose={handleKeyChoose}
                 wrongSide={wrongSide}
-                revealCorrect={stepMisses >= 2 ? current.keyPath[keyStepIdx].correctSide : null}
+                // Hazard species never get the answer handed to them —
+                // handleKeyChoose resolves those to caution instead.
+                revealCorrect={
+                  !current.hazard && stepMisses >= 2
+                    ? current.keyPath[keyStepIdx].correctSide
+                    : null
+                }
+                cautionNudge={!!current.hazard}
                 reducedMotion={reducedMotion}
               />
             </motion.div>
@@ -381,6 +404,9 @@ function NaturalistWalkInner() {
                 facts={current.facts}
                 emoji={current.emoji}
                 onContinue={handleRevealContinue}
+                hazard={current.hazard ?? null}
+                safetyNote={current.safetyNote ?? null}
+                hazardLookalike={current.hazardLookalike ?? false}
                 reducedMotion={reducedMotion}
               />
             </motion.div>

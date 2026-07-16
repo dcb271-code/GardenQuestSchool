@@ -25,12 +25,17 @@ export interface DichotomousStepProps {
   wrongSide?: 'left' | 'right' | null;
   /** After repeated misses, pulse the correct side so she's never stuck. */
   revealCorrect?: 'left' | 'right' | null;
+  /**
+   * Hazard species: phrase the nudge so that being unsure reads as the
+   * safe move rather than a mistake to correct.
+   */
+  cautionNudge?: boolean;
   reducedMotion: boolean;
 }
 
 export default function DichotomousStep({
   question, leftLabel, rightLabel, leftPhoto, rightPhoto, onChoose,
-  wrongSide = null, revealCorrect = null, reducedMotion,
+  wrongSide = null, revealCorrect = null, cautionNudge = false, reducedMotion,
 }: DichotomousStepProps) {
   return (
     <div className="flex flex-col items-center w-full max-w-4xl mx-auto px-4">
@@ -54,7 +59,9 @@ export default function DichotomousStep({
           >
             {revealCorrect
               ? 'good looking! it’s this one — see the difference?'
-              : 'hmm — tap “Your plant” and take another look 🔍'}
+              : cautionNudge
+                ? 'not sure? take another look 🔍 — and remember, not touching is always okay'
+                : 'hmm — tap “Your plant” and take another look 🔍'}
           </motion.p>
         )}
       </div>

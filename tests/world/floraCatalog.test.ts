@@ -38,7 +38,7 @@ describe('FLORA_CATALOG — shape', () => {
 });
 
 describe('FLORA_CATALOG — invariants per entry', () => {
-  const VALID_KINDS = new Set(['tree', 'flower', 'fern', 'shrub']);
+  const VALID_KINDS = new Set(['tree', 'flower', 'fern', 'shrub', 'vine']);
   const VALID_SEASONS = new Set(['spring', 'summer', 'fall', 'winter']);
   const VALID_LOCAL_TIERS = new Set(['hyper_local', 'canonical_native']);
   const VALID_PHOTO_ROLES = new Set(['whole', 'leaf', 'bark', 'flower', 'fruit']);
@@ -88,16 +88,17 @@ describe('FLORA_CATALOG — invariants per entry', () => {
   }
 });
 
-describe('FLORA_CATALOG — pilot composition', () => {
-  it('contains exactly 10 species', () => {
-    expect(FLORA_CATALOG.length).toBe(10);
-  });
-
-  it('contains 5 trees and 5 flowers', () => {
+describe('FLORA_CATALOG — composition', () => {
+  // These used to pin the Phase 1 pilot exactly ("10 species, 5 trees
+  // and 5 flowers"). The catalog is explicitly meant to grow toward
+  // ~55, so a snapshot count just fails on every addition without
+  // saying anything true. What actually matters is that the walk still
+  // has variety to draw on in each kind.
+  it('keeps a broad mix of trees and wildflowers to draw walks from', () => {
     const trees = FLORA_CATALOG.filter(f => f.kind === 'tree');
     const flowers = FLORA_CATALOG.filter(f => f.kind === 'flower');
-    expect(trees.length).toBe(5);
-    expect(flowers.length).toBe(5);
+    expect(trees.length).toBeGreaterThanOrEqual(5);
+    expect(flowers.length).toBeGreaterThanOrEqual(5);
   });
 
   it('covers all four seasons across the catalog', () => {

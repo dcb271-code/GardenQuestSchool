@@ -51,10 +51,85 @@ export const DICHOTOMOUS_KEY: Record<string, KeyNode> = {
     leftPhoto: { floraCode: 'eastern_white_pine', role: 'leaf' },
     rightPhoto: { floraCode: 'tulip_poplar', role: 'leaf' },
     leftChild: { species: 'eastern_white_pine' },
+    rightChild: 'leaf_compound',
+  },
+
+  // ── COUNT THE LEAFLETS FIRST ─────────────────────────────────────
+  // The leaflet count sits directly under the root, ahead of
+  // tree-vs-wildflower, for two reasons:
+  //   1. Safety. "Leaves of three, let it be" is the one thing in this
+  //      key that can save a child a week of itching. A hazard check
+  //      does not belong four questions deep behind "is it woody?".
+  //   2. It is real botany. Compound-vs-simple is a standard early
+  //      split in field keys — and it is the ONLY split that works
+  //      here, because poison ivy and Virginia creeper are vines and
+  //      answer "tall woody tree?" / "low soft wildflower?" equally
+  //      badly.
+  // Cost: one extra question for simple-leaved species. dedupeWalkSteps
+  // means only the first species of a walk actually pays it.
+  leaf_compound: {
+    id: 'leaf_compound',
+    question: 'Look at ONE leaf. Is it...',
+    leftLabel: 'made of several small leaflets?',
+    rightLabel: 'one single leaf?',
+    leftPhoto: { floraCode: 'shagbark_hickory', role: 'leaf' },
+    rightPhoto: { floraCode: 'flowering_dogwood', role: 'leaf' },
+    leftChild: 'compound_count',
     rightChild: 'tree_or_flower',
   },
 
-  // ── BROADLEAF: tree or wildflower? ───────────────────────────────
+  compound_count: {
+    id: 'compound_count',
+    question: 'Count the leaflets. Are there...',
+    leftLabel: 'exactly three?',
+    rightLabel: 'more than three?',
+    leftPhoto: { floraCode: 'poison_ivy', role: 'leaf' },
+    rightPhoto: { floraCode: 'virginia_creeper', role: 'leaf' },
+    leftChild: 'three_leaflet_stalk',
+    rightChild: 'many_leaflet_group',
+  },
+
+  // Virginia creeper (5) vs shagbark hickory (5-7) — both "five-ish",
+  // so counting cannot separate them. The real mark is palmate (all
+  // leaflets from one point) vs pinnate (leaflets along a stem).
+  many_leaflet_group: {
+    id: 'many_leaflet_group',
+    question: 'Look at how the leaflets are joined. Do they...',
+    leftLabel: 'spread from one point, like fingers on a hand?',
+    rightLabel: 'grow in a row along a stem?',
+    leftPhoto: { floraCode: 'virginia_creeper', role: 'leaf' },
+    rightPhoto: { floraCode: 'shagbark_hickory', role: 'leaf' },
+    leftChild: { species: 'virginia_creeper' },
+    rightChild: { species: 'shagbark_hickory' },
+  },
+
+  // ── THE THREE-LEAFLET GROUP ──────────────────────────────────────
+  // Everything below here is either poison ivy or something that gets
+  // mistaken for it. Fragrant sumac splits off on the middle-leaflet
+  // stalk; box elder splits off on opposite-vs-alternate leaves.
+  three_leaflet_stalk: {
+    id: 'three_leaflet_stalk',
+    question: 'Look at the middle leaflet. Does it...',
+    leftLabel: 'sit on its own little stalk?',
+    rightLabel: 'sit right against the stem, with no stalk?',
+    leftPhoto: { floraCode: 'poison_ivy', role: 'leaf' },
+    rightPhoto: { floraCode: 'fragrant_sumac', role: 'leaf' },
+    leftChild: 'three_leaflet_pairs',
+    rightChild: { species: 'fragrant_sumac' },
+  },
+
+  three_leaflet_pairs: {
+    id: 'three_leaflet_pairs',
+    question: 'Look at where the leaves join the stem. Do they...',
+    leftLabel: 'grow in pairs, straight across from each other?',
+    rightLabel: 'take turns, one at a time up the stem?',
+    leftPhoto: { floraCode: 'box_elder', role: 'leaf' },
+    rightPhoto: { floraCode: 'poison_ivy', role: 'leaf' },
+    leftChild: { species: 'box_elder' },
+    rightChild: { species: 'poison_ivy' },
+  },
+
+  // ── BROADLEAF, SIMPLE: tree or wildflower? ───────────────────────
   tree_or_flower: {
     id: 'tree_or_flower',
     question: 'Is the plant...',
@@ -62,22 +137,11 @@ export const DICHOTOMOUS_KEY: Record<string, KeyNode> = {
     rightLabel: 'low and soft (a wildflower)?',
     leftPhoto: { floraCode: 'tulip_poplar', role: 'whole' },
     rightPhoto: { floraCode: 'cardinal_flower', role: 'whole' },
-    leftChild: 'tree_leaf_compound',
+    leftChild: 'tree_heart_shape',
     rightChild: 'flower_red',
   },
 
   // ── TREE BRANCH ──────────────────────────────────────────────────
-  tree_leaf_compound: {
-    id: 'tree_leaf_compound',
-    question: 'Look at one leaf. Is it...',
-    leftLabel: 'many leaflets joined together?',
-    rightLabel: 'one single broad leaf?',
-    leftPhoto: { floraCode: 'shagbark_hickory', role: 'leaf' },
-    rightPhoto: { floraCode: 'flowering_dogwood', role: 'leaf' },
-    leftChild: { species: 'shagbark_hickory' },
-    rightChild: 'tree_heart_shape',
-  },
-
   tree_heart_shape: {
     id: 'tree_heart_shape',
     question: 'Is the leaf shape...',
