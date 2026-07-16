@@ -19,6 +19,7 @@ interface KeyStepResolved {
   rightLabel: string;
   leftPhoto: KeyPhotoRef;
   rightPhoto: KeyPhotoRef;
+  correctSide: 'left' | 'right';
 }
 
 interface WalkSpecies {
@@ -31,6 +32,7 @@ interface WalkSpecies {
   emoji: string;
   exposures: number;
   showQuickRecognize: boolean;
+  quizOptions?: string[];
   heroPhoto: KeyPhotoRef | null;
   heroRole: string | null;
   keyPath: KeyStepResolved[];
@@ -56,6 +58,13 @@ function NaturalistWalkInner() {
   const [speciesIdx, setSpeciesIdx] = useState(0);
   const [keyStepIdx, setKeyStepIdx] = useState(0);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  // Answer-checking state: wrong taps on the current step, total wrong
+  // turns for the current species (drives the spacing signal), and
+  // which side was last tapped wrongly (drives the nudge UI).
+  const [stepMisses, setStepMisses] = useState(0);
+  const [speciesMistakes, setSpeciesMistakes] = useState(0);
+  const [wrongSide, setWrongSide] = useState<'left' | 'right' | null>(null);
+  const [quizMissed, setQuizMissed] = useState(false);
 
   // Fetch on mount; also re-run from the error screen's "Try again".
   const loadWalk = useCallback(async () => {
@@ -95,7 +104,7 @@ function NaturalistWalkInner() {
   );
   const total = session?.species.length ?? 0;
 
-  const recordIdentified = useCallback(async (sp: WalkSpecies) => {
+  const recordIdentified = useCallback(async (sp: WalkSpecies, cleanRun: boolean) => {
     if (!learnerId) return;
     try {
       await fetch('/api/naturalist/walk/identified', {
@@ -105,6 +114,7 @@ function NaturalistWalkInner() {
           learnerId,
           floraCode: sp.floraCode,
           photoRole: sp.heroRole ?? 'whole',
+          cleanRun,
         }),
       });
     } catch {
@@ -112,8 +122,19 @@ function NaturalistWalkInner() {
     }
   }, [learnerId]);
 
-  const handleKeyChoose = useCallback(() => {
+  const handleKeyChoose = useCallback((side: 'left' | 'right') => {
     if (!current) return;
+    const step = current.keyPath[keyStepIdx];
+    if (step && side !== step.correctSide) {
+      // Wrong turn: nudge, count it, and let her look again. After two
+      // misses the correct choice gets highlighted so she's never stuck.
+      setWrongSide(side);
+      setStepMisses(m => m + 1);
+      setSpeciesMistakes(m => m + 1);
+      return;
+    }
+    setWrongSide(null);
+    setStepMisses(0);
     const next = keyStepIdx + 1;
     if (next >= current.keyPath.length) {
       setPhase('reveal');
@@ -124,15 +145,19 @@ function NaturalistWalkInner() {
 
   const handleRevealContinue = useCallback(async () => {
     if (!current) return;
-    await recordIdentified(current);
+    await recordIdentified(current, speciesMistakes === 0 && !quizMissed);
     if (speciesIdx + 1 >= (session?.species.length ?? 0)) {
       setPhase('done');
     } else {
       setSpeciesIdx(speciesIdx + 1);
       setKeyStepIdx(0);
+      setStepMisses(0);
+      setSpeciesMistakes(0);
+      setWrongSide(null);
+      setQuizMissed(false);
       setPhase('intro');
     }
-  }, [current, recordIdentified, session, speciesIdx]);
+  }, [current, recordIdentified, session, speciesIdx, speciesMistakes, quizMissed]);
 
   const handleIntroBegin = useCallback(() => {
     if (!current) return;
@@ -141,10 +166,18 @@ function NaturalistWalkInner() {
     else setPhase('key');
   }, [current]);
 
-  // Quick-recognize: "I think so" → straight to reveal (retrieval practice).
-  const handleQuickKnow = useCallback(() => {
-    setPhase('reveal');
-  }, []);
+  // Quick-recognize name quiz: right name → straight to reveal
+  // (real retrieval practice); wrong name → work the key together.
+  const handleQuizAnswer = useCallback((name: string) => {
+    if (!current) return;
+    if (name === current.commonName) {
+      setPhase('reveal');
+      return;
+    }
+    setQuizMissed(true);
+    if (current.keyPath.length === 0) setPhase('reveal');
+    else setPhase('key');
+  }, [current]);
 
   // Quick-recognize: "Let me check" → fall through to the key flow.
   const handleQuickCheck = useCallback(() => {
@@ -152,6 +185,12 @@ function NaturalistWalkInner() {
     if (current.keyPath.length === 0) setPhase('reveal');
     else setPhase('key');
   }, [current]);
+
+  // The mystery must stay a mystery for screen readers too — the real
+  // alt text names the species, so it's swapped out until the reveal.
+  const mysteryPhoto = current?.heroPhoto
+    ? { ...current.heroPhoto, alt: 'Your mystery plant' }
+    : null;
 
   // ── render ─────────────────────────────────────────────────────
   if (phase === 'loading') {
@@ -227,11 +266,11 @@ function NaturalistWalkInner() {
                 Let's look at something growing here.
               </p>
               <div className="w-full max-w-md rounded-3xl overflow-hidden border-4 border-bark/15 bg-cream shadow-md aspect-square relative mb-6">
-                {current.heroPhoto?.url
-                  ? <img src={current.heroPhoto.url} alt={current.heroPhoto.alt} className="w-full h-full object-cover" />
+                {mysteryPhoto?.url
+                  ? <img src={mysteryPhoto.url} alt={mysteryPhoto.alt} className="w-full h-full object-cover" />
                   : <div className="absolute inset-0 flex items-center justify-center text-7xl">{current.emoji}</div>
                 }
-                {current.heroPhoto?.url && <AttributionBadge attribution={current.heroPhoto.attribution} />}
+                {mysteryPhoto?.url && <AttributionBadge attribution={mysteryPhoto.attribution} />}
               </div>
               <button
                 type="button"
@@ -254,33 +293,43 @@ function NaturalistWalkInner() {
               className="flex flex-col items-center px-4 text-center max-w-2xl"
             >
               <p className="text-lg md:text-xl text-bark/70 mb-6">
-                Do you already know this one?
+                {(current.quizOptions?.length ?? 0) >= 2
+                  ? 'You know this one — which is it?'
+                  : 'Do you already know this one?'}
               </p>
               <div className="w-full max-w-md rounded-3xl overflow-hidden border-4 border-bark/15 bg-cream shadow-md aspect-square relative mb-6">
-                {current.heroPhoto?.url
-                  ? <img src={current.heroPhoto.url} alt={current.heroPhoto.alt} className="w-full h-full object-cover" />
+                {mysteryPhoto?.url
+                  ? <img src={mysteryPhoto.url} alt={mysteryPhoto.alt} className="w-full h-full object-cover" />
                   : <div className="absolute inset-0 flex items-center justify-center text-7xl">{current.emoji}</div>
                 }
-                {current.heroPhoto?.url && <AttributionBadge attribution={current.heroPhoto.attribution} />}
+                {mysteryPhoto?.url && <AttributionBadge attribution={mysteryPhoto.attribution} />}
               </div>
-              <div className="flex gap-3 flex-wrap justify-center">
-                <button
-                  type="button"
-                  onClick={handleQuickKnow}
-                  className="px-8 py-4 rounded-full bg-forest text-cream font-display text-xl shadow-md"
-                  style={{ minHeight: 60, touchAction: 'manipulation' }}
-                >
-                  I think so
-                </button>
-                <button
-                  type="button"
-                  onClick={handleQuickCheck}
-                  className="px-8 py-4 rounded-full bg-bark/15 text-bark font-display text-xl shadow-md"
-                  style={{ minHeight: 60, touchAction: 'manipulation' }}
-                >
-                  Let me check
-                </button>
-              </div>
+              {(current.quizOptions?.length ?? 0) >= 2 ? (
+                <div className="flex gap-3 flex-wrap justify-center">
+                  {current.quizOptions!.map(name => (
+                    <button
+                      key={name}
+                      type="button"
+                      onClick={() => handleQuizAnswer(name)}
+                      className="px-6 py-4 rounded-full bg-cream border-2 border-bark/25 hover:border-terracotta text-bark font-display text-lg shadow-md active:scale-[0.97] transition-transform"
+                      style={{ minHeight: 60, touchAction: 'manipulation' }}
+                    >
+                      {name}
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="flex gap-3 flex-wrap justify-center">
+                  <button
+                    type="button"
+                    onClick={handleQuickCheck}
+                    className="px-8 py-4 rounded-full bg-forest text-cream font-display text-xl shadow-md"
+                    style={{ minHeight: 60, touchAction: 'manipulation' }}
+                  >
+                    Let me check
+                  </button>
+                </div>
+              )}
             </motion.div>
           )}
 
@@ -295,7 +344,7 @@ function NaturalistWalkInner() {
             >
               <div className="flex justify-center mb-4 px-4">
                 <MysteryPeek
-                  photo={current.heroPhoto}
+                  photo={mysteryPhoto}
                   emoji={current.emoji}
                   reducedMotion={reducedMotion}
                 />
@@ -307,6 +356,8 @@ function NaturalistWalkInner() {
                 leftPhoto={current.keyPath[keyStepIdx].leftPhoto}
                 rightPhoto={current.keyPath[keyStepIdx].rightPhoto}
                 onChoose={handleKeyChoose}
+                wrongSide={wrongSide}
+                revealCorrect={stepMisses >= 2 ? current.keyPath[keyStepIdx].correctSide : null}
                 reducedMotion={reducedMotion}
               />
             </motion.div>

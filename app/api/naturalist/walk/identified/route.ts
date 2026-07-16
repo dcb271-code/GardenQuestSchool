@@ -1,13 +1,17 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createServiceClient } from '@/lib/supabase/server';
-import { nextReviewAt } from '@/lib/naturalist/spacing';
+import { nextReviewAt, nextReviewAfterRun } from '@/lib/naturalist/spacing';
 import { FLORA_CATALOG } from '@/lib/world/floraCatalog';
 
 const Body = z.object({
   learnerId: z.string().min(1),
   floraCode: z.string().min(1),
   photoRole: z.string().optional(),  // role of the hero photo Cecily just saw
+  // False when the child took wrong turns in the key (or missed the
+  // name quiz): the species still counts as seen, but it comes back
+  // tomorrow instead of climbing the spacing ladder.
+  cleanRun: z.boolean().default(true),
 });
 
 export async function POST(req: Request) {
@@ -36,7 +40,7 @@ export async function POST(req: Request) {
       .update({
         exposures: newExposures,
         last_seen_at: nowIso,
-        next_review_at: nextReviewAt(newExposures, now).toISOString(),
+        next_review_at: nextReviewAfterRun(newExposures, body.cleanRun, now).toISOString(),
         photo_roles_seen: nextRoles,
       })
       .eq('id', existing.id)

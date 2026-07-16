@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
   INTERVALS_DAYS,
   nextReviewAt,
+  nextReviewAfterRun,
   isDue,
   nextRoleForExposure,
   tierForExposures,
@@ -93,5 +94,19 @@ describe('spacing.tierForExposures', () => {
   it('exposures >= 10 → tier 3', () => {
     expect(tierForExposures(10)).toBe(3);
     expect(tierForExposures(50)).toBe(3);
+  });
+});
+
+describe('nextReviewAfterRun', () => {
+  it('climbs the ladder on a clean run', () => {
+    const from = new Date('2026-07-16T12:00:00Z');
+    const clean = nextReviewAfterRun(4, true, from);
+    expect(clean.toISOString().slice(0, 10)).toBe('2026-07-30'); // 14 days
+  });
+
+  it('resets to a next-day revisit after wrong turns', () => {
+    const from = new Date('2026-07-16T12:00:00Z');
+    const messy = nextReviewAfterRun(4, false, from);
+    expect(messy.toISOString().slice(0, 10)).toBe('2026-07-17'); // 1 day
   });
 });

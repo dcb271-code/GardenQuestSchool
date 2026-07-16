@@ -18,6 +18,14 @@ export function nextReviewAt(exposures: number, from: Date): Date {
   return d;
 }
 
+// Spacing that respects how the identification actually went: a clean
+// run climbs the ladder by exposure count; a run with wrong turns (or
+// a missed name-quiz) schedules a next-day revisit instead — seeing a
+// species isn't the same as knowing it.
+export function nextReviewAfterRun(exposures: number, cleanRun: boolean, from: Date): Date {
+  return nextReviewAt(cleanRun ? exposures : 1, from);
+}
+
 // Is a species due for review? null/undefined next-review = never scheduled = due.
 export function isDue(nextReview: Date | string | null | undefined, now: Date): boolean {
   if (nextReview == null) return true;

@@ -21,11 +21,16 @@ export interface DichotomousStepProps {
   leftPhoto: KeyPhotoRef;
   rightPhoto: KeyPhotoRef;
   onChoose: (side: 'left' | 'right') => void;
+  /** Side the child just tapped wrongly — shows the gentle nudge. */
+  wrongSide?: 'left' | 'right' | null;
+  /** After repeated misses, pulse the correct side so she's never stuck. */
+  revealCorrect?: 'left' | 'right' | null;
   reducedMotion: boolean;
 }
 
 export default function DichotomousStep({
-  question, leftLabel, rightLabel, leftPhoto, rightPhoto, onChoose, reducedMotion,
+  question, leftLabel, rightLabel, leftPhoto, rightPhoto, onChoose,
+  wrongSide = null, revealCorrect = null, reducedMotion,
 }: DichotomousStepProps) {
   return (
     <div className="flex flex-col items-center w-full max-w-4xl mx-auto px-4">
@@ -34,10 +39,25 @@ export default function DichotomousStep({
         initial={reducedMotion ? false : { opacity: 0, y: -8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.28 }}
-        className="text-2xl md:text-3xl font-display text-bark text-center mb-6 mt-2"
+        className="text-2xl md:text-3xl font-display text-bark text-center mb-3 mt-2"
       >
         {question}
       </motion.h2>
+
+      <div aria-live="polite" className="min-h-[2rem] mb-3">
+        {wrongSide && (
+          <motion.p
+            key={`nudge-${revealCorrect ? 'reveal' : 'look'}`}
+            initial={reducedMotion ? false : { opacity: 0, y: -4 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-lg font-display italic text-terracotta text-center"
+          >
+            {revealCorrect
+              ? 'good looking! it’s this one — see the difference?'
+              : 'hmm — tap “Your plant” and take another look 🔍'}
+          </motion.p>
+        )}
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
         {([
@@ -47,11 +67,25 @@ export default function DichotomousStep({
           <motion.button
             key={opt.side}
             onClick={() => onChoose(opt.side)}
-            className="group block rounded-3xl overflow-hidden border-4 border-bark/20 hover:border-terracotta bg-cream shadow-md text-left active:scale-[0.98] transition-transform"
+            className={`group block rounded-3xl overflow-hidden border-4 bg-cream shadow-md text-left active:scale-[0.98] transition-transform ${
+              revealCorrect === opt.side
+                ? 'border-forest'
+                : wrongSide === opt.side
+                  ? 'border-terracotta/70 opacity-60'
+                  : 'border-bark/20 hover:border-terracotta'
+            }`}
             style={{ touchAction: 'manipulation' }}
             initial={reducedMotion ? false : { opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.28, delay: i * 0.08 }}
+            animate={
+              revealCorrect === opt.side && !reducedMotion
+                ? { opacity: 1, y: 0, scale: [1, 1.03, 1] }
+                : { opacity: 1, y: 0 }
+            }
+            transition={
+              revealCorrect === opt.side && !reducedMotion
+                ? { duration: 0.9, repeat: Infinity }
+                : { duration: 0.28, delay: i * 0.08 }
+            }
             aria-label={`Choose: ${opt.label}`}
           >
             <div className="relative w-full aspect-[4/3] bg-bark/10">
