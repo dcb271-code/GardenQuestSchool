@@ -14,6 +14,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import type { GrowState } from '@/lib/world/growGarden';
 import { QUADRANT_LAYOUT } from '@/lib/world/plotLayout';
+import { SEED_EARN_SCHEDULE, type GardenType } from '@/lib/world/seedEarnSchedule';
 import { plantStageFor } from '@/lib/world/plantCatalog';
 import { PlantStageIllustration } from '@/components/child/garden/PlantStageIllustration';
 import {
@@ -49,6 +50,8 @@ export default function GrowScene({
   const [pickerPlotCode, setPickerPlotCode] = useState<string | null>(null);
   const [inspectPlotCode, setInspectPlotCode] = useState<string | null>(null);
   const [celebrating, setCelebrating] = useState(false);
+  // Which locked quadrant's explanation sign is open (null = none).
+  const [signQuadrant, setSignQuadrant] = useState<GardenType | null>(null);
   const { settings } = useAccessibilitySettings();
   const reducedMotion = settings.reducedMotion;
 
@@ -492,6 +495,40 @@ export default function GrowScene({
                   rx={48} ry={48} fill="#3F2614" opacity={0.55} pointerEvents="none" />
           )}
 
+          {/* Wooden explanation signs on locked quadrants — tapping
+              answers the question every kid asks at a locked bed:
+              "what IS this, and when do I get in?" */}
+          {(['flower', 'fruit', 'japanese'] as const)
+            .filter(q => !state.openQuadrants.has(q))
+            .map(q => {
+              const z = ZONES[q];
+              const cx = z.x + z.w / 2;
+              const cy = z.y + z.h / 2 + 8;
+              return (
+                <g
+                  key={`sign-${q}`}
+                  transform={`translate(${cx}, ${cy})`}
+                  style={{ cursor: 'pointer', touchAction: 'manipulation' }}
+                  onClick={() => setSignQuadrant(q)}
+                  aria-label={`What is the ${QUADRANT_LAYOUT[q].label}?`}
+                >
+                  <circle r={40} fill="transparent" />
+                  {/* post */}
+                  <rect x={-3} y={-2} width={6} height={34} rx={2} fill="#6B4423" />
+                  {/* board */}
+                  <rect x={-42} y={-30} width={84} height={32} rx={7}
+                        fill="#A9774C" stroke="#6B4423" strokeWidth={2} />
+                  <rect x={-38} y={-26} width={76} height={24} rx={5}
+                        fill="#C99A6B" opacity={0.5} />
+                  <text y={-15} textAnchor="middle" fontSize={13}>🪧</text>
+                  <text y={-3} textAnchor="middle" fontSize={8.5} fontStyle="italic"
+                        fontWeight={700} fill="#3F2614">
+                    what grows here?
+                  </text>
+                </g>
+              );
+            })}
+
           {/* Empty plot tap targets — character-driven per quadrant.
               Each garden gets a marker that fits its visual world,
               not a generic dashed ellipse. */}
@@ -608,7 +645,92 @@ export default function GrowScene({
         <HarvestCelebration open={celebrating} reducedMotion={reducedMotion} />
 
         <SeedInventoryTray earnedSeeds={state.earnedSeeds} openQuadrants={state.openQuadrants} />
+
+        <QuadrantSignModal
+          quadrant={signQuadrant}
+          cumulativeCorrect={state.cumulativeCorrect}
+          onClose={() => setSignQuadrant(null)}
+        />
       </div>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// LOCKED-QUADRANT SIGN — what is this bed, and when does it open?
+// ─────────────────────────────────────────────────────────────────────────
+
+const QUADRANT_BLURB: Record<string, { emoji: string; blurb: string }> = {
+  flower: {
+    emoji: '🌷',
+    blurb: 'Tulips, cheerful daisies, and a sunflower that will grow taller than you.',
+  },
+  fruit: {
+    emoji: '🍎',
+    blurb: 'An apple tree, sweet strawberries, and a blueberry bush for picking.',
+  },
+  japanese: {
+    emoji: '🎋',
+    blurb: 'Whispering bamboo, a tiny bonsai pine, and a cherry blossom tree.',
+  },
+};
+
+function QuadrantSignModal({
+  quadrant, cumulativeCorrect, onClose,
+}: {
+  quadrant: GardenType | null;
+  cumulativeCorrect: number;
+  onClose: () => void;
+}) {
+  if (!quadrant) return null;
+  const label = QUADRANT_LAYOUT[quadrant]?.label ?? quadrant;
+  const info = QUADRANT_BLURB[quadrant];
+  const threshold = SEED_EARN_SCHEDULE.find(s => s.opensQuadrant === quadrant)?.atCorrect ?? 0;
+  const remaining = Math.max(0, threshold - cumulativeCorrect);
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-6"
+      style={{
+        background: 'radial-gradient(circle at 50% 40%, rgba(20, 25, 40, 0.4), rgba(20, 25, 40, 0.6))',
+        backdropFilter: 'blur(2px)',
+      }}
+      onClick={onClose}
+    >
+      <motion.div
+        className="relative bg-cream border-4 border-terracotta rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center space-y-3"
+        initial={{ scale: 0.9, y: 12, opacity: 0 }}
+        animate={{ scale: 1, y: 0, opacity: 1 }}
+        transition={{ duration: 0.35, ease: [0.22, 0.9, 0.34, 1] }}
+        onClick={e => e.stopPropagation()}
+      >
+        <div className="text-5xl">{info?.emoji ?? '🪧'}</div>
+        <div className="font-display italic text-[12px] tracking-[0.3em] uppercase text-bark/55">
+          still sleeping
+        </div>
+        <h2 className="font-display text-[26px] text-bark leading-tight" style={{ fontWeight: 600 }}>
+          <span className="italic text-forest">{label.toLowerCase()}</span>
+        </h2>
+        <p className="font-display italic text-[15px] text-bark/75 leading-snug">
+          {info?.blurb}
+        </p>
+        <div className="bg-white/70 border-2 border-ochre/40 rounded-2xl px-4 py-3 font-display text-[15px] text-bark leading-snug">
+          This bed wakes up after{' '}
+          <span style={{ fontWeight: 700 }}>{threshold}</span> right answers.
+          <div className="mt-1 text-forest" style={{ fontWeight: 700 }}>
+            {remaining === 0
+              ? 'It\'s ready — go see!'
+              : `You're only ${remaining} away!`}
+          </div>
+        </div>
+        <button
+          onClick={onClose}
+          className="w-full bg-forest text-white rounded-full py-3.5 font-display"
+          style={{ touchAction: 'manipulation', minHeight: 56, fontWeight: 600 }}
+        >
+          keep growing
+        </button>
+      </motion.div>
     </div>
   );
 }
