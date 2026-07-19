@@ -31,6 +31,27 @@ export const READING_THEMES: Record<string, ThemeHeader> = {
   // Comprehension
   'reading.comprehension.short_sentence': { title: 'Sentence Snippets', themeEmoji: '📜', skillHint: 'read & answer' },
   'reading.comprehension.paragraph': { title: 'Story Glade', themeEmoji: '📔', skillHint: 'read a paragraph' },
+
+  // Level 4 — phonics & sight words
+  'reading.phonics.multisyllable': { title: 'Long Word Thicket', themeEmoji: '🌾', skillHint: 'big 3–4 syllable words' },
+  'reading.sight_words.academic': { title: 'Tricky Word Hollow', themeEmoji: '🦊', skillHint: 'sneaky spellings' },
+
+  // Level 4 — morphology
+  'reading.morphology.prefix_dis_mis_non': { title: 'Front-Flip Words', themeEmoji: '🔄', skillHint: 'dis-, mis-, non-' },
+  'reading.morphology.suffix_ful_less_ness': { title: 'Tail-End Words', themeEmoji: '🍂', skillHint: '-ful, -less, -ness' },
+
+  // Level 4 — comprehension & vocabulary
+  'reading.vocab.context_clues': { title: 'Word Detective', themeEmoji: '🔎', skillHint: 'meaning from context' },
+  'reading.comprehension.passage': { title: 'Reading Grove', themeEmoji: '🌳', skillHint: 'longer passages' },
+
+  // Level 5 — morphology
+  'reading.morphology.suffix_tion_ment_ity': { title: 'Grand Suffix Grove', themeEmoji: '🌟', skillHint: '-tion, -ment, -ity' },
+  'reading.morphology.greek_latin_roots': { title: 'Ancient Roots', themeEmoji: '🏛️', skillHint: 'Greek & Latin roots' },
+
+  // Level 5 — comprehension & vocabulary
+  'reading.vocab.shades_of_meaning': { title: 'Just-Right Words', themeEmoji: '🎨', skillHint: 'the precise word' },
+  'reading.vocab.figurative': { title: 'Word Magic', themeEmoji: '🪄', skillHint: 'similes & idioms' },
+  'reading.comprehension.long_passage': { title: 'Deep Woods Reading', themeEmoji: '🌲', skillHint: 'long passages' },
 };
 
 export function getReadingThemeHeader(skillCode: string): ThemeHeader {

@@ -167,4 +167,105 @@ export const READING_SKILLS: SkillDefinition[] = [
     curriculumRefs: { ccss: 'RL.3.1, RI.3.1' },
     themeTags: ['comprehension', 'paragraph', 'reading'], sortOrder: 41,
   },
+
+  // ─── LEVEL 4 — PHONICS / SIGHT WORDS (Grade 4) ─────────────────────
+  {
+    code: 'reading.phonics.multisyllable',
+    name: 'Read long words (3–4 syllables)',
+    strandCode: 'phonics', level: 0.75,
+    prereqSkillCodes: [
+      'reading.phonics.r_controlled',
+      'reading.morphology.inflectional_ed_ing',
+    ],
+    curriculumRefs: { og: 'multisyllable' },
+    themeTags: ['phonics', 'multi_syllable', 'nature'], sortOrder: 19,
+  },
+  {
+    code: 'reading.sight_words.academic',
+    name: 'Tricky words (Fry list)',
+    strandCode: 'sight_words', level: 0.75,
+    prereqSkillCodes: ['reading.sight_words.dolch_third_grade'],
+    curriculumRefs: { fry: '4th-5th' },
+    themeTags: ['sight_words', 'tricky'], sortOrder: 5,
+  },
+
+  // ─── LEVEL 4 — MORPHOLOGY (Grade 4) ────────────────────────────────
+  {
+    code: 'reading.morphology.prefix_dis_mis_non',
+    name: 'Prefixes dis-, mis-, non-',
+    strandCode: 'morphology', level: 0.76,
+    prereqSkillCodes: ['reading.morphology.inflectional_ed_ing'],
+    curriculumRefs: { og: 'prefixes' },
+    themeTags: ['morphology', 'prefixes'], sortOrder: 24,
+  },
+  {
+    code: 'reading.morphology.suffix_ful_less_ness',
+    name: 'Suffixes -ful, -less, -ness',
+    strandCode: 'morphology', level: 0.78,
+    prereqSkillCodes: ['reading.morphology.prefix_dis_mis_non'],
+    curriculumRefs: { og: 'suffixes' },
+    themeTags: ['morphology', 'suffixes'], sortOrder: 25,
+  },
+
+  // ─── LEVEL 4 — COMPREHENSION & VOCABULARY (Grade 4) ────────────────
+  {
+    code: 'reading.vocab.context_clues',
+    name: 'Word meaning from context',
+    strandCode: 'comprehension', level: 0.80,
+    prereqSkillCodes: ['reading.comprehension.paragraph'],
+    curriculumRefs: { ccss: 'RL.4.4' },
+    themeTags: ['comprehension', 'vocab', 'context'], sortOrder: 42,
+  },
+  {
+    code: 'reading.comprehension.passage',
+    name: 'Longer passages',
+    strandCode: 'comprehension', level: 0.82,
+    prereqSkillCodes: ['reading.comprehension.paragraph'],
+    curriculumRefs: { ccss: 'RL.4.1, RI.4.1' },
+    themeTags: ['comprehension', 'passage', 'reading'], sortOrder: 43,
+  },
+
+  // ─── LEVEL 5 — MORPHOLOGY (Grade 5) ────────────────────────────────
+  {
+    code: 'reading.morphology.suffix_tion_ment_ity',
+    name: 'Suffixes -tion, -ment, -ity',
+    strandCode: 'morphology', level: 0.86,
+    prereqSkillCodes: ['reading.morphology.suffix_ful_less_ness'],
+    curriculumRefs: { og: 'suffixes' },
+    themeTags: ['morphology', 'suffixes'], sortOrder: 26,
+  },
+  {
+    code: 'reading.morphology.greek_latin_roots',
+    name: 'Greek and Latin roots',
+    strandCode: 'morphology', level: 0.88,
+    prereqSkillCodes: ['reading.morphology.suffix_tion_ment_ity'],
+    curriculumRefs: { ccss: 'RL.5.4' },
+    themeTags: ['morphology', 'roots', 'vocab'], sortOrder: 27,
+  },
+
+  // ─── LEVEL 5 — COMPREHENSION & VOCABULARY (Grade 5) ────────────────
+  {
+    code: 'reading.vocab.shades_of_meaning',
+    name: 'Choose the precise word',
+    strandCode: 'comprehension', level: 0.90,
+    prereqSkillCodes: ['reading.vocab.context_clues'],
+    curriculumRefs: {},
+    themeTags: ['comprehension', 'vocab', 'nuance'], sortOrder: 44,
+  },
+  {
+    code: 'reading.vocab.figurative',
+    name: 'Figurative language',
+    strandCode: 'comprehension', level: 0.92,
+    prereqSkillCodes: ['reading.vocab.shades_of_meaning'],
+    curriculumRefs: { ccss: 'RL.5.4' },
+    themeTags: ['comprehension', 'vocab', 'figurative'], sortOrder: 45,
+  },
+  {
+    code: 'reading.comprehension.long_passage',
+    name: 'Long passages',
+    strandCode: 'comprehension', level: 0.95,
+    prereqSkillCodes: ['reading.comprehension.passage'],
+    curriculumRefs: { ccss: 'RL.5.1, RI.5.2' },
+    themeTags: ['comprehension', 'passage', 'reading'], sortOrder: 46,
+  },
 ];

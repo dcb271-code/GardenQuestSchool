@@ -82,6 +82,35 @@ export const MATH_THEMES: Record<string, ThemeHeader> = {
 
   // Elapsed time (Grade 3)
   'math.time.elapsed_intervals': { title: 'Hourglass', themeEmoji: '⌛', skillHint: 'time that passed' },
+
+  // ─── LEVEL 4 (CCSS grade 4) ───
+  'math.placevalue.to_1_000_000': { title: 'The Thousand-Acre Meadow', themeEmoji: '🌾', skillHint: 'place value to 1,000,000' },
+  'math.multiply.by_10s_100s': { title: 'Tens & Hundreds Trellis', themeEmoji: '🪜', skillHint: 'multiply by 10s and 100s' },
+  'math.multiply.2digit_by_1digit': { title: 'Carrot Row Count', themeEmoji: '🥕', skillHint: '2-digit × 1-digit' },
+  'math.factors.find': { title: 'Seed Sorter', themeEmoji: '🌱', skillHint: 'factors, multiples, primes' },
+  'math.fractions.equivalent': { title: 'Twin Pies', themeEmoji: '🥧', skillHint: 'equivalent fractions' },
+  'math.divide.with_remainders': { title: 'Leftover Acorns', themeEmoji: '🌰', skillHint: 'division with remainders' },
+  'math.operations.multi_digit_add_subtract': { title: 'Great Number Grove', themeEmoji: '🌳', skillHint: '4-digit add & subtract' },
+  'math.placevalue.round_large': { title: 'Round the Big Hill', themeEmoji: '🌀', skillHint: 'round large numbers' },
+  'math.fractions.add_subtract_like': { title: 'Slice & Share', themeEmoji: '🍰', skillHint: 'fractions, like denominators' },
+  'math.time.elapsed_across_hours': { title: 'Sun Across the Sky', themeEmoji: '🌤️', skillHint: 'elapsed time, hours apart' },
+  'math.decimals.tenths_hundredths': { title: 'Decimal Dewdrops', themeEmoji: '💧', skillHint: 'tenths & hundredths' },
+  'math.multiply.2digit_by_2digit': { title: 'Orchard Grid', themeEmoji: '🍏', skillHint: '2-digit × 2-digit' },
+  'math.decimals.compare': { title: 'Dewdrop Weigh-In', themeEmoji: '⚖️', skillHint: 'compare decimals' },
+  'math.measurement.area_perimeter': { title: 'Garden Bed Builder', themeEmoji: '📐', skillHint: 'area & perimeter' },
+  'math.word_problem.multiplicative': { title: 'Tall Tales', themeEmoji: '🌲', skillHint: 'times-as-many stories' },
+
+  // ─── LEVEL 5 (CCSS grade 5) ───
+  'math.decimals.multiply_divide_10s': { title: 'Sliding Decimals', themeEmoji: '🛝', skillHint: 'decimals × and ÷ by 10s' },
+  'math.fractions.of_a_set': { title: 'Part of the Patch', themeEmoji: '🍓', skillHint: 'fraction of a number' },
+  'math.multiply.multi_digit': { title: 'The Great Multiply', themeEmoji: '✖️', skillHint: 'multi-digit multiply' },
+  'math.decimals.add_subtract': { title: 'Raindrop Sums', themeEmoji: '🌧️', skillHint: 'add & subtract decimals' },
+  'math.divide.long_division': { title: 'The Long Divide', themeEmoji: '➗', skillHint: 'long division' },
+  'math.fractions.add_subtract_unlike': { title: 'Mismatched Slices', themeEmoji: '🍕', skillHint: 'unlike denominators' },
+  'math.order_of_operations': { title: 'Recipe Order', themeEmoji: '📋', skillHint: 'order of operations' },
+  'math.fractions.multiply': { title: 'Slice of a Slice', themeEmoji: '🍉', skillHint: 'multiply fractions' },
+  'math.volume.rectangular': { title: 'Planter Box Volume', themeEmoji: '📦', skillHint: 'volume of prisms' },
+  'math.word_problem.multi_step': { title: 'Winding Garden Path', themeEmoji: '🛤️', skillHint: 'multi-step stories' },
 };
 
 export function getThemeHeader(skillCode: string): ThemeHeader {

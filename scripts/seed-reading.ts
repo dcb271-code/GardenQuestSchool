@@ -597,6 +597,648 @@ const PARAGRAPHS: Paragraph[] = [
   },
 ];
 
+// ═══════════════════════════════════════════════════════════════════
+// LEVEL 4 (CCSS Grade 4) — elo band ≈ 1550–1950
+// ═══════════════════════════════════════════════════════════════════
+
+/**
+ * Multisyllable decoding (3–4 syllables). PhonemeBlend items: the
+ * renderer asks the child to read the word aloud, part by part, and
+ * hides the tiles unless they need them — but the interface still
+ * wants three look-alike distractors, so each target carries three
+ * words that share its shape (butterfly / butterflies / buttercup /
+ * battering). Nature-heavy word list.
+ */
+const MULTISYLLABLE_WORDS: Array<{ phonemes: string[]; word: string; distractors: string[] }> = [
+  { phonemes: ['but', 'ter', 'fly'], word: 'butterfly', distractors: ['butterflies', 'buttercup', 'battering'] },
+  { phonemes: ['cat', 'er', 'pil', 'lar'], word: 'caterpillar', distractors: ['caterpillars', 'cartilage', 'capillary'] },
+  { phonemes: ['dan', 'de', 'li', 'on'], word: 'dandelion', distractors: ['dandelions', 'dandruff', 'medallion'] },
+  { phonemes: ['ev', 'er', 'green'], word: 'evergreen', distractors: ['evergreens', 'everglade', 'evening'] },
+  { phonemes: ['hi', 'ber', 'na', 'tion'], word: 'hibernation', distractors: ['hibernating', 'habitation', 'hibernate'] },
+  { phonemes: ['pol', 'li', 'na', 'tion'], word: 'pollination', distractors: ['pollinating', 'population', 'pollinate'] },
+  { phonemes: ['tem', 'per', 'a', 'ture'], word: 'temperature', distractors: ['temperatures', 'temporary', 'temperament'] },
+  { phonemes: ['veg', 'e', 'ta', 'ble'], word: 'vegetable', distractors: ['vegetables', 'vegetation', 'venerable'] },
+  { phonemes: ['re', 'mark', 'a', 'ble'], word: 'remarkable', distractors: ['remarkably', 'removable', 'remembrance'] },
+  { phonemes: ['wa', 'ter', 'mel', 'on'], word: 'watermelon', distractors: ['watermelons', 'waterfall', 'watercolor'] },
+  { phonemes: ['grass', 'hop', 'per'], word: 'grasshopper', distractors: ['grasshoppers', 'grasslands', 'gossamer'] },
+  { phonemes: ['hon', 'ey', 'suck', 'le'], word: 'honeysuckle', distractors: ['honeycomb', 'honeydew', 'honeybees'] },
+  { phonemes: ['drag', 'on', 'fly'], word: 'dragonfly', distractors: ['dragonflies', 'dragonfruit', 'drizzling'] },
+  { phonemes: ['cin', 'na', 'mon'], word: 'cinnamon', distractors: ['cinnamons', 'cinema', 'ceremony'] },
+  { phonemes: ['mar', 'i', 'gold'], word: 'marigold', distractors: ['marigolds', 'marmalade', 'mariner'] },
+  { phonemes: ['blue', 'ber', 'ry'], word: 'blueberry', distractors: ['blueberries', 'blackberry', 'blueprint'] },
+  { phonemes: ['straw', 'ber', 'ry'], word: 'strawberry', distractors: ['strawberries', 'gooseberry', 'scarecrow'] },
+  { phonemes: ['gar', 'den', 'er'], word: 'gardener', distractors: ['gardeners', 'gardening', 'gathering'] },
+  { phonemes: ['sun', 'flow', 'er'], word: 'sunflower', distractors: ['sunflowers', 'sunbonnet', 'sunburned'] },
+  { phonemes: ['wil', 'der', 'ness'], word: 'wilderness', distractors: ['wildflower', 'wanderings', 'wildebeest'] },
+  { phonemes: ['hum', 'ming', 'bird'], word: 'hummingbird', distractors: ['hummingbirds', 'humdinger', 'humbleness'] },
+  { phonemes: ['chrys', 'a', 'lis'], word: 'chrysalis', distractors: ['chrysalises', 'chrysanthemum', 'crystalize'] },
+  { phonemes: ['am', 'phib', 'i', 'an'], word: 'amphibian', distractors: ['amphibians', 'amphitheater', 'ambiguous'] },
+  { phonemes: ['ta', 'ran', 'tu', 'la'], word: 'tarantula', distractors: ['tarantulas', 'tambourine', 'tantalize'] },
+  { phonemes: ['but', 'ter', 'cup'], word: 'buttercup', distractors: ['buttercups', 'buttermilk', 'butterscotch'] },
+  { phonemes: ['beau', 'ti', 'ful'], word: 'beautiful', distractors: ['beautifully', 'bountiful', 'dutiful'] },
+  { phonemes: ['thun', 'der', 'storm'], word: 'thunderstorm', distractors: ['thunderstorms', 'thundercloud', 'thunderous'] },
+  { phonemes: ['per', 'i', 'win', 'kle'], word: 'periwinkle', distractors: ['periwinkles', 'pinwheel', 'perishable'] },
+  { phonemes: ['wood', 'peck', 'er'], word: 'woodpecker', distractors: ['woodpeckers', 'woodcutter', 'woodworker'] },
+  { phonemes: ['blos', 'som', 'ing'], word: 'blossoming', distractors: ['blossoms', 'blossomed', 'bothering'] },
+];
+
+/** Tricky, hard-to-decode high-frequency words (Fry 4th–5th). Fed to
+ *  the same sightWordItems helper as the Dolch lists. */
+const FRY_ACADEMIC = [
+  'through', 'enough', 'straight', 'thought', 'caught', 'weight',
+  'neighbor', 'island', 'answer', 'often', 'though', 'early',
+  'heard', 'whether', 'minute', 'favorite', 'probably', 'especially',
+  'business', 'weird', 'guard', 'science', 'friend', 'cousin',
+  'journey', 'listen', 'castle', 'honest', 'whole', 'height',
+  'building', 'certain',
+];
+
+/** A word carrying one of a small set of prefixes/suffixes, sorted in
+ *  a DigraphSort by its affix. Same content/answer shape as the phonics
+ *  digraph sorts, with the affix standing in for the "digraph". */
+type AffixWord = { word: string; affix: string };
+
+const PREFIX_DMN_WORDS: AffixWord[] = [
+  { word: 'disagree', affix: 'dis' }, { word: 'dislike', affix: 'dis' },
+  { word: 'disappear', affix: 'dis' }, { word: 'dishonest', affix: 'dis' },
+  { word: 'disconnect', affix: 'dis' }, { word: 'disobey', affix: 'dis' },
+  { word: 'misplace', affix: 'mis' }, { word: 'misspell', affix: 'mis' },
+  { word: 'mistake', affix: 'mis' }, { word: 'misbehave', affix: 'mis' },
+  { word: 'misread', affix: 'mis' }, { word: 'misunderstand', affix: 'mis' },
+  { word: 'nonstop', affix: 'non' }, { word: 'nonsense', affix: 'non' },
+  { word: 'nonfiction', affix: 'non' }, { word: 'nonliving', affix: 'non' },
+  { word: 'nonstick', affix: 'non' }, { word: 'nonempty', affix: 'non' },
+];
+
+type SentenceMeaning = { sentence: string; question: string; correct: string; distractors: string[] };
+
+const PREFIX_DMN_MEANINGS: SentenceMeaning[] = [
+  { sentence: 'If you MISPLACE your trowel, you cannot find where you put it.', question: 'MISPLACE means to…', correct: 'lose track of where something is', distractors: ['throw it away on purpose', 'clean it carefully', 'buy a brand-new one'] },
+  { sentence: 'The two friends DISAGREE about where to plant the beans.', question: 'When two friends DISAGREE, they…', correct: 'have different ideas', distractors: ['both want the very same thing', 'are fast asleep', 'are best friends'] },
+  { sentence: 'Nana read a NONFICTION book about how bees live.', question: 'A NONFICTION book is…', correct: 'all true and real', distractors: ['completely made up', 'only about dragons', 'full of jokes'] },
+  { sentence: 'The rabbit will DISAPPEAR the moment you step too close.', question: 'To DISAPPEAR means to…', correct: 'go out of sight', distractors: ['appear once more', 'grow much bigger', 'make a loud sound'] },
+  { sentence: 'If you MISSPELL a word, you spell it the wrong way.', question: 'To MISSPELL a word is to…', correct: 'spell it incorrectly', distractors: ['spell it perfectly', 'say it very loudly', 'read it twice'] },
+  { sentence: 'The NONSTOP train raced past without slowing down.', question: 'A NONSTOP train…', correct: 'does not stop', distractors: ['stops at every town', 'goes backward', 'is always late'] },
+  { sentence: 'Cecily began to DISLIKE the taste of the sour berries.', question: 'To DISLIKE something means you…', correct: 'do not like it', distractors: ['love it dearly', 'grow it yourself', 'give it away'] },
+  { sentence: 'If the puppy MISBEHAVES, he digs up the flower beds.', question: 'To MISBEHAVE is to…', correct: 'act in a naughty way', distractors: ['sit quietly and still', 'behave very well', 'fall fast asleep'] },
+  { sentence: 'A rock is a NONLIVING thing in the garden.', question: 'Something NONLIVING is…', correct: 'not alive', distractors: ['growing quickly', 'breathing softly', 'eating leaves'] },
+  { sentence: 'To water the far bed, Esme had to DISCONNECT the two hoses.', question: 'To DISCONNECT the hoses means to…', correct: 'take them apart', distractors: ['join them together', 'fill them with water', 'paint them green'] },
+  { sentence: 'The plan was pure NONSENSE and could never work.', question: 'If a plan is NONSENSE, it…', correct: 'does not make sense', distractors: ['works perfectly', 'is very clever', 'is a big secret'] },
+  { sentence: 'It is easy to MISREAD a faded, muddy sign.', question: 'To MISREAD a sign means to…', correct: 'read it wrong', distractors: ['read it aloud', 'paint over the sign', 'read it again'] },
+  { sentence: 'The two garden journals DISAGREE about the day the seeds sprouted.', question: 'When two journals DISAGREE, they…', correct: 'do not match', distractors: ['say exactly the same thing', 'are both blank', 'are both correct'] },
+  { sentence: 'Nana bakes cornbread in a shiny NONSTICK pan.', question: 'A NONSTICK pan is one where…', correct: 'nothing sticks to it', distractors: ['everything sticks fast', 'the food always burns', 'honey is stored'] },
+  { sentence: 'It is DISHONEST to say you watered the plants when you did not.', question: 'To be DISHONEST means to…', correct: 'not tell the truth', distractors: ['always tell the truth', 'talk a great deal', 'be very kind'] },
+  { sentence: 'It is easy to MISTAKE a young weed for a flower.', question: 'To MISTAKE one plant for another means to…', correct: 'think it is something it is not', distractors: ['pull the flower on purpose', 'water it very well', 'know exactly what it is'] },
+  { sentence: 'A wild deer will DISOBEY no rule but its own fear.', question: 'To DISOBEY a rule means to…', correct: 'not follow it', distractors: ['follow it carefully', 'write a new rule', 'read it aloud'] },
+  { sentence: 'After the harvest, the shed was NONEMPTY, packed with baskets.', question: 'A NONEMPTY shed…', correct: 'has something in it', distractors: ['is completely bare', 'has a broken door', 'is far too high'] },
+];
+
+const SUFFIX_FLN_WORDS: AffixWord[] = [
+  { word: 'careful', affix: 'ful' }, { word: 'hopeful', affix: 'ful' },
+  { word: 'cheerful', affix: 'ful' }, { word: 'colorful', affix: 'ful' },
+  { word: 'helpful', affix: 'ful' }, { word: 'joyful', affix: 'ful' },
+  { word: 'careless', affix: 'less' }, { word: 'fearless', affix: 'less' },
+  { word: 'hopeless', affix: 'less' }, { word: 'harmless', affix: 'less' },
+  { word: 'endless', affix: 'less' }, { word: 'spotless', affix: 'less' },
+  { word: 'kindness', affix: 'ness' }, { word: 'darkness', affix: 'ness' },
+  { word: 'sadness', affix: 'ness' }, { word: 'brightness', affix: 'ness' },
+  { word: 'softness', affix: 'ness' }, { word: 'wildness', affix: 'ness' },
+];
+
+const SUFFIX_FLN_MEANINGS: SentenceMeaning[] = [
+  { sentence: 'A CARELESS gardener forgot to water the thirsty seedlings.', question: 'A CARELESS gardener is one who…', correct: 'does not pay careful attention', distractors: ['waters everything just right', 'plants very neat rows', 'always wins a prize'] },
+  { sentence: 'Esme felt HOPEFUL that every seed would sprout.', question: 'To feel HOPEFUL is to…', correct: 'think good things will happen', distractors: ['feel very sad', 'feel sleepy', 'feel angry'] },
+  { sentence: 'Sharing her berries was an act of KINDNESS.', question: 'KINDNESS means being…', correct: 'kind and caring', distractors: ['unkind and mean', 'very fast', 'very loud'] },
+  { sentence: 'In the DARKNESS of the shed, Cecily could barely see.', question: 'In DARKNESS you…', correct: 'cannot see very well', distractors: ['hear nothing at all', 'smell every flower', 'feel very cold'] },
+  { sentence: 'The FEARLESS explorer walked straight into the deep cave.', question: 'A FEARLESS explorer is…', correct: 'not afraid', distractors: ['always scared', 'very tired', 'very small'] },
+  { sentence: 'The little ladybug is HARMLESS and cannot hurt you.', question: 'A HARMLESS bug…', correct: 'cannot hurt you', distractors: ['has a nasty sting', 'bites very hard', 'is dangerous'] },
+  { sentence: 'The path seemed ENDLESS as it wound on and on.', question: 'An ENDLESS path…', correct: 'seems to go on and on', distractors: ['stops right away', 'is only one step', 'has a locked gate'] },
+  { sentence: 'The COLORFUL garden was full of reds, blues, and golds.', question: 'A COLORFUL garden is…', correct: 'full of many colors', distractors: ['all dull gray', 'very quiet', 'quite tiny'] },
+  { sentence: 'She loved the SOFTNESS of the green moss under her feet.', question: 'The SOFTNESS of moss means it feels…', correct: 'soft', distractors: ['hard', 'sharp', 'burning hot'] },
+  { sentence: 'A HELPFUL friend lent Nana a hand with the weeding.', question: 'A HELPFUL friend is one who…', correct: 'gives you help', distractors: ['never helps at all', 'runs away', 'stays asleep'] },
+  { sentence: 'After the rain washed it, the birdbath was SPOTLESS.', question: 'If something is SPOTLESS, it…', correct: 'has no dirt at all', distractors: ['is covered in mud', 'is frozen solid', 'is very deep'] },
+  { sentence: 'The JOYFUL song of the robin filled the morning.', question: 'A JOYFUL song makes you feel…', correct: 'happy', distractors: ['sad', 'bored', 'sleepy'] },
+  { sentence: 'The BRIGHTNESS of the noon sun made Cecily squint.', question: 'The BRIGHTNESS of the sun made her…', correct: 'squint her eyes', distractors: ['feel cold', 'fall asleep', 'shiver'] },
+  { sentence: 'The HOPELESS tangle of vines looked too hard to ever fix.', question: 'A HOPELESS tangle…', correct: 'seems too hard to fix', distractors: ['is easy to undo', 'is very short', 'smells sweet'] },
+  { sentence: 'Even in the rain, Nana stayed CHEERFUL and hummed a tune.', question: 'To be CHEERFUL is to be…', correct: 'happy and bright', distractors: ['grumpy', 'silent', 'lost'] },
+  { sentence: 'A great SADNESS came over Esme when her flower wilted.', question: 'SADNESS is the feeling that makes you…', correct: 'want to cry', distractors: ['laugh out loud', 'jump for joy', 'run fast'] },
+  { sentence: 'A CAREFUL scientist checks her work very closely.', question: 'A CAREFUL scientist…', correct: 'pays close attention to her work', distractors: ['rushes and makes mistakes', 'never writes anything down', 'only guesses'] },
+  { sentence: 'The WILDNESS of the meadow was full of tangled, untamed grass.', question: 'The WILDNESS of the meadow means it was…', correct: 'wild and untamed', distractors: ['neatly trimmed', 'paved with stone', 'completely bare'] },
+];
+
+/** Context-clue vocabulary. Each sentence holds a challenging word in
+ *  CAPS with enough context to pin its meaning; the question asks what
+ *  the word means. Hand-authored, garden/nature themed. */
+const CONTEXT_CLUES: SentenceMeaning[] = [
+  { sentence: 'The drought PARCHED the garden — the soil was dry and cracked.', question: 'PARCHED means…', correct: 'very dry', distractors: ['soaking wet', 'freshly dug', 'covered in weeds'] },
+  { sentence: 'The tiny sprout was so FRAGILE that a gust of wind could snap it.', question: 'FRAGILE means…', correct: 'easily broken', distractors: ['very strong', 'bright green', 'fast growing'] },
+  { sentence: 'The bees were INDUSTRIOUS, working from dawn until dusk.', question: 'INDUSTRIOUS means…', correct: 'hard-working', distractors: ['lazy', 'sleepy', 'angry'] },
+  { sentence: 'After the rain, the plants looked LUSH — thick, full, and green.', question: 'LUSH means…', correct: 'thick and healthy', distractors: ['dry and thin', 'brown and dead', 'small and weak'] },
+  { sentence: 'The old oak was ENORMOUS, taller even than the barn.', question: 'ENORMOUS means…', correct: 'very big', distractors: ['very small', 'very old', 'very green'] },
+  { sentence: 'The rabbit was TIMID and dashed away at the smallest sound.', question: 'TIMID means…', correct: 'shy and easily scared', distractors: ['brave', 'hungry', 'friendly'] },
+  { sentence: 'The stream MEANDERED slowly through the meadow, bending this way and that.', question: 'MEANDERED means…', correct: 'wandered in slow curves', distractors: ['rushed straight ahead', 'dried up', 'froze solid'] },
+  { sentence: 'The frost was so BITTER that it nipped at their noses.', question: 'BITTER (about weather) means…', correct: 'very cold and sharp', distractors: ['sweet', 'warm', 'gentle'] },
+  { sentence: 'The garden was TRANQUIL, quiet and calm in the morning light.', question: 'TRANQUIL means…', correct: 'peaceful', distractors: ['noisy', 'crowded', 'stormy'] },
+  { sentence: 'The soil was FERTILE, so everything they planted grew well.', question: 'FERTILE means…', correct: 'good for growing', distractors: ['rocky and bare', 'full of ants', 'far too wet'] },
+  { sentence: 'The vines were TANGLED, twisted around each other in a mess.', question: 'TANGLED means…', correct: 'knotted together', distractors: ['neatly lined up', 'cut short', 'painted green'] },
+  { sentence: 'The berries were ABUNDANT — far more than they could ever pick.', question: 'ABUNDANT means…', correct: 'plentiful', distractors: ['rare', 'rotten', 'tiny'] },
+  { sentence: 'The caterpillar crept at a SLUGGISH pace, slow and lazy.', question: 'SLUGGISH means…', correct: 'very slow', distractors: ['very fast', 'very high', 'very loud'] },
+  { sentence: 'The scent of the roses was FRAGRANT and sweet.', question: 'FRAGRANT means…', correct: 'sweet-smelling', distractors: ['rotten-smelling', 'very loud', 'brightly colored'] },
+  { sentence: 'The thorny bush was so DENSE they could not see through it.', question: 'DENSE means…', correct: 'packed tightly together', distractors: ['thin and open', 'soft and fluffy', 'short and neat'] },
+  { sentence: 'The dry leaves were BRITTLE and crumbled at a single touch.', question: 'BRITTLE means…', correct: 'easily crumbled', distractors: ['soft and bendy', 'wet and heavy', 'smooth and shiny'] },
+  { sentence: 'The gardener was WEARY after a long day of digging.', question: 'WEARY means…', correct: 'very tired', distractors: ['full of energy', 'very happy', 'very hungry'] },
+  { sentence: 'The pond was SHALLOW, only up to their ankles.', question: 'SHALLOW means…', correct: 'not deep', distractors: ['very deep', 'very wide', 'frozen over'] },
+  { sentence: 'The wildflowers were SCATTERED across the whole field.', question: 'SCATTERED means…', correct: 'spread all around', distractors: ['in one tidy pile', 'lined up in a row', 'hidden away'] },
+  { sentence: 'The morning dew made the grass GLISTEN in the sun.', question: 'GLISTEN means…', correct: 'sparkle and shine', distractors: ['turn brown', 'dry out', 'smell sweet'] },
+  { sentence: 'The old fence was FEEBLE and leaned over in the wind.', question: 'FEEBLE means…', correct: 'weak', distractors: ['strong', 'brand new', 'bright red'] },
+  { sentence: 'The nectar was a VITAL source of food for the young bees.', question: 'VITAL means…', correct: 'very important', distractors: ['not needed', 'very bad', 'very small'] },
+  { sentence: 'The seedlings were DELICATE and needed gentle care.', question: 'DELICATE means…', correct: 'easily harmed', distractors: ['tough', 'huge', 'spiky'] },
+  { sentence: 'The garden path was OVERGROWN with weeds and tall grass.', question: 'OVERGROWN means…', correct: 'covered with too many plants', distractors: ['freshly mowed', 'paved with stone', 'totally bare'] },
+  { sentence: 'The owl sat MOTIONLESS on the branch, not moving at all.', question: 'MOTIONLESS means…', correct: 'perfectly still', distractors: ['shaking', 'flying', 'hooting'] },
+  { sentence: 'The gardener PLUCKED the ripe tomato from the vine.', question: 'PLUCKED means…', correct: 'picked', distractors: ['watered', 'planted', 'dropped'] },
+  { sentence: 'The compost had a PUNGENT smell that made her wrinkle her nose.', question: 'PUNGENT means…', correct: 'strong and sharp', distractors: ['sweet and faint', 'cool and fresh', 'with no smell'] },
+  { sentence: 'The vegetables THRIVED in the rich soil, growing bigger each day.', question: 'THRIVED means…', correct: 'grew very well', distractors: ['wilted', 'stayed the same', 'disappeared'] },
+  { sentence: 'The morning air was CRISP and cool against her cheeks.', question: 'CRISP (about air) means…', correct: 'fresh and cool', distractors: ['warm and damp', 'thick and smoky', 'heavy and wet'] },
+  { sentence: 'The snail left a GLOSSY trail that shone on the leaf.', question: 'GLOSSY means…', correct: 'shiny', distractors: ['dull', 'sticky and dry', 'rough'] },
+];
+
+/** Longer informational + narrative passages (100–140 words, 5–8
+ *  sentences), 2–3 linked questions each. Same Paragraph shape as the
+ *  Grade-3 PARAGRAPHS. */
+const PASSAGES: Paragraph[] = [
+  {
+    paragraph:
+      "A butterfly does not start life with wings. It begins as a tiny egg, usually stuck to the underside of a leaf. " +
+      "Out of the egg crawls a hungry caterpillar, which eats and eats until it grows far too big for its own skin. " +
+      "When the time is right, the caterpillar forms a hard case called a chrysalis and hangs very still. " +
+      "Inside, something amazing happens: its whole body slowly changes. " +
+      "Days or weeks later, the case splits open and a butterfly climbs out. " +
+      "At first its wings are damp and crumpled, but soon they dry, spread wide, and carry it up into the air. " +
+      "This astonishing change is called metamorphosis.",
+    questions: [
+      { q: 'What comes right after the egg hatches?', correct: 'a caterpillar crawls out', distractors: ['a butterfly flies away', 'a chrysalis forms', 'the wings dry out'], kind: 'sequence' },
+      { q: 'In this passage, "metamorphosis" means…', correct: 'a big change from one form to another', distractors: ['a kind of leaf', "a butterfly's egg", 'a very long sleep'], kind: 'vocab' },
+      { q: 'This passage is mostly about…', correct: 'how a butterfly changes as it grows', distractors: ['what caterpillars like to eat', 'why leaves have eggs on them', 'how high butterflies can fly'], kind: 'main_idea' },
+    ],
+  },
+  {
+    paragraph:
+      "Plants cannot walk, so how do their seeds travel to new places to grow? Nature has clever tricks. " +
+      "Some seeds, like the dandelion's, wear tiny parachutes of fluff and float away on the wind. " +
+      "Others, like the burr's, have little hooks that cling to the fur of passing animals and hitch a ride. " +
+      "Juicy berries are eaten by birds, and the hard seeds inside pass through and drop far from the parent plant. " +
+      "A few seeds even ride on water, floating down streams to sprout on a fresh bank. " +
+      "Each trick helps a seed land somewhere with room, sunlight, and soil of its own.",
+    questions: [
+      { q: 'What is this passage mostly about?', correct: 'the different ways seeds travel to new places', distractors: ['why plants cannot walk', 'how birds build their nests', 'what dandelions look like'], kind: 'main_idea' },
+      { q: 'How does a dandelion seed travel?', correct: 'it floats on the wind', distractors: ['it hooks onto fur', 'it rolls downhill', 'it is buried by ants'], kind: 'recall' },
+      { q: 'Why is it helpful for a seed to land far from its parent plant?', correct: 'it can find its own space and sunlight', distractors: ['it can stay close to home', 'it grows faster in the shade', 'it needs no soil at all'], kind: 'inference' },
+    ],
+  },
+  {
+    paragraph:
+      "When autumn arrives and the days grow short, many birds begin a long journey called migration. " +
+      "They fly south to places where the winter is warm and food is easy to find. " +
+      "Some birds travel in great V-shaped flocks, taking turns leading so no single bird grows too tired. " +
+      "Others fly alone, guided by the stars and by the Earth's own magnetism. " +
+      "A few small songbirds cross entire oceans without stopping to rest. " +
+      "When spring returns and the north grows warm again, the birds fly back to raise their young, following the very same routes their parents once flew.",
+    questions: [
+      { q: 'In this passage, "migration" means…', correct: 'a long journey to a new place', distractors: ['building a warm nest', 'a kind of feather', 'a winter storm'], kind: 'vocab' },
+      { q: 'Why do the birds take turns leading the V-shaped flock?', correct: 'so no single bird gets too tired', distractors: ['so they look pretty', 'so they can race each other', 'so they stay warm'], kind: 'inference' },
+      { q: 'When do the birds fly back north?', correct: 'when spring returns', distractors: ['in the middle of winter', 'when food runs out in the south', 'at the first snowfall'], kind: 'recall' },
+    ],
+  },
+  {
+    paragraph:
+      "In one corner of the garden, Nana keeps a pile she calls her treasure heap. " +
+      "Into it go banana peels, apple cores, coffee grounds, dead leaves, and grass clippings. " +
+      "At first it looks like nothing but scraps. " +
+      "But hidden inside, an army of worms, bugs, and tiny living things gets to work, breaking everything down. " +
+      "Over many months the pile turns dark, crumbly, and rich, like chocolate cake for plants. " +
+      "This is compost. Nana spreads it around her vegetables so the soil stays healthy and her tomatoes grow plump and sweet. " +
+      "Nothing is wasted; even yesterday's peelings become tomorrow's dinner.",
+    questions: [
+      { q: 'This passage is mostly about…', correct: 'how food scraps turn into rich compost for plants', distractors: ['how Nana grows her tomatoes', 'why worms live in gardens', 'what Nana likes to eat'], kind: 'main_idea' },
+      { q: 'When Nana calls the pile a "treasure heap," she means…', correct: 'it is valuable even though it looks like scraps', distractors: ['it is full of gold coins', 'it is where she hides toys', 'it smells wonderful'], kind: 'vocab' },
+      { q: 'What does Nana do with the finished compost?', correct: 'she spreads it around her vegetables', distractors: ['she throws it away', 'she puts it back in the kitchen', 'she feeds it to the worms'], kind: 'recall' },
+    ],
+  },
+  {
+    paragraph:
+      "An orb-weaver spider builds one of nature's finest traps. " +
+      "She begins by letting out a single thread that drifts on the breeze until it catches on a twig. " +
+      "From that first bridge she adds spoke after spoke, like the wheel of a bicycle. " +
+      "Then, starting at the center, she spins round and round, laying a spiral of sticky silk. " +
+      "The dry spokes are safe to walk on, but the sticky spiral catches any insect that blunders into it. " +
+      "When a fly is caught, the spider feels the web tremble and hurries over. " +
+      "Each morning she may eat the old web and spin a fresh one.",
+    questions: [
+      { q: 'What does the spider do first?', correct: 'she lets out a thread that catches on a twig', distractors: ['she spins the sticky spiral', 'she eats the old web', 'she waits for a fly'], kind: 'sequence' },
+      { q: "Why doesn't the spider get stuck in her own web?", correct: 'she walks on the dry spokes, not the sticky spiral', distractors: ['her feet are much too small', 'she never touches the web at all', 'the web is not really sticky'], kind: 'inference' },
+      { q: 'How does the spider know a fly is caught?', correct: 'she feels the web tremble', distractors: ['she hears it buzzing', 'she sees it from far away', 'she smells it'], kind: 'recall' },
+    ],
+  },
+  {
+    paragraph:
+      "When a honeybee finds a patch of flowers full of nectar, she flies home with important news. " +
+      "But bees cannot speak, so she tells the others by dancing. " +
+      "Right there on the honeycomb, she runs in a special pattern called the waggle dance, wiggling her body as she goes. " +
+      "The direction she points shows which way to fly, and the length of her wiggle tells how far away the flowers are. " +
+      "The longer she waggles, the farther the trip. " +
+      "Her sisters crowd close, feel the dance, and then set off in the right direction. " +
+      "In this way, one clever bee can share a whole meadow with her hive.",
+    questions: [
+      { q: 'This passage is mostly about…', correct: 'how a bee tells other bees where to find flowers', distractors: ['how bees make honey', 'why bees cannot speak', 'how far bees can fly'], kind: 'main_idea' },
+      { q: "What does the length of the bee's waggle tell the others?", correct: 'how far away the flowers are', distractors: ['what color the flowers are', 'how sweet the nectar is', 'how many bees to send'], kind: 'recall' },
+      { q: 'The "waggle dance" is…', correct: 'a wiggling pattern the bee runs to share directions', distractors: ['a song the bees hum', 'a kind of flower', 'a fight between bees'], kind: 'vocab' },
+    ],
+  },
+  {
+    paragraph:
+      "When the ocean tide goes out, it leaves behind small pools of water among the rocks. " +
+      "These tide pools are like tiny worlds, packed with life. " +
+      "Bright sea stars cling to the stone, and green anemones wave their soft arms, waiting to catch a passing shrimp. " +
+      "Tiny crabs scuttle sideways into shadowy cracks, and snails graze slowly on the rocks. " +
+      "The creatures here must be tough, for twice each day the sea rushes back in and covers them again. " +
+      "Between the crash of waves and the burning sun, a tide pool is a hard place to live — but a wonderful place to explore.",
+    questions: [
+      { q: 'Why must tide pool creatures be tough?', correct: 'the sea covers and uncovers them twice a day', distractors: ['there is never any water', 'the pools are always dark', 'no other animals live nearby'], kind: 'inference' },
+      { q: 'What do the green anemones wait to catch?', correct: 'a passing shrimp', distractors: ['a sea star', 'a snail', 'a wave'], kind: 'recall' },
+      { q: 'In this passage, "scuttle" means…', correct: 'move quickly with small steps', distractors: ['swim deep down', 'sleep all day', 'float on top'], kind: 'vocab' },
+    ],
+  },
+  {
+    paragraph:
+      "The Earth leans a little to one side as it circles the sun, and that tilt gives us our seasons. " +
+      "In summer, our part of the world tilts toward the sun, so the days are long and warm and the garden bursts with growth. " +
+      "As autumn comes, the light softens, leaves turn gold, and plants begin to rest. " +
+      "Winter tilts us away from the sun; the days are short and cold, and many trees stand bare. " +
+      "Then spring returns, the sun climbs higher, buds unfurl, and the whole cycle begins again. " +
+      "Season after season, the garden sleeps and wakes, wakes and sleeps.",
+    questions: [
+      { q: 'This passage is mostly about…', correct: 'why the Earth has different seasons', distractors: ['why leaves are green', 'how gardens are planted', 'how far away the sun is'], kind: 'main_idea' },
+      { q: 'What causes the seasons?', correct: 'the tilt of the Earth as it circles the sun', distractors: ['how much rain falls', 'the phases of the moon', 'the direction of the wind'], kind: 'recall' },
+      { q: 'Why do many trees stand bare in winter?', correct: 'the plants are resting in the short, cold days', distractors: ['birds eat all the leaves', 'the sun is too bright', 'the trees have died'], kind: 'inference' },
+    ],
+  },
+  {
+    paragraph:
+      "Cecily searched the whole garden for Luna, but the cat was nowhere to be seen. " +
+      "She called and called, shaking the little bag of treats that Luna loved, but nothing came. " +
+      "At last, just as the sun began to set, Cecily heard a faint mew from high above. " +
+      "There, stuck on a branch of the old apple tree, was Luna, her green eyes wide. " +
+      "She had chased a squirrel too far and now could not get down. " +
+      "Cecily fetched Nana, who brought the tall ladder and, very gently, carried the trembling cat back to the ground. " +
+      "Safe at last, Luna licked her paw as if nothing had happened at all.",
+    questions: [
+      { q: 'Why could Luna not get down from the tree?', correct: 'she had climbed too far chasing a squirrel', distractors: ['she was too sleepy to move', 'the branch was on fire', 'Cecily had tied her up'], kind: 'inference' },
+      { q: 'What happened just after Cecily heard the mew?', correct: 'she found Luna stuck in the apple tree', distractors: ['Luna ran home', 'the sun rose', 'Nana put away the ladder'], kind: 'sequence' },
+      { q: 'When Luna "licked her paw as if nothing had happened," it shows she was…', correct: 'acting calm and proud again', distractors: ['badly hurt', 'still terrified', 'very hungry'], kind: 'inference' },
+    ],
+  },
+  {
+    paragraph:
+      "Esme woke to find the whole garden dusted in white. " +
+      "Overnight the first frost had come, and every leaf and blade of grass wore a coat of tiny ice crystals that sparkled in the early sun. " +
+      "She rushed outside in her boots, her breath making little clouds in the cold air. " +
+      "The pumpkins she and Nana had grown sat plump and orange on the frosted vine. " +
+      "Esme knew what this meant: it was time to bring in the last of the harvest before winter truly arrived. " +
+      "She hurried back inside to wake her sister, for there was work — and wonder — waiting in the cold, bright morning.",
+    questions: [
+      { q: 'In this passage, "dusted in white" means…', correct: 'covered lightly with frost', distractors: ['painted with white paint', 'buried in deep snow', 'sprinkled with sugar'], kind: 'vocab' },
+      { q: 'Why did Esme know it was time to bring in the harvest?', correct: 'the first frost meant winter was near', distractors: ['the pumpkins were rotten', 'Nana had told her the day before', 'the garden was empty'], kind: 'inference' },
+      { q: 'What did Esme do right after seeing the frost?', correct: 'she hurried to wake her sister', distractors: ['she went back to sleep', 'she picked all the flowers', 'she built a snowman'], kind: 'sequence' },
+    ],
+  },
+  {
+    paragraph:
+      "Earthworms may seem plain, but they are among the garden's hardest workers. " +
+      "All day and night they tunnel through the soil, swallowing dirt and bits of dead leaves as they go. " +
+      "What passes out the other end is rich food for plants. " +
+      "Their tunnels do another job too: they let air and rainwater soak deep down to the roots, where they are needed most. " +
+      "A single garden can hold thousands of worms, quietly turning and mixing the earth. " +
+      "Charles Darwin, a famous scientist, once said that few creatures have done as much to shape the land as the humble earthworm.",
+    questions: [
+      { q: 'This passage is mostly about…', correct: 'how earthworms help the soil and plants', distractors: ['how deep worms can dig', 'who Charles Darwin was', 'why leaves fall'], kind: 'main_idea' },
+      { q: "Why are the worms' tunnels good for plant roots?", correct: 'they let air and water reach the roots', distractors: ['they keep the roots warm', 'they scare away bugs', 'they hold the plant up'], kind: 'inference' },
+      { q: 'What did Charles Darwin say about earthworms?', correct: 'few creatures have done as much to shape the land', distractors: ['they are the fastest diggers', 'they live only in gardens', 'they cannot survive the cold'], kind: 'recall' },
+    ],
+  },
+];
+
+// ═══════════════════════════════════════════════════════════════════
+// LEVEL 5 (CCSS Grade 5) — elo band ≈ 1800–2200
+// ═══════════════════════════════════════════════════════════════════
+
+const SUFFIX_TMI_WORDS: AffixWord[] = [
+  { word: 'invention', affix: 'tion' }, { word: 'protection', affix: 'tion' },
+  { word: 'education', affix: 'tion' }, { word: 'celebration', affix: 'tion' },
+  { word: 'information', affix: 'tion' }, { word: 'direction', affix: 'tion' },
+  { word: 'movement', affix: 'ment' }, { word: 'excitement', affix: 'ment' },
+  { word: 'enjoyment', affix: 'ment' }, { word: 'agreement', affix: 'ment' },
+  { word: 'treatment', affix: 'ment' }, { word: 'improvement', affix: 'ment' },
+  { word: 'curiosity', affix: 'ity' }, { word: 'electricity', affix: 'ity' },
+  { word: 'activity', affix: 'ity' }, { word: 'ability', affix: 'ity' },
+  { word: 'community', affix: 'ity' }, { word: 'generosity', affix: 'ity' },
+];
+
+const SUFFIX_TMI_MEANINGS: SentenceMeaning[] = [
+  { sentence: 'The wheelbarrow was a clever INVENTION that made the work easier.', question: 'An INVENTION is…', correct: 'a new thing someone makes', distractors: ['an old broken toy', 'a kind of animal', 'a loud noise'] },
+  { sentence: 'The MOVEMENT of the tall grass showed the wind was picking up.', question: 'MOVEMENT means…', correct: 'the act of moving', distractors: ['staying perfectly still', 'a quiet room', 'a deep sleep'] },
+  { sentence: 'Her CURIOSITY led her to lift every leaf and peek beneath.', question: 'CURIOSITY is…', correct: 'the wish to learn or find out', distractors: ['a feeling of anger', 'a kind of plant', 'being very tired'] },
+  { sentence: 'The fence gave the seedlings PROTECTION from the hungry deer.', question: 'PROTECTION means…', correct: 'keeping something safe', distractors: ['putting it in danger', 'throwing it away', 'making it dirty'] },
+  { sentence: 'There was great EXCITEMENT when the first bud finally opened.', question: 'EXCITEMENT is a feeling of…', correct: 'being eager and thrilled', distractors: ['being bored', 'being sleepy', 'being calm'] },
+  { sentence: 'ELECTRICITY lit the greenhouse lamps on the dark winter night.', question: 'ELECTRICITY is the power that…', correct: 'makes lights and machines work', distractors: ['waters the garden', 'grows the plants', 'feeds the bees'] },
+  { sentence: 'After talking it over, the sisters reached an AGREEMENT about the plan.', question: 'When people reach an AGREEMENT, they…', correct: 'decide something together', distractors: ['start to argue', 'walk away', 'fall asleep'] },
+  { sentence: 'Weeding the beds was Esme\'s favorite ACTIVITY.', question: 'An ACTIVITY is…', correct: 'something you do', distractors: ['a place to sleep', 'a kind of food', 'a quiet nap'] },
+  { sentence: 'The harvest CELEBRATION filled the yard with music and laughter.', question: 'A CELEBRATION is…', correct: 'a happy time to mark something special', distractors: ['a sad goodbye', 'a long chore', 'a quiet rest'] },
+  { sentence: 'She felt real ENJOYMENT as she wandered the blooming rows.', question: 'ENJOYMENT is the feeling you get when you…', correct: 'have a good time', distractors: ['feel unwell', 'feel afraid', 'feel bored'] },
+  { sentence: 'The whole COMMUNITY came together to plant the new orchard.', question: 'A COMMUNITY is…', correct: 'a group of people living together', distractors: ['a single empty house', 'a lone traveler', 'a bare field'] },
+  { sentence: 'Nana showed great GENEROSITY, sharing her seeds with every neighbor.', question: 'GENEROSITY means…', correct: 'being willing to share and give', distractors: ['keeping everything for yourself', 'taking from others', 'being greedy'] },
+  { sentence: 'The gentle TREATMENT of the wilting fern soon brought it back to life.', question: 'The TREATMENT of a sick plant is…', correct: 'the care given to help it get better', distractors: ['throwing it out', 'leaving it all alone', 'cutting it down'] },
+  { sentence: 'The signpost gave clear DIRECTION to the pond.', question: 'DIRECTION tells you…', correct: 'which way to go', distractors: ['how old you are', 'what time it is', 'how much it costs'] },
+  { sentence: 'With practice, Cecily gained the ABILITY to name every bird by its song.', question: 'ABILITY means…', correct: 'being able to do something', distractors: ['not knowing how', 'being unwilling', 'being tired'] },
+  { sentence: 'The field guide held a great deal of INFORMATION about moths.', question: 'INFORMATION is…', correct: 'facts you learn about something', distractors: ['a made-up story', 'a funny joke', 'a hiding place'] },
+  { sentence: 'Careful watering brought a real IMPROVEMENT in the drooping tomatoes.', question: 'IMPROVEMENT means…', correct: 'getting better', distractors: ['getting worse', 'staying the same', 'falling down'] },
+  { sentence: 'The EDUCATION of a young gardener takes many patient seasons.', question: 'EDUCATION means…', correct: 'the learning of new things', distractors: ['forgetting everything', 'a kind of tool', 'a long vacation'] },
+];
+
+/** Greek and Latin roots. Each item names a root and its meaning, then
+ *  asks which word carries that root and fits the clue. Distractors are
+ *  words built from OTHER roots, so exactly one choice both contains the
+ *  target root and matches the meaning. */
+const ROOT_ITEMS: SentenceMeaning[] = [
+  { sentence: "The root PORT means 'to carry'.", question: 'Which word means "able to be carried"?', correct: 'portable', distractors: ['telephone', 'aquarium', 'geology'] },
+  { sentence: "The root PORT means 'to carry'.", question: 'Which word means "to carry goods to another place"?', correct: 'transport', distractors: ['telescope', 'autograph', 'terrarium'] },
+  { sentence: "The root PORT means 'to carry'.", question: 'Which word names a person who carries travelers\' bags?', correct: 'porter', distractors: ['biography', 'aquarium', 'geometry'] },
+  { sentence: "The root GRAPH means 'to write or draw'.", question: 'Which word means "the written story of a person\'s life"?', correct: 'biography', distractors: ['telephone', 'aquarium', 'terrain'] },
+  { sentence: "The root GRAPH means 'to write'.", question: 'Which word means "a name you write with your own hand"?', correct: 'autograph', distractors: ['telescope', 'aquatics', 'geology'] },
+  { sentence: "The root GRAPH means 'to write or draw'.", question: 'Which word means "a chart that shows information with lines"?', correct: 'graph', distractors: ['telephone', 'aquarium', 'terrarium'] },
+  { sentence: "The root TELE means 'far away'.", question: 'Which word means "a tool for seeing far-off things"?', correct: 'telescope', distractors: ['aquarium', 'portable', 'autograph'] },
+  { sentence: "The root TELE means 'far off'.", question: 'Which word means "a device for talking to someone far away"?', correct: 'telephone', distractors: ['biography', 'aquarium', 'geology'] },
+  { sentence: "The root TELE means 'distant'.", question: 'Which word names a screen showing pictures sent from far away?', correct: 'television', distractors: ['portable', 'aquarium', 'photograph'] },
+  { sentence: "The root AQUA means 'water'.", question: 'Which word names a glass tank of water for fish?', correct: 'aquarium', distractors: ['telescope', 'autograph', 'geology'] },
+  { sentence: "The root AQUA means 'water'.", question: 'Which word describes a blue-green color, like clear water?', correct: 'aquamarine', distractors: ['portable', 'telephone', 'biography'] },
+  { sentence: "The root AQUA means 'water'.", question: 'Which word names the sport of exercises done in water?', correct: 'aquatics', distractors: ['telescope', 'autograph', 'geography'] },
+  { sentence: "The root TERRA means 'earth' or 'land'.", question: 'Which word means "the land or ground of an area"?', correct: 'terrain', distractors: ['telephone', 'aquarium', 'autograph'] },
+  { sentence: "The root TERRA means 'earth'.", question: 'Which word names a glass case of soil and small plants?', correct: 'terrarium', distractors: ['telescope', 'portable', 'biography'] },
+  { sentence: "The root TERRA means 'land'.", question: 'Which word means "an area of land that belongs to someone"?', correct: 'territory', distractors: ['telephone', 'aquarium', 'photograph'] },
+  { sentence: "The root PHOTO means 'light'.", question: 'Which word means "a picture made using light"?', correct: 'photograph', distractors: ['telephone', 'aquarium', 'terrain'] },
+  { sentence: "The root PHOTO means 'light'.", question: 'Which word names how plants use light to make their food?', correct: 'photosynthesis', distractors: ['telescope', 'aquarium', 'biography'] },
+  { sentence: "The root PHOTO means 'light'.", question: 'Which word names a person who takes pictures with light?', correct: 'photographer', distractors: ['telescope', 'aquarium', 'terrarium'] },
+  { sentence: "The root SCOPE means 'to look at'.", question: 'Which word means "a tool for looking at tiny things"?', correct: 'microscope', distractors: ['telephone', 'aquarium', 'autograph'] },
+  { sentence: "The root SCOPE means 'to see'.", question: 'Which word means "a tool for seeing distant stars"?', correct: 'telescope', distractors: ['photograph', 'aquarium', 'biography'] },
+  { sentence: "The root SCOPE means 'to look'.", question: 'Which word names a tube toy with changing patterns to look at?', correct: 'kaleidoscope', distractors: ['telephone', 'aquarium', 'terrain'] },
+  { sentence: "The root PHONE means 'sound'.", question: 'Which word means "a device that carries voices"?', correct: 'telephone', distractors: ['aquarium', 'terrarium', 'autograph'] },
+  { sentence: "The root PHONE means 'sound'.", question: 'Which word names the sounds that letters make in reading?', correct: 'phonics', distractors: ['telescope', 'aquarium', 'geology'] },
+  { sentence: "The root PHONE means 'sound'.", question: 'Which word names a tool you speak into to make your voice louder?', correct: 'microphone', distractors: ['telescope', 'aquarium', 'terrain'] },
+  { sentence: "The root BIO means 'life'.", question: 'Which word means "the study of living things"?', correct: 'biology', distractors: ['telephone', 'aquarium', 'autograph'] },
+  { sentence: "The root BIO means 'life'.", question: 'Which word means "the written life story of a real person"?', correct: 'biography', distractors: ['telescope', 'aquarium', 'terrain'] },
+  { sentence: "The root BIO means 'life'.", question: 'Which word names a medicine that fights living germs?', correct: 'antibiotic', distractors: ['telescope', 'aquarium', 'terrarium'] },
+  { sentence: "The root GEO means 'earth'.", question: 'Which word means "the study of the Earth\'s land, seas, and maps"?', correct: 'geography', distractors: ['telephone', 'aquarium', 'autograph'] },
+  { sentence: "The root GEO means 'earth'.", question: 'Which word means "the study of the Earth\'s rocks"?', correct: 'geology', distractors: ['telescope', 'aquarium', 'biography'] },
+  { sentence: "The root GEO means 'earth'.", question: 'Which word names the study of lines, shapes, and angles?', correct: 'geometry', distractors: ['telephone', 'aquarium', 'photograph'] },
+];
+
+/** Shades of meaning. Each sentence has a blank; the context selects one
+ *  precise word from a set of near-synonyms that differ in intensity or
+ *  nuance. Only one choice truly fits. */
+const SHADES_ITEMS: Array<{ sentence: string; correct: string; distractors: string[] }> = [
+  { sentence: "The kitten didn't just walk — it ___ quietly across the grass, trying not to be seen.", correct: 'crept', distractors: ['stomped', 'marched', 'plodded'] },
+  { sentence: "The thirsty plants had waited all week, so the rain didn't just fall — it ___ down in a heavy, welcome rush.", correct: 'poured', distractors: ['sprinkled', 'dripped', 'misted'] },
+  { sentence: 'She was not just happy about the first bloom — she was absolutely ___.', correct: 'delighted', distractors: ['pleased', 'fine', 'okay'] },
+  { sentence: 'The old oak was not just big — it was truly ___.', correct: 'enormous', distractors: ['large', 'okay', 'small'] },
+  { sentence: 'After the long hike the children were not just tired — they were completely ___.', correct: 'exhausted', distractors: ['sleepy', 'bored', 'calm'] },
+  { sentence: 'The soup was not merely warm — fresh off the stove, it was ___.', correct: 'scalding', distractors: ['cool', 'mild', 'lukewarm'] },
+  { sentence: "The frightened rabbit didn't just move — it ___ into the bushes in a blur.", correct: 'darted', distractors: ['strolled', 'wandered', 'ambled'] },
+  { sentence: "She didn't simply like the puppy — she ___ it with all her heart.", correct: 'adored', distractors: ['liked', 'noticed', 'knew'] },
+  { sentence: 'The wind was not just blowing — during the storm it ___ through the trees.', correct: 'howled', distractors: ['whispered', 'hummed', 'sighed'] },
+  { sentence: 'The brook was not loud — it ___ softly over the smooth stones.', correct: 'murmured', distractors: ['roared', 'crashed', 'boomed'] },
+  { sentence: 'He was not merely hungry after skipping lunch — he was ___.', correct: 'famished', distractors: ['full', 'picky', 'thirsty'] },
+  { sentence: 'The garden path was not just dirty — after the flood it was ___ with mud.', correct: 'caked', distractors: ['dusted', 'speckled', 'sprinkled'] },
+  { sentence: 'The old cat did not run to dinner — she ___ slowly across the room.', correct: 'plodded', distractors: ['raced', 'leapt', 'sprinted'] },
+  { sentence: 'The berry was not just sweet — it was so sugary it tasted ___.', correct: 'syrupy', distractors: ['bitter', 'sour', 'bland'] },
+  { sentence: 'The morning was not merely cold — up on the frosty hill it was ___.', correct: 'freezing', distractors: ['cool', 'mild', 'warm'] },
+  { sentence: "She didn't just look at the strange bug — she ___ at it, unable to look away.", correct: 'stared', distractors: ['glanced', 'peeked', 'blinked'] },
+  { sentence: 'The puppy was not simply glad to see her — it was wildly ___.', correct: 'overjoyed', distractors: ['content', 'calm', 'patient'] },
+  { sentence: 'The path was not just narrow — squeezing between the rocks, it was ___.', correct: 'cramped', distractors: ['wide', 'open', 'roomy'] },
+  { sentence: 'The little bird did not sing quietly — at dawn it ___ at the top of its voice.', correct: 'belted', distractors: ['hummed', 'mumbled', 'whispered'] },
+  { sentence: 'The pond was not merely still — in the frozen dawn it lay perfectly ___.', correct: 'motionless', distractors: ['rippling', 'churning', 'splashing'] },
+  { sentence: 'She was not just curious — she was so ___ she could hardly wait to look inside.', correct: 'eager', distractors: ['bored', 'unwilling', 'calm'] },
+  { sentence: 'The old bread was not just dry — it had gone completely ___.', correct: 'stale', distractors: ['fresh', 'soft', 'warm'] },
+  { sentence: 'The frightened deer did not walk away — it ___ into the forest the instant it saw them.', correct: 'bolted', distractors: ['lingered', 'paused', 'wandered'] },
+  { sentence: 'The soup needed salt; without it the broth tasted flat and ___.', correct: 'bland', distractors: ['spicy', 'rich', 'tangy'] },
+  { sentence: 'The kitten was not merely playful — chasing every leaf, it was utterly ___.', correct: 'frisky', distractors: ['lazy', 'still', 'tired'] },
+];
+
+/** Figurative language — similes, metaphors, and idioms in context. The
+ *  question asks what the figure of speech means. */
+const FIGURATIVE_ITEMS: SentenceMeaning[] = [
+  { sentence: '"The garden was a blanket of gold."', question: 'This means the garden was…', correct: 'covered all over with golden flowers', distractors: ['cold and needed a blanket', 'made of real gold', 'only a small patch of yellow'] },
+  { sentence: 'Nana said, "Hold your horses!"', question: 'She meant…', correct: 'wait and be patient', distractors: ['go and feed the horses', 'run much faster', 'let the horses out'] },
+  { sentence: '"The wind whispered through the leaves."', question: 'This means the wind…', correct: 'made a soft, gentle sound', distractors: ['shouted very loudly', 'spoke real words', 'knocked the leaves down'] },
+  { sentence: 'The frost lay like a silver blanket over the lawn.', question: 'This means the lawn was…', correct: 'covered with a layer of frost', distractors: ['made of silver', 'warm and cozy', 'painted white'] },
+  { sentence: '"Cecily was as busy as a bee."', question: 'This means she was…', correct: 'working very hard', distractors: ['buzzing loudly', 'afraid of bees', 'covered in honey'] },
+  { sentence: 'Grandpa said weeding was "a piece of cake."', question: 'He meant it was…', correct: 'very easy', distractors: ['sweet to eat', 'made with cake', 'very hard'] },
+  { sentence: '"The sun smiled down on the meadow."', question: 'This means the sun was…', correct: 'shining warmly and brightly', distractors: ['making a face', 'hidden by clouds', 'setting for the night'] },
+  { sentence: '"Her cheeks were as red as roses."', question: 'This means her cheeks were…', correct: 'very rosy and pink', distractors: ['made of petals', 'covered in thorns', 'smelling sweet'] },
+  { sentence: 'When Esme spilled the seeds, Nana said, "Don\'t cry over spilled milk."', question: 'She meant…', correct: "don't be upset about a small mistake", distractors: ['go and get some milk', 'clean up the milk', 'stop drinking milk'] },
+  { sentence: '"The old tree was a giant reaching for the sky."', question: 'This means the tree was…', correct: 'very tall', distractors: ['a real living giant', 'falling over', 'made of clouds'] },
+  { sentence: '"The pond was a mirror in the still morning."', question: 'This means the pond…', correct: 'reflected everything clearly', distractors: ['was made of glass', 'had a mirror in it', 'was very small'] },
+  { sentence: 'Dad said learning to weed was "a walk in the park."', question: 'He meant it was…', correct: 'easy and pleasant', distractors: ['done at the park', 'a long journey', 'very tiring'] },
+  { sentence: '"Leaves danced in the autumn wind."', question: 'This means the leaves…', correct: 'moved and swirled about', distractors: ['played music', 'had little feet', 'stood still'] },
+  { sentence: 'Cecily had "butterflies in her stomach" before the show.', question: 'This means she felt…', correct: 'nervous and jittery', distractors: ['hungry for lunch', 'like she ate bugs', 'very sleepy'] },
+  { sentence: '"The snow was a soft white quilt."', question: 'This means the snow…', correct: 'covered the ground in a smooth, thick layer', distractors: ['was warm to the touch', 'was made of cloth', 'kept them cozy in bed'] },
+  { sentence: 'Nana said, "It\'s raining cats and dogs!"', question: 'She meant…', correct: 'it was raining very hard', distractors: ['animals were falling', 'the pets were outside', 'it was barely drizzling'] },
+  { sentence: '"The brook sang over the stones."', question: 'This means the brook…', correct: 'made a pleasant, musical sound', distractors: ['knew a real song', 'was completely quiet', 'had a human voice'] },
+  { sentence: '"Her smile was sunshine."', question: 'This means her smile was…', correct: 'warm and cheerful', distractors: ['too bright to look at', 'hot like the sun', 'yellow in color'] },
+  { sentence: 'When Cecily begged to plant more, Nana called her "a chip off the old block."', question: 'She meant Cecily…', correct: 'was just like her gardening family', distractors: ['was made of wood', 'had chipped a block', 'was very small'] },
+  { sentence: '"The angry clouds gathered overhead."', question: 'This means the clouds looked…', correct: 'dark and stormy', distractors: ['friendly and soft', 'like real faces', 'very far away'] },
+  { sentence: '"The vines were greedy fingers grabbing the fence."', question: 'This means the vines…', correct: 'spread and clung tightly to the fence', distractors: ['had real fingers', 'stole from the fence', 'were painted green'] },
+  { sentence: 'Esme was "quiet as a mouse" in the early garden.', question: 'This means she was…', correct: 'very quiet', distractors: ['small like a mouse', 'afraid of mice', 'squeaking softly'] },
+  { sentence: '"Time flew by while they played outside."', question: 'This means the time…', correct: 'seemed to pass very quickly', distractors: ['had real wings', 'stood still', 'went backward'] },
+  { sentence: '"The tomatoes were begging to be picked."', question: 'This means the tomatoes were…', correct: 'perfectly ripe and ready', distractors: ['talking out loud', 'still green', 'rotten'] },
+  { sentence: 'Grandpa said Cecily "has a green thumb."', question: 'He meant she…', correct: 'is very good at growing plants', distractors: ['painted her thumb green', 'hurt her thumb', 'has a sickness'] },
+];
+
+/** Long passages (140–190 words), richer informational and narrative
+ *  content with harder inference. Same Paragraph shape. */
+const LONG_PASSAGES: Paragraph[] = [
+  {
+    paragraph:
+      "In the warm waters of a coral reef, two very different creatures live as partners. " +
+      "The sea anemone looks like a soft, waving flower, but its arms are covered in tiny stingers that can hurt most fish. " +
+      "The clownfish, however, has a special slippery coating on its body that keeps it from being stung. " +
+      "So the clownfish makes its home right among the anemone's dangerous arms, safe from any larger fish that would like to eat it. " +
+      "In return, the clownfish is not a lazy guest. " +
+      "It chases away the few animals that try to nibble the anemone, and the scraps it drops become food for its host. " +
+      "Neither creature could do as well alone, yet together they both thrive. " +
+      "Scientists call this kind of partnership, where two living things help each other, symbiosis. " +
+      "The reef is full of such quiet bargains, struck between creatures that will never speak a single word.",
+    questions: [
+      { q: 'In this passage, "symbiosis" means…', correct: 'a partnership where two living things help each other', distractors: ['a kind of coral', 'a fish that stings', 'a large ocean wave'], kind: 'vocab' },
+      { q: "Why is the clownfish safe among the anemone's arms?", correct: 'its slippery coating keeps it from being stung', distractors: ['it is too fast to be caught', 'the anemone has no stingers', 'it is bigger than the anemone'], kind: 'inference' },
+      { q: 'This passage is mostly about…', correct: 'how the clownfish and anemone help each other', distractors: ['how coral reefs are formed', 'why fish live in warm water', 'what anemones eat'], kind: 'main_idea' },
+    ],
+  },
+  {
+    paragraph:
+      "The water that falls as rain today may be older than the dinosaurs. " +
+      "Earth keeps the same water and uses it again and again in a great journey called the water cycle. " +
+      "It begins when the sun warms oceans, lakes, and rivers, turning their surface into an invisible gas called water vapor, which rises into the sky. " +
+      "This is evaporation. " +
+      "High up, where the air is cold, the vapor cools and clings to bits of dust, forming the tiny droplets that make clouds. " +
+      "When those droplets grow heavy enough, they fall back to Earth as rain or snow. " +
+      "Some of this water soaks into the soil to be sipped up by roots; some gathers into streams that flow, at last, back to the sea. " +
+      "Then the sun warms it once more, and the whole journey begins again. " +
+      "Not a single drop is ever truly lost.",
+    questions: [
+      { q: 'In this passage, "evaporation" is when…', correct: 'water turns into invisible vapor and rises', distractors: ['rain falls from clouds', 'water freezes into ice', 'rivers flow to the sea'], kind: 'vocab' },
+      { q: 'What happens right after water vapor cools high in the sky?', correct: 'it forms tiny droplets that make clouds', distractors: ['it falls as rain', 'the sun warms it', 'it soaks into the soil'], kind: 'sequence' },
+      { q: 'This passage is mostly about…', correct: 'how Earth uses the same water over and over', distractors: ['why the sun is hot', 'how clouds change shape', 'where dinosaurs lived'], kind: 'main_idea' },
+    ],
+  },
+  {
+    paragraph:
+      "When a leaf falls or an old tree topples in the forest, it does not simply vanish. " +
+      "An army of quiet workers moves in to take it apart. " +
+      "Fungi spread thread-thin roots through the rotting wood, while beetles, worms, and countless microbes chew and break it down. " +
+      "These creatures are called decomposers, and they perform one of nature's most important jobs. " +
+      "As they feed, they release the goodness locked inside the dead plant back into the soil — nutrients that living plants need to grow. " +
+      "Without decomposers, the forest floor would pile ever higher with dead leaves and fallen trunks, and the nutrients would stay trapped inside them forever. " +
+      "New plants would slowly starve. " +
+      "So although a mushroom on a rotting log may look like the end of something, it is really part of a beginning, feeding the forest of tomorrow.",
+    questions: [
+      { q: 'This passage is mostly about…', correct: 'how decomposers recycle dead plants into food for new ones', distractors: ['why leaves fall in autumn', 'how tall trees grow', 'where mushrooms are found'], kind: 'main_idea' },
+      { q: 'What would happen to the forest without decomposers?', correct: 'dead leaves would pile up and nutrients would stay trapped', distractors: ['the trees would grow faster', 'it would rain much more', 'the soil would get richer on its own'], kind: 'inference' },
+      { q: 'In this passage, "decomposers" are creatures that…', correct: 'break down dead plants and animals', distractors: ['plant new seeds', 'hunt other animals', 'carry water to the roots'], kind: 'vocab' },
+    ],
+  },
+  {
+    paragraph:
+      "Each autumn, an astonishing journey takes place across North America. " +
+      "Monarch butterflies, weighing less than a paperclip, set off on a flight of up to three thousand miles to spend the winter in the warm forests of Mexico. " +
+      "What makes this even more remarkable is that no single butterfly has ever made the trip before. " +
+      "The monarchs that fly south were born only months earlier, yet somehow they find their way to the very same groves their great-grandparents used, guided by the sun and by senses we still do not fully understand. " +
+      "There they cluster in the millions, covering the fir trees like orange leaves. " +
+      "When spring comes, they begin the long trip north again, but no one butterfly finishes it. " +
+      "Instead, they lay eggs along the way, and it takes several generations to complete the return. " +
+      "The great-grandchildren of the first travelers arrive back where the journey began.",
+    questions: [
+      { q: 'Why is it surprising that the monarchs find the forests in Mexico?', correct: 'no butterfly making the trip has ever been there before', distractors: ['the forests are hidden underground', 'the butterflies are blind', 'Mexico is very close by'], kind: 'inference' },
+      { q: 'About how far do the monarchs travel?', correct: 'up to three thousand miles', distractors: ['about three miles', 'around the whole world', 'just a few hundred feet'], kind: 'recall' },
+      { q: 'This passage is mostly about…', correct: 'the remarkable migration of monarch butterflies', distractors: ['why butterflies are orange', 'how caterpillars become butterflies', 'what monarchs eat in winter'], kind: 'main_idea' },
+    ],
+  },
+  {
+    paragraph:
+      "Bees see the world very differently than we do. " +
+      "Human eyes catch red, green, and blue light, but a bee's eyes are tuned instead to blue, green, and ultraviolet — a kind of light that is completely invisible to people. " +
+      "Because of this, a bee cannot see the color red at all; a red flower looks dull and dark to her. " +
+      "But she can see patterns painted in ultraviolet that we would never notice. " +
+      "Many flowers use this secret color to guide their visitors, drawing glowing lines and rings that point straight toward the sweet nectar, like landing strips at an airport. " +
+      "To our eyes a buttercup may be a plain yellow cup, but to a bee it may blaze with hidden signals saying, 'Land here!' " +
+      "In this way, flowers and bees have shaped each other over millions of years, each helping the other survive.",
+    questions: [
+      { q: 'Which color can a bee NOT see?', correct: 'red', distractors: ['blue', 'green', 'ultraviolet'], kind: 'recall' },
+      { q: 'Why do many flowers have ultraviolet patterns?', correct: 'to guide bees toward the nectar', distractors: ['to hide from bees', 'to look pretty to people', 'to keep warm in the sun'], kind: 'inference' },
+      { q: 'The flowers\' ultraviolet lines are compared to "landing strips at an airport" because they…', correct: 'guide the bee in to the right spot', distractors: ['are very long and straight', 'are made of pavement', 'make a loud noise'], kind: 'vocab' },
+    ],
+  },
+  {
+    paragraph:
+      "The owl is built to be a silent hunter of the night. " +
+      "While most birds are noisy in flight, an owl can swoop through the dark without a sound. " +
+      "The secret lies in its feathers: their soft, comb-like edges break up the rushing air that would otherwise whoosh past a wing. " +
+      "Its eyes, huge and forward-facing, gather what little light the moon and stars provide, letting the owl see when the world seems pitch black to us. " +
+      "But its hearing may be its finest tool of all. " +
+      "An owl's ears are set at slightly different heights on its head, so a sound reaches one ear a hair sooner than the other. " +
+      "From that tiny difference, the owl can pinpoint a mouse rustling under leaves — or even under snow — and drop upon it in perfect silence. " +
+      "Every part of the owl works together for one purpose: to hunt unseen and unheard.",
+    questions: [
+      { q: 'This passage is mostly about…', correct: 'the special features that make owls silent night hunters', distractors: ['what owls like to eat', 'where owls build their nests', 'why owls sleep in the day'], kind: 'main_idea' },
+      { q: 'Why does having ears at different heights help the owl?', correct: 'it helps the owl pinpoint exactly where a sound comes from', distractors: ['it lets the owl hear two things at once', "it keeps the owl's head balanced", "it makes the owl's hearing louder"], kind: 'inference' },
+      { q: 'In this passage, "pinpoint" means…', correct: 'find the exact spot', distractors: ['poke with a claw', 'listen for a long time', 'fly in a circle'], kind: 'vocab' },
+    ],
+  },
+  {
+    paragraph:
+      "On the shadowy floor of a forest, every living thing is connected to the others in a web of who-eats-whom. " +
+      "It starts with the plants — ferns, mosses, and tender seedlings — which make their own food from sunlight. " +
+      "A rabbit or a mouse nibbles those plants, taking in their energy. " +
+      "Then a fox or an owl hunts the rabbit, passing that energy further along. " +
+      "When any of these creatures dies, decomposers move in, breaking the body down and returning its goodness to the soil, where new plants will use it to grow. " +
+      "Pull on any single thread of this web and the whole thing trembles. " +
+      "If the foxes disappeared, the mice might grow too many and eat every seedling; if the plants failed, the mice would starve, and so would the foxes. " +
+      "Each creature, large or small, has its place, and the forest stays healthy only when the whole web stays in balance.",
+    questions: [
+      { q: 'What might happen if all the foxes disappeared?', correct: 'the mice could grow too many and eat all the seedlings', distractors: ['the plants would grow much faster', 'nothing at all would change', 'the owls would vanish at once too'], kind: 'inference' },
+      { q: 'This passage is mostly about…', correct: 'how living things in a forest are connected in a food web', distractors: ['how foxes hunt mice', 'why forests are shadowy', 'what mosses need to grow'], kind: 'main_idea' },
+      { q: 'When the passage says pulling one thread makes "the whole thing trembles," it means…', correct: 'a change to one part affects all the others', distractors: ['the web is made of string', 'the forest shakes in the wind', 'spiders live in the web'], kind: 'vocab' },
+    ],
+  },
+  {
+    paragraph:
+      "Cecily had grown the tallest sunflower at the fair every summer for three years, and she had been sure she would win again. " +
+      "But this year, when the judge walked slowly down the row, he stopped at a plant grown by a boy she had never met, and pinned the blue ribbon there instead. " +
+      "For a moment Cecily's throat went tight and hot, and she wanted to march straight home. " +
+      "Then she looked more closely at the winning flower — how straight its stem stood, how wide and bright its golden face — and she remembered how many mornings that boy must have watered it, just as she had. " +
+      "She swallowed hard, walked over, and told him it was the finest sunflower she had ever seen. " +
+      "His grin was so wide that, to her surprise, Cecily found she was glad she had said it after all.",
+    questions: [
+      { q: 'Why did Cecily\'s "throat go tight and hot"?', correct: 'she was disappointed that she did not win', distractors: ['she was thirsty from the sun', 'she had caught a cold', 'she was excited to win'], kind: 'inference' },
+      { q: "Why did Cecily decide to praise the boy's sunflower?", correct: 'she realized he had worked just as hard as she had', distractors: ['she wanted to win next time', 'the judge told her to', 'she did not really like her own flower'], kind: 'inference' },
+      { q: 'How did Cecily feel at the very end?', correct: 'glad that she had been kind', distractors: ['still angry about losing', 'sorry that she had spoken', 'bored with the whole fair'], kind: 'inference' },
+    ],
+  },
+  {
+    paragraph:
+      "Esme wanted the carrots to grow now. " +
+      "Every morning for a week she had knelt by the row Nana helped her plant, staring at the bare brown soil, and every morning nothing had changed. " +
+      "'Maybe they're broken,' she finally said, close to tears. " +
+      "Nana set down her trowel and smiled. " +
+      "'Seeds do their best work where we can't see it,' she said. 'Under the ground, roots are already reaching down before a single leaf shows above.' " +
+      "Esme wasn't sure she believed her, but she kept watering all the same. " +
+      "Then one grey morning, almost two weeks later, she found a faint green thread no thicker than a hair curling up out of the dirt. " +
+      "She shouted so loudly that Luna the cat leapt off the fence. " +
+      "Esme understood now what Nana had meant: the most important growing had been happening all along, quietly, out of sight.",
+    questions: [
+      { q: 'Why did Esme think the seeds might be "broken"?', correct: 'nothing seemed to be happening above the soil', distractors: ['the seeds looked cracked', 'Nana had told her so', 'the soil was the wrong color'], kind: 'inference' },
+      { q: 'What did Nana mean by "seeds do their best work where we can\'t see it"?', correct: 'the roots were growing underground before any leaf showed', distractors: ['seeds only grow in the dark', 'gardening should be kept secret', 'seeds do their work at night'], kind: 'inference' },
+      { q: 'What lesson does Esme learn in this passage?', correct: 'important things can be happening even when we cannot see them', distractors: ['carrots grow faster than other plants', 'cats do not like loud noises', 'it is best to plant in the spring'], kind: 'main_idea' },
+    ],
+  },
+  {
+    paragraph:
+      "Spider silk is one of the most amazing materials in all of nature. " +
+      "A thread of it is far thinner than a human hair, yet, ounce for ounce, it is stronger than steel and can stretch without snapping. " +
+      "A spider makes it as a liquid inside her body and spins it into solid thread only as it leaves her, through tiny nozzles called spinnerets. " +
+      "Most remarkable of all, a single spider can make several different kinds of silk, each for a different job: a strong dry line for the spokes of her web, a stretchy sticky thread for catching prey, a soft wrapping to bundle her eggs, and even a fine strand she can ride on the wind like a balloon. " +
+      "Scientists have long dreamed of copying spider silk to make everything from safer helmets to stronger ropes, but so far the little spider remains a far better weaver than any machine we have built.",
+    questions: [
+      { q: 'How does spider silk compare to steel?', correct: 'ounce for ounce, it is stronger than steel', distractors: ['it is much weaker than steel', 'it is exactly as strong as steel', 'it snaps more easily than steel'], kind: 'recall' },
+      { q: 'In this passage, "spinnerets" are…', correct: 'tiny nozzles a spider spins silk through', distractors: ["the spider's eyes", 'kinds of insects', 'threads of the web'], kind: 'vocab' },
+      { q: 'This passage is mostly about…', correct: 'what makes spider silk such a remarkable material', distractors: ['how spiders catch their prey', 'why spiders lay eggs', 'how helmets are made'], kind: 'main_idea' },
+    ],
+  },
+  {
+    paragraph:
+      "From the kitchen window, Cecily watched Luna crouch low in the grass, tail twitching, her green eyes fixed on the apple tree. " +
+      "In its branches sat a nest where a robin had raised three speckled chicks, and now the boldest of them was making its very first wobbly flights, tumbling from branch to branch. " +
+      "Cecily's heart pounded. " +
+      "She knew Luna's nature — a cat is a hunter — and yet she could not bear the thought of the little bird coming to harm. " +
+      "She slipped outside as quietly as she could, scooped the surprised cat into her arms, and carried her indoors, whispering an apology for spoiling the game. " +
+      "Luna grumbled and flicked her tail crossly for the rest of the afternoon. " +
+      "But that evening, when the young robin flapped safely up to the rooftop and chirped into the dusk, Cecily decided that one sulking cat was a very small price to pay.",
+    questions: [
+      { q: 'Why did Cecily carry Luna indoors?', correct: 'to keep the young robin safe from the cat', distractors: ['because Luna was hungry', 'because it was time for dinner', 'because Luna was cold'], kind: 'inference' },
+      { q: 'Why did Luna "grumble and flick her tail crossly"?', correct: 'she was annoyed that her hunt was spoiled', distractors: ['she was frightened of the robin', 'she was glad to be inside', 'she wanted to be fed'], kind: 'inference' },
+      { q: 'Why did Cecily think "one sulking cat was a very small price to pay"?', correct: "keeping the bird safe mattered more than Luna's mood", distractors: ['cats forget quickly anyway', 'she did not like Luna', 'the robin belonged to her'], kind: 'inference' },
+    ],
+  },
+];
+
 export async function seedReading(
   sb: SupabaseClient,
   subjectId: string,
@@ -631,7 +1273,26 @@ export async function seedReading(
   const readingSkillIds = READING_SKILLS
     .map(s => skillIdByCode.get(s.code))
     .filter((x): x is string => !!x);
-  if (readingSkillIds.length > 0) {
+
+  // SEED_ADDITIVE=1: only insert items for skills with NO existing
+  // seed items, and skip the wipe — the full wipe deletes learners'
+  // attempts on prior seed items, resetting attempt-derived garden
+  // progress. Use additive mode when shipping new skills to a live DB.
+  const additive = process.env.SEED_ADDITIVE === '1';
+  const alreadySeeded = new Set<string>();
+  if (additive && readingSkillIds.length > 0) {
+    const PAGE = 1000;
+    for (let from = 0; ; from += PAGE) {
+      const { data, error } = await sb.from('item')
+        .select('skill_id').eq('generated_by', 'seed').in('skill_id', readingSkillIds)
+        .range(from, from + PAGE - 1);
+      if (error) throw error;
+      if (!data || data.length === 0) break;
+      for (const r of data) alreadySeeded.add(r.skill_id);
+      if (data.length < PAGE) break;
+    }
+  }
+  if (!additive && readingSkillIds.length > 0) {
     // Paginate — Supabase caps SELECT at 1000 rows by default.
     const PAGE = 1000;
     const priorIds: string[] = [];
@@ -1108,13 +1769,155 @@ export async function seedReading(
     }
   }
 
-  if (items.length > 0) {
+  // ═══════════════════════════════════════════════════════════════
+  // LEVEL 4 (CCSS Grade 4) — elo band ≈ 1550–1950
+  // ═══════════════════════════════════════════════════════════════
+
+  // Small shared helpers for the Level 4/5 content -----------------
+
+  /** Emit SentenceComprehension meaning items from a hand-authored
+   *  {sentence, question, correct, distractors} array. */
+  function meaningItems(
+    skillCode: string,
+    arr: Array<{ sentence: string; question: string; correct: string; distractors: string[] }>,
+    startElo: number, step: number,
+  ) {
+    for (let i = 0; i < arr.length; i++) {
+      const it = arr[i];
+      push(skillCode, 'SentenceComprehension', {
+        type: 'SentenceComprehension',
+        sentence: it.sentence,
+        question: it.question,
+        choices: [it.correct, ...it.distractors],
+        promptText: it.question,
+      }, { correct: it.correct }, startElo + i * step);
+    }
+  }
+
+  /** Emit DigraphSort rounds that sort affixed words into their
+   *  prefix/suffix buckets — same content/answer shape as the phonics
+   *  digraph sorts, with the affix standing in for the digraph. */
+  function affixSortItems(
+    skillCode: string, affixes: string[], words: AffixWord[],
+    prompt: string, startElo: number, step: number,
+  ) {
+    const groups: Record<string, AffixWord[]> = {};
+    for (const a of affixes) groups[a] = [];
+    for (const w of words) groups[w.affix]?.push(w);
+    const rounds = Math.min(...affixes.map(a => groups[a].length));
+    for (let r = 0; r < rounds; r++) {
+      const roundWords = affixes.map(a => groups[a][r]);
+      push(skillCode, 'DigraphSort', {
+        type: 'DigraphSort',
+        digraphs: affixes,
+        words: roundWords.map(w => ({ word: w.word, digraph: w.affix })),
+        promptText: prompt,
+      }, {
+        placements: Object.fromEntries(roundWords.map(w => [w.word, w.affix])),
+      }, startElo + r * step);
+    }
+  }
+
+  /** Emit one ParagraphComprehension item per question across a set of
+   *  passages, with Elo keyed by question kind plus a per-passage drift. */
+  function paragraphSetItems(
+    skillCode: string, passages: Paragraph[],
+    kindElo: Record<string, number>, drift: number,
+  ) {
+    for (let p = 0; p < passages.length; p++) {
+      const para = passages[p];
+      for (let q = 0; q < para.questions.length; q++) {
+        const qa = para.questions[q];
+        const elo = (kindElo[qa.kind] ?? kindElo.inference) + p * drift;
+        push(skillCode, 'ParagraphComprehension', {
+          type: 'ParagraphComprehension',
+          paragraph: para.paragraph,
+          question: qa.q,
+          choices: [qa.correct, ...qa.distractors],
+          questionKind: qa.kind,
+          promptText: qa.q,
+        }, { correct: qa.correct }, elo);
+      }
+    }
+  }
+
+  // Multisyllable decoding — PhonemeBlend, read-aloud style.
+  for (let i = 0; i < MULTISYLLABLE_WORDS.length; i++) {
+    const { phonemes, word, distractors } = MULTISYLLABLE_WORDS[i];
+    push('reading.phonics.multisyllable', 'PhonemeBlend', {
+      type: 'PhonemeBlend', phonemes, word, distractors,
+      // Speech-first, like the other PhonemeBlend skills: the child
+      // reads the long word aloud one part at a time.
+      promptText: 'Read this long word out loud, one part at a time.',
+    }, { word }, 1560 + i * 4);
+  }
+
+  // Tricky Fry sight words — reuse the same SightWordTap generator.
+  sightWordItems('reading.sight_words.academic', FRY_ACADEMIC, 1580);
+
+  // Prefixes dis-/mis-/non- — sort rounds + meaning questions.
+  affixSortItems('reading.morphology.prefix_dis_mis_non',
+    ['dis', 'mis', 'non'], PREFIX_DMN_WORDS,
+    'Sort each word by its prefix.', 1600, 8);
+  meaningItems('reading.morphology.prefix_dis_mis_non', PREFIX_DMN_MEANINGS, 1640, 5);
+
+  // Suffixes -ful/-less/-ness — sort rounds + meaning questions.
+  affixSortItems('reading.morphology.suffix_ful_less_ness',
+    ['ful', 'less', 'ness'], SUFFIX_FLN_WORDS,
+    'Sort each word by its ending.', 1660, 8);
+  meaningItems('reading.morphology.suffix_ful_less_ness', SUFFIX_FLN_MEANINGS, 1700, 5);
+
+  // Context clues — vocabulary from context (RL.4.4).
+  meaningItems('reading.vocab.context_clues', CONTEXT_CLUES, 1640, 9);
+
+  // Longer passages (RL.4.1 / RI.4.1).
+  paragraphSetItems('reading.comprehension.passage', PASSAGES, {
+    recall: 1650, sequence: 1700, inference: 1760, vocab: 1790, main_idea: 1820,
+  }, 5);
+
+  // ═══════════════════════════════════════════════════════════════
+  // LEVEL 5 (CCSS Grade 5) — elo band ≈ 1800–2200
+  // ═══════════════════════════════════════════════════════════════
+
+  // Suffixes -tion/-ment/-ity — sort rounds + meaning questions.
+  affixSortItems('reading.morphology.suffix_tion_ment_ity',
+    ['tion', 'ment', 'ity'], SUFFIX_TMI_WORDS,
+    'Sort each word by its ending.', 1820, 8);
+  meaningItems('reading.morphology.suffix_tion_ment_ity', SUFFIX_TMI_MEANINGS, 1860, 6);
+
+  // Greek and Latin roots (RL.5.4).
+  meaningItems('reading.morphology.greek_latin_roots', ROOT_ITEMS, 1880, 6);
+
+  // Shades of meaning — choose the precise word.
+  {
+    for (let i = 0; i < SHADES_ITEMS.length; i++) {
+      const it = SHADES_ITEMS[i];
+      push('reading.vocab.shades_of_meaning', 'SentenceComprehension', {
+        type: 'SentenceComprehension',
+        sentence: it.sentence,
+        question: 'Which word best fills the blank?',
+        choices: [it.correct, ...it.distractors],
+        promptText: 'Which word best fills the blank?',
+      }, { correct: it.correct }, 1880 + i * 6);
+    }
+  }
+
+  // Figurative language (RL.5.4).
+  meaningItems('reading.vocab.figurative', FIGURATIVE_ITEMS, 1920, 6);
+
+  // Long passages (RL.5.1 / RI.5.2).
+  paragraphSetItems('reading.comprehension.long_passage', LONG_PASSAGES, {
+    recall: 1850, sequence: 1900, inference: 1980, vocab: 2020, main_idea: 2060,
+  }, 6);
+
+  const toInsert = additive ? items.filter(it => !alreadySeeded.has(it.skill_id)) : items;
+  if (toInsert.length > 0) {
     const batchSize = 500;
-    for (let i = 0; i < items.length; i += batchSize) {
-      const { error } = await sb.from('item').insert(items.slice(i, i + batchSize));
+    for (let i = 0; i < toInsert.length; i += batchSize) {
+      const { error } = await sb.from('item').insert(toInsert.slice(i, i + batchSize));
       if (error) throw error;
     }
   }
 
-  console.log(`  → reading: inserted ${items.length} items across ${readingSkillIds.length} skills`);
+  console.log(`  → reading${additive ? ' (additive)' : ''}: inserted ${toInsert.length} items`);
 }

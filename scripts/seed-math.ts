@@ -1133,7 +1133,18 @@ export function buildMathItems(skillId: (code: string) => string | undefined): R
     for (let a = 0; a <= 5; a++) {
       for (let b = 0; b <= 5; b++) {
         const total = a * b;
-        const choices = total === 0 ? [0, 1, a + b, a * (b + 1)] : mkChoices(total, r, 6);
+        // ×0 facts: the old hand-picked distractors collapsed to
+        // duplicates when a or b was 0/1 (e.g. [0,1,0,0]). Build a
+        // distinct set instead: 1 and a+b ("added instead of
+        // multiplied") plus small pads.
+        let choices: number[];
+        if (total === 0) {
+          const pool = new Set([0, 1, a + b, Math.max(a, b) + 2]);
+          for (let pad = 2; pool.size < 4; pad++) pool.add(pad);
+          choices = shuffle(Array.from(pool).slice(0, 4), r);
+        } else {
+          choices = mkChoices(total, r, 6);
+        }
         // Difficulty proxy: the larger of the two factors. ×0 / ×1 are
         // trivial (Elo 1300), then climb steadily.
         const big = Math.max(a, b);
@@ -1577,6 +1588,1375 @@ export function buildMathItems(skillId: (code: string) => string | undefined): R
     }
   }
 
+  // ════════════════════════════════════════════════════════════════
+  // ═══ LEVEL 4 (CCSS grade 4) — Elo band ≈ 1550–1950 ═══
+  // ════════════════════════════════════════════════════════════════
+
+  // Shared helpers for the grade 4/5 blocks.
+  const gcd = (a: number, b: number): number => (b === 0 ? a : gcd(b, a % b));
+  // True iff n1/d1 and n2/d2 are the same value (exact, cross-multiplied).
+  const fracEq = (n1: number, d1: number, n2: number, d2: number) => n1 * d2 === n2 * d1;
+  // Shuffle a correct string answer with unique distractors, dropping
+  // any distractor that equals the correct string.
+  const strChoices = (correct: string, distractors: string[], r: () => number): string[] =>
+    shuffle([correct, ...Array.from(new Set(distractors.filter(d => d !== correct))).slice(0, 3)], r);
+  // Shuffle a correct number with unique positive-integer candidates.
+  const numChoices = (correct: number, cands: number[], r: () => number): number[] =>
+    shuffle([correct, ...Array.from(new Set(
+      cands.filter(c => Number.isInteger(c) && c > 0 && c !== correct)
+    )).slice(0, 3)], r);
+  const comma = (n: number) => n.toLocaleString('en-US');
+  // Format an integer v scaled by 10^dp as a decimal string:
+  // fmtDec(345, 2) → "3.45"; fmtDec(42, 1) → "4.2"; dp <= 0 → integer.
+  const fmtDec = (v: number, dp: number): string => {
+    if (dp <= 0) return String(v * Math.pow(10, -dp));
+    const s = String(v).padStart(dp + 1, '0');
+    return `${s.slice(0, -dp)}.${s.slice(-dp)}`;
+  };
+
+  // ── math.placevalue.to_1_000_000 (4.NBT.A.2) ─────────────────────
+  {
+    const r = rng(90);
+    // "What is the value of the digit d in n?"
+    const dvNums = [47203, 83156, 129478, 305672, 561930, 742815, 918264, 36597, 254081, 670943, 485217, 803654];
+    for (let i = 0; i < dvNums.length; i++) {
+      const n = dvNums[i];
+      const digits = String(n).split('').map(Number);
+      // pick a non-zero, non-ones-place digit (place >= 10 keeps the
+      // distractor set clean)
+      let pos = Math.floor(r() * (digits.length - 1));
+      while (digits[pos] === 0) pos = (pos + 1) % (digits.length - 1);
+      const place = Math.pow(10, digits.length - 1 - pos);
+      const d = digits[pos];
+      const correct = d * place;
+      push('math.placevalue.to_1_000_000', 'EquationTap', {
+        type: 'EquationTap',
+        equation: comma(n),
+        choices: numChoices(correct, [d, correct * 10, correct / 10, d + place], r),
+        promptText: `What is the value of the ${d} in ${comma(n)}?`,
+      }, { correct }, 1550 + (digits.length - 5) * 40 + i * 4);
+    }
+    // "Which digit is in the ___ place?"
+    const placeNames: Array<[string, number]> = [
+      ['ten-thousands', 10000], ['thousands', 1000], ['hundred-thousands', 100000],
+    ];
+    const wdNums = [147203, 583927, 260148, 731590, 895036, 412675, 968214, 350982];
+    for (let i = 0; i < wdNums.length; i++) {
+      const n = wdNums[i];
+      const [pname, pval] = placeNames[i % placeNames.length];
+      const correct = Math.floor(n / pval) % 10;
+      const otherDigits = Array.from(new Set(String(n).split('').map(Number)))
+        .filter(d => d !== correct);
+      push('math.placevalue.to_1_000_000', 'EquationTap', {
+        type: 'EquationTap',
+        equation: comma(n),
+        choices: shuffle([correct, ...otherDigits.slice(0, 3)], r),
+        promptText: `In ${comma(n)}, which digit is in the ${pname} place?`,
+      }, { correct }, 1580 + i * 6);
+    }
+    // Expanded form → standard form
+    for (let i = 0; i < 6; i++) {
+      const parts = [
+        (2 + Math.floor(r() * 7)) * 100000,
+        (1 + Math.floor(r() * 9)) * 10000,
+        (1 + Math.floor(r() * 9)) * 1000,
+        (1 + Math.floor(r() * 9)) * 100,
+        (1 + Math.floor(r() * 9)) * 10,
+        1 + Math.floor(r() * 9),
+      ].slice(i % 2 === 0 ? 1 : 0);   // half 5-digit, half 6-digit
+      const total = parts.reduce((a, b) => a + b, 0);
+      push('math.placevalue.to_1_000_000', 'EquationTap', {
+        type: 'EquationTap',
+        equation: parts.map(comma).join(' + '),
+        choices: numChoices(total, [total + 100, total - 10, total + 1000, total - 100], r),
+        promptText: 'Write this in standard form.',
+      }, { correct: total }, 1600 + i * 8);
+    }
+    // Compare large numbers
+    const cmpPairs: Array<[number, number]> = [
+      [45210, 45120], [130456, 103456], [89999, 90001], [560340, 560430],
+      [712005, 712050], [99999, 100000], [284700, 284700], [430256, 43999],
+    ];
+    for (let i = 0; i < cmpPairs.length; i++) {
+      const [left, right] = cmpPairs[i];
+      const symbol: '<' | '>' | '=' = left < right ? '<' : left > right ? '>' : '=';
+      push('math.placevalue.to_1_000_000', 'NumberCompare', {
+        type: 'NumberCompare', left, right,
+        promptText: `Compare ${comma(left)} and ${comma(right)}.`,
+      }, { symbol }, 1560 + i * 8);
+    }
+  }
+
+  // ── math.multiply.by_10s_100s (4.NBT.A.1) ────────────────────────
+  {
+    const r = rng(91);
+    // single digit × 10 / × 100
+    for (let a = 2; a <= 9; a++) {
+      for (const p of [10, 100]) {
+        const correct = a * p;
+        push('math.multiply.by_10s_100s', 'EquationTap', {
+          type: 'EquationTap',
+          equation: `${a} × ${p} = ?`,
+          choices: numChoices(correct, [correct * 10, correct / 10, correct + p, a + p], r),
+          promptText: `${a} times ${p}.`,
+        }, { correct }, (p === 10 ? 1560 : 1590) + a * 3);
+      }
+    }
+    // tens × tens and tens × hundreds
+    const pairs: Array<[number, number]> = [
+      [40, 10], [30, 10], [70, 10], [20, 30], [40, 20], [60, 30], [50, 40],
+      [30, 200], [20, 400], [50, 300], [40, 500], [60, 200],
+    ];
+    for (let i = 0; i < pairs.length; i++) {
+      const [a, b] = pairs[i];
+      const correct = a * b;
+      push('math.multiply.by_10s_100s', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${a} × ${b} = ?`,
+        choices: numChoices(correct, [correct * 10, correct / 10, correct / 100, correct + b], r),
+        promptText: `${a} times ${b} — count the zeros.`,
+      }, { correct }, 1620 + i * 6);
+    }
+    // pattern questions
+    const patterns: Array<[number, number, number]> = [
+      [6, 10, 100], [7, 10, 100], [4, 100, 1000], [8, 10, 1000], [9, 100, 1000],
+    ];
+    for (let i = 0; i < patterns.length; i++) {
+      const [a, small, big] = patterns[i];
+      const correct = a * big;
+      push('math.multiply.by_10s_100s', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${a} × ${small} = ${a * small}.  ${a} × ${comma(big)} = ?`,
+        choices: numChoices(correct, [correct / 10, correct * 10, a * small, correct + big], r),
+        promptText: `Use the pattern: what is ${a} × ${comma(big)}?`,
+      }, { correct }, 1650 + i * 8);
+    }
+  }
+
+  // ── math.multiply.2digit_by_1digit (4.NBT.B.5) ───────────────────
+  {
+    const r = rng(92);
+    const as = [13, 17, 21, 24, 26, 32, 34, 38, 43, 47, 52, 56, 63, 68, 74, 79, 83, 87, 92, 96];
+    const bs = [3, 4, 6, 7, 8, 9, 5, 6, 7, 3, 4, 8, 9, 6, 3, 7, 4, 6, 8, 9];
+    for (let i = 0; i < as.length; i++) {
+      const a = as[i], b = bs[i];
+      const correct = a * b;
+      const tens = Math.floor(a / 10), ones = a % 10;
+      const noCarry = tens * b * 10 + ((ones * b) % 10);   // dropped the carry
+      push('math.multiply.2digit_by_1digit', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${a} × ${b} = ?`,
+        choices: numChoices(correct, [noCarry, correct + 10, correct - 10, a + b, correct + b], r),
+        promptText: `${a} times ${b}.`,
+      }, { correct }, 1600 + Math.floor(correct / 60) * 12);
+    }
+    // garden word problems
+    const wpAs = [24, 36, 45, 28, 52, 64, 75, 83];
+    const wpBs = [6, 4, 3, 7, 5, 8, 4, 6];
+    const wpTemplates = [
+      (a: number, b: number) => `Each row has ${a} carrots. There are ${b} rows. How many carrots in all?`,
+      (a: number, b: number) => `A seed packet holds ${a} seeds. Nana bought ${b} packets. How many seeds?`,
+      (a: number, b: number) => `Each apple tree gives ${a} apples. The orchard has ${b} trees. Total apples?`,
+      (a: number, b: number) => `${b} flower beds with ${a} tulips in each. How many tulips altogether?`,
+    ];
+    for (let i = 0; i < wpAs.length; i++) {
+      const a = wpAs[i], b = wpBs[i];
+      const correct = a * b;
+      push('math.multiply.2digit_by_1digit', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${a} × ${b} = ?`,
+        choices: numChoices(correct, [correct + a, correct - a, a + b, correct + 10], r),
+        promptText: wpTemplates[i % wpTemplates.length](a, b),
+      }, { correct }, 1650 + i * 10);
+    }
+  }
+
+  // ── math.factors.find (4.OA.B.4) ─────────────────────────────────
+  {
+    const r = rng(93);
+    // "Which of these is a factor of N?"
+    const comps = [12, 18, 24, 36, 48, 60, 30, 42, 56, 72];
+    for (let i = 0; i < comps.length; i++) {
+      const n = comps[i];
+      const factors: number[] = [];
+      for (let f = 2; f < n; f++) if (n % f === 0) factors.push(f);
+      const correct = factors[Math.floor(r() * factors.length)];
+      const nonFactors: number[] = [];
+      for (let c = 2; c < n; c++) if (n % c !== 0) nonFactors.push(c);
+      const near = nonFactors
+        .sort((x, y) => Math.abs(x - correct) - Math.abs(y - correct))
+        .slice(0, 3);
+      push('math.factors.find', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `factors of ${n}`,
+        choices: shuffle([correct, ...near], r),
+        promptText: `Which of these is a factor of ${n}?`,
+      }, { correct }, 1620 + i * 8);
+    }
+    // "Which is a multiple of k?"
+    const ks = [3, 4, 6, 7, 8, 9, 6, 12];
+    for (let i = 0; i < ks.length; i++) {
+      const k = ks[i];
+      const m = 3 + ((i * 2) % 6);
+      const correct = k * m;
+      const cands = [correct + 1, correct - 1, correct + k - 1, correct + 2]
+        .filter(c => c % k !== 0);
+      push('math.factors.find', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `multiples of ${k}`,
+        choices: numChoices(correct, cands, r),
+        promptText: `Which of these is a multiple of ${k}?`,
+      }, { correct }, 1680 + i * 8);
+    }
+    // "Which number is prime?"
+    const isPrime = (n: number) => {
+      if (n < 2) return false;
+      for (let f = 2; f * f <= n; f++) if (n % f === 0) return false;
+      return true;
+    };
+    const primeSets: Array<[number, number[]]> = [
+      [7, [4, 6, 9]], [13, [9, 15, 21]], [11, [8, 12, 15]], [17, [14, 15, 21]],
+      [23, [21, 25, 27]], [19, [18, 20, 21]], [29, [26, 27, 33]], [31, [30, 33, 35]],
+    ];
+    for (let i = 0; i < primeSets.length; i++) {
+      const [p, others] = primeSets[i];
+      // guard: the "correct" must actually be prime, the rest composite
+      if (!isPrime(p) || others.some(isPrime)) continue;
+      push('math.factors.find', 'EquationTap', {
+        type: 'EquationTap',
+        equation: 'prime?',
+        choices: shuffle<number | string>([p, ...others], r),
+        promptText: 'Which number is prime?',
+      }, { correct: p }, 1700 + i * 10);
+    }
+  }
+
+  // ── math.fractions.equivalent (4.NF.A.1) ─────────────────────────
+  {
+    const r = rng(94);
+    // Visual '=' pairs (denominators ≤ 8), plus non-equivalent near
+    // pairs so '=' isn't always the answer.
+    const vPairs: Array<[[number, number], [number, number]]> = [
+      [[1, 2], [2, 4]], [[1, 3], [2, 6]], [[2, 3], [4, 6]], [[1, 2], [3, 6]],
+      [[1, 4], [2, 8]], [[3, 4], [6, 8]], [[1, 2], [4, 8]], [[2, 4], [4, 8]],
+      // near-miss non-equivalents
+      [[1, 2], [3, 8]], [[2, 3], [3, 6]], [[1, 3], [3, 8]], [[3, 4], [5, 8]],
+    ];
+    for (let i = 0; i < vPairs.length; i++) {
+      const [[ln, ld], [rn, rd]] = vPairs[i];
+      const symbol: '<' | '>' | '=' = ln * rd === rn * ld ? '=' : ln * rd > rn * ld ? '>' : '<';
+      push('math.fractions.equivalent', 'FractionCompareVisual', {
+        type: 'FractionCompareVisual',
+        left: { numerator: ln, denominator: ld },
+        right: { numerator: rn, denominator: rd },
+        shape: i % 2 === 0 ? 'pie' : 'bar',
+        promptText: 'Are these equal, or is one bigger?',
+      }, { symbol }, 1620 + i * 6);
+    }
+    // EquationTap: "Which fraction is equivalent to n/d?"
+    const targets: Array<[number, number, number]> = [   // [n, d, multiplier]
+      [1, 2, 2], [1, 2, 3], [1, 2, 4], [1, 3, 2], [1, 3, 3], [2, 3, 2],
+      [1, 4, 2], [3, 4, 2], [2, 5, 2], [1, 5, 3], [3, 5, 2], [2, 3, 4],
+      [3, 4, 3], [1, 4, 3], [4, 5, 2], [5, 6, 2],
+    ];
+    for (let i = 0; i < targets.length; i++) {
+      const [n, d, k] = targets[i];
+      const correct = `${n * k}/${d * k}`;
+      // every distractor checked to be numerically ≠ n/d
+      const cands = [
+        `${n * k}/${d * k + k}`, `${n * k + 1}/${d * k}`, `${n}/${d * k}`,
+        `${n * k}/${d}`, `${n + 1}/${d + 1}`,
+      ].filter(f => {
+        const [fn, fd] = f.split('/').map(Number);
+        return !fracEq(fn, fd, n, d);
+      });
+      push('math.fractions.equivalent', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${n}/${d} = ?`,
+        choices: strChoices(correct, cands, r),
+        promptText: `Which fraction is equivalent to ${n}/${d}?`,
+      }, { correct }, 1660 + i * 7);
+    }
+  }
+
+  // ── math.divide.with_remainders (4.NBT.B.6) ──────────────────────
+  {
+    const r = rng(95);
+    const combos: Array<[number, number, number]> = [];  // divisor, quotient, remainder
+    for (const d of [3, 4, 5, 6, 7, 8, 9]) {
+      for (const q of [3, 5, 7, 9]) {
+        const rem = 1 + ((d + q) % (d - 1));   // always 1..d-1
+        combos.push([d, q, rem]);
+      }
+    }
+    for (let i = 0; i < combos.length; i++) {
+      const [d, q, rem] = combos[i];
+      const dividend = d * q + rem;
+      const correct = `${q} R${rem}`;
+      const cands = [
+        `${q} R${rem === 1 ? 2 : rem - 1}`,
+        `${q + 1} R${rem}`,
+        `${q - 1} R${rem}`,
+        `${q}`,
+      ];
+      push('math.divide.with_remainders', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${dividend} ÷ ${d} = ?`,
+        choices: strChoices(correct, cands, r),
+        promptText: `${dividend} divided by ${d} — quotient and remainder.`,
+      }, { correct }, 1650 + d * 8 + q * 4);
+    }
+    // word problems — leftover / full-groups flavors
+    const wps: Array<[number, number]> = [[17, 5], [23, 4], [31, 6], [38, 5], [44, 7], [50, 8], [29, 3], [61, 9]];
+    const wpNouns = ['seeds', 'acorns', 'berries', 'bulbs', 'seedlings', 'apples', 'pinecones', 'strawberries'];
+    for (let i = 0; i < wps.length; i++) {
+      const [total, per] = wps[i];
+      const q = Math.floor(total / per), rem = total % per;
+      const noun = wpNouns[i];
+      if (i % 2 === 0) {
+        push('math.divide.with_remainders', 'EquationTap', {
+          type: 'EquationTap',
+          equation: `${total} ÷ ${per} = ?`,
+          choices: numChoices(rem, [rem + 1, rem + 2, q, per - rem, rem + 3], r),
+          promptText: `${total} ${noun} go into bags of ${per}. How many ${noun} are left over?`,
+        }, { correct: rem }, 1720 + i * 8);
+      } else {
+        push('math.divide.with_remainders', 'EquationTap', {
+          type: 'EquationTap',
+          equation: `${total} ÷ ${per} = ?`,
+          choices: numChoices(q, [q + 1, q - 1, rem, total - per], r),
+          promptText: `${total} ${noun} go into bags of ${per}. How many FULL bags can you make?`,
+        }, { correct: q }, 1720 + i * 8);
+      }
+    }
+  }
+
+  // ── math.operations.multi_digit_add_subtract (4.NBT.B.4) ─────────
+  {
+    const r = rng(96);
+    // digit-by-digit sum that ignores carries (classic error)
+    const digitwiseAdd = (a: number, b: number): number => {
+      let outV = 0, mul = 1;
+      while (a > 0 || b > 0) {
+        outV += ((a % 10 + b % 10) % 10) * mul;
+        a = Math.floor(a / 10); b = Math.floor(b / 10); mul *= 10;
+      }
+      return outV;
+    };
+    // digit-by-digit "always subtract smaller from larger" (ignores borrows)
+    const digitwiseSubAbs = (a: number, b: number): number => {
+      let outV = 0, mul = 1;
+      while (a > 0 || b > 0) {
+        outV += Math.abs(a % 10 - b % 10) * mul;
+        a = Math.floor(a / 10); b = Math.floor(b / 10); mul *= 10;
+      }
+      return outV;
+    };
+    // 4-digit addition with regrouping
+    const addPairs: Array<[number, number]> = [];
+    for (let i = 0; i < 200 && addPairs.length < 18; i++) {
+      const a = 1200 + Math.floor(r() * 7000);
+      const b = 1100 + Math.floor(r() * Math.max(200, 9800 - a));
+      if (a + b > 9999) continue;
+      if ((a % 10) + (b % 10) < 10 && (Math.floor(a / 10) % 10) + (Math.floor(b / 10) % 10) < 10) continue;
+      addPairs.push([a, b]);
+    }
+    for (let i = 0; i < addPairs.length; i++) {
+      const [a, b] = addPairs[i];
+      const correct = a + b;
+      push('math.operations.multi_digit_add_subtract', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${comma(a)} + ${comma(b)} = ?`,
+        choices: numChoices(correct, [digitwiseAdd(a, b), correct + 100, correct - 10, correct + 1000], r),
+        promptText: `${comma(a)} plus ${comma(b)} — watch the carries.`,
+      }, { correct }, 1650 + Math.floor(correct / 2000) * 15);
+    }
+    // 4-digit subtraction with borrowing
+    const subPairs: Array<[number, number]> = [];
+    for (let i = 0; i < 200 && subPairs.length < 17; i++) {
+      const a = 3000 + Math.floor(r() * 6500);
+      const b = 1100 + Math.floor(r() * (a - 1600));
+      if ((a % 10) >= (b % 10) && (Math.floor(a / 10) % 10) >= (Math.floor(b / 10) % 10)) continue;
+      subPairs.push([a, b]);
+    }
+    for (let i = 0; i < subPairs.length; i++) {
+      const [a, b] = subPairs[i];
+      const correct = a - b;
+      push('math.operations.multi_digit_add_subtract', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${comma(a)} − ${comma(b)} = ?`,
+        choices: numChoices(correct, [digitwiseSubAbs(a, b), correct + 10, correct - 100, correct + 100], r),
+        promptText: `${comma(a)} minus ${comma(b)} — borrow when you need to.`,
+      }, { correct }, 1700 + Math.floor(correct / 2000) * 15);
+    }
+    // word problems
+    const wpData: Array<[number, number, boolean]> = [
+      [4257, 2868, true], [5003, 1247, false], [3641, 2789, true], [8120, 4356, false], [2975, 3468, true],
+    ];
+    const wpAdd = [
+      (a: number, b: number) => `The orchard harvested ${comma(a)} apples in September and ${comma(b)} in October. How many in all?`,
+      (a: number, b: number) => `The meadow had ${comma(a)} wildflowers last year and grew ${comma(b)} more this year. Total wildflowers?`,
+      (a: number, b: number) => `The nursery sold ${comma(a)} seed packets in spring and ${comma(b)} in summer. How many packets total?`,
+    ];
+    const wpSub = [
+      (a: number, b: number) => `The hive held ${comma(a)} bees. ${comma(b)} flew off with a new queen. How many bees stayed?`,
+      (a: number, b: number) => `The farm grew ${comma(a)} pumpkin seeds, but only ${comma(b)} sprouted. How many did not sprout?`,
+    ];
+    for (let i = 0; i < wpData.length; i++) {
+      const [a, b, isAdd] = wpData[i];
+      const correct = isAdd ? a + b : a - b;
+      const wrong = isAdd ? digitwiseAdd(a, b) : digitwiseSubAbs(a, b);
+      push('math.operations.multi_digit_add_subtract', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${comma(a)} ${isAdd ? '+' : '−'} ${comma(b)} = ?`,
+        choices: numChoices(correct, [wrong, correct + 100, correct - 10, correct + 1000], r),
+        promptText: isAdd ? wpAdd[i % wpAdd.length](a, b) : wpSub[i % wpSub.length](a, b),
+      }, { correct }, 1780 + i * 10);
+    }
+  }
+
+  // ── math.placevalue.round_large (4.NBT.A.3) ──────────────────────
+  {
+    const r = rng(97);
+    const nums = [34721, 68459, 12385, 90276, 45612, 78938, 23164, 56807, 81543, 17296];
+    const places: Array<[number, string]> = [[1000, 'thousand'], [100, 'hundred'], [10000, 'ten-thousand']];
+    for (let i = 0; i < nums.length; i++) {
+      for (let j = 0; j < places.length; j++) {
+        const n = nums[i];
+        const [p, pname] = places[j];
+        const correct = Math.round(n / p) * p;
+        const cands = [
+          correct + p, correct - p,
+          Math.floor(n / p) * p, Math.ceil(n / p) * p,   // truncation errors
+          Math.round(n / (p / 10)) * (p / 10),           // rounded to the smaller place
+          correct + 2 * p,
+        ];
+        push('math.placevalue.round_large', 'EquationTap', {
+          type: 'EquationTap',
+          equation: `${comma(n)} → nearest ${pname}`,
+          choices: numChoices(correct, cands, r),
+          promptText: `Round ${comma(n)} to the nearest ${pname}.`,
+        }, { correct }, 1660 + j * 40 + i * 5);
+      }
+    }
+  }
+
+  // ── math.fractions.add_subtract_like (4.NF.B.3) ──────────────────
+  {
+    const r = rng(98);
+    const dens = [4, 5, 6, 8, 10, 12];
+    let idx = 0;
+    for (const den of dens) {
+      // addition: a/den + b/den, sum stays proper; answer left unsimplified
+      const seenAdd = new Set<string>();
+      for (const [a, b] of [[1, 2], [2, 3], [3, den - 4], [2, den - 3]]) {
+        if (a < 1 || b < 1 || a + b >= den) continue;
+        const key = `${a}+${b}`;
+        if (seenAdd.has(key)) continue;
+        seenAdd.add(key);
+        const sum = a + b;
+        const correct = `${sum}/${den}`;
+        const cands = [`${sum}/${den * 2}`, `${sum + 1}/${den}`, `${sum - 1}/${den}`, `${a * b}/${den}`]
+          .filter(f => {
+            const [fn, fd] = f.split('/').map(Number);
+            return fn >= 1 && !fracEq(fn, fd, sum, den);
+          });
+        push('math.fractions.add_subtract_like', 'EquationTap', {
+          type: 'EquationTap',
+          equation: `${a}/${den} + ${b}/${den} = ?`,
+          choices: strChoices(correct, cands, r),
+          promptText: `Add the fractions: ${a}/${den} + ${b}/${den}.`,
+        }, { correct }, 1680 + den * 8 + idx++);
+      }
+      // subtraction: a/den − b/den, a > b
+      const seenSub = new Set<string>();
+      for (const [a, b] of [[den - 1, 2], [den - 2, 3], [den - 1, den - 3]]) {
+        if (b < 1 || a <= b || a >= den) continue;
+        const key = `${a}-${b}`;
+        if (seenSub.has(key)) continue;
+        seenSub.add(key);
+        const diff = a - b;
+        const correct = `${diff}/${den}`;
+        const cands = [`${a + b}/${den}`, `${diff + 1}/${den}`, `${diff - 1}/${den}`, `${diff}/${den * 2}`]
+          .filter(f => {
+            const [fn, fd] = f.split('/').map(Number);
+            return fn >= 1 && !fracEq(fn, fd, diff, den);
+          });
+        push('math.fractions.add_subtract_like', 'EquationTap', {
+          type: 'EquationTap',
+          equation: `${a}/${den} − ${b}/${den} = ?`,
+          choices: strChoices(correct, cands, r),
+          promptText: `Subtract the fractions: ${a}/${den} − ${b}/${den}.`,
+        }, { correct }, 1700 + den * 8 + idx++);
+      }
+    }
+    // word problems
+    const wpData: Array<[number, number, number, boolean]> = [   // [a, b, den, isAdd]
+      [3, 2, 8, true], [2, 1, 6, false], [4, 3, 10, true], [5, 2, 12, false],
+      [1, 2, 5, true], [3, 4, 12, true], [2, 3, 10, true], [5, 1, 8, false],
+    ];
+    const wpAddT = [
+      (a: number, b: number, den: number) => `Cecily watered ${a}/${den} of the garden before lunch and ${b}/${den} after. How much of the garden is watered?`,
+      (a: number, b: number, den: number) => `Nana's pie has ${den} slices. Esme ate ${a}/${den} and Luna ate ${b}/${den}. What fraction was eaten?`,
+    ];
+    const wpSubT = [
+      (a: number, b: number, den: number) => `A pitcher was ${a}/${den} full. Cecily poured out ${b}/${den}. How full is it now?`,
+      (a: number, b: number, den: number) => `${a}/${den} of the bed had sprouts; ${b}/${den} got eaten by slugs. What fraction of sprouts is left?`,
+    ];
+    for (let i = 0; i < wpData.length; i++) {
+      const [a, b, den, isAdd] = wpData[i];
+      const res = isAdd ? a + b : a - b;
+      const correct = `${res}/${den}`;
+      const cands = [`${res}/${den * 2}`, `${res + 1}/${den}`, `${isAdd ? Math.abs(a - b) : a + b}/${den}`]
+        .filter(f => {
+          const [fn, fd] = f.split('/').map(Number);
+          return fn >= 1 && !fracEq(fn, fd, res, den);
+        });
+      push('math.fractions.add_subtract_like', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${a}/${den} ${isAdd ? '+' : '−'} ${b}/${den} = ?`,
+        choices: strChoices(correct, cands, r),
+        promptText: (isAdd ? wpAddT[i % 2] : wpSubT[i % 2])(a, b, den),
+      }, { correct }, 1780 + i * 8);
+    }
+  }
+
+  // ── math.time.elapsed_across_hours (4.MD.A.2) ────────────────────
+  {
+    const r = rng(99);
+    const fmtT = (h: number, m: number) => `${h}:${m.toString().padStart(2, '0')}`;
+    const fmtSpan = (mins: number): string => {
+      const h = Math.floor(mins / 60), m = mins % 60;
+      if (h === 0) return `${m} minutes`;
+      const hs = h === 1 ? '1 hour' : `${h} hours`;
+      return m === 0 ? hs : `${hs} ${m} minutes`;
+    };
+    const spans: Array<[number, number, number]> = [  // startHour, startMinute, minutes elapsed
+      [9, 45, 215], [8, 30, 150], [10, 15, 185], [7, 50, 145], [11, 20, 160],
+      [1, 35, 205], [2, 10, 170], [3, 55, 130], [4, 40, 195], [6, 25, 155],
+      [9, 5, 250], [10, 50, 140], [5, 15, 230], [8, 5, 175], [12, 35, 120],
+      [1, 10, 275], [2, 45, 190], [6, 55, 125], [7, 20, 220], [3, 30, 240],
+      [4, 5, 135], [5, 40, 245], [11, 45, 210], [12, 20, 165],
+      [8, 55, 200], [10, 30, 255], [6, 15, 180], [9, 25, 235],
+    ];
+    for (let i = 0; i < spans.length; i++) {
+      const [sH, sM, mins] = spans[i];
+      const startAbs = (sH % 12) * 60 + sM;
+      const endAbs = (startAbs + mins) % 720;
+      const eH = Math.floor(endAbs / 60) === 0 ? 12 : Math.floor(endAbs / 60);
+      const eM = endAbs % 60;
+      const correct = fmtSpan(mins);
+      const cands = [fmtSpan(mins + 60), fmtSpan(mins - 60), fmtSpan(mins + 5), fmtSpan(mins - 5)];
+      push('math.time.elapsed_across_hours', 'ClockInterval', {
+        type: 'ClockInterval',
+        startHour: sH, startMinute: sM,
+        endHour: eH, endMinute: eM,
+        choices: strChoices(correct, cands, r),
+        promptText: `The garden walk started at ${fmtT(sH, sM)} and ended at ${fmtT(eH, eM)}. How long was it?`,
+      }, { interval: correct }, 1690 + Math.floor(mins / 30) * 18 + (sM === 0 ? 0 : 8));
+    }
+  }
+
+  // ── math.decimals.tenths_hundredths (4.NF.C.6) ───────────────────
+  {
+    const r = rng(100);
+    // tenths → decimal
+    for (let n = 1; n <= 9; n++) {
+      const correct = fmtDec(n, 1);           // "0.7"
+      const cands = [fmtDec(n, 2), `${n}.0`, fmtDec(n * 10 + 1, 2), fmtDec(n + 1, 1)];
+      push('math.decimals.tenths_hundredths', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${n}/10 = ?`,
+        choices: strChoices(correct, cands, r),
+        promptText: `Write ${n}/10 as a decimal.`,
+      }, { correct }, 1720 + n * 4);
+    }
+    // hundredths → decimal
+    const hns = [35, 42, 7, 60, 18, 93, 5, 76, 21, 59];
+    for (let i = 0; i < hns.length; i++) {
+      const n = hns[i];
+      const rev = Number(String(n).split('').reverse().join(''));
+      const correct = fmtDec(n, 2);
+      const cands = [fmtDec(n, 1), fmtDec(n, 3), fmtDec(rev, 2), fmtDec(n + 1, 2)];
+      push('math.decimals.tenths_hundredths', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${n}/100 = ?`,
+        choices: strChoices(correct, cands, r),
+        promptText: `Write ${n}/100 as a decimal.`,
+      }, { correct }, 1760 + i * 6);
+    }
+    // decimal → fraction
+    const dfs = [35, 7, 62, 9, 88, 15, 41, 73];
+    for (let i = 0; i < dfs.length; i++) {
+      const n = dfs[i];
+      const rev = Number(String(n).split('').reverse().join(''));
+      const correct = `${n}/100`;
+      const cands = [`${n}/10`, `${n + 1}/100`, `${rev}/100`, `${n}/1000`]
+        .filter(f => {
+          const [fn, fd] = f.split('/').map(Number);
+          return !fracEq(fn, fd, n, 100);
+        });
+      push('math.decimals.tenths_hundredths', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${fmtDec(n, 2)} = ?`,
+        choices: strChoices(correct, cands, r),
+        promptText: `Which fraction equals ${fmtDec(n, 2)}?`,
+      }, { correct }, 1800 + i * 6);
+    }
+    // money contexts
+    const cents = [45, 30, 72, 5, 99, 60, 25, 81];
+    for (let i = 0; i < cents.length; i++) {
+      const c = cents[i];
+      const correct = `$${fmtDec(c, 2)}`;
+      const cands = [`$${fmtDec(c, 1)}`, `$${fmtDec(c * 10, 2)}`, `$${fmtDec(c + 10, 2)}`, `$${fmtDec(c, 3)}`];
+      push('math.decimals.tenths_hundredths', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${c}¢ = ?`,
+        choices: strChoices(correct, cands, r),
+        promptText: `${c} cents is how many dollars?`,
+      }, { correct }, 1830 + i * 5);
+    }
+  }
+
+  // ── math.multiply.2digit_by_2digit (4.NBT.B.5) ───────────────────
+  {
+    const r = rng(101);
+    const pairs: Array<[number, number]> = [
+      [12, 13], [14, 21], [23, 14], [15, 16], [22, 24], [31, 15], [25, 18], [35, 21],
+      [42, 13], [27, 24], [33, 26], [45, 22], [38, 17], [52, 19], [44, 25], [36, 28],
+      [53, 24], [47, 32], [62, 21], [55, 34],
+    ];
+    for (let i = 0; i < pairs.length; i++) {
+      const [a, b] = pairs[i];
+      const correct = a * b;
+      const forgotTens = a * (b % 10) + a * Math.floor(b / 10);  // forgot the ×10 shift
+      push('math.multiply.2digit_by_2digit', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${a} × ${b} = ?`,
+        choices: numChoices(correct, [forgotTens, correct + 10, correct - 100, correct + 100], r),
+        promptText: `${a} times ${b}.`,
+      }, { correct }, 1740 + Math.floor(correct / 250) * 15);
+    }
+    // garden word problems
+    const wpPairs: Array<[number, number]> = [[24, 12], [18, 15], [32, 21], [26, 14], [45, 16], [36, 25]];
+    const wpTemplates = [
+      (a: number, b: number) => `The pumpkin patch has ${a} rows with ${b} pumpkins in each row. How many pumpkins?`,
+      (a: number, b: number) => `Each of the ${a} beehives holds ${b} honeycomb cells per frame. How many cells in one frame from every hive?`,
+      (a: number, b: number) => `The nursery has ${a} shelves with ${b} pots on each. How many pots in all?`,
+    ];
+    for (let i = 0; i < wpPairs.length; i++) {
+      const [a, b] = wpPairs[i];
+      const correct = a * b;
+      const forgotTens = a * (b % 10) + a * Math.floor(b / 10);
+      push('math.multiply.2digit_by_2digit', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${a} × ${b} = ?`,
+        choices: numChoices(correct, [forgotTens, correct + 100, correct - 10, a + b], r),
+        promptText: wpTemplates[i % wpTemplates.length](a, b),
+      }, { correct }, 1820 + i * 15);
+    }
+  }
+
+  // ── math.decimals.compare (4.NF.C.7) ─────────────────────────────
+  {
+    const r = rng(102);
+    // pairs given in hundredths so symbol math stays exact
+    const cmpPairs: Array<[number, number]> = [
+      [70, 65], [40, 39], [9, 10], [55, 60], [80, 8], [32, 3], [21, 12], [90, 89],
+      [45, 54], [7, 70], [66, 6], [15, 51], [83, 38], [50, 50], [25, 25], [98, 89],
+      [30, 3], [72, 27], [11, 10], [60, 59],
+    ];
+    for (let i = 0; i < cmpPairs.length; i++) {
+      const [lh, rh] = cmpPairs[i];
+      const left = lh / 100, right = rh / 100;
+      const symbol: '<' | '>' | '=' = lh < rh ? '<' : lh > rh ? '>' : '=';
+      push('math.decimals.compare', 'NumberCompare', {
+        type: 'NumberCompare', left, right,
+        promptText: `Compare ${left} and ${right}.`,
+      }, { symbol }, 1760 + i * 5);
+    }
+    // whole-plus-decimal pairs (hundredths again)
+    const bigPairs: Array<[number, number]> = [
+      [350, 345], [105, 150], [275, 257], [440, 404], [199, 210], [380, 38],
+    ];
+    for (let i = 0; i < bigPairs.length; i++) {
+      const [lh, rh] = bigPairs[i];
+      const left = lh / 100, right = rh / 100;
+      const symbol: '<' | '>' | '=' = lh < rh ? '<' : lh > rh ? '>' : '=';
+      push('math.decimals.compare', 'NumberCompare', {
+        type: 'NumberCompare', left, right,
+        promptText: `Compare ${left} and ${right}.`,
+      }, { symbol }, 1840 + i * 8);
+    }
+    // "Which is the largest?" (values in hundredths)
+    const bigSets: number[][] = [
+      [45, 54, 5, 50], [70, 7, 67, 76], [12, 21, 2, 20],
+      [89, 98, 9, 90], [33, 3, 30, 13], [61, 16, 6, 60],
+    ];
+    for (let i = 0; i < bigSets.length; i++) {
+      const set = bigSets[i];
+      const max = Math.max(...set);
+      push('math.decimals.compare', 'EquationTap', {
+        type: 'EquationTap',
+        equation: set.map(h => `${h / 100}`).join('   '),
+        choices: shuffle(set.map(h => `${h / 100}`), r),
+        promptText: 'Which number is the largest?',
+      }, { correct: `${max / 100}` }, 1860 + i * 6);
+    }
+  }
+
+  // ── math.measurement.area_perimeter (4.MD.A.3) ───────────────────
+  {
+    const r = rng(103);
+    const beds: Array<[number, number]> = [
+      [8, 5], [9, 4], [7, 6], [12, 5], [10, 8], [15, 4],
+      [11, 7], [9, 9], [14, 6], [13, 8], [20, 5], [16, 7],
+    ];
+    const units = ['feet', 'meters'];
+    for (let i = 0; i < beds.length; i++) {
+      const [l, w] = beds[i];
+      const unit = units[i % 2];
+      const area = l * w, per = 2 * (l + w);
+      push('math.measurement.area_perimeter', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${l} × ${w} = ?`,
+        choices: strChoices(`${area} square ${unit}`,
+          [`${per} ${unit}`, `${l + w} square ${unit}`, `${area} ${unit}`], r),
+        promptText: `A garden bed is ${l} ${unit} long and ${w} ${unit} wide. What is its area?`,
+      }, { correct: `${area} square ${unit}` }, 1780 + i * 6);
+      push('math.measurement.area_perimeter', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `2 × (${l} + ${w}) = ?`,
+        choices: strChoices(`${per} ${unit}`,
+          [`${area} square ${unit}`, `${l + w} ${unit}`, `${per} square ${unit}`], r),
+        promptText: `A fence goes all the way around a ${l} ${unit} by ${w} ${unit} garden bed. How long is the fence?`,
+      }, { correct: `${per} ${unit}` }, 1810 + i * 6);
+    }
+    // missing-side problems (area ÷ known side)
+    const missing: Array<[number, number]> = [[36, 4], [48, 6], [60, 5], [42, 7], [72, 8], [54, 9]];
+    for (let i = 0; i < missing.length; i++) {
+      const [area, l] = missing[i];
+      const w = area / l;
+      push('math.measurement.area_perimeter', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${area} ÷ ${l} = ?`,
+        choices: numChoices(w, [w + 1, w - 1, area - l, l], r),
+        promptText: `A bed has an area of ${area} square feet and is ${l} feet long. How wide is it?`,
+      }, { correct: w }, 1880 + i * 6);
+    }
+  }
+
+  // ── math.word_problem.multiplicative (4.OA.A.2) ──────────────────
+  {
+    const r = rng(104);
+    // "k times as many" — find the product
+    const mult: Array<[number, number]> = [
+      [3, 4], [5, 6], [4, 7], [6, 5], [3, 9], [8, 4],
+      [7, 6], [4, 12], [5, 9], [6, 8], [3, 15], [9, 7],
+    ];
+    const tallT = [
+      (k: number, s: number) => `The oak is ${k} times as tall as the sapling. The sapling is ${s} feet tall. How tall is the oak?`,
+      (k: number, s: number) => `Nana picked ${k} times as many berries as Cecily. Cecily picked ${s}. How many did Nana pick?`,
+      (k: number, s: number) => `The sunflower is ${k} times as tall as the daisy. The daisy is ${s} inches tall. How tall is the sunflower?`,
+      (k: number, s: number) => `A pumpkin weighs ${k} times as much as a squash. The squash weighs ${s} pounds. How much does the pumpkin weigh?`,
+    ];
+    for (let i = 0; i < mult.length; i++) {
+      const [k, s] = mult[i];
+      const correct = k * s;
+      push('math.word_problem.multiplicative', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${k} × ${s} = ?`,
+        choices: numChoices(correct, [k + s, correct + s, correct - k, s], r),
+        promptText: tallT[i % tallT.length](k, s),
+      }, { correct }, 1800 + i * 8);
+    }
+    // inverse — find the smaller quantity
+    const divs: Array<[number, number]> = [
+      [4, 24], [3, 27], [6, 42], [5, 45], [7, 56], [8, 64], [4, 36], [9, 63], [6, 54], [3, 39],
+    ];
+    const divT = [
+      (k: number, t: number) => `The old maple is ${t} feet tall — ${k} times as tall as the young one. How tall is the young tree?`,
+      (k: number, t: number) => `Esme collected ${t} acorns, which is ${k} times what Luna found. How many did Luna find?`,
+      (k: number, t: number) => `The big pond has ${t} tadpoles — ${k} times as many as the little pond. How many in the little pond?`,
+    ];
+    for (let i = 0; i < divs.length; i++) {
+      const [k, t] = divs[i];
+      const correct = t / k;
+      push('math.word_problem.multiplicative', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${t} ÷ ${k} = ?`,
+        choices: numChoices(correct, [t - k, correct + 1, correct - 1, k], r),
+        promptText: divT[i % divT.length](k, t),
+      }, { correct }, 1870 + i * 8);
+    }
+    // "how many times as many?"
+    const ratio: Array<[number, number]> = [[24, 6], [35, 7], [48, 8], [27, 9]];
+    for (let i = 0; i < ratio.length; i++) {
+      const [t, s] = ratio[i];
+      const correct = t / s;
+      push('math.word_problem.multiplicative', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${t} ÷ ${s} = ?`,
+        choices: numChoices(correct, [correct + 1, correct - 1, t - s, s], r),
+        promptText: `The garden has ${t} tomatoes and ${s} peppers. How many times as many tomatoes as peppers?`,
+      }, { correct }, 1900 + i * 10);
+    }
+  }
+
+  // ════════════════════════════════════════════════════════════════
+  // ═══ LEVEL 5 (CCSS grade 5) — Elo band ≈ 1800–2200 ═══
+  // ════════════════════════════════════════════════════════════════
+
+  // ── math.decimals.multiply_divide_10s (5.NBT.A.2) ────────────────
+  {
+    const r = rng(105);
+    // [scaledValue, decimalPlaces, powerOfTen, isMultiply]
+    const probs: Array<[number, number, number, boolean]> = [
+      [37, 1, 1, true], [42, 1, 1, false], [45, 2, 2, true], [58, 1, 2, true],
+      [625, 2, 1, true], [7, 1, 1, false], [83, 1, 1, true], [206, 2, 2, true],
+      [35, 1, 2, false], [64, 1, 1, false], [512, 2, 1, false], [9, 2, 3, true],
+      [271, 2, 2, false], [66, 1, 3, true], [48, 2, 1, true], [123, 2, 1, false],
+      [55, 1, 2, false], [808, 2, 2, true], [92, 1, 2, true], [304, 2, 1, false],
+      [16, 1, 3, true], [77, 2, 2, false],
+    ];
+    for (let i = 0; i < probs.length; i++) {
+      const [v, dp, p, isMul] = probs[i];
+      const factor = Math.pow(10, p);
+      const resDp = isMul ? dp - p : dp + p;
+      const correct = fmtDec(v, resDp);
+      const cands = [
+        fmtDec(v, isMul ? dp + p : dp - p),   // shifted the wrong way
+        fmtDec(v, resDp + 1),                 // one place short
+        fmtDec(v, dp),                        // didn't shift at all
+        fmtDec(v, isMul ? resDp - 1 : resDp + 2),  // one place too far
+      ];
+      push('math.decimals.multiply_divide_10s', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${fmtDec(v, dp)} ${isMul ? '×' : '÷'} ${comma(factor)} = ?`,
+        choices: strChoices(correct, cands, r),
+        promptText: `${fmtDec(v, dp)} ${isMul ? 'times' : 'divided by'} ${comma(factor)} — slide the decimal point.`,
+      }, { correct }, 1800 + p * 30 + i * 3);
+    }
+    // exponent notation
+    const sups = ['¹', '²', '³'];
+    for (let e = 1; e <= 3; e++) {
+      const correct = Math.pow(10, e);
+      push('math.decimals.multiply_divide_10s', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `10${sups[e - 1]} = ?`,
+        choices: numChoices(correct, [10 * e, Math.pow(10, e + 1), e === 1 ? 1 : Math.pow(10, e - 1), 20 * e], r),
+        promptText: `What is 10 to the power of ${e}?`,
+      }, { correct }, 1880 + e * 15);
+    }
+    const expMul: Array<[number, number]> = [[4, 2], [7, 3]];
+    for (let i = 0; i < expMul.length; i++) {
+      const [c, e] = expMul[i];
+      const correct = c * Math.pow(10, e);
+      push('math.decimals.multiply_divide_10s', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${c} × 10${sups[e - 1]} = ?`,
+        choices: numChoices(correct, [correct / 10, correct * 10, c * 10 * e, c + Math.pow(10, e)], r),
+        promptText: `${c} times 10${sups[e - 1]}.`,
+      }, { correct }, 1930 + i * 10);
+    }
+  }
+
+  // ── math.fractions.of_a_set (5.NF.B.4.a) ─────────────────────────
+  {
+    const r = rng(106);
+    const sets: Array<[number, number, number]> = [  // [num, den, whole]
+      [1, 2, 12], [1, 3, 15], [1, 4, 20], [2, 3, 12], [3, 4, 16], [2, 5, 20],
+      [1, 5, 25], [3, 5, 30], [1, 6, 18], [5, 6, 24], [2, 3, 21], [3, 8, 24],
+      [1, 4, 36], [2, 5, 35], [3, 4, 28], [5, 8, 32], [4, 5, 45], [2, 7, 21],
+      [7, 10, 50], [5, 12, 36],
+    ];
+    for (let i = 0; i < sets.length; i++) {
+      const [num, den, whole] = sets[i];
+      const unit = whole / den;
+      const correct = unit * num;
+      push('math.fractions.of_a_set', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${num}/${den} × ${whole} = ?`,
+        choices: numChoices(correct, [unit, whole - num, whole - correct, correct + den, num * den], r),
+        promptText: `What is ${num}/${den} of ${whole}?`,
+      }, { correct }, 1820 + Math.floor(i / 3) * 20);
+    }
+    // word problems
+    const wsets: Array<[number, number, number]> = [
+      [2, 5, 20], [1, 3, 24], [3, 4, 32], [1, 2, 26], [2, 3, 27], [5, 6, 36], [3, 8, 40], [1, 4, 44],
+    ];
+    const wpT = [
+      (n: number, d: number, w: number) => `${n}/${d} of the ${w} seedlings sprouted. How many sprouted?`,
+      (n: number, d: number, w: number) => `Of the ${w} berries picked, ${n}/${d} were ripe. How many were ripe?`,
+      (n: number, d: number, w: number) => `Nana planted ${w} bulbs and ${n}/${d} of them bloomed. How many bloomed?`,
+      (n: number, d: number, w: number) => `${n}/${d} of the ${w} bees left the hive at dawn. How many left?`,
+    ];
+    for (let i = 0; i < wsets.length; i++) {
+      const [num, den, whole] = wsets[i];
+      const unit = whole / den;
+      const correct = unit * num;
+      push('math.fractions.of_a_set', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${num}/${den} × ${whole} = ?`,
+        choices: numChoices(correct, [unit, whole - correct, correct + den, num * den, whole - num, correct - den], r),
+        promptText: wpT[i % wpT.length](num, den, whole),
+      }, { correct }, 1900 + i * 10);
+    }
+  }
+
+  // ── math.multiply.multi_digit (5.NBT.B.5) ────────────────────────
+  {
+    const r = rng(107);
+    // 3-digit × 1-digit (lower band)
+    const p1: Array<[number, number]> = [
+      [123, 4], [214, 3], [156, 6], [307, 5], [248, 7],
+      [432, 6], [519, 4], [365, 8], [278, 9], [446, 5],
+    ];
+    for (let i = 0; i < p1.length; i++) {
+      const [a, b] = p1[i];
+      const correct = a * b;
+      push('math.multiply.multi_digit', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${a} × ${b} = ?`,
+        choices: numChoices(correct, [a * (b - 1), correct + 100, correct - 10, correct + 1000], r),
+        promptText: `${a} times ${b}.`,
+      }, { correct }, 1850 + i * 6);
+    }
+    // 3-digit × 2-digit (upper band)
+    const p2: Array<[number, number]> = [
+      [214, 23], [132, 24], [315, 21], [246, 32], [421, 25], [173, 34],
+      [352, 26], [284, 41], [163, 52], [235, 43], [312, 33], [425, 36],
+    ];
+    for (let i = 0; i < p2.length; i++) {
+      const [a, b] = p2[i];
+      const correct = a * b;
+      const forgotTens = a * (b % 10) + a * Math.floor(b / 10);
+      push('math.multiply.multi_digit', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${a} × ${b} = ?`,
+        choices: numChoices(correct, [forgotTens, correct + 100, correct - 100, correct + 1000], r),
+        promptText: `${a} times ${b} — line up your partial products.`,
+      }, { correct }, 1920 + i * 7);
+    }
+    // word problems
+    const wp: Array<[number, number]> = [[125, 16], [240, 12], [214, 15], [180, 24]];
+    const wpT = [
+      (a: number, b: number) => `The orchard has ${a} trees and each gives ${b} apples. How many apples in all?`,
+      (a: number, b: number) => `A wildflower field has ${a} rows with ${b} plants per row. How many plants?`,
+    ];
+    for (let i = 0; i < wp.length; i++) {
+      const [a, b] = wp[i];
+      const correct = a * b;
+      const forgotTens = a * (b % 10) + a * Math.floor(b / 10);
+      push('math.multiply.multi_digit', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${a} × ${b} = ?`,
+        choices: numChoices(correct, [forgotTens, correct + 100, correct - 100, a + b], r),
+        promptText: wpT[i % wpT.length](a, b),
+      }, { correct }, 1950 + i * 10);
+    }
+  }
+
+  // ── math.decimals.add_subtract (5.NBT.B.7) ───────────────────────
+  {
+    const r = rng(108);
+    // [aHundredths, aDisplayDp, bHundredths, bDisplayDp, isAdd] — all
+    // results avoid trailing zeros so the canonical answer is unique.
+    const disp = (h: number, dp: number) => (dp === 1 ? fmtDec(h / 10, 1) : fmtDec(h, 2));
+    const probs: Array<[number, number, number, number, boolean]> = [
+      [345, 2, 280, 1, true], [620, 1, 175, 2, false], [473, 2, 390, 1, true],
+      [512, 2, 168, 2, false], [270, 1, 456, 2, true], [903, 2, 350, 1, false],
+      [185, 2, 232, 2, true], [740, 1, 265, 2, false], [366, 2, 470, 1, true],
+      [825, 2, 490, 1, false], [156, 2, 380, 1, true], [934, 2, 561, 2, false],
+      [283, 2, 190, 1, true], [660, 1, 214, 2, false], [508, 2, 329, 2, true],
+      [871, 2, 430, 1, false],
+    ];
+    for (let i = 0; i < probs.length; i++) {
+      const [aH, aDp, bH, bDp, isAdd] = probs[i];
+      const result = isAdd ? aH + bH : aH - bH;
+      const correct = fmtDec(result, 2);
+      // misalignment error: add/subtract the digits as written,
+      // ignoring the decimal points
+      const rawA = aDp === 1 ? aH / 10 : aH;
+      const rawB = bDp === 1 ? bH / 10 : bH;
+      const mis = isAdd ? rawA + rawB : rawA - rawB;
+      const cands = [
+        ...(mis > 0 ? [fmtDec(mis, 2)] : []),
+        fmtDec(result + 10, 2), fmtDec(result - 10, 2), fmtDec(result + 100, 2),
+      ];
+      push('math.decimals.add_subtract', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${disp(aH, aDp)} ${isAdd ? '+' : '−'} ${disp(bH, bDp)} = ?`,
+        choices: strChoices(correct, cands, r),
+        promptText: `${disp(aH, aDp)} ${isAdd ? 'plus' : 'minus'} ${disp(bH, bDp)} — line up the decimal points.`,
+      }, { correct }, 1850 + i * 8);
+    }
+    // money contexts (cents, always 2 dp)
+    const money: Array<[number, number, boolean]> = [
+      [425, 389, true], [612, 249, false], [178, 355, true], [500, 137, false],
+      [265, 449, true], [950, 615, false], [389, 476, true], [800, 275, false],
+      [199, 349, true], [725, 158, false],
+    ];
+    const moneyT = [
+      (a: string, b: string) => `Cecily spent $${a} on seeds and $${b} on twine. How much did she spend?`,
+      (a: string, b: string) => `A trowel costs $${a} and gloves cost $${b}. What is the total?`,
+      (a: string, b: string) => `Nana had $${a} and spent $${b} at the farm stand. How much is left?`,
+      (a: string, b: string) => `A watering can costs $${a}. Esme has $${b}. How much more does she need?`,
+    ];
+    for (let i = 0; i < money.length; i++) {
+      const [aC, bC, isAdd] = money[i];
+      const result = isAdd ? aC + bC : aC - bC;
+      const correct = `$${fmtDec(result, 2)}`;
+      const cands = [`$${fmtDec(result + 10, 2)}`, `$${fmtDec(result - 10, 2)}`, `$${fmtDec(result + 100, 2)}`];
+      const tmpl = isAdd ? moneyT[i % 2] : moneyT[2 + (i % 2)];
+      const [big, small] = isAdd ? [aC, bC] : [aC, bC];
+      push('math.decimals.add_subtract', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `$${fmtDec(aC, 2)} ${isAdd ? '+' : '−'} $${fmtDec(bC, 2)} = ?`,
+        choices: strChoices(correct, cands, r),
+        promptText: tmpl(fmtDec(big, 2), fmtDec(small, 2)),
+      }, { correct }, 1930 + i * 8);
+    }
+  }
+
+  // ── math.divide.long_division (5.NBT.B.6) ────────────────────────
+  {
+    const r = rng(109);
+    // 3-digit ÷ 1-digit, exact — [divisor, quotient]
+    const exact: Array<[number, number]> = [
+      [3, 124], [4, 132], [5, 123], [6, 141], [7, 118],
+      [8, 116], [9, 107], [4, 216], [6, 152], [7, 134],
+    ];
+    for (let i = 0; i < exact.length; i++) {
+      const [d, q] = exact[i];
+      const dividend = d * q;
+      push('math.divide.long_division', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${dividend} ÷ ${d} = ?`,
+        choices: numChoices(q, [q + 10, q - 10, q + 1, q - 1], r),
+        promptText: `${dividend} divided by ${d}.`,
+      }, { correct: q }, 1880 + i * 6);
+    }
+    // 3-digit ÷ 1-digit with remainders — [divisor, quotient, remainder]
+    const remCases: Array<[number, number, number]> = [
+      [5, 124, 2], [4, 156, 3], [6, 118, 5], [7, 132, 4], [8, 121, 7],
+      [3, 215, 1], [9, 111, 8], [6, 145, 3], [7, 129, 5], [4, 233, 1],
+    ];
+    for (let i = 0; i < remCases.length; i++) {
+      const [d, q, rem] = remCases[i];
+      const dividend = d * q + rem;
+      const correct = `${q} R${rem}`;
+      const cands = [`${q}`, `${q + 1} R${rem}`, `${q} R${rem === 1 ? 2 : rem - 1}`, `${q - 1} R${rem}`];
+      push('math.divide.long_division', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${dividend} ÷ ${d} = ?`,
+        choices: strChoices(correct, cands, r),
+        promptText: `${dividend} divided by ${d} — quotient and remainder.`,
+      }, { correct }, 1950 + i * 8);
+    }
+    // friendly 2-digit divisors — [divisor, quotient]
+    const two: Array<[number, number]> = [
+      [12, 8], [12, 12], [15, 6], [11, 9], [25, 4], [16, 6], [14, 7], [12, 11],
+    ];
+    for (let i = 0; i < two.length; i++) {
+      const [d, q] = two[i];
+      const dividend = d * q;
+      push('math.divide.long_division', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${dividend} ÷ ${d} = ?`,
+        choices: numChoices(q, [q + 1, q - 1, q + 2, d - q], r),
+        promptText: `${dividend} divided by ${d}.`,
+      }, { correct: q }, 1990 + i * 8);
+    }
+  }
+
+  // ── math.fractions.add_subtract_unlike (5.NF.A.1) ────────────────
+  {
+    const r = rng(110);
+    // [an, ad, bn, bd, isAdd] — denominators from {2,3,4,6,8,12}, easy LCDs.
+    const probs: Array<[number, number, number, number, boolean]> = [
+      [1, 2, 1, 4, true], [1, 2, 1, 6, true], [2, 3, 1, 6, false], [1, 3, 1, 6, true],
+      [3, 4, 1, 8, false], [1, 2, 3, 8, true], [5, 6, 1, 3, false], [1, 4, 1, 6, true],
+      [2, 3, 1, 4, false], [1, 2, 1, 12, true], [3, 4, 2, 3, false], [1, 6, 1, 4, true],
+      [5, 8, 1, 2, false], [1, 3, 1, 4, true], [5, 6, 3, 4, false], [1, 2, 1, 3, true],
+      [2, 3, 1, 2, false], [1, 4, 1, 2, true], [7, 8, 3, 4, false], [1, 6, 2, 3, true],
+    ];
+    const solve = (an: number, ad: number, bn: number, bd: number, isAdd: boolean) => {
+      const L = (ad * bd) / gcd(ad, bd);
+      const rawN = isAdd ? an * (L / ad) + bn * (L / bd) : an * (L / ad) - bn * (L / bd);
+      const g = gcd(rawN, L);
+      return { cn: rawN / g, cd: L / g };
+    };
+    const mkFracCands = (raw: string[], cn: number, cd: number) =>
+      raw.filter(f => {
+        const [fn, fd] = f.split('/').map(Number);
+        return fn >= 1 && fd >= 2 && !fracEq(fn, fd, cn, cd);
+      });
+    for (let i = 0; i < probs.length; i++) {
+      const [an, ad, bn, bd, isAdd] = probs[i];
+      const { cn, cd } = solve(an, ad, bn, bd, isAdd);
+      const correct = `${cn}/${cd}`;
+      const straightN = isAdd ? an + bn : an - bn;
+      const cands = mkFracCands([
+        `${straightN}/${ad + bd}`,               // added straight across
+        `${straightN}/${Math.max(ad, bd)}`,      // forgot to convert one fraction
+        `${cn + 1}/${cd}`,                       // off by one
+        `${cn}/${cd * 2}`,
+      ], cn, cd);
+      push('math.fractions.add_subtract_unlike', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${an}/${ad} ${isAdd ? '+' : '−'} ${bn}/${bd} = ?`,
+        choices: strChoices(correct, cands, r),
+        promptText: `${an}/${ad} ${isAdd ? 'plus' : 'minus'} ${bn}/${bd} — find a common denominator first.`,
+      }, { correct }, 1900 + i * 8);
+    }
+    // word problems
+    const wps: Array<[number, number, number, number, boolean]> = [
+      [1, 2, 1, 4, true], [2, 3, 1, 6, false], [1, 2, 1, 3, true],
+      [3, 4, 1, 2, false], [1, 4, 1, 8, true], [5, 6, 1, 2, false],
+    ];
+    const wpT = [
+      (a: string, b: string) => `Cecily filled ${a} of the basket with berries and ${b} with plums. How full is the basket?`,
+      (a: string, b: string) => `The rain barrel was ${a} full. Watering used ${b} of a barrel. How much water is left?`,
+      (a: string, b: string) => `Esme weeded ${a} of the bed and Luna weeded ${b}. What fraction is weeded?`,
+      (a: string, b: string) => `The trail is ${a} of a mile, and Nana has walked ${b} of a mile. How much is left?`,
+    ];
+    for (let i = 0; i < wps.length; i++) {
+      const [an, ad, bn, bd, isAdd] = wps[i];
+      const { cn, cd } = solve(an, ad, bn, bd, isAdd);
+      const correct = `${cn}/${cd}`;
+      const straightN = isAdd ? an + bn : an - bn;
+      const cands = mkFracCands([
+        `${straightN}/${ad + bd}`, `${straightN}/${Math.max(ad, bd)}`, `${cn + 1}/${cd}`, `${cn}/${cd * 2}`,
+      ], cn, cd);
+      const tmpl = isAdd ? wpT[i % 2 === 0 ? 0 : 2] : wpT[i % 2 === 0 ? 1 : 3];
+      push('math.fractions.add_subtract_unlike', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${an}/${ad} ${isAdd ? '+' : '−'} ${bn}/${bd} = ?`,
+        choices: strChoices(correct, cands, r),
+        promptText: tmpl(`${an}/${ad}`, `${bn}/${bd}`),
+      }, { correct }, 2000 + i * 10);
+    }
+  }
+
+  // ── math.order_of_operations (5.OA.A.1) ──────────────────────────
+  {
+    const r = rng(111);
+    type OpItem = { eq: string; correct: number; cands: number[] };
+    const items: OpItem[] = [];
+    // a + b × c, with and without parentheses
+    const triples: Array<[number, number, number]> = [
+      [3, 4, 2], [5, 2, 6], [4, 3, 5], [7, 2, 4], [6, 5, 3], [2, 8, 4], [9, 3, 2], [8, 4, 3],
+    ];
+    for (const [a, b, c] of triples) {
+      // classic distractor = left-to-right evaluation
+      items.push({ eq: `${a} + ${b} × ${c}`, correct: a + b * c, cands: [(a + b) * c, a + b + c, a * b + c, a * c + b] });
+      items.push({ eq: `(${a} + ${b}) × ${c}`, correct: (a + b) * c, cands: [a + b * c, a + b + c, a * b * c] });
+    }
+    // a − b ÷ c (b and a−b both divisible by c)
+    const dv: Array<[number, number, number]> = [
+      [20, 12, 4], [30, 18, 6], [24, 16, 4], [50, 20, 5], [36, 12, 3], [42, 30, 6],
+    ];
+    for (const [a, b, c] of dv) {
+      items.push({ eq: `${a} − ${b} ÷ ${c}`, correct: a - b / c, cands: [(a - b) / c, a - b - c, (a - b) * c] });
+      items.push({ eq: `(${a} − ${b}) ÷ ${c}`, correct: (a - b) / c, cands: [a - b / c, a - b - c, a + b / c] });
+    }
+    // a × b + c × d
+    const quads: Array<[number, number, number, number]> = [
+      [2, 5, 3, 4], [3, 4, 2, 6], [5, 2, 4, 3], [6, 3, 2, 5],
+    ];
+    for (const [a, b, c, d] of quads) {
+      items.push({
+        eq: `${a} × ${b} + ${c} × ${d}`,
+        correct: a * b + c * d,
+        cands: [(a * b + c) * d, (a + b) * (c + d), a + b + c + d],
+      });
+    }
+    for (let i = 0; i < items.length; i++) {
+      const it = items[i];
+      push('math.order_of_operations', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${it.eq} = ?`,
+        choices: numChoices(it.correct, it.cands, r),
+        promptText: 'Solve — remember the order of operations.',
+      }, { correct: it.correct }, 1950 + i * 5);
+    }
+  }
+
+  // ── math.fractions.multiply (5.NF.B.4) ───────────────────────────
+  // Convention: the correct answer is ALWAYS given in lowest terms,
+  // and no distractor is numerically equal to it.
+  {
+    const r = rng(112);
+    const probs: Array<[number, number, number, number]> = [
+      [1, 2, 1, 3], [1, 2, 2, 3], [2, 3, 3, 4], [1, 3, 3, 5], [3, 4, 1, 2], [2, 5, 1, 2],
+      [3, 4, 2, 5], [1, 4, 2, 3], [2, 3, 2, 5], [5, 6, 1, 2], [3, 5, 5, 6], [1, 2, 4, 5],
+      [2, 3, 1, 4], [3, 8, 2, 3], [4, 5, 1, 3], [5, 8, 4, 5], [1, 6, 3, 4], [2, 7, 7, 8],
+      [5, 6, 3, 4], [1, 3, 6, 7],
+    ];
+    const productOf = (an: number, ad: number, bn: number, bd: number) => {
+      const rawN = an * bn, rawD = ad * bd;
+      const g = gcd(rawN, rawD);
+      return { cn: rawN / g, cd: rawD / g };
+    };
+    for (let i = 0; i < probs.length; i++) {
+      const [an, ad, bn, bd] = probs[i];
+      const { cn, cd } = productOf(an, ad, bn, bd);
+      const correct = `${cn}/${cd}`;
+      const cands = [
+        `${an + bn}/${ad + bd}`,       // added instead of multiplied
+        `${an * bn}/${ad + bd}`,       // multiplied tops, added bottoms
+        `${an + bn}/${ad * bd}`,       // added tops, multiplied bottoms
+        `${an * bd}/${ad * bn}`,       // cross-multiplied
+        `${an * bn}/${Math.max(ad, bd)}`,   // multiplied tops, kept one bottom
+      ].filter(f => {
+        const [fn, fd] = f.split('/').map(Number);
+        return fn >= 1 && fd >= 2 && !fracEq(fn, fd, cn, cd);
+      });
+      push('math.fractions.multiply', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${an}/${ad} × ${bn}/${bd} = ?`,
+        choices: strChoices(correct, cands, r),
+        promptText: `Multiply: ${an}/${ad} × ${bn}/${bd}.`,
+      }, { correct }, 2000 + i * 7);
+    }
+    // word problems — a fraction of a fraction
+    const wps: Array<[number, number, number, number]> = [
+      [1, 2, 2, 3], [1, 3, 3, 4], [1, 2, 1, 4], [2, 3, 3, 5], [1, 4, 2, 3], [3, 4, 1, 3],
+    ];
+    const wpT = [
+      (a: string, b: string) => `${b} of the bed is herbs, and ${a} of the herbs are mint. What fraction of the bed is mint?`,
+      (a: string, b: string) => `${b} of the orchard is apple trees, and ${a} of those are ripe. What fraction of the orchard has ripe apples?`,
+      (a: string, b: string) => `${b} of the pond is lily pads, and ${a} of the pads have flowers. What fraction of the pond has flowers?`,
+    ];
+    for (let i = 0; i < wps.length; i++) {
+      const [an, ad, bn, bd] = wps[i];
+      const { cn, cd } = productOf(an, ad, bn, bd);
+      const correct = `${cn}/${cd}`;
+      const cands = [
+        `${an + bn}/${ad + bd}`, `${an * bn}/${ad + bd}`, `${an + bn}/${ad * bd}`, `${bn}/${ad * bd}`,
+      ].filter(f => {
+        const [fn, fd] = f.split('/').map(Number);
+        return fn >= 1 && fd >= 2 && !fracEq(fn, fd, cn, cd);
+      });
+      push('math.fractions.multiply', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${an}/${ad} × ${bn}/${bd} = ?`,
+        choices: strChoices(correct, cands, r),
+        promptText: wpT[i % wpT.length](`${an}/${ad}`, `${bn}/${bd}`),
+      }, { correct }, 2080 + i * 10);
+    }
+  }
+
+  // ── math.volume.rectangular (5.MD.C.5) ───────────────────────────
+  {
+    const r = rng(113);
+    const boxes: Array<[number, number, number]> = [
+      [4, 3, 2], [5, 4, 3], [6, 2, 3], [8, 5, 2], [7, 4, 3], [10, 6, 4], [9, 5, 3],
+      [12, 4, 2], [6, 6, 5], [11, 3, 4], [8, 8, 2], [15, 4, 3], [5, 5, 5], [9, 6, 4],
+      [7, 6, 5], [12, 5, 4], [10, 10, 3], [14, 3, 2], [20, 4, 3], [8, 7, 6],
+    ];
+    const units = ['feet', 'inches', 'meters'];
+    for (let i = 0; i < boxes.length; i++) {
+      const [l, w, h] = boxes[i];
+      const unit = units[i % 3];
+      const vol = l * w * h;
+      const correct = `${vol} cubic ${unit}`;
+      const cands = [
+        `${vol} square ${unit}`,           // right number, wrong unit
+        `${l + w + h} cubic ${unit}`,      // added instead of multiplied
+        `${l * w} cubic ${unit}`,          // forgot the height
+        `${2 * (l * w + l * h + w * h)} cubic ${unit}`,   // surface area
+      ];
+      push('math.volume.rectangular', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${l} × ${w} × ${h} = ?`,
+        choices: strChoices(correct, cands, r),
+        promptText: i % 2 === 0
+          ? `A planter box is ${l} ${unit} long, ${w} ${unit} wide, and ${h} ${unit} tall. What is its volume?`
+          : `A raised bed measures ${l} × ${w} × ${h} ${unit}. How much soil fills it?`,
+      }, { correct }, 2000 + i * 8);
+    }
+    // missing-dimension problems
+    const md: Array<[number, number, number]> = [   // [l, w, h] — solve for h
+      [4, 3, 5], [6, 2, 4], [5, 4, 3], [8, 3, 2], [10, 2, 6], [6, 6, 3],
+    ];
+    for (let i = 0; i < md.length; i++) {
+      const [l, w, h] = md[i];
+      const vol = l * w * h;
+      push('math.volume.rectangular', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${vol} ÷ (${l} × ${w}) = ?`,
+        choices: numChoices(h, [h + 1, h - 1, l * w, vol - l - w], r),
+        promptText: `A planter holds ${vol} cubic feet of soil. It is ${l} feet long and ${w} feet wide. How tall is it?`,
+      }, { correct: h }, 2090 + i * 10);
+    }
+  }
+
+  // ── math.word_problem.multi_step (4.OA.A.3) ──────────────────────
+  {
+    const r = rng(114);
+    let idx = 0;
+    const pushStory = (eq: string, text: string, correct: number, cands: number[]) => {
+      push('math.word_problem.multi_step', 'EquationTap', {
+        type: 'EquationTap',
+        equation: eq,
+        choices: numChoices(correct, cands, r),
+        promptText: text,
+      }, { correct }, 2050 + (idx++) * 5);
+    };
+    // a baskets of b, minus c
+    const set1: Array<[number, number, number]> = [
+      [3, 24, 18], [4, 15, 22], [5, 12, 17], [6, 14, 29], [4, 26, 35], [7, 13, 44],
+    ];
+    for (const [a, b, c] of set1) {
+      const correct = a * b - c;
+      pushStory(`${a} × ${b} − ${c} = ?`,
+        `Nana picked ${a} baskets of ${b} berries, then gave away ${c}. How many berries are left?`,
+        correct, [a * b + c, a * b, correct + 10, a + b + c]);
+    }
+    // a rows of b, plus c more
+    const set2: Array<[number, number, number]> = [
+      [6, 24, 15], [5, 18, 27], [8, 12, 30], [7, 16, 23], [9, 14, 18], [4, 32, 26],
+    ];
+    for (const [a, b, c] of set2) {
+      const correct = a * b + c;
+      pushStory(`${a} × ${b} + ${c} = ?`,
+        `The garden has ${a} rows of ${b} carrots, plus ${c} more growing in pots. How many carrots in all?`,
+        correct, [a * b - c, a * b, correct - 10, a + b + c]);
+    }
+    // (a + b) × c
+    const set3: Array<[number, number, number]> = [
+      [8, 6, 4], [12, 9, 3], [15, 10, 5], [7, 5, 6], [11, 13, 4], [9, 12, 6],
+    ];
+    for (const [a, b, c] of set3) {
+      const correct = (a + b) * c;
+      pushStory(`(${a} + ${b}) × ${c} = ?`,
+        `Cecily planted ${a} tomato and ${b} pepper seedlings in each of ${c} beds. How many seedlings altogether?`,
+        correct, [a + b * c, a + b + c, (a + b) * (c - 1), a * b * c]);
+    }
+    // a − b × c
+    const set4: Array<[number, number, number]> = [
+      [100, 12, 6], [80, 9, 7], [150, 16, 8], [96, 11, 5], [120, 18, 5], [200, 24, 7],
+    ];
+    for (const [a, b, c] of set4) {
+      const correct = a - b * c;
+      pushStory(`${a} − ${b} × ${c} = ?`,
+        `Esme had ${a} seeds. She planted ${c} rows with ${b} seeds in each row. How many seeds are left?`,
+        correct, [a - b - c, b * c, correct + 10, a - b]);
+    }
+    // T ÷ g + e
+    const set5: Array<[number, number, number]> = [
+      [48, 6, 5], [63, 7, 8], [72, 8, 6], [90, 9, 12], [56, 7, 9], [84, 6, 11],
+    ];
+    for (const [t, g, e] of set5) {
+      const correct = t / g + e;
+      pushStory(`${t} ÷ ${g} + ${e} = ?`,
+        `Nana baked ${t} berry muffins and packed them equally into ${g} boxes, then added ${e} more muffins to one box. How many muffins are in that box?`,
+        correct, [t / g, e + g, t - g, correct + 5]);
+    }
+  }
+
   return out;
 }
 
@@ -1584,12 +2964,31 @@ export async function seedMath(
   sb: SupabaseClient,
   skillIdByCode: Map<string, string>
 ): Promise<void> {
-  const rows = buildMathItems(code => skillIdByCode.get(code));
-  // Delete prior seed items for math skills + their attempts
+  let rows = buildMathItems(code => skillIdByCode.get(code));
   const mathSkillIds = Array.from(skillIdByCode.entries())
     .filter(([c]) => c.startsWith('math.'))
     .map(([, id]) => id);
-  if (mathSkillIds.length > 0) {
+
+  // SEED_ADDITIVE=1: only insert items for skills that currently have
+  // NO seed items (i.e. newly added skills). Skips the wipe entirely —
+  // the full wipe deletes learners' attempts on prior seed items,
+  // which resets attempt-derived progress (garden structure counts).
+  // Use additive mode when shipping new skills to a live database.
+  if (process.env.SEED_ADDITIVE === '1') {
+    const seeded = new Set<string>();
+    const PAGE = 1000;
+    for (let from = 0; ; from += PAGE) {
+      const { data, error } = await sb.from('item')
+        .select('skill_id').eq('generated_by', 'seed').in('skill_id', mathSkillIds)
+        .range(from, from + PAGE - 1);
+      if (error) throw error;
+      if (!data || data.length === 0) break;
+      for (const r of data) seeded.add(r.skill_id);
+      if (data.length < PAGE) break;
+    }
+    rows = rows.filter(r => !seeded.has(r.skill_id));
+    console.log(`  → math (additive): ${rows.length} items for previously-unseeded skills`);
+  } else if (mathSkillIds.length > 0) {
     // Paginate — Supabase caps SELECT at 1000 rows by default.
     const PAGE = 1000;
     const priorIds: string[] = [];
