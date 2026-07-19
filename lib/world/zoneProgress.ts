@@ -60,7 +60,11 @@ export interface StructureProgress {
  * number of correct attempts per skill code.
  *
  * Rules:
- *  - A skill is `completed` if correctCount >= target.
+ *  - A skill is `completed` if correctCount >= target OR the learner
+ *    is already mastered at it (so a baselined learner doesn't have to
+ *    re-grind kindergarten stops just to advance the map — the branch
+ *    scenes have always honored mastery; the central garden now does
+ *    too).
  *  - Within a zone, the `isNext` skill is the first structure in the
  *    zone's ordered list that is not yet completed.
  *  - `unlocked` = completed OR isNext.
@@ -71,6 +75,7 @@ export function computeStructureProgress(
   structures: MapStructure[],
   correctByCode: Map<string, number>,
   skillPrereqUnmet: (structureCode: string) => string,
+  masteredCodes: Set<string> = new Set(),
   target: number = ZONE_COMPLETION_TARGET,
 ): Record<string, StructureProgress> {
   const result: Record<string, StructureProgress> = {};
@@ -85,7 +90,7 @@ export function computeStructureProgress(
       if (!struct || struct.kind !== 'skill' || !struct.skillCode) continue;
 
       const correctCount = correctByCode.get(struct.skillCode) ?? 0;
-      const completed = correctCount >= target;
+      const completed = correctCount >= target || masteredCodes.has(struct.skillCode);
       const isNext = !completed && !foundNext;
       if (isNext) foundNext = true;
 
@@ -98,7 +103,8 @@ export function computeStructureProgress(
         for (let j = i + 1; j < ordered.length; j++) {
           const nextStruct = structures.find(s => s.code === ordered[j]);
           if (!nextStruct?.skillCode) continue;
-          const nextDone = (correctByCode.get(nextStruct.skillCode) ?? 0) >= target;
+          const nextDone = (correctByCode.get(nextStruct.skillCode) ?? 0) >= target
+            || masteredCodes.has(nextStruct.skillCode);
           if (!nextDone) {
             unlocksLabel = nextStruct.label;
             break;
@@ -133,7 +139,8 @@ export function computeStructureProgress(
     const correctCount = struct.skillCode
       ? correctByCode.get(struct.skillCode) ?? 0
       : 0;
-    const completed = correctCount >= target;
+    const completed = correctCount >= target
+      || (!!struct.skillCode && masteredCodes.has(struct.skillCode));
     result[struct.code] = {
       unlocked: completed,
       completed,

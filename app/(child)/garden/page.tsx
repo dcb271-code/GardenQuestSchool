@@ -117,6 +117,7 @@ export default async function GardenPage({
     GARDEN_STRUCTURES,
     correctByCode,
     prereqFallback,
+    mastered,
   );
 
   // Which habitats has the learner already BUILT (i.e. completed the

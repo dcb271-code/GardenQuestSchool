@@ -108,10 +108,13 @@ export async function GET(req: Request) {
   // its real progress so the compass and the garden agree. Also compute
   // "next opens" — the very next structure in this zone after this
   // candidate — so the child sees what their work is building toward.
+  const masteredCodes = new Set(
+    progress.filter(p => p.masteryState === 'mastered').map(p => p.skillCode),
+  );
   const enriched = candidates.map(c => {
     const struct = GARDEN_STRUCTURES.find(s => s.kind === 'skill' && s.skillCode === c.skillCode);
     const correctCount = correctByCode.get(c.skillCode) ?? 0;
-    const completed = correctCount >= ZONE_COMPLETION_TARGET;
+    const completed = correctCount >= ZONE_COMPLETION_TARGET || masteredCodes.has(c.skillCode);
 
     // Find the next-in-zone structure that the learner hasn't finished
     // yet. We only show "next opens" when this candidate is the

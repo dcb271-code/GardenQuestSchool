@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
 import { z } from 'zod';
-import { FOCUS_SKILL_PREFIX } from '@/lib/engine';
+import { FOCUS_SKILL_PREFIX, sessionEarnsRewards } from '@/lib/engine';
 
 const Body = z.object({
   learnerId: z.string().min(1),
@@ -30,6 +30,9 @@ export async function POST(req: Request) {
         mode: 'focus',
         subject_planned: subject.code,
         skill_planned: `${FOCUS_SKILL_PREFIX}${subject.code}`,
+        // Focus sessions serve due reviews and weak skills first —
+        // always real work.
+        earns_rewards: true,
       })
       .select('id')
       .single();
@@ -48,6 +51,21 @@ export async function POST(req: Request) {
     .single();
   const subjectCode = (strand as any)?.strand?.subject?.code ?? 'math';
 
+  const { data: prog } = await db
+    .from('skill_progress')
+    .select('mastery_state, next_review_at')
+    .eq('learner_id', body.learnerId)
+    .eq('skill_id', skill.id)
+    .maybeSingle();
+  const earnsRewards = sessionEarnsRewards(
+    prog
+      ? {
+          masteryState: prog.mastery_state,
+          nextReviewAt: prog.next_review_at ? new Date(prog.next_review_at) : null,
+        }
+      : null,
+  );
+
   const { data: session, error: sErr } = await db
     .from('session')
     .insert({
@@ -55,6 +73,7 @@ export async function POST(req: Request) {
       mode: 'expedition',
       subject_planned: subjectCode,
       skill_planned: body.skillCode!,
+      earns_rewards: earnsRewards,
     })
     .select('id')
     .single();

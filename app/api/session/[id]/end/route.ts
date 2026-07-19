@@ -31,7 +31,7 @@ export async function POST(
       ended_reason: body.reason,
     })
     .eq('id', params.id)
-    .select('learner_id, items_attempted, items_correct, started_at')
+    .select('learner_id, items_attempted, items_correct, started_at, earns_rewards')
     .single();
 
   if (!session) return NextResponse.json({ error: 'session not found' }, { status: 404 });
@@ -118,8 +118,12 @@ export async function POST(
   // If this was a real session (≥ ARRIVAL_THRESHOLD_CORRECT correct),
   // pick a creature themed to the skills they practiced and queue it
   // in world_state. The garden will show it on the next visit.
+  // Comfort replays of mastered, not-yet-due skills (earns_rewards =
+  // false, decided at session start) never pay out — otherwise farming
+  // the easiest structure is the best creature strategy. Null = session
+  // predates the flag; treat as earning.
   let queuedArrivalCode: string | null = null;
-  if (correctCount >= ARRIVAL_THRESHOLD_CORRECT) {
+  if (session.earns_rewards !== false && correctCount >= ARRIVAL_THRESHOLD_CORRECT) {
     // Habitats they currently have placed
     const { data: placedRows } = await db
       .from('habitat')
