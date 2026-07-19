@@ -51,6 +51,7 @@ export default function SpeciesGrid({
       <SpeciesDetailModal
         species={openSpecies}
         open={!!openSpecies}
+        learnerId={learnerId}
         onClose={() => setOpenSpecies(null)}
       />
     </>

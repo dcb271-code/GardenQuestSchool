@@ -34,6 +34,7 @@ export async function POST(req: Request) {
     .in('plant_code', neededPlants)
     .not('harvested_at', 'is', null)
     .is('consumed_by_meal_id', null)
+    .is('consumed_by_companion_id', null)
     .order('harvested_at', { ascending: true });
   if (rErr) return NextResponse.json({ error: rErr.message }, { status: 500 });
 
@@ -69,7 +70,8 @@ export async function POST(req: Request) {
     .from('garden_plot')
     .update({ consumed_by_meal_id: meal.id })
     .in('id', toConsume)
-    .is('consumed_by_meal_id', null);
+    .is('consumed_by_meal_id', null)
+    .is('consumed_by_companion_id', null);
   if (cErr) {
     // Roll the meal back rather than leave a meal that consumed nothing.
     await db.from('meal').delete().eq('id', meal.id);

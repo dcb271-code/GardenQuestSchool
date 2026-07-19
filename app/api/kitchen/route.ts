@@ -24,7 +24,8 @@ export async function GET(req: Request) {
     .select('plant_code')
     .eq('learner_id', learnerId)
     .not('harvested_at', 'is', null)
-    .is('consumed_by_meal_id', null);
+    .is('consumed_by_meal_id', null)
+    .is('consumed_by_companion_id', null);
 
   const basket: Record<string, number> = {};
   for (const r of harvestRows ?? []) {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -16,6 +16,9 @@ import SisterWalkers, { SISTERS_HOME } from '@/components/child/garden/SisterWal
 import WelcomeOverlay from '@/components/child/garden/WelcomeOverlay';
 import HabitatQuestModal from '@/components/child/garden/HabitatQuestModal';
 import KitchenModal from '@/components/child/garden/KitchenModal';
+import CompanionSpot from '@/components/child/garden/CompanionSpot';
+import CompanionModal from '@/components/child/garden/CompanionModal';
+import type { CompanionStatus } from '@/app/api/companion/route';
 import { usePortraitPan, PanEdgeHints } from '@/components/child/garden/usePortraitPan';
 import { useGardenSoundtrack } from '@/lib/audio/useGardenSoundtrack';
 import { playSparkle } from '@/lib/audio/sfx';
@@ -222,6 +225,16 @@ export default function GardenScene({
   // Habitat ecology quest — opens when learner taps a not-yet-built habitat
   const [questHabitat, setQuestHabitat] = useState<MapStructure | null>(null);
   const [kitchenOpen, setKitchenOpen] = useState(false);
+  // Garden friend (companion) — fetched client-side; null = none adopted.
+  const [companion, setCompanion] = useState<CompanionStatus | null>(null);
+  const [companionOpen, setCompanionOpen] = useState(false);
+  const loadCompanion = useCallback(() => {
+    fetch(`/api/companion?learner=${learnerId}`)
+      .then(r => r.json())
+      .then(d => setCompanion(d.active ?? null))
+      .catch(() => {});
+  }, [learnerId]);
+  useEffect(() => { loadCompanion(); }, [loadCompanion]);
   // Portrait screens (wall tablets) pan across the wide garden instead
   // of letterboxing it tiny. Opens centered on the cottage/home corner.
   const portraitPan = usePortraitPan({ worldW: MAP_WIDTH, worldH: MAP_HEIGHT, initialCenterX: 320 });
@@ -1300,6 +1313,13 @@ export default function GardenScene({
             onTap={() => router.push(`/adventure/luna?learner=${learnerId}`)}
           />
 
+          {/* Garden friend — renders nothing until one is adopted */}
+          <CompanionSpot
+            companion={companion}
+            reducedMotion={reducedMotion}
+            onTap={() => setCompanionOpen(true)}
+          />
+
           <SisterWalkers
             target={sistersTarget}
             walking={sistersWalking}
@@ -1536,6 +1556,15 @@ export default function GardenScene({
       {/* First-ever visit welcome overlay — auto-dismisses after tap,
           stored in localStorage so it only ever appears once per learner. */}
       <WelcomeOverlay learnerId={learnerId} firstName={firstName} />
+
+      {/* Garden friend care window */}
+      <CompanionModal
+        open={companionOpen}
+        learnerId={learnerId}
+        companion={companion}
+        onClose={() => setCompanionOpen(false)}
+        onChanged={loadCompanion}
+      />
 
       {/* Bachan's kitchen — cook a recipe from the harvest basket */}
       <KitchenModal

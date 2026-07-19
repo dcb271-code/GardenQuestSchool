@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { SpeciesData } from '@/lib/world/speciesCatalog';
 import { HABITAT_CATALOG } from '@/lib/world/habitatCatalog';
@@ -13,12 +13,28 @@ import { SpeciesIllustration } from '@/components/child/garden/speciesIllustrati
  * "wondering" / "curiosity" virtues over time.
  */
 export default function SpeciesDetailModal({
-  species, open, onClose,
+  species, open, onClose, learnerId,
 }: {
   species: SpeciesData | null;
   open: boolean;
+  /** When present, the modal offers "make garden friend" adoption. */
+  learnerId?: string;
   onClose: () => void;
 }) {
+  const [adoptState, setAdoptState] = useState<'idle' | 'busy' | 'done'>('idle');
+  useEffect(() => { if (open) setAdoptState('idle'); }, [open, species?.code]);
+
+  const adopt = async () => {
+    if (!species || !learnerId || adoptState !== 'idle') return;
+    setAdoptState('busy');
+    const res = await fetch('/api/companion/adopt', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ learnerId, speciesCode: species.code }),
+    }).catch(() => null);
+    setAdoptState(res?.ok ? 'done' : 'idle');
+  };
+
   useEffect(() => {
     if (!open || !species || typeof window === 'undefined') return;
     try {
@@ -141,6 +157,24 @@ export default function SpeciesDetailModal({
                 </div>
               )}
             </div>
+
+            {learnerId && (
+              adoptState === 'done' ? (
+                <div className="text-center font-display italic text-[14px] text-forest">
+                  🐾 they&apos;ll be waiting for you by the cottage — your old friends will still remember you
+                </div>
+              ) : (
+                <motion.button
+                  onClick={adopt}
+                  disabled={adoptState === 'busy'}
+                  className="w-full bg-terracotta text-white rounded-full py-3 font-display disabled:opacity-60"
+                  style={{ touchAction: 'manipulation', minHeight: 56, fontWeight: 600 }}
+                  whileTap={{ scale: 0.97 }}
+                >
+                  {adoptState === 'busy' ? 'asking nicely…' : 'make garden friend 🐾'}
+                </motion.button>
+              )
+            )}
 
             <motion.button
               onClick={onClose}

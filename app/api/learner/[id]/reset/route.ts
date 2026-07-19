@@ -54,6 +54,10 @@ export async function POST(
   if (body.scope === 'habitats' || body.scope === 'all') {
     await db.from('habitat').delete().eq('learner_id', learnerId);
     await db.from('journal_entry').delete().eq('learner_id', learnerId);
+    // Companions require a discovered species — wiping the journal
+    // must wipe the friend too (fed harvests return to the basket via
+    // ON DELETE SET NULL).
+    await db.from('companion').delete().eq('learner_id', learnerId);
     await clearPendingArrival();
     wiped.push('habitats', 'journal');
   }
