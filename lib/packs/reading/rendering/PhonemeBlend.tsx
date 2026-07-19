@@ -4,6 +4,10 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { PhonemeBlendContent, PhonemeBlendResponse } from '@/lib/packs/reading/types';
 import { useSpeechRecognition, speechMatchesWord } from '@/lib/audio/useSpeechRecognition';
+import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
+import { buildTtsUrl, GOOGLE_VOICE_PREFIX } from '@/lib/audio/useNarrator';
+import { speak } from '@/lib/audio/tts';
+import { decoyPhonemes } from '@/lib/packs/reading/distractors';
 
 /**
  * Blend the phonemes and SAY the word.
@@ -21,6 +25,14 @@ import { useSpeechRecognition, speechMatchesWord } from '@/lib/audio/useSpeechRe
  *
  * On supported browsers with the child on track, the only thing on
  * screen is the phoneme tiles + a big mic button.
+ *
+ * WITHOUT speech recognition (many tablets/kiosk browsers), the old
+ * fallback showed the phoneme tiles spelling the word right next to
+ * word choices — pure visual letter-matching, no phonics at all. The
+ * fallback is now LISTEN-AND-BUILD: the child taps 🔊 to hear the
+ * word (the spelling is never shown), then builds it from a bank of
+ * phoneme tiles that includes near-sound decoys. Ears first, then
+ * encoding — the inverse of the speaking path, but honestly phonemic.
  */
 export default function PhonemeBlend({
   content, onSubmit,
@@ -44,6 +56,105 @@ export default function PhonemeBlend({
   // re-renders. Reset whenever a fresh start() fires.
   const failedAttemptCountedRef = useRef(false);
   const [revealChoicesManually, setRevealChoicesManually] = useState(false);
+
+  // ── Listen-and-build mode (no speech recognition available) ──────
+  const { settings } = useAccessibilitySettings();
+  const buildMode = !speech.supported;
+  // Deterministic tile bank: target phonemes + near-sound decoys,
+  // shuffled by a hash of the word so the layout is stable per item.
+  const bank = useMemo(() => {
+    if (!buildMode) return [];
+    const tiles = [
+      ...content.phonemes.map((p, i) => ({ id: `t${i}`, label: p })),
+      ...decoyPhonemes(content.phonemes, Math.min(3, Math.max(2, content.phonemes.length - 1)))
+        .map((p, i) => ({ id: `d${i}`, label: p })),
+    ];
+    let h = 0;
+    for (const ch of content.word) h = (h * 31 + ch.charCodeAt(0)) | 0;
+    for (let i = tiles.length - 1; i > 0; i--) {
+      h = (h * 1664525 + 1013904223) | 0;
+      const j = Math.abs(h) % (i + 1);
+      [tiles[i], tiles[j]] = [tiles[j], tiles[i]];
+    }
+    return tiles;
+  }, [buildMode, content.phonemes, content.word]);
+  // Slot contents: tile ids (null = empty), one slot per phoneme.
+  const [slots, setSlots] = useState<(string | null)[]>(
+    () => content.phonemes.map(() => null),
+  );
+  const [speaking, setSpeaking] = useState(false);
+  const [checking, setChecking] = useState<'ok' | 'no' | null>(null);
+  const playedOnceRef = useRef(false);
+
+  const hearWord = async () => {
+    if (speaking) return;
+    setSpeaking(true);
+    const voiceName = settings.voiceName;
+    const rate = Math.max(0.75, (settings.voiceRate ?? 0.88) - 0.05);
+    try {
+      if (voiceName?.startsWith(GOOGLE_VOICE_PREFIX)) {
+        const audio = new Audio(buildTtsUrl(content.word, voiceName.slice(GOOGLE_VOICE_PREFIX.length), rate));
+        audio.preload = 'auto';
+        audio.onended = () => setSpeaking(false);
+        audio.onerror = () => setSpeaking(false);
+        await audio.play();
+      } else {
+        await speak(content.word, { voice: voiceName ?? undefined, rate });
+        setSpeaking(false);
+      }
+    } catch {
+      setSpeaking(false);
+    }
+  };
+
+  // Say the word once when the item appears in build mode.
+  useEffect(() => {
+    if (buildMode && !playedOnceRef.current) {
+      playedOnceRef.current = true;
+      const t = setTimeout(hearWord, 600);
+      return () => clearTimeout(t);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [buildMode]);
+
+  const labelOf = (id: string) => bank.find(t => t.id === id)?.label ?? '';
+  const placeTile = (id: string) => {
+    if (checking) return;
+    setSlots(prev => {
+      if (prev.includes(id)) return prev;
+      const idx = prev.indexOf(null);
+      if (idx === -1) return prev;
+      const next = [...prev];
+      next[idx] = id;
+      return next;
+    });
+  };
+  const removeSlot = (slotIdx: number) => {
+    if (checking) return;
+    setSlots(prev => {
+      const next = [...prev];
+      next[slotIdx] = null;
+      return next;
+    });
+  };
+
+  // When every slot is filled, check the built word.
+  useEffect(() => {
+    if (!buildMode || checking) return;
+    if (slots.some(sl => sl === null)) return;
+    const built = slots.map(id => labelOf(id!)).join('');
+    const correct = built.toLowerCase() === content.word.toLowerCase();
+    setChecking(correct ? 'ok' : 'no');
+    setTimeout(() => {
+      onSubmit({ chosen: correct ? content.word : built });
+      if (!correct) {
+        // The lesson keeps the item on a retry — reset for another go.
+        setSlots(content.phonemes.map(() => null));
+        setChecking(null);
+      }
+    }, correct ? 700 : 900);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [slots, buildMode, checking]);
 
   // When we get a transcript that matches the target, auto-submit.
   useEffect(() => {
@@ -87,6 +198,85 @@ export default function PhonemeBlend({
     !speech.supported ||
     failedSpeechAttempts >= 2 ||
     revealChoicesManually;
+
+  if (buildMode) {
+    return (
+      <div className="space-y-5 py-3">
+        <div className="text-center font-display text-[20px] text-bark bg-cream/60 p-4 rounded-2xl border-2 border-ochre/40">
+          Listen, then build the word you hear.
+        </div>
+
+        {/* Hear the word — the spelling is never shown in this mode */}
+        <div className="flex justify-center">
+          <motion.button
+            type="button"
+            onClick={hearWord}
+            className="bg-forest text-white rounded-full px-8 py-4 font-display flex items-center gap-3"
+            style={{ touchAction: 'manipulation', minHeight: 60, fontWeight: 600, fontSize: 18 }}
+            whileTap={{ scale: 0.96 }}
+            animate={speaking ? { scale: [1, 1.04, 1] } : undefined}
+            transition={speaking ? { duration: 0.8, repeat: Infinity } : undefined}
+          >
+            <span className="text-2xl">🔊</span>
+            hear the word
+          </motion.button>
+        </div>
+
+        {/* Slots — one per sound */}
+        <div className="flex justify-center items-center gap-2.5">
+          {slots.map((id, i) => (
+            <motion.button
+              key={`slot-${i}`}
+              type="button"
+              onClick={() => id && removeSlot(i)}
+              className={`rounded-2xl p-4 min-w-[56px] min-h-[64px] text-center font-mono border-4 ${
+                id
+                  ? checking === 'ok'
+                    ? 'bg-sage/30 border-sage text-bark'
+                    : checking === 'no'
+                      ? 'bg-rose/20 border-rose text-bark'
+                      : 'bg-white border-sage text-bark'
+                  : 'bg-cream/60 border-dashed border-ochre/60 text-bark/30'
+              }`}
+              style={{ fontSize: 26, fontWeight: 700, touchAction: 'manipulation' }}
+              animate={checking === 'no' ? { x: [0, -6, 6, -4, 4, 0] } : undefined}
+              transition={{ duration: 0.45 }}
+            >
+              {id ? labelOf(id) : '·'}
+            </motion.button>
+          ))}
+        </div>
+
+        {/* Tile bank */}
+        <div className="flex justify-center items-center gap-2.5 flex-wrap px-2">
+          {bank.map(tile => {
+            const used = slots.includes(tile.id);
+            return (
+              <motion.button
+                key={tile.id}
+                type="button"
+                onClick={() => placeTile(tile.id)}
+                disabled={used || checking !== null}
+                className={`rounded-2xl p-4 min-w-[56px] text-center font-mono border-4 ${
+                  used
+                    ? 'bg-cream/40 border-ochre/30 text-bark/25'
+                    : 'bg-white border-ochre text-bark hover:bg-ochre/15'
+                }`}
+                style={{ fontSize: 26, fontWeight: 700, touchAction: 'manipulation', minHeight: 60 }}
+                whileTap={!used ? { scale: 0.94 } : undefined}
+              >
+                {tile.label}
+              </motion.button>
+            );
+          })}
+        </div>
+
+        <div className="text-center font-display italic text-[13px] text-bark/55">
+          tap the sounds in order — tap a filled box to put one back
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-5 py-3">

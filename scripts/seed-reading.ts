@@ -11,6 +11,7 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { READING_STRANDS } from '../lib/packs/reading/strands';
 import { READING_SKILLS } from '../lib/packs/reading/skills';
+import { pickNearMissDistractors } from '../lib/packs/reading/distractors';
 
 const DOLCH_PRIMER = [
   'a', 'and', 'away', 'big', 'blue', 'can', 'come', 'down',
@@ -1408,7 +1409,7 @@ export async function seedReading(
     const rand = seededRng(skillCode);
     for (let i = 0; i < teachable.length; i++) {
       const word = teachable[i];
-      const distractors = pickUniqueDistractors(word, teachable, 3, rand);
+      const distractors = pickNearMissDistractors(word, teachable, 3, rand);
       if (distractors.length < 3) continue;  // not enough teachable pool
       push(skillCode, 'SightWordTap', {
         type: 'SightWordTap', word, distractors,
