@@ -24,6 +24,7 @@ import AmbientLayer from '@/components/child/garden/AmbientLayer';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
 import EmptyPlotPicker from './EmptyPlotPicker';
 import { usePortraitPan, PanEdgeHints } from '@/components/child/garden/usePortraitPan';
+import { useCalmMode } from '@/lib/settings/useCalmMode';
 import PlantInspectModal from './PlantInspectModal';
 import HarvestCelebration from './HarvestCelebration';
 import SeedInventoryTray from './SeedInventoryTray';
@@ -57,6 +58,9 @@ export default function GrowScene({
   const portraitPan = usePortraitPan({ worldW: VB_W, worldH: VB_H, initialCenterX: 340 });
   const { settings } = useAccessibilitySettings();
   const reducedMotion = settings.reducedMotion;
+  // Calm mode: still the decorative layer on slow devices.
+  const calm = useCalmMode();
+  const calmAmbient = reducedMotion || calm;
 
   // Time-of-day tint — same ramp as GardenScene. Initialised to noon for
   // SSR/hydration agreement, then synced to local hour after mount.
@@ -577,20 +581,20 @@ export default function GrowScene({
           })}
 
           {/* AMBIENT LAYER — clouds drift, butterflies/bees, pollen, etc. */}
-          <AmbientLayer reducedMotion={reducedMotion} />
+          <AmbientLayer reducedMotion={calmAmbient} />
 
           {/* WANDERING CHICKEN — slow back-and-forth in the meadow strip,
               between (650, 770) and (820, 770). Pauses at each end. */}
-          <WanderingChicken reducedMotion={reducedMotion} />
+          <WanderingChicken reducedMotion={calmAmbient} />
 
           {/* CRAWLING SNAIL — very slow trip across the vegetable patch.
               Lives in the meadow strip just below the bed (y ≈ 425).
               Moves so slowly it feels like the bed itself is breathing. */}
-          <CrawlingSnail reducedMotion={reducedMotion} />
+          <CrawlingSnail reducedMotion={calmAmbient} />
 
           {/* DRAGONFLY — darts back and forth above the koi stream in the
               Japanese garden. Quick little hovers, not a slow drift. */}
-          <Dragonfly reducedMotion={reducedMotion} />
+          <Dragonfly reducedMotion={calmAmbient} />
 
           {/* Foreground grass silhouette — Miyazaki-style depth frame
               along the very bottom (above the inventory tray). Kept

@@ -100,6 +100,31 @@ export default function SettingsPage() {
             ))}
           </div>
         </div>
+
+        <div>
+          <div className="text-kid-sm mb-1">Garden liveliness</div>
+          <p className="text-xs text-bark/60 mb-2 font-display italic">
+            Calm turns down the fluttering extras (butterflies, ripples, smoke)
+            so the garden stays smooth on slower screens. Auto decides by
+            watching how this device keeps up.
+          </p>
+          <div className="flex gap-2">
+            {([
+              { key: 'auto' as const, label: 'Auto' },
+              { key: 'full' as const, label: 'Lively' },
+              { key: 'calm' as const, label: 'Calm' },
+            ]).map(opt => (
+              <button
+                key={opt.key}
+                onClick={() => update({ animationLevel: opt.key })}
+                className={`flex-1 rounded-xl py-3 border-4 ${settings.animationLevel === opt.key ? 'border-forest bg-forest/10' : 'border-ochre bg-white'}`}
+                style={{ touchAction: 'manipulation', minHeight: 60 }}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
       </section>
 
       <section className="bg-white border-4 border-ochre rounded-2xl p-5 space-y-4">

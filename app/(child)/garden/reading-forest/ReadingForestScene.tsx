@@ -50,6 +50,7 @@ import AmbientLayer from '@/components/child/garden/AmbientLayer';
 import SisterWalkers from '@/components/child/garden/SisterWalkers';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
 import { usePortraitPan, PanEdgeHints } from '@/components/child/garden/usePortraitPan';
+import { useCalmMode } from '@/lib/settings/useCalmMode';
 import { Tree, PineTree, Flower, GrassTuft, StructureIllustration } from '@/components/child/garden/illustrations';
 import { MarkerIcon, hasMarkerIcon } from '@/components/child/garden/markerIcons';
 import type { ReadingForestStructureState } from './page';
@@ -135,6 +136,9 @@ export default function ReadingForestScene({
   const router = useRouter();
   const { settings } = useAccessibilitySettings();
   const reducedMotion = settings.reducedMotion;
+  // Calm mode: still the decorative layer on slow devices.
+  const calm = useCalmMode();
+  const calmAmbient = reducedMotion || calm;
   const [tappedLocked, setTappedLocked] = useState<string | null>(null);
   const [starting, setStarting] = useState(false);
   // Portrait pan — opens centered on the Sight Word Glade (the NW start).
@@ -396,19 +400,19 @@ export default function ReadingForestScene({
               whole brook breathes, never in unison */}
           <motion.ellipse
             cx={260} cy={388} rx={18} ry={4} fill="#FFFFFF"
-            animate={reducedMotion ? undefined : { opacity: [0.12, 0.42, 0.12], scaleX: [1, 1.14, 1] }}
+            animate={calmAmbient ? undefined : { opacity: [0.12, 0.42, 0.12], scaleX: [1, 1.14, 1] }}
             transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut' }}
             style={{ transformOrigin: '260px 388px', opacity: 0.28 }}
           />
           <motion.ellipse
             cx={760} cy={420} rx={20} ry={4} fill="#FFFFFF"
-            animate={reducedMotion ? undefined : { opacity: [0.1, 0.4, 0.1], scaleX: [1, 1.16, 1] }}
+            animate={calmAmbient ? undefined : { opacity: [0.1, 0.4, 0.1], scaleX: [1, 1.16, 1] }}
             transition={{ duration: 6.5, delay: 1.2, repeat: Infinity, ease: 'easeInOut' }}
             style={{ transformOrigin: '760px 420px', opacity: 0.26 }}
           />
           <motion.ellipse
             cx={1200} cy={454} rx={18} ry={4} fill="#FFFFFF"
-            animate={reducedMotion ? undefined : { opacity: [0.1, 0.36, 0.1], scaleX: [1, 1.18, 1] }}
+            animate={calmAmbient ? undefined : { opacity: [0.1, 0.36, 0.1], scaleX: [1, 1.18, 1] }}
             transition={{ duration: 7.2, delay: 2.6, repeat: Infinity, ease: 'easeInOut' }}
             style={{ transformOrigin: '1200px 454px', opacity: 0.22 }}
           />
@@ -963,7 +967,7 @@ export default function ReadingForestScene({
              fireflies after dusk. The forest's tree-line dips at
              x:230 / 720 / 1180 give the clouds visible space to drift
              through. */}
-        <AmbientLayer reducedMotion={reducedMotion} />
+        <AmbientLayer reducedMotion={calmAmbient} />
 
         {/* ── SISTER WALKERS ──
              Cecily + Esme emerge from the garden signpost on the

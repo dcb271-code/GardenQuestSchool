@@ -19,6 +19,7 @@ describe('accessibility settings', () => {
       soundEffects: true,
       gardenSoundtrack: false,
       soundtrackVolume: 0.10,
+      animationLevel: 'auto',
     });
   });
 
@@ -28,6 +29,7 @@ describe('accessibility settings', () => {
       reducedMotion: true,
       textSize: 1.5,
       voiceName: 'Moira',
+      animationLevel: 'calm',
       voiceRate: 0.95,
       challengeLevel: 'harder',
       soundEffects: false,
@@ -63,6 +65,7 @@ describe('accessibility settings', () => {
       reducedMotion: true,
       textSize: 1.25,
       voiceName: null,
+      animationLevel: 'auto',
       voiceRate: 0.88,
       challengeLevel: 'normal',
       soundEffects: true,

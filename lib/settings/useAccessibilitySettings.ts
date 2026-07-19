@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 
 export type ChallengeLevel = 'easier' | 'normal' | 'harder';
+export type AnimationLevel = 'auto' | 'full' | 'calm';
 
 export interface AccessibilitySettings {
   openDyslexic: boolean;
@@ -14,6 +15,9 @@ export interface AccessibilitySettings {
   soundEffects: boolean;       // gentle UI sounds on correct/wrong/sparkle
   gardenSoundtrack: boolean;   // ambient music in the garden
   soundtrackVolume: number;    // 0.0..0.5 (gain capped to ~0.22 in the audio layer)
+  // 'auto' measures real frame times once per device and calms the
+  // ambient load on slow hardware; 'calm'/'full' force it either way.
+  animationLevel: AnimationLevel;
 }
 
 const DEFAULT_SETTINGS: AccessibilitySettings = {
@@ -26,6 +30,7 @@ const DEFAULT_SETTINGS: AccessibilitySettings = {
   soundEffects: true,
   gardenSoundtrack: false,
   soundtrackVolume: 0.10,
+  animationLevel: 'auto',
 };
 
 // Elo offset applied to the learner's per-skill rating when picking
@@ -66,6 +71,9 @@ export function loadSettings(): AccessibilitySettings {
       soundtrackVolume: typeof parsed.soundtrackVolume === 'number' && parsed.soundtrackVolume >= 0 && parsed.soundtrackVolume <= 0.5
         ? parsed.soundtrackVolume
         : 0.10,
+      animationLevel: parsed.animationLevel === 'full' || parsed.animationLevel === 'calm'
+        ? parsed.animationLevel
+        : 'auto',
     };
   } catch {
     return DEFAULT_SETTINGS;

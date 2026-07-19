@@ -55,6 +55,7 @@ import AmbientLayer from '@/components/child/garden/AmbientLayer';
 import SisterWalkers from '@/components/child/garden/SisterWalkers';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
 import { usePortraitPan, PanEdgeHints } from '@/components/child/garden/usePortraitPan';
+import { useCalmMode } from '@/lib/settings/useCalmMode';
 import {
   Tree, PineTree, StructureIllustration,
 } from '@/components/child/garden/illustrations';
@@ -183,6 +184,9 @@ export default function MathMountainScene({
   const router = useRouter();
   const { settings } = useAccessibilitySettings();
   const reducedMotion = settings.reducedMotion;
+  // Calm mode: still the decorative layer on slow devices.
+  const calm = useCalmMode();
+  const calmAmbient = reducedMotion || calm;
   const [tappedLocked, setTappedLocked] = useState<string | null>(null);
   const [starting, setStarting] = useState(false);
   const [expandedHabitat, setExpandedHabitat] = useState<string | null>(null);
@@ -506,13 +510,13 @@ export default function MathMountainScene({
               shifting, but never feels busy. */}
           <motion.ellipse
             cx={356} cy={462} rx={20} ry={5} fill="#FFFFFF"
-            animate={reducedMotion ? undefined : { opacity: [0.15, 0.45, 0.15], scaleX: [1, 1.12, 1] }}
+            animate={calmAmbient ? undefined : { opacity: [0.15, 0.45, 0.15], scaleX: [1, 1.12, 1] }}
             transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut' }}
             style={{ transformOrigin: '356px 462px', opacity: 0.32 }}
           />
           <motion.ellipse
             cx={410} cy={482} rx={14} ry={4} fill="#FFFFFF"
-            animate={reducedMotion ? undefined : { opacity: [0.1, 0.4, 0.1], scaleX: [1, 1.18, 1] }}
+            animate={calmAmbient ? undefined : { opacity: [0.1, 0.4, 0.1], scaleX: [1, 1.18, 1] }}
             transition={{ duration: 6.5, delay: 1.2, repeat: Infinity, ease: 'easeInOut' }}
             style={{ transformOrigin: '410px 482px', opacity: 0.28 }}
           />
@@ -1299,7 +1303,7 @@ export default function MathMountainScene({
              fireflies after dusk. Honours the user's reduced-motion
              toggle internally. Without this layer the mountain felt
              dead next to the central garden's living scene. */}
-        <AmbientLayer reducedMotion={reducedMotion} />
+        <AmbientLayer reducedMotion={calmAmbient} />
 
         {/* ── SISTER WALKERS ──
              Cecily + Esme emerge from the garden signpost on the

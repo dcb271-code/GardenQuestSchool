@@ -20,6 +20,7 @@ import CompanionSpot from '@/components/child/garden/CompanionSpot';
 import CompanionModal from '@/components/child/garden/CompanionModal';
 import type { CompanionStatus } from '@/app/api/companion/route';
 import { usePortraitPan, PanEdgeHints } from '@/components/child/garden/usePortraitPan';
+import { useCalmMode } from '@/lib/settings/useCalmMode';
 import { useGardenSoundtrack } from '@/lib/audio/useGardenSoundtrack';
 import { playSparkle } from '@/lib/audio/sfx';
 import { StructureIllustration, Tree, PineTree, Flower, GrassTuft, CozyHouse } from '@/components/child/garden/illustrations';
@@ -201,6 +202,11 @@ export default function GardenScene({
   const router = useRouter();
   const { settings, update } = useAccessibilitySettings();
   const reducedMotion = settings.reducedMotion;
+  // Calm mode stills the DECORATIVE layer (ambient swarms, pulsing
+  // rings, smoke, ripples) on slow devices; interaction feedback and
+  // the charming solo characters stay animated.
+  const calm = useCalmMode();
+  const calmAmbient = reducedMotion || calm;
 
   // Garden ambient soundtrack — opt-in via settings.gardenSoundtrack
   useGardenSoundtrack({
@@ -775,7 +781,7 @@ export default function GardenScene({
             </g>
 
             {/* Concentric ripples */}
-            {!reducedMotion && (
+            {!calmAmbient && (
               <>
                 <motion.ellipse
                   cx={150} cy={325} rx={6} ry={2} fill="none" stroke="#FFFFFF" strokeWidth={0.9}
@@ -844,7 +850,7 @@ export default function GardenScene({
             {/* finial */}
             <circle cx={0} cy={-34} r={2.5} fill="#6F6A60" stroke="#5F5B53" strokeWidth={1} />
             {/* tiny flicker on the glow */}
-            {!reducedMotion && (
+            {!calmAmbient && (
               <motion.rect
                 x={-5.5} y={-15} width={11} height={11} rx={1} fill="#FFF5D0"
                 animate={{ opacity: [0.3, 0.8, 0.3] }}
@@ -887,13 +893,13 @@ export default function GardenScene({
             {/* slow shimmer highlights */}
             <motion.ellipse
               cx={1020} cy={625} rx={24} ry={6} fill="#FFFFFF"
-              animate={reducedMotion ? undefined : { opacity: [0.2, 0.55, 0.2], scaleX: [1, 1.12, 1] }}
+              animate={calmAmbient ? undefined : { opacity: [0.2, 0.55, 0.2], scaleX: [1, 1.12, 1] }}
               transition={{ duration: 5.5, repeat: Infinity, ease: 'easeInOut' }}
               style={{ transformOrigin: '1020px 625px', opacity: 0.4 }}
             />
             <motion.ellipse
               cx={1110} cy={665} rx={16} ry={5} fill="#FFFFFF"
-              animate={reducedMotion ? undefined : { opacity: [0.15, 0.45, 0.15], scaleX: [1, 1.18, 1] }}
+              animate={calmAmbient ? undefined : { opacity: [0.15, 0.45, 0.15], scaleX: [1, 1.18, 1] }}
               transition={{ duration: 6.5, delay: 1.2, repeat: Infinity, ease: 'easeInOut' }}
               style={{ transformOrigin: '1110px 665px', opacity: 0.3 }}
             />
@@ -934,7 +940,7 @@ export default function GardenScene({
               Painted BEFORE the trees so foliage can overlap naturally. */}
           <CozyHouse x={100} y={500} size={140} />
           {/* Chimney smoke — 3 soft puffs drifting up from chimney top ~(146, 430) */}
-          {!reducedMotion && (
+          {!calmAmbient && (
             <g pointerEvents="none">
               {[0, 1, 2].map(i => (
                 <motion.ellipse
@@ -1027,7 +1033,7 @@ export default function GardenScene({
             ))}
           </g>
 
-          <AmbientLayer reducedMotion={reducedMotion} />
+          <AmbientLayer reducedMotion={calmAmbient} />
 
           {GARDEN_STRUCTURES.map(s => {
             // Gates → native SVG <g> with click handler. We tried
@@ -1262,6 +1268,7 @@ export default function GardenScene({
                 state={state}
                 onTap={() => onStructureTap(s)}
                 reducedMotion={reducedMotion}
+                calm={calm}
                 justBuilt={justBuiltCode === s.code}
                 highlight={highlightCode === s.code}
               />
@@ -1608,12 +1615,13 @@ interface StructureStateProp {
 }
 
 function Structure({
-  struct, state, onTap, reducedMotion = false, justBuilt = false, highlight = false,
+  struct, state, onTap, reducedMotion = false, calm = false, justBuilt = false, highlight = false,
 }: {
   struct: MapStructure;
   state: StructureStateProp;
   onTap: () => void;
   reducedMotion?: boolean;
+  calm?: boolean;
   justBuilt?: boolean;
   // Set briefly (~6s) when the kid taps "show me" on a locked
   // habitat that points at this structure. Renders a strong
@@ -1694,7 +1702,7 @@ function Structure({
         />
       )}
 
-      {unlocked && !reducedMotion && (
+      {unlocked && !(reducedMotion || calm) && (
         <motion.circle
           cx={struct.x}
           cy={struct.y}
@@ -1705,7 +1713,7 @@ function Structure({
           transition={{ duration: 4.5, repeat: Infinity, ease: 'easeInOut' }}
         />
       )}
-      {unlocked && reducedMotion && (
+      {unlocked && (reducedMotion || calm) && (
         <circle cx={struct.x} cy={struct.y} r={struct.size * 0.85}
                 fill={completed ? '#C8E4B0' : '#FFE89A'} opacity={0.25} />
       )}
