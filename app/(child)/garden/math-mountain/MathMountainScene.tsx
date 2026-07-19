@@ -1303,7 +1303,7 @@ export default function MathMountainScene({
              fireflies after dusk. Honours the user's reduced-motion
              toggle internally. Without this layer the mountain felt
              dead next to the central garden's living scene. */}
-        <AmbientLayer reducedMotion={calmAmbient} />
+        <AmbientLayer reducedMotion={reducedMotion} />
 
         {/* ── SISTER WALKERS ──
              Cecily + Esme emerge from the garden signpost on the

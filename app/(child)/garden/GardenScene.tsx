@@ -1033,7 +1033,10 @@ export default function GardenScene({
             ))}
           </g>
 
-          <AmbientLayer reducedMotion={calmAmbient} />
+          {/* Creatures keep wandering even in calm mode — they're the charm,
+              and transform-only motion is cheap. Calm only stills the
+              raster-heavy shimmer/pulse layers. */}
+          <AmbientLayer reducedMotion={reducedMotion} />
 
           {GARDEN_STRUCTURES.map(s => {
             // Gates → native SVG <g> with click handler. We tried

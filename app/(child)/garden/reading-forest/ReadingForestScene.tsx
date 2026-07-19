@@ -967,7 +967,7 @@ export default function ReadingForestScene({
              fireflies after dusk. The forest's tree-line dips at
              x:230 / 720 / 1180 give the clouds visible space to drift
              through. */}
-        <AmbientLayer reducedMotion={calmAmbient} />
+        <AmbientLayer reducedMotion={reducedMotion} />
 
         {/* ── SISTER WALKERS ──
              Cecily + Esme emerge from the garden signpost on the

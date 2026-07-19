@@ -581,20 +581,20 @@ export default function GrowScene({
           })}
 
           {/* AMBIENT LAYER — clouds drift, butterflies/bees, pollen, etc. */}
-          <AmbientLayer reducedMotion={calmAmbient} />
+          <AmbientLayer reducedMotion={reducedMotion} />
 
           {/* WANDERING CHICKEN — slow back-and-forth in the meadow strip,
               between (650, 770) and (820, 770). Pauses at each end. */}
-          <WanderingChicken reducedMotion={calmAmbient} />
+          <WanderingChicken reducedMotion={reducedMotion} />
 
           {/* CRAWLING SNAIL — very slow trip across the vegetable patch.
               Lives in the meadow strip just below the bed (y ≈ 425).
               Moves so slowly it feels like the bed itself is breathing. */}
-          <CrawlingSnail reducedMotion={calmAmbient} />
+          <CrawlingSnail reducedMotion={reducedMotion} />
 
           {/* DRAGONFLY — darts back and forth above the koi stream in the
               Japanese garden. Quick little hovers, not a slow drift. */}
-          <Dragonfly reducedMotion={calmAmbient} />
+          <Dragonfly reducedMotion={reducedMotion} />
 
           {/* Foreground grass silhouette — Miyazaki-style depth frame
               along the very bottom (above the inventory tray). Kept

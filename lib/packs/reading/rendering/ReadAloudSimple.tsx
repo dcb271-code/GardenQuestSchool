@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { speak } from '@/lib/audio/tts';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
 import { GOOGLE_VOICE_PREFIX, buildTtsUrl } from '@/lib/audio/useNarrator';
-import { useSpeechRecognition, speechMatchesWord } from '@/lib/audio/useSpeechRecognition';
+import { useSpeechRecognition, speechMatchesWord, presentableHeardWord } from '@/lib/audio/useSpeechRecognition';
 import type { ReadAloudSimpleContent, ReadAloudSimpleResponse } from '@/lib/packs/reading/types';
 
 /**
@@ -124,22 +124,30 @@ export default function ReadAloudSimple({
                 {matched ? 'you read it' : speech.listening ? 'listening…' : 'tap and read it aloud'}
               </div>
               <AnimatePresence mode="wait">
-                {(speech.transcript || speech.alternatives[0]) ? (
-                  <motion.div
-                    key={speech.transcript || speech.alternatives[0]}
-                    className="font-display text-[18px] mt-0.5"
-                    style={{ fontWeight: 600 }}
-                    initial={{ opacity: 0, y: 4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.25 }}
-                  >
-                    <span className="italic text-bark/60">i heard&nbsp;</span>
-                    <span style={{ color: matched ? '#6B8E5A' : heardButWrong ? '#C94C3E' : '#6B4423' }}>
-                      &ldquo;{speech.transcript || speech.alternatives[0]}&rdquo;
-                    </span>
-                  </motion.div>
-                ) : null}
+                {(() => {
+                  // Cleaned single word from a FINAL result only —
+                  // raw interim hypotheses are often garbled.
+                  const heard = !speech.listening
+                    ? presentableHeardWord(speech.transcript, speech.alternatives)
+                    : null;
+                  if (!heard) return null;
+                  return (
+                    <motion.div
+                      key={heard}
+                      className="font-display text-[18px] mt-0.5"
+                      style={{ fontWeight: 600 }}
+                      initial={{ opacity: 0, y: 4 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.25 }}
+                    >
+                      <span className="italic text-bark/60">i heard&nbsp;</span>
+                      <span style={{ color: matched ? '#6B8E5A' : heardButWrong ? '#C94C3E' : '#6B4423' }}>
+                        &ldquo;{heard}&rdquo;
+                      </span>
+                    </motion.div>
+                  );
+                })()}
               </AnimatePresence>
             </div>
           </div>

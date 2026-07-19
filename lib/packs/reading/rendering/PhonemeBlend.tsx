@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { PhonemeBlendContent, PhonemeBlendResponse } from '@/lib/packs/reading/types';
-import { useSpeechRecognition, speechMatchesWord } from '@/lib/audio/useSpeechRecognition';
+import { useSpeechRecognition, speechMatchesWord, presentableHeardWord } from '@/lib/audio/useSpeechRecognition';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
 import { buildTtsUrl, GOOGLE_VOICE_PREFIX } from '@/lib/audio/useNarrator';
 import { speak } from '@/lib/audio/tts';
@@ -429,35 +429,63 @@ function MicPanel({
             {matched ? 'you got it' : listening ? 'listening…' : 'say the word'}
           </div>
           <AnimatePresence mode="wait">
-            {transcript || alternatives.length > 0 ? (
-              <motion.div
-                key={transcript || alternatives[0]}
-                className="font-display text-[20px] text-bark mt-0.5"
-                style={{ fontWeight: 600 }}
-                initial={{ opacity: 0, y: 4 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.25 }}
-              >
-                <span className="italic text-bark/60">i heard&nbsp;</span>
-                <span style={{ color: matched ? '#6B8E5A' : heardButWrong ? '#C94C3E' : '#6B4423' }}>
-                  &ldquo;{transcript || alternatives[0]}&rdquo;
-                </span>
-              </motion.div>
-            ) : (
-              <motion.div
-                key="hint"
-                className="font-display italic text-[14px] text-bark/65 mt-0.5"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-              >
-                {listening ? 'go ahead — i&rsquo;m listening' : 'tap the mic and blend the sounds out loud'}
-              </motion.div>
-            )}
+            {(() => {
+              // Only ever show a CLEANED single word from a final
+              // result — raw interim hypotheses are frequently garbled
+              // and have no business on a child's screen.
+              const heard = !listening && (transcript || alternatives.length > 0)
+                ? presentableHeardWord(transcript, alternatives)
+                : null;
+              if (heard) {
+                return (
+                  <motion.div
+                    key={heard}
+                    className="font-display text-[20px] text-bark mt-0.5"
+                    style={{ fontWeight: 600 }}
+                    initial={{ opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0 }}
+                    transition={{ duration: 0.25 }}
+                  >
+                    <span className="italic text-bark/60">i heard&nbsp;</span>
+                    <span style={{ color: matched ? '#6B8E5A' : heardButWrong ? '#C94C3E' : '#6B4423' }}>
+                      &ldquo;{heard}&rdquo;
+                    </span>
+                  </motion.div>
+                );
+              }
+              if (!listening && (transcript || alternatives.length > 0) && !matched) {
+                return (
+                  <motion.div
+                    key="unclear"
+                    className="font-display italic text-[14px] text-bark/65 mt-0.5"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                  >
+                    hmm, i didn&rsquo;t quite catch that — try once more
+                  </motion.div>
+                );
+              }
+              return (
+                <motion.div
+                  key="hint"
+                  className="font-display italic text-[14px] text-bark/65 mt-0.5"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                >
+                  {listening ? 'go ahead — i\u2019m listening' : 'tap the mic and blend the sounds out loud'}
+                </motion.div>
+              );
+            })()}
           </AnimatePresence>
         </div>
       </div>
 
+      {(error === 'start-failed' || error === 'network') && (
+        <div className="font-display italic text-[12px] text-terracotta text-center">
+          the microphone had trouble starting — tap it once more, or use the tiles below
+        </div>
+      )}
       {error === 'not-allowed' && (
         <div className="font-display italic text-[12px] text-terracotta text-center">
           microphone permission was blocked — you can still pick the word below
