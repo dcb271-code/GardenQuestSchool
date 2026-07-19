@@ -133,6 +133,17 @@ async function main() {
   for (const r of finalSkillRows ?? []) skillIdByCode.set(r.code, r.id);
 
   await step('Cecily baseline mastery (Grade 2 stretch)', async () => {
+    // DEV-ONLY convenience from before auto-baseline existed. NEVER
+    // overwrite a learner with real practice history — this step
+    // silently clobbered 16 of her live rows (elo/box/state) when the
+    // seed was re-run on prod 2026-07-19.
+    const { count } = await sb.from('attempt')
+      .select('id', { count: 'exact', head: true })
+      .eq('learner_id', CECILY_ID);
+    if ((count ?? 0) > 0) {
+      console.log('skipped — learner has real attempt history');
+      return;
+    }
     // Cecily is late 1st / early 2nd grade. Mark foundational skills mastered
     // so the planner pushes her toward Grade 2 content immediately.
     const mastered = [
