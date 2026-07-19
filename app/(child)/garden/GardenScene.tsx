@@ -1295,7 +1295,10 @@ export default function GardenScene({
             })()}
           </AnimatePresence>
 
-          <LunaWanderer mapWidth={MAP_WIDTH} mapHeight={MAP_HEIGHT} reducedMotion={reducedMotion} />
+          <LunaWanderer
+            mapWidth={MAP_WIDTH} mapHeight={MAP_HEIGHT} reducedMotion={reducedMotion}
+            onTap={() => router.push(`/adventure/luna?learner=${learnerId}`)}
+          />
 
           <SisterWalkers
             target={sistersTarget}

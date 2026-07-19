@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState, useRef, useCallback } from 'react';
-import { useRouter } from 'next/navigation';
+import { Suspense, useEffect, useState, useRef, useCallback } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import ErrorRetryCard from '@/components/child/ErrorRetryCard';
 import LessonHeader from '@/components/child/LessonHeader';
@@ -25,8 +25,25 @@ interface ItemPayload {
 
 type LessonStatus = 'loading' | 'ready' | 'correct' | 'retry' | 'moving-on' | 'error';
 
+// useSearchParams requires a Suspense boundary or the static prerender
+// build fails — same pattern as the naturalist walk page.
 export default function LessonPage({ params }: { params: { sessionId: string } }) {
+  return (
+    <Suspense fallback={null}>
+      <LessonPageInner params={params} />
+    </Suspense>
+  );
+}
+
+function LessonPageInner({ params }: { params: { sessionId: string } }) {
   const router = useRouter();
+  // Optional return destination (e.g. the Luna adventure resumes after
+  // a practice gate). Same-origin paths only — guard against open
+  // redirects.
+  const returnToRaw = useSearchParams().get('returnTo');
+  const returnTo = returnToRaw && returnToRaw.startsWith('/') && !returnToRaw.startsWith('//')
+    ? returnToRaw
+    : null;
   const { settings, update } = useAccessibilitySettings();
   const reducedMotion = settings.reducedMotion;
   const [item, setItem] = useState<ItemPayload | null>(null);
@@ -55,8 +72,8 @@ export default function LessonPage({ params }: { params: { sessionId: string } }
 
   const endSession = useCallback(async (target?: string) => {
     await fetch(`/api/session/${params.sessionId}/end`, { method: 'POST' });
-    router.push(target ?? `/complete/${params.sessionId}`);
-  }, [params.sessionId, router]);
+    router.push(returnTo ?? target ?? `/complete/${params.sessionId}`);
+  }, [params.sessionId, router, returnTo]);
 
   const loadNext = useCallback(async () => {
     setStatus('loading');

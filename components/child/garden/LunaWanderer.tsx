@@ -25,11 +25,14 @@ const SPOTS = [
 ];
 
 export default function LunaWanderer({
-  mapWidth = 1200, mapHeight = 800, reducedMotion = false,
+  mapWidth = 1200, mapHeight = 800, reducedMotion = false, onTap,
 }: {
   mapWidth?: number;
   mapHeight?: number;
   reducedMotion?: boolean;
+  /** When set, Luna is tappable (opens her adventure). Native SVG hit
+   *  circle — foreignObject taps are unreliable on iPad Safari. */
+  onTap?: () => void;
 }) {
   const [idx, setIdx] = useState(0);
 
@@ -52,10 +55,29 @@ export default function LunaWanderer({
 
   const spot = SPOTS[idx];
 
+  const interactivity = onTap
+    ? {
+        style: { pointerEvents: 'auto' as const, cursor: 'pointer' as const },
+        onClick: onTap,
+        role: 'button' as const,
+        'aria-label': 'visit Luna the cat',
+      }
+    : { style: { pointerEvents: 'none' as const } };
+
+  const hitTarget = onTap ? <circle r={38} fill="transparent" /> : null;
+
+  // Gentle sparkle hint that Luna has a story waiting — only when
+  // tappable, small enough not to steal attention.
+  const storyHint = onTap ? (
+    <text x={20} y={-24} fontSize={13} aria-hidden="true">✨</text>
+  ) : null;
+
   if (reducedMotion) {
     return (
-      <g transform={`translate(${spot.x}, ${spot.y})`} style={{ pointerEvents: 'none' }}>
+      <g transform={`translate(${spot.x}, ${spot.y})`} {...interactivity}>
+        {hitTarget}
         <LunaCat size={52} />
+        {storyHint}
       </g>
     );
   }
@@ -64,8 +86,9 @@ export default function LunaWanderer({
     <motion.g
       animate={{ x: spot.x, y: spot.y }}
       transition={{ duration: 3.8, ease: [0.4, 0, 0.22, 1] }}
-      style={{ pointerEvents: 'none' }}
+      {...interactivity}
     >
+      {hitTarget}
       {/* Periodic head tilt — subtle curiosity moment every ~12s */}
       <motion.g
         animate={{ rotate: [0, 0, 0, -5, 0, 0] }}
@@ -93,6 +116,7 @@ export default function LunaWanderer({
           </motion.g>
         </motion.g>
       </motion.g>
+      {storyHint}
     </motion.g>
   );
 }
