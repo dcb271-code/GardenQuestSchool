@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
 import { z } from 'zod';
 import { getRecipe } from '@/lib/world/recipeCatalog';
+import { grantVirtueGem } from '@/lib/engine/virtueGrants';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -74,6 +75,13 @@ export async function POST(req: Request) {
     await db.from('meal').delete().eq('id', meal.id);
     return NextResponse.json({ error: cErr.message }, { status: 500 });
   }
+
+  // Making something and sharing it is care (1/day cap in the helper).
+  await grantVirtueGem(
+    db, body.learnerId, 'care',
+    `You made ${recipe.name.toLowerCase()} and shared it. Feeding someone is one of the oldest kinds of care.`,
+    { recipeCode: recipe.code, guestCode: body.guestCode ?? null },
+  );
 
   // Cooking is an interest signal too — she chose to spend her harvest.
   const { error: sigErr } = await db.from('interest_signal').insert([

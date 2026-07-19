@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
 import { z } from 'zod';
 import { detectVirtuesFromSession } from '@/lib/engine/virtueDetector';
+import { grantVirtueGem } from '@/lib/engine/virtueGrants';
 import { computeNarratorMomentsFromSession } from '@/lib/engine/narrator';
 import { pickArrivalForSession } from '@/lib/world/arrivals';
 import { SPECIES_CATALOG } from '@/lib/world/speciesCatalog';
@@ -31,14 +32,14 @@ export async function POST(
       ended_reason: body.reason,
     })
     .eq('id', params.id)
-    .select('learner_id, items_attempted, items_correct, started_at, earns_rewards')
+    .select('learner_id, items_attempted, items_correct, started_at, earns_rewards, skill_planned')
     .single();
 
   if (!session) return NextResponse.json({ error: 'session not found' }, { status: 404 });
 
   const { data: attemptRows } = await db
     .from('attempt')
-    .select('item_id, outcome, retry_count, item:item_id(skill:skill_id(code))')
+    .select('item_id, outcome, retry_count, item:item_id(difficulty_elo, skill:skill_id(code))')
     .eq('session_id', params.id);
 
   const attempts = (attemptRows ?? []).map((a: any) => ({
@@ -68,31 +69,58 @@ export async function POST(
     }
   }
 
+  // Courage/noticing inputs: the planned skill's state at session
+  // start (earliest transition's `from` for it this session, else its
+  // current state) and how far above the learner the items sat.
+  let plannedSkillStateAtStart: any = undefined;
+  let avgItemEloGap: number | undefined = undefined;
+  if (session.skill_planned && !session.skill_planned.startsWith('focus.')) {
+    const plannedTransition = transitions.find(t => t.skillCode === session.skill_planned);
+    if (plannedTransition) {
+      plannedSkillStateAtStart = plannedTransition.from;
+    } else {
+      const { data: plannedProg } = await db
+        .from('skill_progress')
+        .select('mastery_state, student_elo, skill:skill_id!inner(code)')
+        .eq('learner_id', session.learner_id)
+        .eq('skill.code', session.skill_planned)
+        .maybeSingle();
+      plannedSkillStateAtStart = plannedProg?.mastery_state ?? 'new';
+    }
+    const { data: eloProg } = await db
+      .from('skill_progress')
+      .select('student_elo, skill:skill_id!inner(code)')
+      .eq('learner_id', session.learner_id)
+      .eq('skill.code', session.skill_planned)
+      .maybeSingle();
+    const itemElos = (attemptRows ?? [])
+      .map((a: any) => a.item?.difficulty_elo)
+      .filter((e: any): e is number => typeof e === 'number');
+    if (eloProg?.student_elo && itemElos.length > 0) {
+      const avgItemElo = itemElos.reduce((s: number, e: number) => s + e, 0) / itemElos.length;
+      avgItemEloGap = Math.round(avgItemElo - eloProg.student_elo);
+    }
+  }
+
   const detectedGems = detectVirtuesFromSession({
     sessionId: params.id,
     learnerId: session.learner_id,
     attempts,
     masteryTransitions: transitions as any,
     journalTaps: body.journalTaps,
+    plannedSkillStateAtStart,
+    avgItemEloGap,
   });
 
-  if (detectedGems.length > 0) {
-    const { error: gemErr } = await db.from('virtue_gem').insert(
-      detectedGems.map(g => ({
-        learner_id: session.learner_id,
-        virtue: g.virtue,
-        evidence: g.evidence,
-      }))
+  // Route through grantVirtueGem so per-day caps apply uniformly.
+  const grantedGems: typeof detectedGems = [];
+  for (const g of detectedGems) {
+    const granted = await grantVirtueGem(
+      db, session.learner_id, g.virtue,
+      (g.evidence as any).narrativeText ?? '',
+      g.evidence as any,
     );
-    if (gemErr) {
-      // Don't crash the session-end flow over this — but surface so
-      // we can see the failure in Vercel logs. Silent failures are
-      // why noticing badges have been mysteriously not showing up.
-      console.error('virtue_gem insert failed:', gemErr.message, {
-        gems: detectedGems.map(g => g.virtue),
-        learnerId: session.learner_id,
-      });
-    }
+    if (granted) grantedGems.push(g);
   }
 
   const narratorMoments = computeNarratorMomentsFromSession({
@@ -173,7 +201,7 @@ export async function POST(
     itemsAttempted: session.items_attempted,
     itemsCorrect: session.items_correct,
     observations,
-    gems: detectedGems,
+    gems: grantedGems,
     narratorMoments,
     queuedArrivalCode,
   });

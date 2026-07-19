@@ -6,6 +6,7 @@ export * from './adaptiveDifficulty';
 export * from './sessionPlanner';
 export * from './focusPlanner';
 export * from './rewardEligibility';
+export * from './virtueGrants';
 export * from './eventBus';
 export * from './interestMixer';
 export * from './virtueDetector';

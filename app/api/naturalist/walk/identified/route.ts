@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { createServiceClient } from '@/lib/supabase/server';
 import { nextReviewAt, nextReviewAfterRun } from '@/lib/naturalist/spacing';
 import { FLORA_CATALOG } from '@/lib/world/floraCatalog';
+import { grantVirtueGem } from '@/lib/engine/virtueGrants';
 
 const Body = z.object({
   learnerId: z.string().min(1),
@@ -68,6 +69,15 @@ export async function POST(req: Request) {
     .select('id, exposures, next_review_at')
     .single();
   if (insErr) return NextResponse.json({ error: insErr.message }, { status: 500 });
+
+  // First-ever discovery: she wondered what that tree/flower was —
+  // and walked until she found out. That's wondering (1/day cap).
+  const floraName = FLORA_CATALOG.find(f => f.code === body.floraCode)?.commonName ?? 'something new';
+  await grantVirtueGem(
+    db, body.learnerId, 'wondering',
+    `You wondered what that was — and now you know ${floraName}. Wondering is where every naturalist starts.`,
+    { floraCode: body.floraCode },
+  );
 
   // First discovery of this species — emit gentle interest signals so
   // the planner can surface plant/flower-themed skills next session.

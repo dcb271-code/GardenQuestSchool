@@ -1,7 +1,7 @@
 // app/(child)/garden/grow/PlantInspectModal.tsx
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { type PlantData, plantStageFor, progressHint } from '@/lib/world/plantCatalog';
 import { PlantStageIllustration } from '@/components/child/garden/PlantStageIllustration';
@@ -24,6 +24,18 @@ export default function PlantInspectModal({
 }) {
   const [harvesting, setHarvesting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Opening a plant's fact card counts toward the day's curiosity gem.
+  // Fire-and-forget — the modal must never wait on it.
+  useEffect(() => {
+    if (open && plant) {
+      fetch('/api/gems/fact-peek', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ learnerId, code: `plant:${plant.code}` }),
+      }).catch(() => {});
+    }
+  }, [open, plant?.code, learnerId]);  // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!plant) return null;
   const stage = plantStageFor(plant, progress);

@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { createServiceClient } from '@/lib/supabase/server';
 import { GARDEN_STRUCTURES } from '@/lib/world/gardenMap';
 import { HABITAT_CATALOG } from '@/lib/world/habitatCatalog';
+import { grantVirtueGem } from '@/lib/engine/virtueGrants';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -86,6 +87,13 @@ export async function POST(req: Request) {
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
+
+  // Building a home for someone small is care (1/day cap in the helper).
+  await grantVirtueGem(
+    db, body.learnerId, 'care',
+    `You built a ${habitat.name.toLowerCase()} — a safe home for someone small. That's care.`,
+    { habitatCode: habitat.code },
+  );
 
   // Emit interest signals — the child CHOSE this habitat, so bias the
   // next sessions toward its themes. Non-fatal: a logging failure must

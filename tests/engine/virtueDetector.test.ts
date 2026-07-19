@@ -49,16 +49,13 @@ describe('virtueDetector — rules', () => {
     expect(events.filter(e => e.virtue === 'curiosity').length).toBe(1);
   });
 
-  it('grants Noticing for 4+ first-try corrects with no incorrects or retries', () => {
-    // Production rule: requires ≥4 first-try-correct AND zero incorrect
-    // AND zero retries — true first-try pattern recognition. Anything
-    // less makes the gem too common.
-    const attempts: AttemptRow[] = Array.from({ length: 4 }, (_, i) => ({
+  it('grants Noticing for a full 5-item first-try-perfect session at level', () => {
+    const attempts: AttemptRow[] = Array.from({ length: 5 }, (_, i) => ({
       itemId: `i${i}`, outcome: 'correct' as const, retryCount: 0, skillCode: 'math.counting.skip_2s',
     }));
     const events = detectVirtuesFromSession({
       sessionId: 's1', learnerId: 'l1', attempts,
-      masteryTransitions: [], journalTaps: 0,
+      masteryTransitions: [], journalTaps: 0, avgItemEloGap: 10,
     });
     const noticing = events.filter(e => e.virtue === 'noticing');
     expect(noticing.length).toBe(1);
@@ -67,8 +64,8 @@ describe('virtueDetector — rules', () => {
     expect(noticing[0].evidence.narrativeText).toMatch(/pattern|spotted|noticed|naturalist|recognised|fast|catch/i);
   });
 
-  it('does NOT grant Noticing for only 3 first-try corrects', () => {
-    const attempts: AttemptRow[] = Array.from({ length: 3 }, (_, i) => ({
+  it('does NOT grant Noticing for a 4-item session (needs a full 5)', () => {
+    const attempts: AttemptRow[] = Array.from({ length: 4 }, (_, i) => ({
       itemId: `i${i}`, outcome: 'correct' as const, retryCount: 0, skillCode: 'math.counting.skip_2s',
     }));
     const events = detectVirtuesFromSession({
@@ -76,6 +73,70 @@ describe('virtueDetector — rules', () => {
       masteryTransitions: [], journalTaps: 0,
     });
     expect(events.filter(e => e.virtue === 'noticing').length).toBe(0);
+  });
+
+  it('does NOT grant Noticing for cruising far-below-level reviews', () => {
+    const attempts: AttemptRow[] = Array.from({ length: 5 }, (_, i) => ({
+      itemId: `i${i}`, outcome: 'correct' as const, retryCount: 0, skillCode: 'reading.sight_words.dolch_primer',
+    }));
+    const events = detectVirtuesFromSession({
+      sessionId: 's1', learnerId: 'l1', attempts,
+      masteryTransitions: [], journalTaps: 0, avgItemEloGap: -300,
+    });
+    expect(events.filter(e => e.virtue === 'noticing').length).toBe(0);
+  });
+
+  it('grants Courage for a session on a brand-new skill with ≥3 attempts and a win', () => {
+    const attempts: AttemptRow[] = [
+      { itemId: 'i1', outcome: 'incorrect', retryCount: 1, skillCode: 'math.fractions.equivalent' },
+      { itemId: 'i2', outcome: 'correct', retryCount: 1, skillCode: 'math.fractions.equivalent' },
+      { itemId: 'i3', outcome: 'incorrect', retryCount: 0, skillCode: 'math.fractions.equivalent' },
+    ];
+    const events = detectVirtuesFromSession({
+      sessionId: 's1', learnerId: 'l1', attempts,
+      masteryTransitions: [], journalTaps: 0,
+      plannedSkillStateAtStart: 'new',
+    });
+    const courage = events.filter(e => e.virtue === 'courage');
+    expect(courage.length).toBe(1);
+    expect(courage[0].evidence.narrativeText).toMatch(/courage|brave|new|hard|wobbly/i);
+  });
+
+  it('grants Courage for punching well above her Elo even on a review skill', () => {
+    const attempts: AttemptRow[] = Array.from({ length: 4 }, (_, i) => ({
+      itemId: `i${i}`, outcome: (i === 0 ? 'correct' : 'incorrect') as 'correct' | 'incorrect',
+      retryCount: 0, skillCode: 'math.divide.long_division',
+    }));
+    const events = detectVirtuesFromSession({
+      sessionId: 's1', learnerId: 'l1', attempts,
+      masteryTransitions: [], journalTaps: 0,
+      plannedSkillStateAtStart: 'review', avgItemEloGap: 140,
+    });
+    expect(events.filter(e => e.virtue === 'courage').length).toBe(1);
+  });
+
+  it('does NOT grant Courage for comfortable at-level review work', () => {
+    const attempts: AttemptRow[] = Array.from({ length: 5 }, (_, i) => ({
+      itemId: `i${i}`, outcome: 'correct' as const, retryCount: 0, skillCode: 'math.add.within_10',
+    }));
+    const events = detectVirtuesFromSession({
+      sessionId: 's1', learnerId: 'l1', attempts,
+      masteryTransitions: [], journalTaps: 0,
+      plannedSkillStateAtStart: 'mastered', avgItemEloGap: -50,
+    });
+    expect(events.filter(e => e.virtue === 'courage').length).toBe(0);
+  });
+
+  it('does NOT grant Courage for a tiny abandoned attempt (<3 items)', () => {
+    const attempts: AttemptRow[] = [
+      { itemId: 'i1', outcome: 'correct', retryCount: 0, skillCode: 'math.fractions.equivalent' },
+    ];
+    const events = detectVirtuesFromSession({
+      sessionId: 's1', learnerId: 'l1', attempts,
+      masteryTransitions: [], journalTaps: 0,
+      plannedSkillStateAtStart: 'new',
+    });
+    expect(events.filter(e => e.virtue === 'courage').length).toBe(0);
   });
 
   it('caps gems at 3 per session to avoid dilution', () => {

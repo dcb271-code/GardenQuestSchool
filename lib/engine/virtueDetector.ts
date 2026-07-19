@@ -33,6 +33,12 @@ const PRACTICE_LINES_PREFIX = [
   'It feels like ages ago, but',
   'You used to think about',
 ];
+const COURAGE_LINES = [
+  'It was brand new and you tried it anyway — that\'s courage.',
+  'You didn\'t know how it would go, and you began. That\'s the brave part.',
+  'New things feel wobbly at first. You stepped in anyway.',
+  'Trying something hard on purpose — that\'s what courage looks like.',
+];
 
 function pickLine(pool: string[], sessionId: string): string {
   // Tiny deterministic hash so the line is stable per session.
@@ -60,14 +66,42 @@ export interface DetectionInput {
   attempts: SessionAttempt[];
   masteryTransitions: MasteryTransition[];
   journalTaps: number;
+  /** Mastery state of the session's planned skill at session START
+   *  (earliest transition's `from`, else current state). Drives courage. */
+  plannedSkillStateAtStart?: MasteryState;
+  /** Mean attempt item Elo minus the learner's Elo on the planned
+   *  skill. Positive = punching above her weight. Drives courage and
+   *  keeps noticing honest. */
+  avgItemEloGap?: number;
 }
 
 const MAX_GEMS_PER_SESSION = 3;
 
 export function detectVirtuesFromSession(input: DetectionInput): DetectedVirtue[] {
-  const { sessionId, attempts, masteryTransitions, journalTaps } = input;
+  const {
+    sessionId, attempts, masteryTransitions, journalTaps,
+    plannedSkillStateAtStart, avgItemEloGap,
+  } = input;
   const now = new Date();
   const detected: DetectedVirtue[] = [];
+
+  // Courage — she took on something genuinely at (or past) her edge:
+  // a skill she'd never worked before, or items rated well above her,
+  // stuck with it (≥3 attempts) and landed at least one.
+  const correctCount = attempts.filter(a => a.outcome === 'correct').length;
+  const wasFrontier =
+    plannedSkillStateAtStart === 'new' || plannedSkillStateAtStart === 'learning';
+  const wasAboveHerWeight = (avgItemEloGap ?? -Infinity) >= 100;
+  if (attempts.length >= 3 && correctCount >= 1 && (wasFrontier || wasAboveHerWeight)) {
+    detected.push({
+      virtue: 'courage',
+      evidence: {
+        sessionId,
+        narrativeText: pickLine(COURAGE_LINES, sessionId),
+        observedAt: now,
+      },
+    });
+  }
 
   const persistenceAttempt = attempts.find(
     a => a.outcome === 'correct' && a.retryCount >= 2
@@ -111,20 +145,21 @@ export function detectVirtuesFromSession(input: DetectionInput): DetectedVirtue[
     });
   }
 
-  // Noticing — "spotted the pattern" should be RARE and special.
-  // Previous threshold was 3-of-anything first-try-correct, which
-  // fired on basically every session. Now require:
-  //   • At least 4 first-try-correct attempts
-  //   • Zero incorrect attempts in the whole session (no retries
-  //     either — true first-try recognition)
-  //   • At least 4 total attempts (don't reward tiny sessions)
+  // Noticing — "spotted the pattern" should be RARE and special. The
+  // ≥4-of-anything rule fired on essentially every session (×158 for
+  // one learner). Now require:
+  //   • A FULL session: at least 5 attempts, all first-try correct
+  //   • Content at (or near) her level — no gem for cruising far-easy
+  //     reviews (avgItemEloGap ≥ −20 when the gap is known)
+  // The 1/day cap in virtueGrants keeps it special even so.
   const firstTryCorrect = attempts.filter(
     a => a.outcome === 'correct' && a.retryCount === 0
   );
   const anyIncorrect = attempts.some(a => a.outcome === 'incorrect');
   const anyRetried = attempts.some(a => a.retryCount > 0);
-  const enoughAttempts = attempts.length >= 4;
-  if (firstTryCorrect.length >= 4 && !anyIncorrect && !anyRetried && enoughAttempts) {
+  const enoughAttempts = attempts.length >= 5;
+  const atLevel = avgItemEloGap === undefined || avgItemEloGap >= -20;
+  if (firstTryCorrect.length >= 5 && !anyIncorrect && !anyRetried && enoughAttempts && atLevel) {
     detected.push({
       virtue: 'noticing',
       evidence: {

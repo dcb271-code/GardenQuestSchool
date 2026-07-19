@@ -181,7 +181,7 @@ export default async function JournalPage({
           </div>
         )}
 
-        <SpeciesGrid unlockedCodes={Array.from(unlocked)} />
+        <SpeciesGrid unlockedCodes={Array.from(unlocked)} learnerId={learnerId ?? undefined} />
 
         {unlocked.size > 0 && (
           <div className="mt-4 text-center font-display italic text-[13px] text-bark/55">
