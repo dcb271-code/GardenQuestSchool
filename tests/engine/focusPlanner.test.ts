@@ -23,13 +23,47 @@ describe('focusPlanner', () => {
     expect(focusSubjectOf('focus.reading')).toBe('reading');
   });
 
-  it('orders due reviews first, most overdue first', () => {
+  it('orders due reviews HARDEST first; equal levels fall back to most overdue', () => {
     const rows = [
       mkRow('recent-due', { nextReviewAt: new Date('2026-07-15T00:00:00Z') }),
       mkRow('old-due', { nextReviewAt: new Date('2026-05-01T00:00:00Z') }),
       mkRow('not-due', { nextReviewAt: new Date('2026-08-01T00:00:00Z') }),
     ];
-    expect(orderFocusSkills(rows, NOW)).toEqual(['old-due', 'recent-due', 'not-due']);
+    // equal (default) levels → due tie-break by overdue; the not-due
+    // review weaves in as in-progress after the first due slot
+    expect(orderFocusSkills(rows, NOW)).toEqual(['old-due', 'not-due', 'recent-due']);
+
+    // a HARDER due review leads even when it's the least overdue —
+    // "targeted practice" opens at the learner's edge, not at the
+    // bottom of the backlog
+    const withLevels = [
+      mkRow('easy-ancient', { nextReviewAt: new Date('2026-04-01T00:00:00Z'), level: 0.6 }),
+      mkRow('hard-fresh', { nextReviewAt: new Date('2026-07-16T00:00:00Z'), level: 0.8 }),
+    ];
+    expect(orderFocusSkills(withLevels, NOW)[0]).toBe('hard-fresh');
+  });
+
+  it('sends far-below-frontier due reviews to the tail (basement backlog)', () => {
+    const rows = [
+      mkRow('kindergarten-due', { nextReviewAt: new Date('2026-04-01T00:00:00Z'), level: 0.2 }),
+      mkRow('frontier-due', { nextReviewAt: new Date('2026-07-15T00:00:00Z'), level: 0.8 }),
+      mkRow('shaky-progress', { masteryState: 'learning', studentElo: 1050, nextReviewAt: new Date('2026-08-01T00:00:00Z'), level: 0.75 }),
+    ];
+    // A 3-slot session opens frontier-due → shaky-progress; the
+    // level-0.2 leftover cycles in only after the real work.
+    expect(orderFocusSkills(rows, NOW)).toEqual([
+      'frontier-due', 'shaky-progress', 'kindergarten-due',
+    ]);
+  });
+
+  it('weaves near-frontier due reviews with in-progress skills', () => {
+    const rows = [
+      mkRow('due-a', { nextReviewAt: new Date('2026-07-01T00:00:00Z'), level: 0.8 }),
+      mkRow('due-b', { nextReviewAt: new Date('2026-07-02T00:00:00Z'), level: 0.7 }),
+      mkRow('prog-a', { masteryState: 'learning', studentElo: 1000, nextReviewAt: new Date('2026-08-01T00:00:00Z'), level: 0.75 }),
+      mkRow('prog-b', { masteryState: 'learning', studentElo: 1200, nextReviewAt: new Date('2026-08-01T00:00:00Z'), level: 0.75 }),
+    ];
+    expect(orderFocusSkills(rows, NOW)).toEqual(['due-a', 'prog-a', 'due-b', 'prog-b']);
   });
 
   it('orders in-progress skills by weakest elo, then mastered refresh', () => {

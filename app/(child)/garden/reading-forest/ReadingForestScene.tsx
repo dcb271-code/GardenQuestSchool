@@ -1046,14 +1046,16 @@ export default function ReadingForestScene({
                 {unlocked && !completed && (
                   <circle r={UNIFORM * 0.78} fill="#FFE89A" opacity={0.18} />
                 )}
+                {completed && (
+                  <circle r={UNIFORM * 0.72} fill="#FFD93D" opacity={0.28} />
+                )}
 
                 <g style={{
-                  filter: completed
-                    ? 'drop-shadow(0 0 6px rgba(255, 217, 61, 0.60))'
-                    : unlocked
-                      ? 'drop-shadow(0 1.5px 2px rgba(107,68,35,0.42))'
-                      : 'grayscale(1) brightness(0.92)',
-                  opacity: unlocked ? 1 : 0.58,
+                  // CSS filters removed — per-structure raster passes
+                  // crawled on low-power tablets. Completed glow is a
+                  // cheap SVG halo circle below; locked reads from
+                  // opacity + the lock badge.
+                  opacity: unlocked ? 1 : 0.45,
                 }}>
                   {drawn ?? (
                     <text

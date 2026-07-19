@@ -154,6 +154,25 @@ const HABITAT_GROUPS: Record<string, {
             'mm_pebble_coins', 'mm_pie_slices', 'mm_bigger_slice'],
     x: 820, y: 580, label: 'Measurement Meadow',
   },
+  // Level 4/5 bands collapse into two trail landmarks so the upper
+  // mountain isn't 25 stops floating in the sky: a waystation shelter
+  // below the High Meadow, and a stone cairn at the peak. Tap to fan
+  // the stops out, tap again to pack up camp.
+  high_meadow: {
+    codes: ['mm4_valley_thousands', 'mm4_windy_tens', 'mm4_eagle_ledge',
+            'mm4_factor_firs', 'mm4_mirror_tarns', 'mm4_leftover_rocks',
+            'mm4_granite_sums', 'mm4_cloud_rounding', 'mm4_slice_share',
+            'mm4_long_shadows', 'mm4_dewdrop_decimals', 'mm4_double_eagle',
+            'mm4_frost_compare', 'mm4_terrace_gardens', 'mm4_tall_tales'],
+    x: 720, y: 300, label: 'High Meadow Waystation',
+  },
+  summit: {
+    codes: ['mm5_summit_product', 'mm5_long_stair', 'mm5_meadow_portions',
+            'mm5_uneven_slices', 'mm5_half_of_half', 'mm5_snowmelt_sums',
+            'mm5_tenfold_falls', 'mm5_rule_stones', 'mm5_crystal_boxes',
+            'mm5_storytellers_peak'],
+    x: 760, y: 138, label: 'Summit Cairn',
+  },
 };
 const HABITAT_BY_SKILL: Record<string, string> = Object.entries(HABITAT_GROUPS)
   .reduce((acc, [k, g]) => { g.codes.forEach(c => { acc[c] = k; }); return acc; }, {} as Record<string, string>);
@@ -1857,14 +1876,16 @@ export default function MathMountainScene({
                 {unlocked && !completed && (
                   <circle r={UNIFORM * 0.7} fill="#FFE89A" opacity={0.20} />
                 )}
+                {completed && (
+                  <circle r={UNIFORM * 0.68} fill="#FFD93D" opacity={0.28} />
+                )}
 
                 <g style={{
-                  filter: completed
-                    ? 'drop-shadow(0 0 5px rgba(255, 217, 61, 0.55))'
-                    : unlocked
-                      ? 'drop-shadow(0 1px 1.5px rgba(107,68,35,0.40))'
-                      : 'grayscale(1) brightness(0.92)',
-                  opacity: unlocked ? 1 : 0.58,
+                  // CSS filters removed — per-structure raster passes
+                  // crawled on low-power tablets. Completed glow is the
+                  // cheap SVG halo above; locked reads from opacity +
+                  // the lock badge.
+                  opacity: unlocked ? 1 : 0.45,
                 }}>
                   {drawn ?? (
                     <text
@@ -1946,6 +1967,20 @@ export default function MathMountainScene({
              see ── 6c. CAVE ──), so the habitat block here just adds
              a label + progress for cave at its position.
              Tapping a marker → its skills fan out; tap again → close. */}
+        {/* SUMMIT TRAIL — dotted switchback stitching the vertical
+            journey together: Division Glen → High Meadow Waystation →
+            Summit Cairn. Gives the upper landmarks a path to belong
+            to instead of floating in sky. */}
+        <path
+          d="M 1150 375
+             C 1000 345, 860 335, 745 305
+             C 660 280, 640 230, 690 195
+             C 730 168, 750 155, 758 148"
+          fill="none" stroke="#E8DCC0" strokeWidth={5}
+          strokeLinecap="round" strokeDasharray="1 11" opacity={0.85}
+          pointerEvents="none"
+        />
+
         {Object.entries(HABITAT_GROUPS).map(([key, group]) => {
           const isExpanded = expandedHabitat === key;
           const states = group.codes.map(c => structureStates[c]).filter(Boolean);
@@ -2233,6 +2268,66 @@ export default function MathMountainScene({
                     <circle cx={0} cy={-3} r={4} fill="#95B88F" stroke="#5A3B1F" strokeWidth={0.8} />
                     <circle cx={0} cy={-3} r={1.4} fill="#FFD93D" />
                   </g>
+                </g>
+              );
+            }
+            if (key === 'high_meadow') {
+              // TRAIL WAYSTATION — a small open shelter with a pitched
+              // shingle roof, bench, and a two-board signpost. The
+              // midway rest stop on the climb to the summit.
+              return (
+                <g style={{ filter, opacity: tone }}>
+                  <ellipse cx={0} cy={26} rx={34} ry={4.5} fill="#000" opacity={0.20} />
+                  {/* posts */}
+                  <line x1={-22} y1={24} x2={-22} y2={-8} stroke="#5A3B1F" strokeWidth={3.4} strokeLinecap="round" />
+                  <line x1={22} y1={24} x2={22} y2={-8} stroke="#5A3B1F" strokeWidth={3.4} strokeLinecap="round" />
+                  {/* pitched roof */}
+                  <path d="M -32 -6 L 0 -26 L 32 -6 Z"
+                        fill="#A06B36" stroke="#5A3B1F" strokeWidth={1.6} strokeLinejoin="round" />
+                  <path d="M -26 -8 L 0 -24 L 26 -8"
+                        fill="none" stroke="#C8A57A" strokeWidth={2} opacity={0.7} strokeLinecap="round" />
+                  {/* shingle lines */}
+                  <path d="M -16 -12 L 16 -12 M -24 -8 L 24 -8"
+                        stroke="#5A3B1F" strokeWidth={0.7} opacity={0.5} />
+                  {/* bench inside */}
+                  <rect x={-14} y={10} width={28} height={4} rx={2} fill="#B47845" stroke="#5A3B1F" strokeWidth={1.1} />
+                  <line x1={-11} y1={14} x2={-11} y2={22} stroke="#5A3B1F" strokeWidth={1.6} strokeLinecap="round" />
+                  <line x1={11} y1={14} x2={11} y2={22} stroke="#5A3B1F" strokeWidth={1.6} strokeLinecap="round" />
+                  {/* two-board signpost at the left post */}
+                  <g transform="translate(-30, 2)">
+                    <line x1={0} y1={22} x2={0} y2={-6} stroke="#5A3B1F" strokeWidth={2.2} strokeLinecap="round" />
+                    <path d="M -2 -6 L 14 -6 L 18 -3 L 14 0 L -2 0 Z"
+                          fill="#D4B58A" stroke="#5A3B1F" strokeWidth={1.1} strokeLinejoin="round" />
+                    <path d="M 2 4 L -12 4 L -16 7 L -12 10 L 2 10 Z"
+                          fill="#D4B58A" stroke="#5A3B1F" strokeWidth={1.1} strokeLinejoin="round" />
+                  </g>
+                  {/* alpine grass tufts */}
+                  <path d="M 30 24 Q 32 18 34 16 M 34 24 Q 35 19 37 18"
+                        stroke="#5C7E4F" strokeWidth={1.2} fill="none" strokeLinecap="round" />
+                </g>
+              );
+            }
+            if (key === 'summit') {
+              // SUMMIT CAIRN — stacked stones with a little red pennant,
+              // snow tucked in the crevices. The top of the world.
+              return (
+                <g style={{ filter, opacity: tone }}>
+                  <ellipse cx={0} cy={20} rx={22} ry={3.5} fill="#000" opacity={0.20} />
+                  {/* stone stack, biggest to smallest */}
+                  <ellipse cx={0} cy={16} rx={17} ry={6} fill="#9B948A" stroke="#3F3026" strokeWidth={1.5} />
+                  <ellipse cx={-1} cy={8} rx={13} ry={5.2} fill="#B0A99E" stroke="#3F3026" strokeWidth={1.4} />
+                  <ellipse cx={1} cy={1} rx={9.5} ry={4.4} fill="#9B948A" stroke="#3F3026" strokeWidth={1.3} />
+                  <ellipse cx={0} cy={-5} rx={6.5} ry={3.6} fill="#C2BBB0" stroke="#3F3026" strokeWidth={1.2} />
+                  {/* snow tucked on ledges */}
+                  <path d="M -12 5 Q -6 3 0 5" stroke="#FFFFFF" strokeWidth={2.2} fill="none" strokeLinecap="round" opacity={0.85} />
+                  <path d="M -5 -7 Q 0 -9 5 -7" stroke="#FFFFFF" strokeWidth={2} fill="none" strokeLinecap="round" opacity={0.85} />
+                  {/* pennant */}
+                  <line x1={0} y1={-8} x2={0} y2={-26} stroke="#5A3B1F" strokeWidth={1.8} strokeLinecap="round" />
+                  <path d="M 0 -26 L 14 -21 L 0 -16 Z"
+                        fill="#C34A36" stroke="#5A3B1F" strokeWidth={1.1} strokeLinejoin="round" />
+                  {/* sparkle — the summit is special */}
+                  <path d="M -14 -18 l 1.4 3 l 3 1.4 l -3 1.4 l -1.4 3 l -1.4 -3 l -3 -1.4 l 3 -1.4 Z"
+                        fill="#FFD93D" opacity={0.9} />
                 </g>
               );
             }

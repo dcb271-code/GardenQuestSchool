@@ -53,7 +53,7 @@ export async function GET(
     const subjectCode = focusSubjectOf(plannedSkillCode);
     const { data: progRows } = await db
       .from('skill_progress')
-      .select('mastery_state, student_elo, next_review_at, last_attempted_at, skill:skill_id(code, strand:strand_id(subject:subject_id(code)))')
+      .select('mastery_state, student_elo, next_review_at, last_attempted_at, skill:skill_id(code, level, strand:strand_id(subject:subject_id(code)))')
       .eq('learner_id', session.learner_id);
     const focusRows = (progRows ?? [])
       .filter((r: any) => r.skill?.strand?.subject?.code === subjectCode)
@@ -63,6 +63,7 @@ export async function GET(
         studentElo: r.student_elo ?? 1000,
         nextReviewAt: r.next_review_at ? new Date(r.next_review_at) : null,
         lastAttemptedAt: r.last_attempted_at ? new Date(r.last_attempted_at) : null,
+        level: Number(r.skill.level ?? 0.5),
       }));
     const picked = pickFocusSkill(focusRows, session.items_attempted ?? 0);
     if (!picked) {

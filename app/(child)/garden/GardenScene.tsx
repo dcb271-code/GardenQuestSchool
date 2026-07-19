@@ -49,10 +49,9 @@ function BachanFigure({ isAlert }: { isAlert: boolean }) {
     <g
       style={{
         transform: 'translate(0, -8px)',
-        filter: isAlert
-          ? 'drop-shadow(0 1px 2px rgba(107,68,35,0.45))'
-          : 'grayscale(0.25)',
-        opacity: isAlert ? 1 : 0.78,
+        // No CSS filters here — they force per-node rasterization,
+        // which crawls on low-power tablets. Opacity alone reads fine.
+        opacity: isAlert ? 1 : 0.72,
       }}
     >
       {/* ground shadow */}
@@ -1212,10 +1211,7 @@ export default function GardenScene({
                       textAnchor="middle"
                       dominantBaseline="central"
                       fontSize={code === 'signpost' ? 36 : 32}
-                      opacity={isAlert ? 1 : 0.6}
-                      style={{ filter: isAlert
-                        ? 'drop-shadow(0 1px 2px rgba(107,68,35,0.45))'
-                        : 'grayscale(0.4)' }}
+                      opacity={isAlert ? 1 : 0.55}
                     >
                       {s.themeEmoji}
                     </text>
@@ -1715,13 +1711,12 @@ function Structure({
       )}
       <motion.g
         style={{
-          filter: isLockedHabitat || (struct.kind === 'skill' && !unlocked)
-            ? 'grayscale(1) brightness(0.85)'
-            : isGhost
-              ? 'grayscale(0.6) brightness(1.05)'
-              : undefined,
+          // No CSS grayscale here — one filter per structure meant
+          // dozens of per-node raster passes and visibly sluggish
+          // panning on low-power wall tablets. Locked/ghost states
+          // read fine from opacity + the lock badge alone.
           opacity: isLockedHabitat || (struct.kind === 'skill' && !unlocked)
-            ? 0.55
+            ? 0.45
             : isGhost
               ? 0.55
               : 1,
