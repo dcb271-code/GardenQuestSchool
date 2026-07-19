@@ -12,15 +12,22 @@ const AVATARS: Array<{ key: string; emoji: string; label: string }> = [
   { key: 'bee', emoji: '🐝', label: 'Bee' },
 ];
 
-const GRADES: Array<{ value: 1 | 2 | 3; label: string; hint: string }> = [
-  { value: 1, label: 'Grade 1', hint: 'reading short words, adding within 10' },
-  { value: 2, label: 'Grade 2', hint: 'crossing-ten addition, longer reading' },
-  { value: 3, label: 'Grade 3', hint: 'place value, multi-digit, multiplication' },
+// Garden Quest's own 1–5 ladder — anchored to CCSS grades under the
+// hood, but deliberately NOT called "grades" in the UI: a level says
+// where the ladder starts, not what year of school a child is in.
+type Level = 1 | 2 | 3 | 4 | 5;
+
+const LEVELS: Array<{ value: Level; label: string; hint: string }> = [
+  { value: 1, label: 'Level 1', hint: 'reading short words, adding within 10' },
+  { value: 2, label: 'Level 2', hint: 'crossing-ten addition, longer reading' },
+  { value: 3, label: 'Level 3', hint: 'multiplication, first fractions, paragraphs' },
+  { value: 4, label: 'Level 4', hint: 'multi-digit × and ÷, decimals, longer passages' },
+  { value: 5, label: 'Level 5', hint: 'fraction operations, volume, word roots' },
 ];
 
 const CHALLENGES: Array<{ value: 'easier' | 'normal' | 'harder'; label: string; hint: string; emoji: string }> = [
   { value: 'easier', emoji: '🌱', label: 'easier', hint: 'lots of warm-up' },
-  { value: 'normal', emoji: '🍃', label: 'just right', hint: 'on-grade' },
+  { value: 'normal', emoji: '🍃', label: 'just right', hint: 'on-level' },
   { value: 'harder', emoji: '🔥', label: 'harder', hint: 'a real stretch' },
 ];
 
@@ -28,7 +35,7 @@ export type NewLearner = {
   id: string;
   first_name: string;
   avatar_key: string;
-  grade_level: 1 | 2 | 3;
+  grade_level: Level;
   default_challenge: 'easier' | 'normal' | 'harder';
 };
 
@@ -41,7 +48,7 @@ export default function AddLearnerModal({
 }) {
   const [name, setName] = useState('');
   const [avatarKey, setAvatarKey] = useState('fox');
-  const [gradeLevel, setGradeLevel] = useState<1 | 2 | 3>(2);
+  const [level, setLevel] = useState<Level>(2);
   const [defaultChallenge, setDefaultChallenge] = useState<'easier' | 'normal' | 'harder'>('normal');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -49,7 +56,7 @@ export default function AddLearnerModal({
   const reset = () => {
     setName('');
     setAvatarKey('fox');
-    setGradeLevel(2);
+    setLevel(2);
     setDefaultChallenge('normal');
     setError(null);
     setBusy(false);
@@ -72,7 +79,7 @@ export default function AddLearnerModal({
         body: JSON.stringify({
           firstName: name.trim(),
           avatarKey,
-          gradeLevel,
+          level,
           defaultChallenge,
         }),
       });
@@ -86,7 +93,7 @@ export default function AddLearnerModal({
         id: data.learnerId,
         first_name: name.trim(),
         avatar_key: avatarKey,
-        grade_level: gradeLevel,
+        grade_level: level,
         default_challenge: defaultChallenge,
       });
       reset();
@@ -178,37 +185,39 @@ export default function AddLearnerModal({
 
               <div>
                 <label className="block font-display italic text-[14px] text-bark/65 mb-2">
-                  what grade are they in?
+                  what level do they start at?
                 </label>
-                <div className="grid grid-cols-3 gap-2">
-                  {GRADES.map(g => (
+                <div className="grid grid-cols-5 gap-2">
+                  {LEVELS.map(g => (
                     <motion.button
                       type="button"
                       key={g.value}
-                      onClick={() => setGradeLevel(g.value)}
-                      className={`p-3 rounded-xl border-4 text-center ${
-                        gradeLevel === g.value
+                      onClick={() => setLevel(g.value)}
+                      className={`p-2 rounded-xl border-4 text-center ${
+                        level === g.value
                           ? 'border-forest bg-forest/10'
                           : 'border-ochre/50 bg-white hover:border-ochre'
                       }`}
                       style={{ touchAction: 'manipulation' }}
                       whileTap={{ scale: 0.95 }}
                       whileHover={{ scale: 1.03 }}
+                      aria-label={g.label}
                     >
-                      <div className="font-display text-[18px] text-bark" style={{ fontWeight: 600 }}>
-                        {g.label}
+                      <div className="font-display italic text-[10px] text-bark/55 leading-none">lvl</div>
+                      <div className="font-display text-[20px] text-bark leading-tight" style={{ fontWeight: 600 }}>
+                        {g.value}
                       </div>
                     </motion.button>
                   ))}
                 </div>
                 <div className="font-display italic text-[12px] text-bark/55 mt-2 text-center">
-                  {GRADES.find(g => g.value === gradeLevel)?.hint}
+                  {LEVELS.find(g => g.value === level)?.hint}
                 </div>
               </div>
 
               <div>
                 <label className="block font-display italic text-[14px] text-bark/65 mb-2">
-                  starting challenge — within {GRADES.find(g => g.value === gradeLevel)?.label}
+                  starting challenge — within {LEVELS.find(g => g.value === level)?.label}
                 </label>
                 <div className="grid grid-cols-3 gap-2">
                   {CHALLENGES.map(c => (

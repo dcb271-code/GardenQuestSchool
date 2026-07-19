@@ -3,9 +3,9 @@ import { createServiceClient } from '@/lib/supabase/server';
 import { z } from 'zod';
 import {
   baselineEloFor,
-  masteredSkillsForGrade,
-  reviewingSkillsForGrade,
-  type GradeLevel,
+  masteredSkillsForLevel,
+  reviewingSkillsForLevel,
+  type LearnerLevel,
   type DefaultChallenge,
 } from '@/lib/learner/baseline';
 
@@ -24,25 +24,32 @@ export async function GET() {
   return NextResponse.json({ learners: data ?? [] });
 }
 
+const LevelSchema = z.union([
+  z.literal(1), z.literal(2), z.literal(3), z.literal(4), z.literal(5),
+]);
+
 const AddBody = z.object({
   firstName: z.string().min(1).max(40),
   avatarKey: z.string().min(1).max(40),
-  // Both are required for new learners — the AddLearnerModal forces
-  // the parent to choose. Old code paths that POST without them get
-  // sane defaults so we don't break anything mid-rollout.
-  gradeLevel: z.union([z.literal(1), z.literal(2), z.literal(3)]).default(2),
+  // Level + challenge are required for new learners — the
+  // AddLearnerModal forces the parent to choose. Old code paths that
+  // POST without them get sane defaults so we don't break anything
+  // mid-rollout. `gradeLevel` is the legacy wire name for `level`.
+  level: LevelSchema.optional(),
+  gradeLevel: LevelSchema.optional(),
   defaultChallenge: z.enum(['easier', 'normal', 'harder']).default('normal'),
 });
 
 export async function POST(req: Request) {
   const body = AddBody.parse(await req.json());
+  const level = (body.level ?? body.gradeLevel ?? 2) as LearnerLevel;
   const db = createServiceClient();
 
   const { data: learner, error } = await db.from('learner').insert({
     parent_id: PARENT_ID,
     first_name: body.firstName,
     avatar_key: body.avatarKey,
-    grade_level: body.gradeLevel,
+    grade_level: level,
     default_challenge: body.defaultChallenge,
   }).select('id').single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
@@ -51,12 +58,12 @@ export async function POST(req: Request) {
     learner_id: learner.id,
   }, { onConflict: 'learner_id' });
 
-  // Seed grade-appropriate baseline mastery so the planner doesn't
-  // start a 2nd grader on K counting.
+  // Seed level-appropriate baseline mastery so the planner doesn't
+  // start a Level-2 learner on K counting.
   await seedBaselineMastery(
     db,
     learner.id,
-    body.gradeLevel as GradeLevel,
+    level,
     body.defaultChallenge as DefaultChallenge,
   );
 
@@ -66,17 +73,17 @@ export async function POST(req: Request) {
 async function seedBaselineMastery(
   db: ReturnType<typeof createServiceClient>,
   learnerId: string,
-  grade: GradeLevel,
+  level: LearnerLevel,
   challenge: DefaultChallenge,
 ) {
-  // skill table is small (~50 rows) so a single fetch is fine.
+  // skill table is small (~100 rows) so a single fetch is fine.
   const { data: skillRows } = await db.from('skill').select('id, code');
   const idByCode = new Map<string, string>();
   for (const r of skillRows ?? []) idByCode.set(r.code, r.id);
 
-  const baselineElo = baselineEloFor(grade, challenge);
-  const masteredCodes = masteredSkillsForGrade(grade);
-  const reviewingCodes = reviewingSkillsForGrade(grade);
+  const baselineElo = baselineEloFor(level, challenge);
+  const masteredCodes = masteredSkillsForLevel(level);
+  const reviewingCodes = reviewingSkillsForLevel(level);
   const now = new Date().toISOString();
   const inAWeek = new Date(Date.now() + 7 * 24 * 3600 * 1000).toISOString();
   const yesterday = new Date(Date.now() - 24 * 3600 * 1000).toISOString();
@@ -110,6 +117,6 @@ async function seedBaselineMastery(
   const { error } = await db.from('skill_progress')
     .upsert(rows, { onConflict: 'learner_id,skill_id' });
   if (error) {
-    console.error('seedBaselineMastery failed:', error.message, { learnerId, grade, challenge });
+    console.error('seedBaselineMastery failed:', error.message, { learnerId, level, challenge });
   }
 }

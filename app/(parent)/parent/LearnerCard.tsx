@@ -58,7 +58,7 @@ export default function LearnerCard({ summary }: { summary: LearnerSummary }) {
   const lastActive = summary.recentSessions[0]?.startedAt;
 
   const updateLearner = async (
-    patch: { gradeLevel?: 1 | 2 | 3; defaultChallenge?: 'easier' | 'normal' | 'harder' },
+    patch: { level?: 1 | 2 | 3 | 4 | 5; defaultChallenge?: 'easier' | 'normal' | 'harder' },
     field: 'grade' | 'challenge',
   ) => {
     setSavingField(field);
@@ -112,19 +112,19 @@ export default function LearnerCard({ summary }: { summary: LearnerSummary }) {
           <div className="flex items-center gap-2 mt-2 flex-wrap">
             {editingGrade ? (
               <div className="inline-flex items-center gap-1 bg-white border border-blue-300 rounded-lg p-1">
-                {([1, 2, 3] as const).map(g => (
+                {([1, 2, 3, 4, 5] as const).map(g => (
                   <button
                     key={g}
                     type="button"
                     disabled={savingField === 'grade'}
-                    onClick={() => updateLearner({ gradeLevel: g }, 'grade')}
+                    onClick={() => updateLearner({ level: g }, 'grade')}
                     className={`text-xs px-2 py-1 rounded font-semibold ${
                       summary.gradeLevel === g
                         ? 'bg-blue-600 text-white'
                         : 'text-gray-700 hover:bg-blue-50'
                     } disabled:opacity-50`}
                   >
-                    Grade {g}
+                    Level {g}
                   </button>
                 ))}
                 <button
@@ -141,9 +141,9 @@ export default function LearnerCard({ summary }: { summary: LearnerSummary }) {
                 type="button"
                 onClick={() => setEditingGrade(true)}
                 className="inline-flex items-center gap-1 text-xs bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-full px-2.5 py-1 font-semibold"
-                title="Change grade level"
+                title="Change level"
               >
-                Grade {summary.gradeLevel ?? '?'}
+                Level {summary.gradeLevel ?? '?'}
                 <span className="text-gray-400">✎</span>
               </button>
             )}
@@ -334,9 +334,9 @@ export default function LearnerCard({ summary }: { summary: LearnerSummary }) {
                 router.refresh();
               }}
               className="text-xs text-blue-700 hover:text-blue-900 hover:underline font-semibold"
-              title="Seed grade-appropriate starting skills so this learner doesn't begin with kindergarten content"
+              title="Seed level-appropriate starting skills so this learner doesn't begin with kindergarten content"
             >
-              Apply Grade {summary.gradeLevel} baseline
+              Apply Level {summary.gradeLevel} baseline
             </button>
           )}
           <button

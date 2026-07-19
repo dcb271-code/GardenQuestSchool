@@ -82,7 +82,7 @@ export default function ProfileTile({
               className="font-display italic text-[11px] tracking-[0.1em] uppercase text-bark/70 bg-cream/80 border border-ochre/50 rounded-full px-2 py-0.5"
               style={{ fontWeight: 600 }}
             >
-              Grade {gradeLevel}
+              Level {gradeLevel}
             </span>
           )}
           {defaultChallenge && (
