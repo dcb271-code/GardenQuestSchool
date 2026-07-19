@@ -51,6 +51,7 @@ import SisterWalkers from '@/components/child/garden/SisterWalkers';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
 import { usePortraitPan, PanEdgeHints } from '@/components/child/garden/usePortraitPan';
 import { Tree, PineTree, Flower, GrassTuft, StructureIllustration } from '@/components/child/garden/illustrations';
+import { MarkerIcon, hasMarkerIcon } from '@/components/child/garden/markerIcons';
 import type { ReadingForestStructureState } from './page';
 
 // Local Sway helper — same shape as GardenScene's private Sway. Gentle
@@ -1030,7 +1031,8 @@ export default function ReadingForestScene({
             const isTappedLocked = tappedLocked === s.code;
 
             const illustrationCode = ILLUSTRATION_ALIAS[s.code] ?? s.code;
-            const drawn = StructureIllustration({ code: illustrationCode, x: 0, y: 0, size: UNIFORM });
+            const drawn = StructureIllustration({ code: illustrationCode, x: 0, y: 0, size: UNIFORM })
+              ?? (hasMarkerIcon(s.code) ? <MarkerIcon code={s.code} size={UNIFORM} /> : null);
 
             return (
               <g

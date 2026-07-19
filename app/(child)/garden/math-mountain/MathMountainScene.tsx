@@ -58,6 +58,7 @@ import { usePortraitPan, PanEdgeHints } from '@/components/child/garden/usePortr
 import {
   Tree, PineTree, StructureIllustration,
 } from '@/components/child/garden/illustrations';
+import { MarkerIcon, hasMarkerIcon } from '@/components/child/garden/markerIcons';
 import type { MathMountainStructureState } from './page';
 
 // Local Sway helper — same shape as GardenScene's private Sway: a
@@ -663,46 +664,80 @@ export default function MathMountainScene({
               hanging vines. The river appears to flow OUT from the
               bottom edge of the mouth into the meadow. */}
 
-          {/* dark interior — the cave depth */}
+          {/* dark interior — the cave depth. Bottom edge CLOSES at
+              y=652 local (≈703 screen): the river body (drawn later in
+              screen coords, surface 692–706) fully covers everything
+              below it, so no raw black can leak past the water line or
+              the left edge (that leak was the old hard black slab). */}
           <path
-            d="M 12 683
-               C 6 660, 14 632, 36 618
-               C 60 606, 92 606, 110 618
-               C 124 628, 132 650, 130 670
-               C 128 678, 124 682, 118 683 Z"
-            fill="#1A0F08"
+            d="M 16 652
+               C 10 640, 15 628, 36 616
+               C 60 605, 92 605, 110 616
+               C 123 625, 130 640, 127 652
+               C 90 658, 42 658, 16 652 Z"
+            fill="#221410"
           />
           {/* deeper shadow pocket toward the back of the cave */}
-          <ellipse cx={56} cy={655} rx={36} ry={20} fill="#000" opacity={0.55} />
+          <ellipse cx={58} cy={638} rx={28} ry={11} fill="#000" opacity={0.45} />
 
           {/* WARM GOLDEN INTERIOR GLOW — the Miyazaki signature.
-              Three concentric warm-light pools that suggest a fire
-              or amber sunset deep in the cave. All sit ABOVE the
-              river surface (y≤680) so they read clearly. */}
-          <ellipse cx={56} cy={668} rx={38} ry={16} fill="#FFD06B" opacity={0.30} />
-          <ellipse cx={58} cy={675} rx={26} ry={9} fill="#FFE89A" opacity={0.45} />
-          <ellipse cx={60} cy={679} rx={14} ry={5} fill="#FFFAF2" opacity={0.55} />
+              Concentric warm pools resting right on the waterline,
+              where the river slips out of the dark. */}
+          <ellipse cx={58} cy={645} rx={34} ry={11} fill="#FFD06B" opacity={0.32} />
+          <ellipse cx={60} cy={649} rx={22} ry={7} fill="#FFE89A" opacity={0.45} />
+          <ellipse cx={62} cy={652} rx={12} ry={4} fill="#FFFAF2" opacity={0.55} />
+
+          {/* STALACTITE SILHOUETTES — three rounded drips hanging into
+              the glow, so the mouth has depth instead of a flat void */}
+          <path d="M 40 615 C 38 620, 38 625, 41 630 C 44 625, 44 619, 42 615 Z"
+                fill="#160C08" />
+          <path d="M 62 609 C 59 615, 59 623, 63 631 C 67 623, 67 614, 64 609 Z"
+                fill="#160C08" />
+          <path d="M 86 613 C 84 617, 84 622, 87 627 C 90 622, 90 616, 88 613 Z"
+                fill="#160C08" />
+          {/* one hanging waterdrop catching the glow */}
+          <circle cx={63} cy={634} r={1.2} fill="#FFE89A" opacity={0.8} />
 
           {/* tiny floating amber dust motes inside the cave */}
-          <circle cx={40} cy={650} r={0.9} fill="#FFE89A" opacity={0.7} />
-          <circle cx={64} cy={644} r={0.7} fill="#FFD06B" opacity={0.65} />
-          <circle cx={84} cy={656} r={0.8} fill="#FFE89A" opacity={0.6} />
-          <circle cx={50} cy={666} r={0.6} fill="#FFD06B" opacity={0.55} />
+          <circle cx={40} cy={638} r={0.9} fill="#FFE89A" opacity={0.7} />
+          <circle cx={66} cy={634} r={0.7} fill="#FFD06B" opacity={0.65} />
+          <circle cx={86} cy={642} r={0.8} fill="#FFE89A" opacity={0.6} />
+          <circle cx={50} cy={648} r={0.6} fill="#FFD06B" opacity={0.55} />
 
-          {/* MOSSY RIM along the top of the arch — soft green crust */}
+          {/* STONE ARCH — chunky outlined keystones ringing the mouth,
+              in the scene's ink-outline language (was: floating moss
+              circles that read as nothing). Varied sizes and tilts. */}
+          {[
+            { sx: 13, sy: 650, rw: 13, rh: 10, rot: -34 },
+            { sx: 24, sy: 630, rw: 15, rh: 11, rot: -22 },
+            { sx: 44, sy: 614, rw: 16, rh: 11, rot: -10 },
+            { sx: 70, sy: 608, rw: 17, rh: 12, rot: 2 },
+            { sx: 96, sy: 615, rw: 15, rh: 11, rot: 14 },
+            { sx: 116, sy: 631, rw: 14, rh: 10, rot: 26 },
+            { sx: 128, sy: 651, rw: 12, rh: 10, rot: 36 },
+          ].map((s, i) => (
+            <g key={`arch-stone-${i}`} transform={`translate(${s.sx}, ${s.sy}) rotate(${s.rot})`}>
+              <rect x={-s.rw / 2} y={-s.rh / 2} width={s.rw} height={s.rh} rx={4}
+                    fill={i % 2 === 0 ? '#8F7B62' : '#A08A6E'}
+                    stroke="#3F3026" strokeWidth={1.4} />
+              <rect x={-s.rw / 2 + 2} y={-s.rh / 2 + 1.5} width={s.rw - 7} height={2.4} rx={1.2}
+                    fill="#C2AC8C" opacity={0.75} />
+            </g>
+          ))}
+
+          {/* MOSSY CREST above the stone arch — soft green crust */}
           <path
-            d="M 12 644 C 32 614, 60 600, 92 600 C 116 604, 130 624, 132 644"
-            stroke="#7BA46F" strokeWidth={6} fill="none" strokeLinecap="round" opacity={0.85}
+            d="M 14 634 C 32 608, 60 596, 90 596 C 114 600, 128 618, 132 638"
+            stroke="#7BA46F" strokeWidth={5.5} fill="none" strokeLinecap="round" opacity={0.85}
           />
           <path
-            d="M 18 636 C 36 612, 62 598, 90 598 C 112 602, 126 618, 128 636"
-            stroke="#A2C794" strokeWidth={2.6} fill="none" strokeLinecap="round" opacity={0.7}
+            d="M 20 626 C 38 604, 64 594, 90 594 C 110 598, 124 612, 128 628"
+            stroke="#A2C794" strokeWidth={2.4} fill="none" strokeLinecap="round" opacity={0.7}
           />
-          {/* moss tufts at irregular spots along the rim */}
-          <circle cx={20} cy={630} r={3} fill="#7BA46F" opacity={0.75} />
-          <circle cx={48} cy={612} r={2.5} fill="#A2C794" opacity={0.7} />
-          <circle cx={86} cy={612} r={2.8} fill="#7BA46F" opacity={0.7} />
-          <circle cx={120} cy={630} r={3} fill="#A2C794" opacity={0.7} />
+          {/* moss tufts drooping over the keystone */}
+          <circle cx={58} cy={602} r={2.6} fill="#7BA46F" opacity={0.8} />
+          <circle cx={74} cy={600} r={2.2} fill="#A2C794" opacity={0.75} />
+          <circle cx={90} cy={604} r={2.4} fill="#7BA46F" opacity={0.7} />
 
           {/* HANGING VINES from the cave mouth — five soft strands.
               Originate at y=618 (the rim), drape down 18-26px. */}
@@ -724,17 +759,19 @@ export default function MathMountainScene({
           ))}
 
           {/* ── CAVE-MOUTH THRESHOLD — boulders + ferns flanking the
-              entrance, sitting RIGHT at the river edge (y≈685) so
-              they read as the bank from which the water emerges. */}
+              entrance at the TRUE bank line (local y≈656 ≈ screen 706
+              after this group's 0.82 scale — the old y=685 values were
+              written as if local == screen and floated on the grass
+              25px below the water). */}
           {/* left boulder cluster */}
-          <ellipse cx={6} cy={685} rx={14} ry={5} fill="#7A6B58" stroke="#3F3026" strokeWidth={1.4} />
-          <ellipse cx={4} cy={682} rx={9} ry={3} fill="#A89878" opacity={0.85} />
+          <ellipse cx={12} cy={656} rx={12} ry={4.5} fill="#7A6B58" stroke="#3F3026" strokeWidth={1.4} />
+          <ellipse cx={10} cy={653} rx={8} ry={2.6} fill="#A89878" opacity={0.85} />
           {/* right boulder cluster */}
-          <ellipse cx={130} cy={685} rx={13} ry={5} fill="#7A6B58" stroke="#3F3026" strokeWidth={1.4} />
-          <ellipse cx={134} cy={682} rx={8} ry={2.8} fill="#A89878" opacity={0.85} />
+          <ellipse cx={126} cy={656} rx={11} ry={4.5} fill="#7A6B58" stroke="#3F3026" strokeWidth={1.4} />
+          <ellipse cx={130} cy={653} rx={7} ry={2.4} fill="#A89878" opacity={0.85} />
 
           {/* FERNS at left of the mouth — small fronds at the threshold */}
-          <g transform="translate(28, 686)">
+          <g transform="translate(34, 662)">
             <path d="M 0 0 Q -3 -10 -7 -16" stroke="#3F5A30" strokeWidth={1.4} fill="none" strokeLinecap="round" />
             <path d="M 0 0 Q 0 -12 -2 -20" stroke="#3F5A30" strokeWidth={1.4} fill="none" strokeLinecap="round" />
             <path d="M 0 0 Q 3 -10 5 -16" stroke="#3F5A30" strokeWidth={1.3} fill="none" strokeLinecap="round" />
@@ -854,57 +891,124 @@ export default function MathMountainScene({
              both bridge decks sit just above the river surface where
              it dips beneath them. Log-jam dam at midpoint (820, 740). */}
         <g pointerEvents="none">
-          {/* wet-earth bank — emerges directly from the cave mouth at
-              x:71 on the left edge of the scene */}
+          {/* sandy wet bank — a warm earth strip under both water
+              edges (the old translucent green wash was invisible
+              against the field, which left the river looking like a
+              pasted ribbon) */}
           <path
-            d="M 71 686
-               C 110 684, 160 680, 220 681
-               C 290 686, 360 689, 440 692
-               C 500 700, 540 708, 620 720
-               C 720 728, 820 734, 920 730
-               C 1010 716, 1100 711, 1200 706
-               C 1280 700, 1320 695, 1380 689
-               C 1420 680, 1440 673, 1440 673
-               L 1440 707
-               C 1420 711, 1380 716, 1320 729
-               C 1280 734, 1200 740, 1100 746
-               C 1010 750, 920 766, 820 770
-               C 720 766, 620 758, 540 742
-               C 500 738, 440 730, 360 723
-               C 290 720, 220 716, 160 712
-               C 110 711, 71 706, 71 706 Z"
-            fill="#6B8E5A" opacity={0.30}
+            d="M 8 684
+               C 60 683, 160 679, 220 680
+               C 290 685, 360 688, 440 691
+               C 500 699, 540 707, 620 719
+               C 720 727, 820 733, 920 729
+               C 1010 715, 1100 710, 1200 705
+               C 1280 699, 1320 694, 1380 688
+               C 1420 679, 1440 672, 1440 672
+               L 1440 708
+               C 1420 712, 1380 717, 1320 730
+               C 1280 735, 1200 741, 1100 747
+               C 1010 751, 920 767, 820 771
+               C 720 767, 620 759, 540 743
+               C 500 739, 440 731, 360 724
+               C 290 721, 220 717, 160 713
+               C 110 712, 8 708, 8 708 Z"
+            fill="#C9B283" opacity={0.75}
           />
-          {/* primary water body — bends with the bank */}
+          {/* primary water body — bends with the bank; tucks LEFT
+              under the cave arch (x:26) so the water truly emerges
+              from the dark instead of starting mid-field. Ink outline
+              ties it into the scene's hand-drawn language. */}
           <path
-            d="M 71 692
-               C 110 690, 160 688, 220 685
-               C 290 690, 360 693, 440 696
-               C 500 706, 540 714, 620 724
-               C 720 734, 820 740, 920 736
-               C 1010 720, 1100 717, 1200 712
-               C 1280 706, 1320 701, 1380 695
-               C 1420 686, 1440 679, 1440 679
-               L 1440 701
-               C 1420 705, 1380 708, 1320 723
-               C 1280 728, 1200 734, 1100 740
-               C 1010 744, 920 760, 820 762
-               C 720 758, 620 750, 540 736
-               C 500 730, 440 723, 360 717
-               C 290 713, 220 709, 160 706
-               C 110 704, 71 700, 71 700 Z"
-            fill="#A8CDD2"
+            d="M 8 690
+               C 60 689, 160 687, 220 684
+               C 290 689, 360 692, 440 695
+               C 500 705, 540 713, 620 723
+               C 720 733, 820 739, 920 735
+               C 1010 719, 1100 716, 1200 711
+               C 1280 705, 1320 700, 1380 694
+               C 1420 685, 1440 678, 1440 678
+               L 1440 702
+               C 1420 706, 1380 709, 1320 724
+               C 1280 729, 1200 735, 1100 741
+               C 1010 745, 920 761, 820 763
+               C 720 759, 620 751, 540 737
+               C 500 731, 440 724, 360 718
+               C 290 714, 220 710, 160 707
+               C 110 705, 8 702, 8 702 Z"
+            fill="#8FBFCB" stroke="#3F2614" strokeWidth={1.5} strokeLinejoin="round"
           />
-          {/* deeper channel — follows the dip from cave-mouth east */}
+          {/* deeper mid-channel — a broad darker band giving the
+              water body actual depth */}
           <path
-            d="M 90 696
-               C 160 700, 240 706, 320 714
-               C 410 722, 500 728, 600 732
-               C 700 738, 800 742, 900 738
-               C 1000 728, 1100 720, 1200 712
-               C 1320 700, 1438 686"
-            stroke="#7FA9B0" strokeWidth={3} fill="none" strokeLinecap="round" opacity={0.6}
+            d="M 40 696
+               C 160 699, 240 704, 320 712
+               C 410 720, 500 726, 600 730
+               C 700 736, 800 740, 900 736
+               C 1000 726, 1100 718, 1200 710
+               C 1320 698, 1438 684"
+            stroke="#5E98A8" strokeWidth={8} fill="none" strokeLinecap="round" opacity={0.55}
           />
+          {/* sun-line — a thin bright thread along the upper water */}
+          <path
+            d="M 60 692
+               C 160 690, 260 689, 380 694
+               C 470 699, 540 708, 640 718"
+            stroke="#DCEFF2" strokeWidth={2} fill="none" strokeLinecap="round" opacity={0.8}
+          />
+          {/* mid-river stones — outlined, with dry caps and foam
+              wakes, breaking the ribbon edges */}
+          {[
+            { x: 250, y: 700, r: 7 }, { x: 655, y: 730, r: 8 }, { x: 1055, y: 726, r: 6.5 },
+          ].map((s, i) => (
+            <g key={`mmstone-${i}`} transform={`translate(${s.x}, ${s.y})`}>
+              <ellipse cx={0} cy={0} rx={s.r} ry={s.r * 0.66} fill="#7A6B58" stroke="#3F3026" strokeWidth={1.3} />
+              <ellipse cx={-s.r * 0.2} cy={-s.r * 0.25} rx={s.r * 0.55} ry={s.r * 0.3} fill="#A89878" opacity={0.9} />
+              <path d={`M ${-s.r - 4} 2 Q ${-s.r - 1} 4 ${-s.r + 2} 2`} stroke="#FFFFFF" strokeWidth={1.1} fill="none" opacity={0.6} strokeLinecap="round" />
+            </g>
+          ))}
+          {/* cattail clusters leaning over the bank */}
+          {[[510, 708], [1230, 706]].map(([cx2, cy2], i) => (
+            <g key={`mmcat-${i}`} transform={`translate(${cx2}, ${cy2})`}>
+              <path d="M 0 0 Q -1 -12 -3 -20" stroke="#5C7E4F" strokeWidth={1.6} fill="none" strokeLinecap="round" />
+              <path d="M 4 0 Q 4 -10 6 -17" stroke="#5C7E4F" strokeWidth={1.4} fill="none" strokeLinecap="round" />
+              <ellipse cx={-3} cy={-22} rx={1.8} ry={4.2} fill="#8B5A2B" stroke="#5A3B1F" strokeWidth={0.8} />
+              <ellipse cx={6} cy={-19} rx={1.6} ry={3.6} fill="#A06B36" stroke="#5A3B1F" strokeWidth={0.8} />
+            </g>
+          ))}
+
+          {/* SOUTH BANK below the cave stretch — grassy slope covering
+              the raw hillside fill left under the water (the exposed
+              tan slabs + shadow seams read as broken geometry).
+              Blends right into the existing foreground mound. */}
+          <path
+            d="M 0 705
+               C 40 708, 100 710, 160 712
+               C 210 714, 250 720, 290 736
+               C 310 748, 320 780, 322 800
+               L 0 800 Z"
+            fill="#A9C68F"
+          />
+          <path
+            d="M 0 706 C 50 709, 120 711, 180 714 C 230 717, 265 726, 292 740"
+            stroke="#6B8E5A" strokeWidth={4} fill="none" strokeLinecap="round" opacity={0.8}
+          />
+          {/* grass tufts + wildflowers on the bank */}
+          {[[46, 724], [118, 730], [196, 736], [258, 748]].map(([gx, gy], i) => (
+            <g key={`mmbank-${i}`} transform={`translate(${gx}, ${gy})`}>
+              <path d="M 0 0 Q -2 -6 -1 -9" stroke="#5C7E4F" strokeWidth={1.2} fill="none" strokeLinecap="round" />
+              <path d="M 0 0 Q 1 -7 3 -9" stroke="#5C7E4F" strokeWidth={1.2} fill="none" strokeLinecap="round" />
+              {i % 2 === 0 && (
+                <g transform="translate(7, -2)">
+                  {[0, 90, 180, 270].map(deg => (
+                    <ellipse key={deg} cx={0} cy={-1.2} rx={0.9} ry={1.5}
+                             fill={i === 0 ? '#FFB7C5' : '#FFD166'}
+                             stroke="#8B6938" strokeWidth={0.25} transform={`rotate(${deg})`} />
+                  ))}
+                  <circle cx={0} cy={0} r={0.6} fill="#FFD166" />
+                </g>
+              )}
+            </g>
+          ))}
           {/* shimmer ripples — track the bend */}
           {[
             { x: 130, y: 694 }, { x: 200, y: 692 },
@@ -1737,7 +1841,9 @@ export default function MathMountainScene({
 
             const illustrationCode = ILLUSTRATION_ALIAS[s.code] ?? s.code;
             const bespoke = drawBespoke(s.code);
-            const drawn = bespoke ?? StructureIllustration({ code: illustrationCode, x: 0, y: 0, size: UNIFORM });
+            const drawn = bespoke
+              ?? StructureIllustration({ code: illustrationCode, x: 0, y: 0, size: UNIFORM })
+              ?? (hasMarkerIcon(s.code) ? <MarkerIcon code={s.code} size={UNIFORM} /> : null);
 
             return (
               <g

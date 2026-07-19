@@ -1,15 +1,18 @@
 // app/(child)/garden/habitat/[code]/BunnyBurrowInterior.tsx
 //
-// Bunny Burrow interior — a homely underground PARLOUR. Composition
-// is intentional, not decorative: a built-in HEARTH alcove on the
-// back wall casts the room's warm light; a hanging lantern provides
-// secondary glow; a small cottontail rabbit sits in side profile by
-// a tiny side table with a teacup; the themed skill structure rests
-// on a braided rug in the foreground. SHELVES on the right wall hold
-// clay jars; HANGING DRIED HERBS bundle from the ceiling beams; a
-// wooden door on the left leads deeper into the warren.
+// Bunny Burrow interior — a COZY WARREN in the Brambly Hedge spirit.
+// The room is a low earthen dome: strata bands and pebbles in the soil
+// above, a canopy of thick outlined roots arching across the ceiling
+// (one dips down as a root-chandelier holding the lantern). The
+// furniture forms lived-in vignettes: a sleeping alcove with a
+// patchwork quilt, a hearth with a fieldstone surround and mantel,
+// a tea table with teapot + two cups, a jar shelf with framed bunny
+// portraits, a basket of carrots, a book stack, and a braided rug
+// under the Petal Counting pedestal. Carrot bundles and dried flowers
+// hang from the roots.
 //
-// EVERY decorative element is a bespoke SVG path — no emoji.
+// EVERY decorative element is a bespoke SVG path — no emoji (except
+// the themed structure emoji, which is content, not decoration).
 
 'use client';
 
@@ -29,6 +32,13 @@ interface BunnyBurrowInteriorProps {
   undiscoveredCount: number;
 }
 
+// Shared ink + wood tones (match components/child/garden/illustrations.tsx)
+const INK = '#3F2614';
+const WOOD = '#7B4F2C';
+const WOOD_DARK = '#5A3B1F';
+const WOOD_HI = '#A0703F';
+const CREAM = '#FFFDF2';
+
 // ─────────────────────────────────────────────────────────────────────────
 // CottontailBunny — front-facing, recognizable, Miyazaki-cute bunny.
 // Designed FROM SCRATCH after multiple side-profile attempts read as
@@ -39,7 +49,7 @@ interface BunnyBurrowInteriorProps {
 //
 // Coordinate system: origin (0,0) at the bunny's geometric center.
 // Total figure spans ~x: -17..18, y: -28..22 (35 wide × 50 tall) at
-// scale 1. At scale 6 in the burrow that's ~210 × 300px.
+// scale 1.
 //
 // This same figure powers the resident bunny + species cards + the
 // global CottontailRabbit illustration (kept in sync intentionally).
@@ -56,8 +66,12 @@ function CottontailBunny({
   const NOSE = '#E07A8F';       // deeper pink for nose + paw beans
 
   return (
+    // NOTE: the static scale lives on a plain <g>. Putting it on the
+    // motion.g's `transform` attribute breaks: framer-motion rewrites
+    // that attribute once the y-bob starts, silently dropping the
+    // scale (the "tiny bunny" bug in the previous version).
+    <g transform={`scale(${scale})`}>
     <motion.g
-      transform={`scale(${scale})`}
       animate={reducedMotion ? undefined : { y: [0, -1.2, 0] }}
       transition={{ duration: 3.4, repeat: Infinity, ease: 'easeInOut' }}
     >
@@ -164,111 +178,392 @@ function CottontailBunny({
       <ellipse cx={-7} cy={-3.5} rx={2.2} ry={1.3} fill={NOSE} opacity={0.38} />
       <ellipse cx={7}  cy={-3.5} rx={2.2} ry={1.3} fill={NOSE} opacity={0.38} />
     </motion.g>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────────
-// HEARTH ALCOVE — built-in fireplace cut into the back wall. Glowing
-// embers with subtle flame, stone hearth surround. The PRIMARY warm
-// light source of the burrow.
-// ─────────────────────────────────────────────────────────────────────────
-function HearthAlcove({ x, y, reducedMotion }: { x: number; y: number; reducedMotion: boolean }) {
-  return (
-    <g transform={`translate(${x}, ${y})`} pointerEvents="none">
-      {/* warm glow spilling out — wide soft halo */}
-      <ellipse cx={0} cy={20} rx={140} ry={80} fill="#FFD06B" opacity={0.22} />
-      <ellipse cx={0} cy={28} rx={90} ry={50} fill="#FFE89A" opacity={0.30} />
-
-      {/* alcove ARCH SHADOW — the dark depth behind */}
-      <path
-        d="M -40 36
-           L -40 -8
-           C -40 -28, -22 -42, 0 -42
-           C 22 -42, 40 -28, 40 -8
-           L 40 36 Z"
-        fill="#1A0F08" opacity={0.92}
-      />
-
-      {/* STONE SURROUND — built-up stones arching around the alcove mouth */}
-      {[
-        { ax: -48, ay: 36, r: 8 },
-        { ax: -50, ay: 12, r: 9 },
-        { ax: -46, ay: -10, r: 8 },
-        { ax: -36, ay: -28, r: 7 },
-        { ax: -22, ay: -38, r: 8 },
-        { ax: -8,  ay: -44, r: 7 },
-        { ax: 8,   ay: -44, r: 7 },
-        { ax: 22,  ay: -38, r: 8 },
-        { ax: 36,  ay: -28, r: 7 },
-        { ax: 46,  ay: -10, r: 8 },
-        { ax: 50,  ay: 12, r: 9 },
-        { ax: 48,  ay: 36, r: 8 },
-      ].map((s, i) => (
-        <g key={`hs-${i}`}>
-          <ellipse cx={s.ax + 0.6} cy={s.ay + 1} rx={s.r} ry={s.r * 0.7}
-                   fill="#000" opacity={0.32} />
-          <ellipse cx={s.ax} cy={s.ay} rx={s.r} ry={s.r * 0.7}
-                   fill={i % 2 === 0 ? '#9B8868' : '#7A6B58'}
-                   stroke="#3F3026" strokeWidth={0.9} />
-          <ellipse cx={s.ax - 1.5} cy={s.ay - 1} rx={s.r * 0.45} ry={s.r * 0.22}
-                   fill="#C2B5A2" opacity={0.7} />
-        </g>
-      ))}
-
-      {/* HEARTH FLOOR — flat slab at the base */}
-      <rect x={-44} y={32} width={88} height={8} fill="#5A4533" stroke="#1A0F08" strokeWidth={1.2} />
-      <line x1={-44} y1={36} x2={44} y2={36} stroke="#3F2E20" strokeWidth={0.5} opacity={0.75} />
-
-      {/* LOGS — two small charred logs in the back */}
-      <ellipse cx={-12} cy={28} rx={14} ry={3} fill="#1A0F08" />
-      <ellipse cx={-12} cy={26} rx={14} ry={3.5} fill="#3F2614" stroke="#1A0F08" strokeWidth={0.9} />
-      <line x1={-22} y1={26} x2={-2} y2={26} stroke="#1A0F08" strokeWidth={0.7} opacity={0.6} />
-      <ellipse cx={10} cy={28} rx={12} ry={3} fill="#1A0F08" />
-      <ellipse cx={10} cy={26} rx={12} ry={3.5} fill="#3F2614" stroke="#1A0F08" strokeWidth={0.9} />
-
-      {/* GLOWING EMBERS — small bright spots between/under the logs */}
-      <circle cx={-6}  cy={28} r={1.6} fill="#FFD06B" opacity={0.95} />
-      <circle cx={2}   cy={29} r={1.8} fill="#FF9152" opacity={0.95} />
-      <circle cx={8}   cy={28} r={1.4} fill="#FFD06B" opacity={0.9} />
-      <circle cx={-14} cy={29} r={1.0} fill="#FF9152" opacity={0.85} />
-      <circle cx={16}  cy={29} r={1.2} fill="#FFD06B" opacity={0.85} />
-
-      {/* SMALL FLAMES — animated flicker, a few licks of fire */}
-      {!reducedMotion ? (
-        <>
-          <motion.path
-            d="M -4 24 C -8 18, -8 12, -4 8 C 0 12, 0 18, -4 24 Z"
-            fill="#FFFAF2"
-            animate={{ scaleY: [1, 1.18, 0.95, 1.10, 1], opacity: [0.85, 1, 0.92, 1, 0.85] }}
-            transition={{ duration: 2.2, repeat: Infinity, ease: 'easeInOut' }}
-            style={{ originX: '-4px', originY: '24px' }}
-          />
-          <motion.path
-            d="M 6 24 C 3 19, 3 14, 6 10 C 9 14, 9 19, 6 24 Z"
-            fill="#FFD06B"
-            animate={{ scaleY: [1, 1.10, 0.92, 1.18, 1], opacity: [0.9, 1, 0.85, 1, 0.9] }}
-            transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut', delay: 0.4 }}
-            style={{ originX: '6px', originY: '24px' }}
-          />
-        </>
-      ) : (
-        <>
-          <path d="M -4 24 C -8 18, -8 12, -4 8 C 0 12, 0 18, -4 24 Z" fill="#FFFAF2" opacity={0.9} />
-          <path d="M 6 24 C 3 19, 3 14, 6 10 C 9 14, 9 19, 6 24 Z" fill="#FFD06B" opacity={0.9} />
-        </>
-      )}
-
-      {/* TINY SOOT MARK — black smudge above the alcove from years of fires */}
-      <path
-        d="M -12 -36 Q -4 -42 0 -38 Q 4 -42 12 -36 Q 8 -32 0 -34 Q -8 -32 -12 -36 Z"
-        fill="#1A0F08" opacity={0.55}
-      />
     </g>
   );
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// JAR SHELF — wooden shelf with ceramic jars. Sits on the back wall.
+// CEILING ROOT CANOPY — thick outlined roots arching across the dome,
+// tapering toward the center, with fine root hairs. One root dips down
+// at center to hold the lantern (see RootChandelier).
+// ─────────────────────────────────────────────────────────────────────────
+const ROOT_SEGMENTS: { d: string; w: number }[] = [
+  // left main root — thick at the wall, thinner toward center
+  { d: 'M 20 560 C 110 385, 205 302, 345 262', w: 15 },
+  { d: 'M 345 262 C 465 246, 592 240, 718 240', w: 9 },
+  // right main root
+  { d: 'M 1420 580 C 1330 395, 1240 308, 1100 266', w: 15 },
+  { d: 'M 1100 266 C 980 248, 850 241, 722 240', w: 9 },
+  // left secondary root — hugs the rim higher up
+  { d: 'M 20 440 C 145 332, 245 282, 385 250', w: 9 },
+  { d: 'M 385 250 C 500 228, 600 221, 690 218', w: 5.5 },
+  // right secondary root
+  { d: 'M 1420 460 C 1295 340, 1200 286, 1060 252', w: 9 },
+  { d: 'M 1060 252 C 950 230, 852 223, 760 220', w: 5.5 },
+];
+
+const ROOT_HAIRS: { x: number; y: number; dx: number }[] = [
+  { x: 175, y: 388, dx: 6 },  { x: 300, y: 292, dx: -5 },
+  { x: 452, y: 253, dx: 5 },  { x: 590, y: 243, dx: -4 },
+  { x: 250, y: 322, dx: 6 },  { x: 848, y: 244, dx: 4 },
+  { x: 990, y: 266, dx: -5 }, { x: 1132, y: 312, dx: 5 },
+  { x: 1258, y: 388, dx: -6 },{ x: 1180, y: 340, dx: 4 },
+];
+
+function CeilingCanopy() {
+  return (
+    <g pointerEvents="none">
+      {ROOT_SEGMENTS.map((r, i) => (
+        <g key={`root-${i}`}>
+          <path d={r.d} stroke={INK} strokeWidth={r.w + 3.2}
+                fill="none" strokeLinecap="round" />
+          <path d={r.d} stroke={WOOD} strokeWidth={r.w}
+                fill="none" strokeLinecap="round" />
+          <path d={r.d} stroke={WOOD_HI} strokeWidth={r.w * 0.32}
+                fill="none" strokeLinecap="round" opacity={0.55} />
+        </g>
+      ))}
+      {/* fine root hairs trailing off the big roots */}
+      {ROOT_HAIRS.map((h, i) => (
+        <g key={`hair-${i}`}>
+          <path d={`M ${h.x} ${h.y} q ${h.dx} 11 ${h.dx * 0.3} 24`}
+                stroke={INK} strokeWidth={1.4} fill="none"
+                strokeLinecap="round" opacity={0.8} />
+          <path d={`M ${h.x + h.dx * 1.6} ${h.y - 4} q ${-h.dx * 0.6} 8 ${-h.dx * 0.2} 15`}
+                stroke={INK} strokeWidth={1.0} fill="none"
+                strokeLinecap="round" opacity={0.55} />
+        </g>
+      ))}
+      {/* tiny root tips poking through the dome rim */}
+      {[
+        { x: 268, y: 292, dx: 5 }, { x: 520, y: 232, dx: -4 },
+        { x: 930, y: 234, dx: 5 }, { x: 1178, y: 300, dx: -5 },
+      ].map((t, i) => (
+        <path key={`tip-${i}`}
+              d={`M ${t.x} ${t.y} q ${t.dx} 8 ${t.dx * 0.4} 17`}
+              stroke={WOOD_DARK} strokeWidth={2.2} fill="none"
+              strokeLinecap="round" opacity={0.85} />
+      ))}
+    </g>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// ROOT CHANDELIER — the central root dips down and grips the lantern.
+// ─────────────────────────────────────────────────────────────────────────
+function RootChandelier({ reducedMotion }: { reducedMotion: boolean }) {
+  return (
+    <g pointerEvents="none">
+      {/* the dipping root */}
+      <path d="M 716 242 C 727 254, 725 272, 722 300"
+            stroke={INK} strokeWidth={9.5} fill="none" strokeLinecap="round" />
+      <path d="M 716 242 C 727 254, 725 272, 722 300"
+            stroke={WOOD} strokeWidth={6} fill="none" strokeLinecap="round" />
+      {/* two rootlets gripping the lantern hood */}
+      <path d="M 722 296 q -9 6 -12 13" stroke={INK} strokeWidth={2.6}
+            fill="none" strokeLinecap="round" />
+      <path d="M 722 296 q 9 6 12 13" stroke={INK} strokeWidth={2.6}
+            fill="none" strokeLinecap="round" />
+
+      <g transform="translate(721, 306) scale(1.25)">
+        {/* glow halo — soft radial falloff */}
+        <ellipse cx={0} cy={24} rx={185} ry={125} fill="url(#bbWarmGlow)" opacity={0.55} />
+        {/* hood */}
+        <path d="M -14 8 L 14 8 L 10 0 L -10 0 Z"
+              fill={WOOD_DARK} stroke="#1A1208" strokeWidth={1.4} strokeLinejoin="round" />
+        {/* body — cage */}
+        <path d="M -12 8 L 12 8 L 14 40 L -14 40 Z"
+              fill={INK} stroke="#1A1208" strokeWidth={1.5} strokeLinejoin="round" />
+        {/* glass + glow */}
+        <rect x={-9.5} y={10.5} width={19} height={26} fill="#FFD06B" />
+        <line x1={-5.5} y1={10.5} x2={-5.5} y2={36.5} stroke="#1A1208" strokeWidth={0.9} />
+        <line x1={0} y1={10.5} x2={0} y2={36.5} stroke="#1A1208" strokeWidth={0.9} />
+        <line x1={5.5} y1={10.5} x2={5.5} y2={36.5} stroke="#1A1208" strokeWidth={0.9} />
+        {/* base */}
+        <path d="M -14 40 L 14 40 L 12 46 L -12 46 Z"
+              fill={WOOD_DARK} stroke="#1A1208" strokeWidth={1.3} strokeLinejoin="round" />
+        {/* flame */}
+        {!reducedMotion ? (
+          <motion.path
+            d="M 0 33 C -3 29, -3 24, 0 20 C 3 24, 3 29, 0 33 Z"
+            fill="#FFFAF2"
+            animate={{ scaleY: [1, 1.15, 0.95, 1.1, 1], opacity: [0.85, 1, 0.9, 1, 0.85] }}
+            transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+            style={{ originX: '0px', originY: '33px' }}
+          />
+        ) : (
+          <path d="M 0 33 C -3 29, -3 24, 0 20 C 3 24, 3 29, 0 33 Z"
+                fill="#FFFAF2" opacity={0.9} />
+        )}
+        <path d="M 0 32 C -2 29.5, -2 26, 0 24 C 2 26, 2 29.5, 0 32 Z" fill="#FFD06B" />
+      </g>
+    </g>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// HANGING BUNDLES — carrots or dried flowers tied to the ceiling roots.
+// ─────────────────────────────────────────────────────────────────────────
+function CarrotBundle({ x, y, drop = 12 }: { x: number; y: number; drop?: number }) {
+  return (
+    <g transform={`translate(${x}, ${y})`} pointerEvents="none">
+      {/* twine from the root */}
+      <line x1={0} y1={0} x2={0} y2={drop} stroke="#C9A66A" strokeWidth={1.4} />
+      <ellipse cx={0} cy={drop + 1} rx={4} ry={2} fill="#C9A66A" stroke={INK} strokeWidth={0.8} />
+      {/* three carrots hanging tips-down, fanned */}
+      {[-15, 0, 15].map((deg, i) => (
+        <g key={i} transform={`translate(0, ${drop - 12}) rotate(${deg} 0 13)`}>
+          {/* greens bunched under the tie */}
+          <path d="M -3 15 q -3 7 -1 11 M 0 15 q 0 8 1 12 M 3 15 q 3 7 1 11"
+                stroke="#6B8E5A" strokeWidth={1.6} fill="none" strokeLinecap="round" />
+          {/* carrot body */}
+          <path d="M -4.5 25 C -5 33, -2.5 43, 0 47 C 2.5 43, 5 33, 4.5 25
+                   C 3 22.5, -3 22.5, -4.5 25 Z"
+                fill="#E8873A" stroke={INK} strokeWidth={1.3} strokeLinejoin="round" />
+          {/* ridge lines */}
+          <path d="M -2.5 30 L 2.5 31 M -2 36 L 2 37" stroke={INK}
+                strokeWidth={0.7} strokeLinecap="round" opacity={0.55} />
+          <path d="M -2.5 27 C -3 33, -1.5 40, 0 44" stroke="#F5A85E"
+                strokeWidth={1.4} fill="none" strokeLinecap="round" opacity={0.7} />
+        </g>
+      ))}
+    </g>
+  );
+}
+
+function DriedFlowerBundle({ x, y, tone = '#C38D9E' }: { x: number; y: number; tone?: string }) {
+  return (
+    <g transform={`translate(${x}, ${y})`} pointerEvents="none">
+      <line x1={0} y1={0} x2={0} y2={10} stroke="#C9A66A" strokeWidth={1.2} />
+      <ellipse cx={0} cy={11} rx={3.5} ry={1.8} fill="#C9A66A" stroke={INK} strokeWidth={0.8} />
+      {/* stems fanning downward (hung upside-down to dry) */}
+      {[-12, -5, 2, 9, 15].map((dx, i) => (
+        <path key={`st-${i}`} d={`M 0 12 Q ${dx * 0.5} 24 ${dx} 38`}
+              stroke="#8B6938" strokeWidth={1.2} fill="none" strokeLinecap="round" />
+      ))}
+      {/* blossom heads at the stem tips */}
+      {[
+        { dx: -12, c: tone }, { dx: -5, c: '#E8A87C' }, { dx: 2, c: tone },
+        { dx: 9, c: '#FFD93D' }, { dx: 15, c: '#E8A87C' },
+      ].map((b, i) => (
+        <g key={`bl-${i}`} transform={`translate(${b.dx}, ${40 + (i % 2) * 3})`}>
+          <circle r={4} fill={b.c} stroke={INK} strokeWidth={0.9} />
+          <circle r={1.4} fill={INK} opacity={0.5} />
+        </g>
+      ))}
+    </g>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// SLEEPING ALCOVE — a niche carved into the wall with a patchwork bed.
+// Origin: center of the niche at floor level.
+// ─────────────────────────────────────────────────────────────────────────
+function BedAlcove({ x, y }: { x: number; y: number }) {
+  return (
+    <g transform={`translate(${x}, ${y})`} pointerEvents="none">
+      {/* carved niche — dark arch with double rim */}
+      <path d="M -132 8 L -132 -62
+               C -132 -152, -62 -188, 0 -188
+               C 62 -188, 132 -152, 132 -62
+               L 132 8 Z"
+            fill="#2E1C0E" stroke={INK} strokeWidth={2.4} strokeLinejoin="round" />
+      <path d="M -120 6 L -120 -60
+               C -120 -142, -56 -176, 0 -176
+               C 56 -176, 120 -142, 120 -60
+               L 120 6 Z"
+            fill="#241407" opacity={0.85} />
+      <path d="M -120 -60 C -120 -142, -56 -176, 0 -176 C 56 -176, 120 -142, 120 -60"
+            stroke="#8B6938" strokeWidth={1.4} fill="none" opacity={0.5} />
+      {/* warm candle-light wash inside */}
+      <ellipse cx={0} cy={-58} rx={92} ry={62} fill="#8A5225" opacity={0.4} />
+      <ellipse cx={0} cy={-42} rx={60} ry={38} fill="#C98B4B" opacity={0.25} />
+
+      {/* bed frame — rail + legs */}
+      <rect x={-104} y={-30} width={208} height={16} rx={4}
+            fill={WOOD} stroke={INK} strokeWidth={1.6} />
+      <line x1={-96} y1={-22} x2={96} y2={-22} stroke={WOOD_HI} strokeWidth={1} opacity={0.6} />
+      <rect x={-98} y={-14} width={12} height={16} rx={2} fill={WOOD_DARK} stroke={INK} strokeWidth={1.3} />
+      <rect x={86} y={-14} width={12} height={16} rx={2} fill={WOOD_DARK} stroke={INK} strokeWidth={1.3} />
+      {/* headboard on the left */}
+      <path d="M -116 0 L -116 -92 C -116 -104, -96 -104, -96 -92 L -96 -26 L -116 -26 Z"
+            fill={WOOD} stroke={INK} strokeWidth={1.6} strokeLinejoin="round" />
+      <line x1={-110} y1={-88} x2={-110} y2={-30} stroke={WOOD_DARK} strokeWidth={1} opacity={0.6} />
+
+      {/* mattress */}
+      <rect x={-100} y={-52} width={200} height={26} rx={10}
+            fill="#F5EBDC" stroke={INK} strokeWidth={1.5} />
+      {/* pillow */}
+      <ellipse cx={-70} cy={-56} rx={27} ry={13} fill={CREAM} stroke={INK} strokeWidth={1.4} />
+      <path d="M -88 -58 Q -70 -64 -52 -58" stroke={INK} strokeWidth={0.8}
+            fill="none" opacity={0.4} />
+
+      {/* PATCHWORK QUILT — draped over the right two-thirds */}
+      <path d="M -34 -56
+               C -20 -60, 88 -60, 100 -54
+               L 104 -30 L 104 -6 L 88 -6 L 88 -26 L -34 -26 Z"
+            fill="#C38D9E" stroke={INK} strokeWidth={1.5} strokeLinejoin="round" />
+      {/* patches — sage + ochre squares */}
+      <rect x={-26} y={-52} width={30} height={24} fill="#95B88F" opacity={0.95} />
+      <rect x={36} y={-52} width={30} height={24} fill="#E8C493" opacity={0.95} />
+      <rect x={5} y={-52} width={30} height={11} fill="#E8C493" opacity={0.9} />
+      <rect x={66} y={-40} width={30} height={12} fill="#95B88F" opacity={0.9} />
+      <rect x={88} y={-26} width={16} height={20} fill="#95B88F" opacity={0.9} />
+      {/* stitch dashes along patch seams + border */}
+      <path d="M -26 -40 L 96 -40 M 5 -52 L 5 -28 M 36 -52 L 36 -28 M 66 -52 L 66 -28"
+            stroke={CREAM} strokeWidth={0.9} strokeDasharray="3 3" opacity={0.85} fill="none" />
+      <path d="M -32 -29 C -18 -33, 84 -33, 98 -29"
+            stroke={CREAM} strokeWidth={0.9} strokeDasharray="3 3" opacity={0.85} fill="none" />
+    </g>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// HEARTH — fieldstone surround, arched firebox with layered flames,
+// mantel shelf with plant + clock, glow pool on the floor in front.
+// Origin: floor center of the firebox.
+// ─────────────────────────────────────────────────────────────────────────
+const HEARTH_STONES: { x: number; y: number; rx: number; ry: number; t: 0 | 1 | 2 }[] = [
+  { x: -80, y: -8,   rx: 20, ry: 15, t: 0 },
+  { x: -86, y: -46,  rx: 17, ry: 14, t: 1 },
+  { x: -76, y: -84,  rx: 18, ry: 13, t: 2 },
+  { x: -52, y: -114, rx: 17, ry: 13, t: 0 },
+  { x: -20, y: -132, rx: 18, ry: 12, t: 1 },
+  { x: 16,  y: -133, rx: 17, ry: 12, t: 2 },
+  { x: 50,  y: -116, rx: 17, ry: 13, t: 1 },
+  { x: 76,  y: -86,  rx: 18, ry: 14, t: 0 },
+  { x: 86,  y: -46,  rx: 17, ry: 14, t: 2 },
+  { x: 80,  y: -8,   rx: 20, ry: 15, t: 1 },
+];
+const STONE_FILLS = ['#A08B6C', '#8A755C', '#97826A'] as const;
+
+function Hearth({ x, y, reducedMotion }: { x: number; y: number; reducedMotion: boolean }) {
+  return (
+    <g transform={`translate(${x}, ${y})`} pointerEvents="none">
+      {/* glow pool on the floor in front */}
+      <ellipse cx={0} cy={34} rx={185} ry={40} fill="#FFD06B" opacity={0.20} />
+      <ellipse cx={0} cy={30} rx={115} ry={26} fill="#FFE89A" opacity={0.26} />
+
+      {/* soot-darkened wall behind the surround */}
+      <ellipse cx={0} cy={-80} rx={110} ry={90} fill="#241407" opacity={0.35} />
+
+      {/* FIREBOX — arched opening */}
+      <path d="M -58 4 L -58 -66
+               C -58 -108, -30 -126, 0 -126
+               C 30 -126, 58 -108, 58 -66
+               L 58 4 Z"
+            fill="#1F1108" stroke={INK} strokeWidth={2} strokeLinejoin="round" />
+      {/* warm inner glow of the box */}
+      <ellipse cx={0} cy={-38} rx={44} ry={44} fill="#7A3A18" opacity={0.55} />
+      <ellipse cx={0} cy={-24} rx={34} ry={24} fill="#B85C22" opacity={0.4} />
+
+      {/* logs */}
+      <g>
+        <rect x={-30} y={-16} width={60} height={9} rx={4.5}
+              fill={WOOD_DARK} stroke="#1A0F08" strokeWidth={1.2}
+              transform="rotate(-7 0 -12)" />
+        <rect x={-28} y={-12} width={56} height={9} rx={4.5}
+              fill={WOOD} stroke="#1A0F08" strokeWidth={1.2}
+              transform="rotate(6 0 -8)" />
+        <circle cx={26} cy={-6} r={3.2} fill="#C9A66A" stroke="#1A0F08" strokeWidth={0.8} />
+      </g>
+
+      {/* FLAMES — layered: gold outer, cream inner */}
+      {!reducedMotion ? (
+        <>
+          <motion.path
+            d="M 0 -14 C -18 -26, -16 -48, -6 -60 C -4 -50, 2 -48, 2 -58
+               C 12 -48, 16 -30, 0 -14 Z"
+            fill="#FFB84D"
+            animate={{ scaleY: [1, 1.14, 0.94, 1.08, 1], scaleX: [1, 0.96, 1.04, 0.98, 1] }}
+            transition={{ duration: 2.1, repeat: Infinity, ease: 'easeInOut' }}
+            style={{ originX: '0px', originY: '-14px' }}
+          />
+          <motion.path
+            d="M 0 -15 C -10 -24, -9 -38, -2 -47 C 0 -40, 4 -39, 4 -45
+               C 9 -37, 9 -24, 0 -15 Z"
+            fill="#FFD06B"
+            animate={{ scaleY: [1, 1.1, 0.92, 1.16, 1] }}
+            transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }}
+            style={{ originX: '0px', originY: '-15px' }}
+          />
+          <motion.path
+            d="M 0 -16 C -5 -21, -4 -30, 0 -35 C 4 -30, 5 -21, 0 -16 Z"
+            fill="#FFF3D6"
+            animate={{ scaleY: [1, 1.2, 0.9, 1.1, 1] }}
+            transition={{ duration: 1.5, repeat: Infinity, ease: 'easeInOut', delay: 0.6 }}
+            style={{ originX: '0px', originY: '-16px' }}
+          />
+        </>
+      ) : (
+        <>
+          <path d="M 0 -14 C -18 -26, -16 -48, -6 -60 C -4 -50, 2 -48, 2 -58
+                   C 12 -48, 16 -30, 0 -14 Z" fill="#FFB84D" />
+          <path d="M 0 -15 C -10 -24, -9 -38, -2 -47 C 0 -40, 4 -39, 4 -45
+                   C 9 -37, 9 -24, 0 -15 Z" fill="#FFD06B" />
+          <path d="M 0 -16 C -5 -21, -4 -30, 0 -35 C 4 -30, 5 -21, 0 -16 Z" fill="#FFF3D6" />
+        </>
+      )}
+      {/* embers */}
+      <circle cx={-16} cy={-6} r={1.8} fill="#FFD06B" opacity={0.95} />
+      <circle cx={8} cy={-4} r={1.5} fill="#FF9152" opacity={0.9} />
+      <circle cx={18} cy={-8} r={1.3} fill="#FFD06B" opacity={0.85} />
+
+      {/* FIELDSTONE SURROUND — chunky varied stones ringing the box */}
+      {HEARTH_STONES.map((s, i) => (
+        <g key={`fs-${i}`}>
+          <ellipse cx={s.x + 1.5} cy={s.y + 2} rx={s.rx} ry={s.ry}
+                   fill="#1A0F08" opacity={0.35} />
+          <ellipse cx={s.x} cy={s.y} rx={s.rx} ry={s.ry}
+                   fill={STONE_FILLS[s.t]} stroke={INK} strokeWidth={1.6} />
+          <ellipse cx={s.x - s.rx * 0.28} cy={s.y - s.ry * 0.3}
+                   rx={s.rx * 0.42} ry={s.ry * 0.3} fill="#C2B096" opacity={0.55} />
+        </g>
+      ))}
+
+      {/* hearthstone slab */}
+      <rect x={-96} y={2} width={192} height={13} rx={6}
+            fill="#8A755C" stroke={INK} strokeWidth={1.6} />
+      <line x1={-84} y1={6} x2={84} y2={6} stroke="#C2B096" strokeWidth={1} opacity={0.5} />
+
+      {/* MANTEL SHELF */}
+      <rect x={-108} y={-152} width={216} height={13} rx={3}
+            fill={WOOD} stroke={INK} strokeWidth={1.8} />
+      <line x1={-100} y1={-146} x2={100} y2={-146} stroke={WOOD_HI} strokeWidth={1} opacity={0.6} />
+      <path d="M -96 -139 L -88 -128 L -80 -139 Z" fill={WOOD_DARK} stroke={INK} strokeWidth={1} />
+      <path d="M 80 -139 L 88 -128 L 96 -139 Z" fill={WOOD_DARK} stroke={INK} strokeWidth={1} />
+
+      {/* mantel: potted plant */}
+      <g transform="translate(-62, -152)">
+        <path d="M -9 0 L -11 -14 L 11 -14 L 9 0 Z"
+              fill="#A0563B" stroke={INK} strokeWidth={1.3} strokeLinejoin="round" />
+        <rect x={-12} y={-18} width={24} height={5} rx={2}
+              fill="#C97551" stroke={INK} strokeWidth={1.1} />
+        <path d="M 0 -18 Q -8 -30 -4 -38 M 0 -18 Q 1 -32 6 -38 M 0 -18 Q 8 -26 11 -30"
+              stroke="#6B8E5A" strokeWidth={2} fill="none" strokeLinecap="round" />
+        <ellipse cx={-4} cy={-38} rx={3.4} ry={5} fill="#7BA46F" stroke="#3D5C32" strokeWidth={0.8}
+                 transform="rotate(-16 -4 -38)" />
+        <ellipse cx={6} cy={-38} rx={3.2} ry={4.6} fill="#95B88F" stroke="#3D5C32" strokeWidth={0.8}
+                 transform="rotate(10 6 -38)" />
+        <ellipse cx={11} cy={-30} rx={2.8} ry={4} fill="#7BA46F" stroke="#3D5C32" strokeWidth={0.8}
+                 transform="rotate(35 11 -30)" />
+      </g>
+      {/* mantel: little round clock */}
+      <g transform="translate(56, -170)">
+        <rect x={-4} y={12} width={8} height={6} fill={WOOD_DARK} stroke={INK} strokeWidth={1} />
+        <circle r={14} fill="#C9A66A" stroke={INK} strokeWidth={1.6} />
+        <circle r={10} fill="#F5EBDC" stroke={INK} strokeWidth={1} />
+        <circle cx={0} cy={-16} r={2.4} fill="#C9A66A" stroke={INK} strokeWidth={1} />
+        <line x1={0} y1={0} x2={0} y2={-6.5} stroke={INK} strokeWidth={1.4} strokeLinecap="round" />
+        <line x1={0} y1={0} x2={4.5} y2={2.5} stroke={INK} strokeWidth={1.2} strokeLinecap="round" />
+        <circle r={1.2} fill={INK} />
+      </g>
+    </g>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// JAR SHELF — wooden shelf with ceramic jars (kept from previous pass).
 // ─────────────────────────────────────────────────────────────────────────
 function JarShelf({ x, y }: { x: number; y: number }) {
   return (
@@ -346,120 +641,193 @@ function JarShelf({ x, y }: { x: number; y: number }) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// HangingHerbs — bundled dried herbs hung from a beam by string.
+// FRAMED PORTRAIT — oval frame with a bunny silhouette, hung on a nail.
 // ─────────────────────────────────────────────────────────────────────────
-function HangingHerbs({ x, y, color = '#7BA46F' }: { x: number; y: number; color?: string }) {
+function FramedPortrait({ x, y, s = 1, frame = '#C9A66A' }: {
+  x: number; y: number; s?: number; frame?: string;
+}) {
   return (
-    <g transform={`translate(${x}, ${y})`} pointerEvents="none">
-      {/* string from the ceiling beam */}
-      <line x1={0} y1={0} x2={0} y2={6} stroke="#5A3B1F" strokeWidth={0.7} />
-      {/* tied knot */}
-      <ellipse cx={0} cy={6} rx={2.5} ry={1} fill="#5A3B1F" />
-      <line x1={-2} y1={6} x2={-2} y2={4} stroke="#5A3B1F" strokeWidth={0.5} />
-      {/* bunch — drooping leaves */}
-      <path d="M -8 6 L -10 22 M -4 6 L -5 28 M 0 8 L 1 30 M 4 6 L 5 28 M 8 6 L 10 22"
-            stroke={color} strokeWidth={1.6} fill="none" strokeLinecap="round" />
-      {/* leaf clusters at the end of each strand */}
-      <ellipse cx={-10} cy={22} rx={2.4} ry={4} fill={color} stroke="#3D5C32" strokeWidth={0.5} transform="rotate(-15 -10 22)" />
-      <ellipse cx={-5} cy={28} rx={2.6} ry={4.5} fill={color} stroke="#3D5C32" strokeWidth={0.5} transform="rotate(-8 -5 28)" />
-      <ellipse cx={1}  cy={30} rx={2.8} ry={5}   fill={color} stroke="#3D5C32" strokeWidth={0.5} />
-      <ellipse cx={5}  cy={28} rx={2.6} ry={4.5} fill={color} stroke="#3D5C32" strokeWidth={0.5} transform="rotate(8 5 28)" />
-      <ellipse cx={10} cy={22} rx={2.4} ry={4}   fill={color} stroke="#3D5C32" strokeWidth={0.5} transform="rotate(15 10 22)" />
-      {/* twine wrap at the top */}
-      <path d="M -6 8 Q 0 10 6 8" stroke="#C9A66A" strokeWidth={0.8} fill="none" strokeLinecap="round" />
+    <g transform={`translate(${x}, ${y}) scale(${s})`} pointerEvents="none">
+      {/* nail + string */}
+      <circle cx={0} cy={-34} r={1.8} fill={WOOD_DARK} stroke={INK} strokeWidth={0.8} />
+      <path d="M 0 -34 L -13 -22 M 0 -34 L 13 -22" stroke={INK} strokeWidth={0.9} opacity={0.8} />
+      {/* frame */}
+      <ellipse cx={1.5} cy={2} rx={20} ry={26} fill="#1A0F08" opacity={0.35} />
+      <ellipse cx={0} cy={0} rx={20} ry={26} fill={frame} stroke={INK} strokeWidth={1.8} />
+      <ellipse cx={0} cy={0} rx={14.5} ry={20} fill="#F5EBDC" stroke={INK} strokeWidth={1} />
+      {/* bunny silhouette — head + ears in profile-ish bust */}
+      <ellipse cx={-3} cy={-8} rx={3} ry={8.5} fill="#6B4423" transform="rotate(-10 -3 -8)" />
+      <ellipse cx={4} cy={-8} rx={3} ry={8.5} fill="#6B4423" transform="rotate(9 4 -8)" />
+      <circle cx={0} cy={2} r={8} fill="#6B4423" />
+      <path d="M -9 14 Q 0 8 9 14 L 9 16 Q 0 12 -9 16 Z" fill="#6B4423" />
+      {/* glass glint */}
+      <path d="M -8 -12 Q -3 -16 3 -14" stroke="#FFFFFF" strokeWidth={1.4}
+            fill="none" strokeLinecap="round" opacity={0.45} />
     </g>
   );
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// HangingRoot — twisted root from the ceiling
+// TEA TABLE — round wooden table with a sage teapot and two cups.
+// Origin: floor contact point under the table's center.
 // ─────────────────────────────────────────────────────────────────────────
-function HangingRoot({ x, length = 100 }: { x: number; length?: number }) {
-  const tipX = x + (x % 2 === 0 ? -4 : 6);
+function TeaTable({ x, y, reducedMotion }: { x: number; y: number; reducedMotion: boolean }) {
   return (
-    <g pointerEvents="none">
-      <path
-        d={`M ${x} 90
-            C ${x + 2} ${90 + length * 0.3}, ${x - 4} ${90 + length * 0.6}, ${tipX} ${90 + length}`}
-        stroke="#5A3B1F" strokeWidth={3.0} fill="none" strokeLinecap="round"
-      />
-      <path
-        d={`M ${x} 90
-            C ${x + 2} ${90 + length * 0.3}, ${x - 4} ${90 + length * 0.6}, ${tipX} ${90 + length}`}
-        stroke="#7B4F2C" strokeWidth={1.2} fill="none" strokeLinecap="round" opacity={0.7}
-      />
-      <ellipse cx={x - 1} cy={94 + length * 0.15} rx={3.5} ry={1.0} fill="#7BA46F" opacity={0.65} />
+    <g transform={`translate(${x}, ${y})`} pointerEvents="none">
+      <ellipse cx={0} cy={3} rx={52} ry={8} fill="#000" opacity={0.25} />
+      {/* legs — splayed */}
+      <path d="M -32 -50 L -42 0" stroke={INK} strokeWidth={7} strokeLinecap="round" />
+      <path d="M -32 -50 L -42 0" stroke={WOOD} strokeWidth={4} strokeLinecap="round" />
+      <path d="M 32 -50 L 42 0" stroke={INK} strokeWidth={7} strokeLinecap="round" />
+      <path d="M 32 -50 L 42 0" stroke={WOOD} strokeWidth={4} strokeLinecap="round" />
+      <path d="M 0 -52 L 0 -6" stroke={INK} strokeWidth={6} strokeLinecap="round" />
+      <path d="M 0 -52 L 0 -6" stroke={WOOD_DARK} strokeWidth={3.4} strokeLinecap="round" />
+      {/* tabletop — thick disk */}
+      <ellipse cx={0} cy={-54} rx={54} ry={15} fill={WOOD} stroke={INK} strokeWidth={1.8} />
+      <ellipse cx={0} cy={-58} rx={52} ry={13} fill={WOOD_HI} stroke={INK} strokeWidth={1.4} />
+      <ellipse cx={-10} cy={-60} rx={28} ry={6} fill="#C39061" opacity={0.6} />
+
+      {/* TEAPOT — plump sage pot with spout + handle */}
+      <g transform="translate(-16, -66)">
+        <ellipse cx={0} cy={6} rx={15} ry={3} fill="#000" opacity={0.2} />
+        <ellipse cx={0} cy={-4} rx={14.5} ry={11.5} fill="#95B88F" stroke={INK} strokeWidth={1.6} />
+        {/* spout */}
+        <path d="M 13 -7 C 19 -9, 22 -13, 22 -17 L 25 -15 C 25 -10, 21 -5, 14 -3 Z"
+              fill="#95B88F" stroke={INK} strokeWidth={1.3} strokeLinejoin="round" />
+        {/* handle */}
+        <path d="M -13 -9 C -21 -11, -22 -1, -14 1"
+              stroke={INK} strokeWidth={3.6} fill="none" strokeLinecap="round" />
+        <path d="M -13 -9 C -21 -11, -22 -1, -14 1"
+              stroke="#95B88F" strokeWidth={1.8} fill="none" strokeLinecap="round" />
+        {/* lid */}
+        <ellipse cx={0} cy={-14} rx={7.5} ry={2.6} fill="#7BA46F" stroke={INK} strokeWidth={1.2} />
+        <circle cx={0} cy={-17.5} r={2.4} fill="#E8C493" stroke={INK} strokeWidth={1.1} />
+        {/* belly highlight + little flower motif */}
+        <ellipse cx={-5} cy={-8} rx={5} ry={3.4} fill="#B8D4A8" opacity={0.7} />
+        <circle cx={3} cy={-3} r={1.1} fill="#C38D9E" />
+        <circle cx={5.5} cy={-4.5} r={1.1} fill="#C38D9E" />
+        <circle cx={4.5} cy={-1.5} r={0.8} fill="#FFD93D" />
+        {/* steam from the spout */}
+        {!reducedMotion ? (
+          <motion.path
+            d="M 24 -19 C 22 -25, 26 -30, 24 -37"
+            stroke="#FFFAF2" strokeWidth={1.4} fill="none" strokeLinecap="round"
+            animate={{ opacity: [0.15, 0.6, 0.15], y: [0, -4, -8] }}
+            transition={{ duration: 3.4, repeat: Infinity, ease: 'easeInOut' }}
+          />
+        ) : (
+          <path d="M 24 -19 C 22 -25, 26 -30, 24 -37"
+                stroke="#FFFAF2" strokeWidth={1.4} fill="none"
+                strokeLinecap="round" opacity={0.45} />
+        )}
+      </g>
+
+      {/* TWO CUPS — one for each bunny */}
+      {[{ cx: 20, cy: -62 }, { cx: 36, cy: -55 }].map((c, i) => (
+        <g key={`cup-${i}`} transform={`translate(${c.cx}, ${c.cy})`}>
+          <ellipse cx={0} cy={1.5} rx={8} ry={2.2} fill={CREAM} stroke={INK} strokeWidth={0.9} />
+          <path d="M -5 0 L -5 -6 C -5 -8, 5 -8, 5 -6 L 5 0 Z"
+                fill={CREAM} stroke={INK} strokeWidth={1.1} strokeLinejoin="round" />
+          <ellipse cx={0} cy={-6} rx={5} ry={1.4} fill={WOOD_HI} />
+          <path d="M 5 -5 Q 9 -5 9 -3 Q 9 -1 5 -2"
+                stroke={INK} strokeWidth={1} fill="none" strokeLinecap="round" />
+          <circle cx={-1.5} cy={-3} r={0.7} fill="#C38D9E" />
+        </g>
+      ))}
+
+      {/* a spare carrot lying by the table leg */}
+      <g transform="translate(58, -5) rotate(18)">
+        <path d="M -10 0 C -10 -3, -4 -4, 2 -3 C 8 -2.4, 12 -1, 12 0.5
+                 C 12 2, 8 3, 2 3 C -4 3.4, -10 3, -10 0 Z"
+              fill="#E8873A" stroke={INK} strokeWidth={1.2} strokeLinejoin="round" />
+        <path d="M 12 0.5 q 6 -3 9 -1 M 12 0.5 q 7 1 9 4"
+              stroke="#6B8E5A" strokeWidth={1.5} fill="none" strokeLinecap="round" />
+        <path d="M -5 -1 L -5 1.6 M 1 -1.4 L 1 2" stroke={INK} strokeWidth={0.6} opacity={0.5} />
+      </g>
     </g>
   );
 }
 
 // ─────────────────────────────────────────────────────────────────────────
-// SideTable + Teacup — small wooden table beside the bunny with a
-// steaming teacup. Reads as "this is someone's parlor".
+// BASKET — woven basket with carrots poking out.
 // ─────────────────────────────────────────────────────────────────────────
-function SideTableWithTea({ x, y, reducedMotion }: { x: number; y: number; reducedMotion: boolean }) {
+function CarrotBasket({ x, y }: { x: number; y: number }) {
   return (
     <g transform={`translate(${x}, ${y})`} pointerEvents="none">
-      {/* shadow */}
-      <ellipse cx={0} cy={36} rx={22} ry={3} fill="#000" opacity={0.30} />
-      {/* central pedestal leg — turned wood */}
-      <path d="M -3 32 L -3 8 C -3 4, 3 4, 3 8 L 3 32 Z"
-            fill="#7B4F2C" stroke="#3F2614" strokeWidth={1.0} strokeLinejoin="round" />
-      {/* turning rings on the leg */}
-      <ellipse cx={0} cy={14} rx={3.5} ry={1.0} fill="#5A3B1F" />
-      <ellipse cx={0} cy={20} rx={4} ry={1.2} fill="#5A3B1F" />
-      <ellipse cx={0} cy={28} rx={4.5} ry={1.4} fill="#5A3B1F" />
-      {/* foot — wider base */}
-      <ellipse cx={0} cy={32} rx={9} ry={2} fill="#5A3B1F" stroke="#3F2614" strokeWidth={0.9} />
-      {/* tabletop */}
-      <ellipse cx={0} cy={4} rx={16} ry={4} fill="#1A0F08" opacity={0.45} />
-      <ellipse cx={0} cy={2} rx={16} ry={4.5} fill="#A0703F" stroke="#3F2614" strokeWidth={1.2} />
-      <ellipse cx={-2} cy={0.5} rx={11} ry={2.4} fill="#C39061" opacity={0.7} />
-
-      {/* TEACUP on the table */}
-      {/* saucer */}
-      <ellipse cx={0} cy={-2} rx={10} ry={2.4} fill="#FFFAF2" stroke="#5A3B1F" strokeWidth={0.9} />
-      <ellipse cx={0} cy={-2.6} rx={8} ry={1.6} fill="#FFE89A" opacity={0.4} />
-      {/* cup */}
-      <path d="M -6 -4 L -6 -10 C -6 -12, 6 -12, 6 -10 L 6 -4 Z"
-            fill="#FFFAF2" stroke="#5A3B1F" strokeWidth={1.0} strokeLinejoin="round" />
-      <ellipse cx={0} cy={-10} rx={6} ry={1.6} fill="#7B4F2C" />
-      <ellipse cx={0} cy={-10.5} rx={5} ry={1.2} fill="#A0703F" />
+      <ellipse cx={0} cy={2} rx={36} ry={6} fill="#000" opacity={0.25} />
+      {/* carrots inside (drawn before the basket front) */}
+      <g transform="translate(-10, -34) rotate(-22)">
+        <path d="M -3.5 0 C -4 6, -2 12, 0 15 C 2 12, 4 6, 3.5 0 C 2 -2, -2 -2, -3.5 0 Z"
+              fill="#E8873A" stroke={INK} strokeWidth={1.2} strokeLinejoin="round" />
+        <path d="M -2 -2 q -3 -6 -1 -10 M 1 -2 q 1 -7 3 -9"
+              stroke="#6B8E5A" strokeWidth={1.5} fill="none" strokeLinecap="round" />
+      </g>
+      <g transform="translate(8, -36) rotate(14)">
+        <path d="M -3.5 0 C -4 6, -2 12, 0 15 C 2 12, 4 6, 3.5 0 C 2 -2, -2 -2, -3.5 0 Z"
+              fill="#F5A85E" stroke={INK} strokeWidth={1.2} strokeLinejoin="round" />
+        <path d="M -2 -2 q -3 -6 -2 -10 M 1 -2 q 2 -6 4 -8"
+              stroke="#6B8E5A" strokeWidth={1.5} fill="none" strokeLinecap="round" />
+      </g>
+      {/* basket body */}
+      <path d="M -32 -24 C -34 -8, -28 0, 0 0 C 28 0, 34 -8, 32 -24 Z"
+            fill="#C9A66A" stroke={INK} strokeWidth={1.6} strokeLinejoin="round" />
+      {/* weave — horizontal arcs + stagger dashes */}
+      <path d="M -32 -17 C -20 -13, 20 -13, 32 -17 M -31 -9 C -18 -5, 18 -5, 31 -9"
+            stroke={INK} strokeWidth={0.9} fill="none" opacity={0.5} />
+      <path d="M -22 -22 L -20 -4 M -8 -23 L -7 -2 M 8 -23 L 7 -2 M 22 -22 L 20 -4"
+            stroke={INK} strokeWidth={0.8} strokeDasharray="4 3" opacity={0.4} fill="none" />
+      {/* rim */}
+      <path d="M -33 -24 C -16 -29, 16 -29, 33 -24 C 16 -20, -16 -20, -33 -24 Z"
+            fill="#D8B687" stroke={INK} strokeWidth={1.4} strokeLinejoin="round" />
       {/* handle */}
-      <path d="M 6 -8 Q 11 -8 11 -10 Q 11 -12 6 -10"
-            stroke="#5A3B1F" strokeWidth={1.0} fill="none" strokeLinecap="round" />
-      {/* tiny floral motif on the cup */}
-      <circle cx={-2} cy={-7} r={0.7} fill="#C8412B" />
-      <circle cx={2}  cy={-7} r={0.7} fill="#C8412B" />
-      <circle cx={0}  cy={-6} r={0.7} fill="#FFD166" />
-
-      {/* STEAM rising from the cup — three soft wisps */}
-      {!reducedMotion ? (
-        <>
-          <motion.path
-            d="M -3 -12 C -5 -16, -3 -20, -2 -24"
-            stroke="#FFFAF2" strokeWidth={1.0} fill="none" strokeLinecap="round"
-            animate={{ opacity: [0.2, 0.7, 0.2], y: [0, -3, -6] }}
-            transition={{ duration: 3.6, repeat: Infinity, ease: 'easeInOut' }}
-          />
-          <motion.path
-            d="M 0 -12 C 2 -16, 0 -20, 1 -24"
-            stroke="#FFFAF2" strokeWidth={1.0} fill="none" strokeLinecap="round"
-            animate={{ opacity: [0.2, 0.7, 0.2], y: [0, -3, -6] }}
-            transition={{ duration: 3.6, repeat: Infinity, ease: 'easeInOut', delay: 0.8 }}
-          />
-          <motion.path
-            d="M 3 -12 C 5 -16, 3 -20, 4 -24"
-            stroke="#FFFAF2" strokeWidth={1.0} fill="none" strokeLinecap="round"
-            animate={{ opacity: [0.2, 0.6, 0.2], y: [0, -3, -6] }}
-            transition={{ duration: 3.6, repeat: Infinity, ease: 'easeInOut', delay: 1.6 }}
-          />
-        </>
-      ) : (
-        <path d="M -2 -12 C 0 -16, -2 -20, -1 -24" stroke="#FFFAF2" strokeWidth={1.0} fill="none" strokeLinecap="round" opacity={0.5} />
-      )}
+      <path d="M -20 -26 C -12 -46, 12 -46, 20 -26"
+            stroke={INK} strokeWidth={4.6} fill="none" strokeLinecap="round" />
+      <path d="M -20 -26 C -12 -46, 12 -46, 20 -26"
+            stroke="#C9A66A" strokeWidth={2.4} fill="none" strokeLinecap="round" />
     </g>
   );
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// BOOK STACK — three chunky books by the hearth.
+// ─────────────────────────────────────────────────────────────────────────
+function BookStack({ x, y }: { x: number; y: number }) {
+  return (
+    <g transform={`translate(${x}, ${y})`} pointerEvents="none">
+      <ellipse cx={0} cy={2} rx={26} ry={4.5} fill="#000" opacity={0.25} />
+      <g transform="rotate(-2)">
+        <rect x={-22} y={-10} width={44} height={10} rx={2}
+              fill="#95B88F" stroke={INK} strokeWidth={1.4} />
+        <line x1={-18} y1={-2.5} x2={18} y2={-2.5} stroke={CREAM} strokeWidth={1.6} />
+      </g>
+      <g transform="rotate(3)">
+        <rect x={-19} y={-19} width={38} height={9} rx={2}
+              fill="#C97551" stroke={INK} strokeWidth={1.4} />
+        <line x1={-15} y1={-12.4} x2={15} y2={-12.4} stroke={CREAM} strokeWidth={1.5} />
+      </g>
+      <g transform="rotate(-3)">
+        <rect x={-15} y={-27} width={30} height={8} rx={2}
+              fill="#7FA9B0" stroke={INK} strokeWidth={1.4} />
+        <line x1={-11} y1={-21.2} x2={11} y2={-21.2} stroke={CREAM} strokeWidth={1.4} />
+        {/* ribbon bookmark */}
+        <path d="M 8 -27 L 8 -31 L 11 -29 Z" fill="#C38D9E" stroke={INK} strokeWidth={0.7} />
+      </g>
+    </g>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// Floor slots for discovered species + undiscovered nooks. The burrow
+// hosts a single species today (cottontail), but the list is safe for
+// a few more.
+// ─────────────────────────────────────────────────────────────────────────
+const SPECIES_SLOTS = [
+  { x: 1058, y: 696 },
+  { x: 1330, y: 692 },
+  { x: 240, y: 698 },
+];
+function speciesSlot(i: number) {
+  return SPECIES_SLOTS[Math.min(i, SPECIES_SLOTS.length - 1)];
 }
 
 // ─────────────────────────────────────────────────────────────────────────
@@ -487,6 +855,13 @@ export default function BunnyBurrowInterior({
     router.push(`/lesson/${sessionId}`);
   };
 
+  // The room cavity — a low earthen dome. Everything outside it is
+  // packed soil strata.
+  const ROOM_PATH =
+    'M 40 800 L 40 620 C 40 380, 205 210, 720 210 C 1235 210, 1400 380, 1400 620 L 1400 800 Z';
+  const RIM_ARC =
+    'M 40 620 C 40 380, 205 210, 720 210 C 1235 210, 1400 380, 1400 620';
+
   return (
     <HabitatInteriorLayout learnerId={learnerId} title="Bunny Burrow" iconEmoji="🐰">
       <svg
@@ -496,26 +871,31 @@ export default function BunnyBurrowInterior({
         style={{ touchAction: 'manipulation' }}
       >
         <defs>
-          <radialGradient id="bbGlow" cx="50%" cy="50%" r="65%">
-            <stop offset="0%"  stopColor="#FFE8B8" />
-            <stop offset="22%" stopColor="#F5CB88" />
-            <stop offset="55%" stopColor="#C49566" />
-            <stop offset="85%" stopColor="#6B4423" />
-            <stop offset="100%" stopColor="#3F2614" />
+          {/* warm interior light — brightest around the hearth/lantern axis */}
+          <radialGradient id="bbWarmGlow" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#FFE9A8" stopOpacity={1} />
+            <stop offset="55%" stopColor="#FFD98A" stopOpacity={0.45} />
+            <stop offset="100%" stopColor="#FFD98A" stopOpacity={0} />
           </radialGradient>
-          <linearGradient id="bbFloor" x1="0" y1="0" x2="0" y2="1">
+          <radialGradient id="bbRoom" cx="52%" cy="66%" r="72%">
+            <stop offset="0%"  stopColor="#F2D5A2" />
+            <stop offset="35%" stopColor="#DDB279" />
+            <stop offset="70%" stopColor="#B0854F" />
+            <stop offset="100%" stopColor="#7A5530" />
+          </radialGradient>
+          <linearGradient id="bbFloorShade" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#7A4F2C" stopOpacity={0} />
-            <stop offset="60%" stopColor="#5A3820" stopOpacity={0.8} />
-            <stop offset="100%" stopColor="#3A2510" stopOpacity={0.95} />
+            <stop offset="60%" stopColor="#5A3820" stopOpacity={0.55} />
+            <stop offset="100%" stopColor="#33200E" stopOpacity={0.9} />
           </linearGradient>
-          {/* SOIL TEXTURE pattern — tiny earth specks */}
-          <pattern id="bbSoil" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
-            <rect width="30" height="30" fill="transparent" />
-            <circle cx="6" cy="8" r="0.6" fill="#3F2614" opacity="0.6" />
-            <circle cx="20" cy="14" r="0.5" fill="#5A3820" opacity="0.7" />
-            <circle cx="12" cy="22" r="0.7" fill="#3F2614" opacity="0.5" />
+          {/* soil specks for wall texture */}
+          <pattern id="bbSoil" x="0" y="0" width="34" height="34" patternUnits="userSpaceOnUse">
+            <circle cx="7" cy="9" r="0.9" fill="#3F2614" opacity="0.5" />
+            <circle cx="22" cy="16" r="0.7" fill="#5A3820" opacity="0.6" />
+            <circle cx="13" cy="26" r="1" fill="#3F2614" opacity="0.4" />
+            <circle cx="28" cy="30" r="0.6" fill="#8B6938" opacity="0.5" />
           </pattern>
-          {/* PLANK FLOOR pattern */}
+          {/* plank floor */}
           <pattern id="bbPlanks" x="0" y="0" width="120" height="20" patternUnits="userSpaceOnUse">
             <rect width="120" height="20" fill="#5A3B1F" />
             <line x1="0" y1="0" x2="120" y2="0" stroke="#3F2614" strokeWidth="1" />
@@ -523,124 +903,158 @@ export default function BunnyBurrowInterior({
             <line x1="0" y1="0" x2="0" y2="20" stroke="#3F2614" strokeWidth="0.8" />
             <line x1="60" y1="0" x2="60" y2="20" stroke="#3F2614" strokeWidth="0.6" />
             <line x1="120" y1="0" x2="120" y2="20" stroke="#3F2614" strokeWidth="0.8" />
-            {/* wood grain */}
             <path d="M 4 4 Q 30 6 60 4 T 116 4" stroke="#7B4F2C" strokeWidth="0.5" fill="none" opacity="0.5" />
             <path d="M 4 14 Q 30 12 60 14 T 116 14" stroke="#7B4F2C" strokeWidth="0.5" fill="none" opacity="0.5" />
           </pattern>
+          <clipPath id="bbRoomClip">
+            <path d={ROOM_PATH} />
+          </clipPath>
         </defs>
 
-        {/* base wash */}
-        <rect width={1440} height={800} fill="url(#bbGlow)" />
-        <rect width={1440} height={800} fill="url(#bbSoil)" opacity={0.4} />
-
-        {/* TUNNEL ARCH at the top */}
-        <path
-          d="M 0 0 L 0 240
-             Q 100 140 240 110
-             Q 480 70 720 60
-             Q 960 70 1200 110
-             Q 1340 140 1440 240
-             L 1440 0 Z"
-          fill="#3A2510" opacity={0.94}
-        />
-        {/* lighter rim along the arch */}
-        <path
-          d="M 0 240
-             Q 100 140 240 110
-             Q 480 70 720 60
-             Q 960 70 1200 110
-             Q 1340 140 1440 240"
-          stroke="#7A4F2C" strokeWidth={4} fill="none" opacity={0.7} strokeLinecap="round"
-        />
-        {/* root-tendril texture along the arch rim */}
-        {[120, 280, 440, 600, 760, 920, 1080, 1240].map((rx, i) => (
-          <path
-            key={`rim-${i}`}
-            d={`M ${rx} ${130 + (i % 2) * 8}
-                Q ${rx + (i % 2 === 0 ? -4 : 4)} ${145 + (i % 2) * 6}
-                  ${rx - 2} ${165 + (i % 2) * 4}`}
-            stroke="#5A3820" strokeWidth={1.4} fill="none" strokeLinecap="round" opacity={0.7}
-          />
+        {/* ══ SOIL SURROUND — packed earth outside the dome ══════════ */}
+        <rect width={1440} height={800} fill="#4A2C15" />
+        {/* strata bands — wavy warm soil layers */}
+        <path d="M 0 0 L 1440 0 L 1440 74 Q 1250 88 1060 76 T 700 82 T 340 70 T 0 80 Z"
+              fill="#33200E" />
+        <path d="M 0 148 Q 200 134 400 146 T 780 140 T 1160 150 T 1440 138
+                 L 1440 74 Q 1250 88 1060 76 T 700 82 T 340 70 T 0 80 Z"
+              fill="#3F2712" />
+        {/* third, lighter band just above the dome shoulders */}
+        <path d="M 0 226 Q 220 210 440 224 T 860 216 T 1260 228 T 1440 214
+                 L 1440 148 Q 1160 158 880 148 T 400 154 T 0 148 Z"
+              fill="#543317" />
+        <rect width={1440} height={800} fill="url(#bbSoil)" opacity={0.6} />
+        {/* embedded pebbles in the soil */}
+        {[
+          { x: 140, y: 112, r: 11 }, { x: 425, y: 55, r: 8 }, { x: 640, y: 128, r: 9 },
+          { x: 985, y: 52, r: 10 }, { x: 1235, y: 118, r: 12 }, { x: 60, y: 205, r: 9 },
+          { x: 1392, y: 196, r: 10 }, { x: 820, y: 96, r: 7 },
+          { x: 292, y: 192, r: 8 }, { x: 742, y: 178, r: 7 }, { x: 1130, y: 190, r: 9 },
+          { x: 518, y: 172, r: 6 },
+        ].map((p, i) => (
+          <g key={`soilpeb-${i}`}>
+            <ellipse cx={p.x + 1} cy={p.y + 1.5} rx={p.r} ry={p.r * 0.72}
+                     fill="#1A0F08" opacity={0.4} />
+            <ellipse cx={p.x} cy={p.y} rx={p.r} ry={p.r * 0.72}
+                     fill={i % 2 === 0 ? '#8B7355' : '#75604A'}
+                     stroke={INK} strokeWidth={1.3} />
+            <ellipse cx={p.x - p.r * 0.3} cy={p.y - p.r * 0.28}
+                     rx={p.r * 0.4} ry={p.r * 0.2} fill="#B5A084" opacity={0.6} />
+          </g>
         ))}
-
-        {/* CEILING BEAM — runs across the top of the chamber, visible
-            wood beam from which lantern + herbs hang */}
-        <rect x={0} y={208} width={1440} height={14} fill="#5A3B1F" stroke="#3F2614" strokeWidth={1.2} />
-        <line x1={0} y1={212} x2={1440} y2={212} stroke="#7B4F2C" strokeWidth={0.7} opacity={0.7} />
-        <line x1={0} y1={218} x2={1440} y2={218} stroke="#7B4F2C" strokeWidth={0.7} opacity={0.7} />
-        {/* end-grain notches every 240px */}
-        {[0, 240, 480, 720, 960, 1200, 1440].map((bx, i) => (
-          <rect key={`bn-${i}`} x={bx - 4} y={208} width={8} height={14} fill="#3F2614" opacity={0.7} />
+        {/* root cross-sections — cut roots showing rings */}
+        {[{ x: 322, y: 138 }, { x: 1082, y: 92 }, { x: 555, y: 62 }].map((rc, i) => (
+          <g key={`rootx-${i}`}>
+            <circle cx={rc.x} cy={rc.y} r={10} fill={WOOD} stroke={INK} strokeWidth={1.5} />
+            <circle cx={rc.x} cy={rc.y} r={6} fill="none" stroke={WOOD_HI} strokeWidth={1.1} opacity={0.8} />
+            <circle cx={rc.x} cy={rc.y} r={2} fill={INK} opacity={0.7} />
+            <path d={`M ${rc.x + 9} ${rc.y - 3} q 8 -2 13 -7 M ${rc.x - 9} ${rc.y + 3} q -8 3 -12 8`}
+                  stroke={INK} strokeWidth={1.6} fill="none" strokeLinecap="round" opacity={0.7} />
+          </g>
         ))}
+        {/* a tiny worm wriggling through the soil */}
+        <path d="M 880 168 q 6 -7 12 0 q 6 7 12 0"
+              stroke="#D89AA6" strokeWidth={3.4} fill="none" strokeLinecap="round" />
+        <circle cx={905} cy={166} r={0.9} fill={INK} />
 
-        {/* HANGING ROOTS — fewer than before, only above the ceiling beam */}
-        <HangingRoot x={180} length={70} />
-        <HangingRoot x={420} length={90} />
-        <HangingRoot x={1020} length={80} />
-        <HangingRoot x={1260} length={75} />
-
-        {/* HANGING HERBS — bundles tied to the ceiling beam */}
-        <HangingHerbs x={300} y={222} color="#7BA46F" />
-        <HangingHerbs x={420} y={222} color="#A8341F" />
-        <HangingHerbs x={1080} y={222} color="#A675B0" />
-        <HangingHerbs x={1200} y={222} color="#7BA46F" />
-
-        {/* HEARTH ALCOVE — back-center, the warm light source */}
-        <HearthAlcove x={720} y={400} reducedMotion={reducedMotion} />
-
-        {/* HANGING LANTERN — chain from the ceiling beam, hangs in
-            front of the hearth as secondary light */}
-        <g transform="translate(360, 222)">
-          {/* chain — 6 oval links */}
-          {[0, 14, 28, 42, 56, 70].map((cy, i) => (
-            <ellipse key={`chl-${i}`} cx={0} cy={cy + 6} rx={3} ry={4.5}
-                     fill="none" stroke={i % 2 === 0 ? '#5A3B1F' : '#7B4F2C'} strokeWidth={1.4} />
+        {/* ══ ROOM CAVITY — warm dome interior ══════════════════════ */}
+        <path d={ROOM_PATH} fill="url(#bbRoom)" />
+        <g clipPath="url(#bbRoomClip)">
+          {/* inner shadow just inside the rim */}
+          <path d={RIM_ARC} stroke="#2A1808" strokeWidth={26} fill="none" opacity={0.25} />
+          {/* interior strata — subtle warm bands in the wall itself */}
+          <path d="M 40 352 Q 380 330 720 346 T 1400 338 L 1400 376 Q 1060 390 720 378 T 40 388 Z"
+                fill="#C79A6B" opacity={0.30} />
+          <path d="M 40 470 Q 400 450 760 464 T 1400 454 L 1400 494 Q 1040 508 680 496 T 40 504 Z"
+                fill="#A87C4F" opacity={0.24} />
+          <path d="M 40 572 Q 400 556 760 568 T 1400 560"
+                stroke="#8B6938" strokeWidth={2.5} fill="none" opacity={0.28} />
+          {/* faint contour arcs echoing the dome */}
+          <path d="M 84 660 C 84 424, 236 258, 720 252 C 1204 258, 1356 424, 1356 660"
+                stroke="#8B6938" strokeWidth={2} fill="none" opacity={0.3} />
+          <path d="M 130 680 C 130 452, 275 292, 720 286 C 1165 292, 1310 452, 1310 680"
+                stroke="#8B6938" strokeWidth={1.6} fill="none" opacity={0.22} />
+          {/* soil specks on the interior walls */}
+          <rect width={1440} height={800} fill="url(#bbSoil)" opacity={0.35} />
+          {/* pebbles embedded in the interior wall */}
+          {[
+            { x: 100, y: 520, r: 9 }, { x: 152, y: 402, r: 7 }, { x: 1338, y: 486, r: 10 },
+            { x: 1290, y: 590, r: 7 }, { x: 560, y: 528, r: 6 }, { x: 806, y: 492, r: 7 },
+            { x: 250, y: 470, r: 6 }, { x: 1120, y: 430, r: 6 },
+          ].map((p, i) => (
+            <g key={`wallpeb-${i}`} opacity={0.85}>
+              <ellipse cx={p.x} cy={p.y} rx={p.r} ry={p.r * 0.75}
+                       fill={i % 2 === 0 ? '#C4A87F' : '#B29469'}
+                       stroke={INK} strokeWidth={1.1} />
+              <ellipse cx={p.x - p.r * 0.3} cy={p.y - p.r * 0.25}
+                       rx={p.r * 0.4} ry={p.r * 0.22} fill="#E3CBA2" opacity={0.7} />
+            </g>
           ))}
-          {/* lantern HOOD */}
-          <path d="M -16 86 L 16 86 L 12 78 L -12 78 Z"
-                fill="#5A3B1F" stroke="#1A1208" strokeWidth={1.4} strokeLinejoin="round" />
-          {/* lantern body — cage */}
-          <path
-            d="M -14 86 L 14 86 L 16 118 L -16 118 Z"
-            fill="#3F2614" stroke="#1A1208" strokeWidth={1.5} strokeLinejoin="round"
-          />
-          {/* glass + glow */}
-          <rect x={-11} y={89} width={22} height={26} fill="#FFD06B" />
-          {/* cage bars vertical */}
-          <line x1={-7} y1={89} x2={-7} y2={115} stroke="#1A1208" strokeWidth={0.9} />
-          <line x1={0}  y1={89} x2={0}  y2={115} stroke="#1A1208" strokeWidth={0.9} />
-          <line x1={7}  y1={89} x2={7}  y2={115} stroke="#1A1208" strokeWidth={0.9} />
-          {/* corner rivets */}
-          <circle cx={-12} cy={91} r={1.0} fill="#5A3B1F" />
-          <circle cx={12}  cy={91} r={1.0} fill="#5A3B1F" />
-          <circle cx={-12} cy={113} r={1.0} fill="#5A3B1F" />
-          <circle cx={12}  cy={113} r={1.0} fill="#5A3B1F" />
-          {/* base */}
-          <path d="M -16 118 L 16 118 L 14 124 L -14 124 Z"
-                fill="#5A3B1F" stroke="#1A1208" strokeWidth={1.3} strokeLinejoin="round" />
-          {/* flame */}
-          {!reducedMotion ? (
-            <motion.path
-              d="M 0 110 C -3 106, -3 100, 0 96 C 3 100, 3 106, 0 110 Z"
-              fill="#FFFAF2"
-              animate={{ scaleY: [1, 1.15, 0.95, 1.10, 1], opacity: [0.85, 1, 0.9, 1, 0.85] }}
-              transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
-              style={{ originX: '0px', originY: '110px' }}
-            />
-          ) : (
-            <path d="M 0 110 C -3 106, -3 100, 0 96 C 3 100, 3 106, 0 110 Z" fill="#FFFAF2" opacity={0.9} />
-          )}
-          <path d="M 0 109 C -2 106, -2 102, 0 100 C 2 102, 2 106, 0 109 Z" fill="#FFD06B" />
-          {/* glow halo */}
-          <ellipse cx={0} cy={104} rx={140} ry={90} fill="#FFD06B" opacity={0.16} />
+          {/* one root cross-section peeking through the back wall */}
+          <g opacity={0.9}>
+            <circle cx={700} cy={392} r={8} fill={WOOD} stroke={INK} strokeWidth={1.3} />
+            <circle cx={700} cy={392} r={4.6} fill="none" stroke={WOOD_HI} strokeWidth={1} opacity={0.8} />
+            <circle cx={700} cy={392} r={1.6} fill={INK} opacity={0.7} />
+          </g>
+        </g>
+        {/* dome rim — chunky ink outline with a warm inner lip */}
+        <path d={RIM_ARC} stroke={INK} strokeWidth={5} fill="none" strokeLinecap="round" />
+        <path d="M 52 620 C 52 388, 212 220, 720 220 C 1228 220, 1388 388, 1388 620"
+              stroke="#8B6938" strokeWidth={2} fill="none" opacity={0.6} />
+
+        {/* ══ CEILING ROOT CANOPY ═══════════════════════════════════ */}
+        <CeilingCanopy />
+
+        {/* bundles hanging from the roots */}
+        <DriedFlowerBundle x={262} y={318} />
+        <CarrotBundle x={548} y={242} drop={48} />
+        <DriedFlowerBundle x={1148} y={322} tone="#A675B0" />
+
+        {/* root chandelier + lantern over the center */}
+        <RootChandelier reducedMotion={reducedMotion} />
+
+        {/* ══ FLOOR ═════════════════════════════════════════════════ */}
+        <rect x={0} y={640} width={1440} height={160} fill="url(#bbPlanks)" opacity={0.9} />
+        {/* wall/floor junction shadow */}
+        <rect x={0} y={640} width={1440} height={14} fill="#2A1808" opacity={0.35} />
+        <line x1={0} y1={640} x2={1440} y2={640} stroke={INK} strokeWidth={2.5} opacity={0.8} />
+        <rect x={0} y={620} width={1440} height={180} fill="url(#bbFloorShade)" />
+
+        {/* ══ WALL VIGNETTES (back to front) ════════════════════════ */}
+
+        {/* tiny carved candle niche on the mid wall */}
+        <g transform="translate(618, 462)" pointerEvents="none">
+          <path d="M -20 16 L -20 -8 C -20 -22, -8 -27, 0 -27 C 8 -27, 20 -22, 20 -8 L 20 16 Z"
+                fill="#2E1C0E" stroke={INK} strokeWidth={1.8} strokeLinejoin="round" />
+          <path d="M -14 14 L -14 -7 C -14 -17, -6 -21, 0 -21 C 6 -21, 14 -17, 14 -7 L 14 14 Z"
+                fill="#241407" opacity={0.85} />
+          <ellipse cx={0} cy={2} rx={13} ry={11} fill="url(#bbWarmGlow)" opacity={0.9} />
+          {/* candle */}
+          <rect x={-4} y={-1} width={8} height={13} rx={2}
+                fill={CREAM} stroke={INK} strokeWidth={1.1} />
+          <path d="M -4 1 q 2 2 4 0 q 2 -2 4 0" stroke="#E3D6BC" strokeWidth={1} fill="none" />
+          <path d="M 0 -3 C -2.4 -6, -2.4 -10, 0 -12.5 C 2.4 -10, 2.4 -6, 0 -3 Z"
+                fill="#FFD06B" stroke="#B85C22" strokeWidth={0.7} />
+          <circle cx={0} cy={-7.5} r={1.4} fill="#FFFAF2" />
+          {/* saucer */}
+          <ellipse cx={0} cy={12.5} rx={7.5} ry={2.2} fill="#C97551" stroke={INK} strokeWidth={1} />
         </g>
 
-        {/* JAR SHELF — right wall, between hearth and door */}
-        <JarShelf x={1080} y={420} />
+        {/* sleeping alcove with patchwork bed */}
+        <BedAlcove x={322} y={642} />
 
-        {/* WOODEN DOOR — left wall, leads deeper */}
-        <g transform="translate(160, 480)" pointerEvents="none">
-          <ellipse cx={2} cy={108} rx={36} ry={6} fill="#000" opacity={0.32} />
+        {/* hearth — the warm heart of the burrow */}
+        <Hearth x={950} y={642} reducedMotion={reducedMotion} />
+
+        {/* jar shelf + framed bunny portraits on the right wall */}
+        <JarShelf x={1240} y={452} />
+        <FramedPortrait x={1198} y={382} s={1} />
+        <FramedPortrait x={1286} y={402} s={0.78} frame="#C38D9E" />
+
+        {/* ROUND DOOR — left wall, leads deeper into the warren.
+            Scaled up so it reads bunny-sized next to the residents. */}
+        <g transform="translate(140, 514) scale(1.35)" pointerEvents="none">
+          <ellipse cx={2} cy={104} rx={38} ry={6} fill="#000" opacity={0.32} />
           {/* archway frame */}
           <path
             d="M -28 100 L -28 50
@@ -669,36 +1083,64 @@ export default function BunnyBurrowInterior({
           <circle cx={13} cy={69} r={1} fill="#FFFFFF" opacity={0.65} />
           {/* keyhole glow */}
           <circle cx={14} cy={76} r={1.4} fill="#FFE89A" opacity={0.85} />
+          {/* half-round welcome mat */}
+          <path d="M -40 103 Q 0 74 40 103 Z"
+                fill="#E8C493" stroke={INK} strokeWidth={1.4} strokeLinejoin="round" />
+          <path d="M -27 100 Q 0 82 27 100" stroke="#C9A66A" strokeWidth={1.6}
+                fill="none" opacity={0.9} />
+          <path d="M -14 101 Q 0 92 14 101" stroke="#C97551" strokeWidth={1.4}
+                fill="none" opacity={0.8} />
+          {/* tiny boots beside the door */}
+          <g transform="translate(46, 88)">
+            <path d="M 0 12 L 0 0 C 0 -2, 6 -2, 6 0 L 6 6 L 12 8 C 14 9, 13 12, 11 12 Z"
+                  fill="#A0563B" stroke={INK} strokeWidth={1.2} strokeLinejoin="round" />
+            <rect x={-0.5} y={-3} width={7} height={3.4} rx={1.4}
+                  fill="#C9A66A" stroke={INK} strokeWidth={0.9} />
+            <g transform="translate(14, 0)">
+              <path d="M 0 12 L 0 0 C 0 -2, 6 -2, 6 0 L 6 6 L 12 8 C 14 9, 13 12, 11 12 Z"
+                    fill="#A0563B" stroke={INK} strokeWidth={1.2} strokeLinejoin="round" />
+              <rect x={-0.5} y={-3} width={7} height={3.4} rx={1.4}
+                    fill="#C9A66A" stroke={INK} strokeWidth={0.9} />
+            </g>
+          </g>
         </g>
 
-        {/* PLANK FLOOR — wooden floorboards visible at the bottom */}
-        <rect x={0} y={680} width={1440} height={120} fill="url(#bbPlanks)" opacity={0.85} />
-        <rect x={0} y={620} width={1440} height={180} fill="url(#bbFloor)" />
+        {/* ══ FLOOR VIGNETTES ═══════════════════════════════════════ */}
 
-        {/* WOVEN RUG — under the themed structure pedestal */}
-        <g transform="translate(720, 690)" pointerEvents="none">
-          <ellipse cx={2} cy={4} rx={140} ry={26} fill="#1A0F08" opacity={0.30} />
-          <ellipse cx={0} cy={0} rx={142} ry={26}
-                   fill="#A85940" stroke="#5A3B1F" strokeWidth={1.2} />
-          <ellipse cx={0} cy={0} rx={120} ry={20} fill="none"
-                   stroke="#FFD06B" strokeWidth={0.9} opacity={0.7} />
-          <ellipse cx={0} cy={0} rx={92} ry={14} fill="none"
-                   stroke="#5A3B1F" strokeWidth={0.7} opacity={0.7} />
-          <ellipse cx={0} cy={0} rx={64} ry={9} fill="#7B4F2C" stroke="#5A3B1F" strokeWidth={0.7} />
-          {/* tassels at the rug edge */}
-          {[-138, -120, -100, -80, 80, 100, 120, 138].map((rx, i) => (
-            <line key={`rt-${i}`} x1={rx} y1={20} x2={rx + (i % 2 === 0 ? -1 : 1)} y2={26}
-                  stroke="#A85940" strokeWidth={0.8} strokeLinecap="round" />
-          ))}
-          {/* tiny diamond pattern around the inner ring */}
-          {[-70, -35, 0, 35, 70].map((dx, i) => (
-            <path key={`rd-${i}`} d={`M ${dx} -8 L ${dx + 4} -4 L ${dx} 0 L ${dx - 4} -4 Z`}
-                  fill="#FFD06B" stroke="#5A3B1F" strokeWidth={0.5} opacity={0.85} />
-          ))}
+        {/* BRAIDED RUG — concentric two-tone rings under the pedestal */}
+        <g transform="translate(720, 700)" pointerEvents="none">
+          <ellipse cx={3} cy={4} rx={150} ry={34} fill="#1A0F08" opacity={0.3} />
+          <ellipse cx={0} cy={0} rx={150} ry={34} fill="#B86B4C" stroke={INK} strokeWidth={1.6} />
+          <ellipse cx={0} cy={0} rx={125} ry={27.5} fill="#E3B380" stroke="#8B5A33" strokeWidth={0.9} />
+          <ellipse cx={0} cy={0} rx={100} ry={21.5} fill="#B86B4C" stroke="#8B5A33" strokeWidth={0.9} />
+          <ellipse cx={0} cy={0} rx={75} ry={15.5} fill="#E3B380" stroke="#8B5A33" strokeWidth={0.9} />
+          <ellipse cx={0} cy={0} rx={50} ry={10} fill="#B86B4C" stroke="#8B5A33" strokeWidth={0.9} />
+          <ellipse cx={0} cy={0} rx={25} ry={5} fill="#E3B380" stroke="#8B5A33" strokeWidth={0.9} />
+          {/* braid stitch marks on alternating rings */}
+          <ellipse cx={0} cy={0} rx={137} ry={30.5} fill="none" stroke="#8B5A33"
+                   strokeWidth={2.2} strokeDasharray="7 9" opacity={0.45} />
+          <ellipse cx={0} cy={0} rx={87} ry={18.5} fill="none" stroke="#8B5A33"
+                   strokeWidth={2} strokeDasharray="6 8" opacity={0.4} />
         </g>
 
-        {/* THEMED SKILL STRUCTURE — sits on a root-knot pedestal in the
-            center foreground, on top of the rug, lit by lantern + hearth */}
+        {/* TEA TABLE — the resident bunny's spot */}
+        <g transform="translate(622, 714) scale(1.2)">
+          <TeaTable x={0} y={0} reducedMotion={reducedMotion} />
+        </g>
+
+        {/* THE BURROW BUNNY — sitting by the tea table, waiting for a
+            friend. Paws (internal y=20 × scale 4.6) land at y≈730 on
+            the floor. */}
+        <g transform="translate(484, 628)">
+          <CottontailBunny scale={4.6} reducedMotion={reducedMotion} />
+        </g>
+
+        {/* basket of carrots + books by the hearth */}
+        <CarrotBasket x={1122} y={716} />
+        <BookStack x={1198} y={722} />
+
+        {/* THEMED SKILL STRUCTURE — root-knot pedestal on the rug,
+            lit from above by the root chandelier */}
         <g
           transform="translate(720, 620)"
           style={{ cursor: 'pointer', touchAction: 'manipulation' }}
@@ -746,31 +1188,14 @@ export default function BunnyBurrowInterior({
           </text>
         </g>
 
-        {/* THE BURROW BUNNY — large + prominent, the focal
-            character of the room. Redrawn front-facing, ~35×50 at
-            scale 1; at scale 6 that's ~210×300px. Centered at
-            (440, 600) so the front paws (internal y=20) land at
-            screen y=720 — right on the visible floor surface where
-            the side table sits, not floating above and not sunk in. */}
-        <g transform="translate(440, 600)">
-          <CottontailBunny scale={6} reducedMotion={reducedMotion} />
-        </g>
-
-        {/* SIDE TABLE WITH TEACUP — beside the bunny */}
-        <SideTableWithTea x={460} y={690} reducedMotion={reducedMotion} />
-
         {/* DISCOVERED SPECIES — bespoke small bunny SVG (NOT emoji)
-            for the cottontail. They walk in profile along the floor
-            with a gentle hop. */}
+            for the cottontail, placed in the hearth-rug vignette so
+            the scale reads. */}
         {discoveredSpecies.map((sp, i) => {
-          const x = 1120 + i * 110;
-          const y = 690;
+          const { x, y } = speciesSlot(i);
           // Special-case the cottontail rabbit: use the bespoke SVG
           // bunny so we don't render a "disembodied 🐰 emoji" in
-          // this scene. The species code is 'cottontail_rabbit'
-          // (the previous check used 'cottontail' which never matched
-          // and silently fell through to the emoji rendering — the
-          // bug the user kept seeing).
+          // this scene. The species code is 'cottontail_rabbit'.
           const isBunny = sp.code === 'cottontail_rabbit';
           return (
             <motion.g
@@ -779,11 +1204,8 @@ export default function BunnyBurrowInterior({
               transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut', delay: i * 0.4 }}
             >
               {isBunny ? (
-                /* SPECIES-CARD BUNNY: scale 1.6 (~56×80px) so the
-                   bunny matches the size of the emoji species above
-                   the label and the front paws (internal y=20) land
-                   at screen y=687 — just above the label ribbon at
-                   y=712, not overflowing into it. */
+                /* SPECIES-CARD BUNNY: scale 1.6 (~56×80px); front paws
+                   (internal y=20) land just above the label ribbon. */
                 <g transform={`translate(${x}, ${y - 33})`}>
                   <CottontailBunny scale={1.6} reducedMotion={reducedMotion} />
                 </g>
@@ -805,14 +1227,13 @@ export default function BunnyBurrowInterior({
         })}
 
         {/* UNDISCOVERED SLOTS — bespoke "burrow nook" niches dug into
-            the back wall. Each is a dark rounded niche with a faint
-            silhouette inside, suggesting "a future resident might
+            the wall near the floor. Each is a dark rounded niche with a
+            faint silhouette inside, suggesting "a future resident might
             settle here". NOT 🐰 emoji. */}
         {Array.from({ length: undiscoveredCount }).map((_, i) => {
-          const x = 1120 + (discoveredSpecies.length + i) * 110;
-          const y = 690;
+          const { x, y } = speciesSlot(discoveredSpecies.length + i);
           return (
-            <g key={`undiscovered-${i}`} opacity={0.55}>
+            <g key={`undiscovered-${i}`} opacity={0.6}>
               {/* nook silhouette — a small archway carved into the wall */}
               <path
                 d={`M ${x - 18} ${y + 10}
@@ -820,7 +1241,7 @@ export default function BunnyBurrowInterior({
                     C ${x - 18} ${y - 18}, ${x - 6} ${y - 22}, ${x} ${y - 22}
                     C ${x + 6} ${y - 22}, ${x + 18} ${y - 18}, ${x + 18} ${y - 6}
                     L ${x + 18} ${y + 10} Z`}
-                fill="#1A0F08" stroke="#3A2510" strokeWidth={1.3}
+                fill="#1A0F08" stroke="#3F2614" strokeWidth={1.3}
               />
               {/* faint ear-shapes inside hinting "something lives here" */}
               <ellipse cx={x - 4} cy={y - 8} rx={1.6} ry={4} fill="#5A3820" opacity={0.55} />
