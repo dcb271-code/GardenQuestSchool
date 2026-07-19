@@ -9,6 +9,7 @@ const pushMock = vi.fn();
 const routerMock = { push: pushMock };
 vi.mock('next/navigation', () => ({
   useRouter: () => routerMock,
+  useSearchParams: () => new URLSearchParams(),
 }));
 vi.mock('@/components/child/LessonHeader', () => ({
   default: () => <div data-testid="lesson-header" />,
