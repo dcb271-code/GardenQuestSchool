@@ -15,6 +15,7 @@ import AmbientLayer from '@/components/child/garden/AmbientLayer';
 import SisterWalkers, { SISTERS_HOME } from '@/components/child/garden/SisterWalkers';
 import WelcomeOverlay from '@/components/child/garden/WelcomeOverlay';
 import HabitatQuestModal from '@/components/child/garden/HabitatQuestModal';
+import KitchenModal from '@/components/child/garden/KitchenModal';
 import { useGardenSoundtrack } from '@/lib/audio/useGardenSoundtrack';
 import { playSparkle } from '@/lib/audio/sfx';
 import { StructureIllustration, Tree, PineTree, Flower, GrassTuft, CozyHouse } from '@/components/child/garden/illustrations';
@@ -219,6 +220,7 @@ export default function GardenScene({
 
   // Habitat ecology quest — opens when learner taps a not-yet-built habitat
   const [questHabitat, setQuestHabitat] = useState<MapStructure | null>(null);
+  const [kitchenOpen, setKitchenOpen] = useState(false);
   // Just-built habitat code, used to trigger a transformation animation
   const [justBuiltCode, setJustBuiltCode] = useState<string | null>(null);
 
@@ -1255,6 +1257,33 @@ export default function GardenScene({
             );
           })}
 
+          {/* Bachan's picnic table — the kitchen door. Sits beside the
+              cottage porch; tapping opens the Recipe Box. Native SVG
+              like the gates/characters (foreignObject touch caveat). */}
+          <g
+            transform="translate(268, 582)"
+            style={{ cursor: 'pointer', touchAction: 'manipulation' }}
+            onClick={() => setKitchenOpen(true)}
+            aria-label="Bachan's kitchen — cook something from the harvest basket"
+          >
+            <circle r={34} fill="transparent" />
+            {/* checkered picnic blanket */}
+            <rect x={-26} y={-4} width={52} height={30} rx={6} fill="#F2E8D8" stroke="#C34A36" strokeWidth={1.2} />
+            {Array.from({ length: 3 }).map((_, r) =>
+              Array.from({ length: 5 }).map((_, c) => (
+                (r + c) % 2 === 0 && (
+                  <rect key={`${r}-${c}`} x={-26 + c * 10.4} y={-4 + r * 10} width={10.4} height={10} rx={2}
+                        fill="#C34A36" opacity={0.28} />
+                )
+              )),
+            )}
+            <text y={8} textAnchor="middle" fontSize={22}>🧺</text>
+            <rect x={-34} y={30} width={68} height={15} rx={4} fill="rgba(195, 141, 158, 0.95)" />
+            <text y={41} textAnchor="middle" fontSize={9} fontWeight={700} fill="#fffaf2">
+              Kitchen
+            </text>
+          </g>
+
           {/* Petal burst on tap (unlocked) */}
           <AnimatePresence>
             {tappedCode && !reducedMotion && (() => {
@@ -1500,6 +1529,14 @@ export default function GardenScene({
       {/* First-ever visit welcome overlay — auto-dismisses after tap,
           stored in localStorage so it only ever appears once per learner. */}
       <WelcomeOverlay learnerId={learnerId} firstName={firstName} />
+
+      {/* Bachan's kitchen — cook a recipe from the harvest basket */}
+      <KitchenModal
+        open={kitchenOpen}
+        learnerId={learnerId}
+        onClose={() => setKitchenOpen(false)}
+        onCooked={() => router.refresh()}
+      />
 
       {/* Habitat ecology quest — opens when an available habitat is tapped */}
       <HabitatQuestModal

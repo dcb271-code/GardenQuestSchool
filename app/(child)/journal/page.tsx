@@ -6,6 +6,7 @@ import { resolveLearnerId } from '@/lib/learner/activeLearner';
 import SpeciesGrid from './SpeciesGrid';
 import { buildFloraJournal } from '@/lib/naturalist/floraJournal';
 import { FLORA_CATALOG } from '@/lib/world/floraCatalog';
+import { RECIPE_CATALOG, getRecipe } from '@/lib/world/recipeCatalog';
 import { publicUrlFor } from '@/lib/naturalist/floraPhotoStorage';
 import FloraJournalGrid from './FloraJournalGrid';
 
@@ -76,6 +77,15 @@ export default async function JournalPage({
 
   const floraJournal = buildFloraJournal({ discovered: discoveredFlora, heroUrlByCode });
   const floraDiscoveredCount = floraJournal.filter(e => e.discovered).length;
+
+  // ── Recipe box (Bachan's kitchen) ───────────────────────────────
+  const { data: mealRows } = await db
+    .from('meal')
+    .select('recipe_code, guest_code, cooked_at')
+    .eq('learner_id', learnerId!)
+    .order('cooked_at', { ascending: false });
+  const meals = mealRows ?? [];
+  const cookedRecipeCodes = new Set(meals.map(m => m.recipe_code));
 
   const backHref = learnerId ? `/garden?learner=${learnerId}` : '/picker';
 
@@ -210,6 +220,63 @@ export default async function JournalPage({
 
         <FloraJournalGrid entries={floraJournal} />
       </section>
+
+      <section>
+        <div className="flex items-baseline justify-between mb-3">
+          <h2 className="font-display italic text-[13px] text-bark/55 tracking-[0.2em] uppercase">
+            recipe box
+          </h2>
+          <div className="font-display text-[14px] text-bark/65">
+            <span className="font-bold text-forest">{cookedRecipeCodes.size}</span>
+            <span className="text-bark/40"> / {RECIPE_CATALOG.length} recipes</span>
+          </div>
+        </div>
+
+        {meals.length === 0 ? (
+          <div className="bg-gradient-to-br from-cream to-terracotta/10 border-4 border-terracotta/30 rounded-2xl p-5">
+            <div className="flex items-start gap-4">
+              <div className="text-5xl shrink-0">🧺</div>
+              <div className="flex-1">
+                <div className="font-display text-[22px] text-bark leading-tight" style={{ fontWeight: 600 }}>
+                  <span className="italic text-forest">cook something</span> at Bachan&apos;s kitchen
+                </div>
+                <p className="font-display italic text-[15px] text-bark/70 mt-2 leading-snug">
+                  harvest vegetables in the grow garden, then find the picnic table by
+                  Bachan&apos;s porch. every meal you share lands here.
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <ul className="space-y-2.5">
+            {meals.map((m, i) => {
+              const recipe = getRecipe(m.recipe_code);
+              const guest = GUEST_NAMES[m.guest_code ?? ''] ??
+                SPECIES_CATALOG.find(s => s.code === m.guest_code)?.commonName ?? null;
+              return (
+                <li key={i} className="bg-white border-4 border-ochre/60 rounded-2xl px-4 py-3 flex items-center gap-3">
+                  <span className="text-3xl shrink-0">{recipe?.emoji ?? '🍽️'}</span>
+                  <span className="flex-1 min-w-0">
+                    <span className="block font-display text-[17px] text-bark truncate" style={{ fontWeight: 600 }}>
+                      {recipe?.name ?? m.recipe_code}
+                    </span>
+                    <span className="block font-display italic text-[13px] text-bark/60">
+                      {guest ? `shared with ${guest} · ` : ''}
+                      {m.cooked_at ? new Date(m.cooked_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : ''}
+                    </span>
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </section>
     </main>
   );
 }
+
+const GUEST_NAMES: Record<string, string> = {
+  esme: 'Esme',
+  bachan: 'Bachan',
+  luna: 'Luna the cat',
+};
