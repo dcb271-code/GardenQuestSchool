@@ -23,6 +23,7 @@ import {
 import AmbientLayer from '@/components/child/garden/AmbientLayer';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
 import EmptyPlotPicker from './EmptyPlotPicker';
+import { usePortraitPan, PanEdgeHints } from '@/components/child/garden/usePortraitPan';
 import PlantInspectModal from './PlantInspectModal';
 import HarvestCelebration from './HarvestCelebration';
 import SeedInventoryTray from './SeedInventoryTray';
@@ -52,6 +53,8 @@ export default function GrowScene({
   const [celebrating, setCelebrating] = useState(false);
   // Which locked quadrant's explanation sign is open (null = none).
   const [signQuadrant, setSignQuadrant] = useState<GardenType | null>(null);
+  // Portrait pan — opens centered on the vegetable bed (the always-open one).
+  const portraitPan = usePortraitPan({ worldW: VB_W, worldH: VB_H, initialCenterX: 340 });
   const { settings } = useAccessibilitySettings();
   const reducedMotion = settings.reducedMotion;
 
@@ -82,8 +85,7 @@ export default function GrowScene({
       </header>
 
       <div className="flex-1 relative overflow-hidden">
-        <svg viewBox={`0 0 ${VB_W} ${VB_H}`} preserveAspectRatio="xMidYMid meet"
-             className="absolute inset-0 w-full h-full" style={{ touchAction: 'manipulation' }}>
+        <svg {...portraitPan.svgProps} className="absolute inset-0 w-full h-full">
           <defs>
             <linearGradient id="grow-sky" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%"  stopColor="#F4D9C0" />
@@ -619,6 +621,8 @@ export default function GrowScene({
           {/* Time-of-day tint overlay — final wash, never blocks input */}
           <rect width={VB_W} height={VB_H} fill={tint} pointerEvents="none" />
         </svg>
+
+        <PanEdgeHints canLeft={portraitPan.canLeft} canRight={portraitPan.canRight} />
 
         <EmptyPlotPicker
           open={pickerPlotCode !== null}

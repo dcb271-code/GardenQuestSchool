@@ -49,6 +49,7 @@ import BranchSceneLayout from '@/components/child/garden/BranchSceneLayout';
 import AmbientLayer from '@/components/child/garden/AmbientLayer';
 import SisterWalkers from '@/components/child/garden/SisterWalkers';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
+import { usePortraitPan, PanEdgeHints } from '@/components/child/garden/usePortraitPan';
 import { Tree, PineTree, Flower, GrassTuft, StructureIllustration } from '@/components/child/garden/illustrations';
 import type { ReadingForestStructureState } from './page';
 
@@ -135,6 +136,8 @@ export default function ReadingForestScene({
   const reducedMotion = settings.reducedMotion;
   const [tappedLocked, setTappedLocked] = useState<string | null>(null);
   const [starting, setStarting] = useState(false);
+  // Portrait pan — opens centered on the Sight Word Glade (the NW start).
+  const portraitPan = usePortraitPan({ worldW: W, worldH: H, initialCenterX: 300 });
   // Selected structure → preview modal, parity with garden tap UX.
   const [selected, setSelected] = useState<MapStructure | null>(null);
   // Which habitat group is currently expanded. Tapping the marker
@@ -167,10 +170,8 @@ export default function ReadingForestScene({
   return (
     <BranchSceneLayout learnerId={learnerId} title="Reading Forest" iconEmoji="🌲">
       <svg
-        viewBox={`0 0 ${W} ${H}`}
-        preserveAspectRatio="xMidYMid meet"
+        {...portraitPan.svgProps}
         className="absolute inset-0 w-full h-full"
-        style={{ touchAction: 'manipulation' }}
       >
         <defs>
           {/* Forest-filtered sky — warm amber light at top, deepening forest below */}
@@ -1242,6 +1243,8 @@ export default function ReadingForestScene({
           );
         })}
       </svg>
+
+      <PanEdgeHints canLeft={portraitPan.canLeft} canRight={portraitPan.canRight} />
 
       {/* ── PREVIEW MODAL ──
            Same look + ergonomics as the central garden's modal so the

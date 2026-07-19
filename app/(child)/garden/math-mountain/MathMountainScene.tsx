@@ -54,6 +54,7 @@ import BranchSceneLayout from '@/components/child/garden/BranchSceneLayout';
 import AmbientLayer from '@/components/child/garden/AmbientLayer';
 import SisterWalkers from '@/components/child/garden/SisterWalkers';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
+import { usePortraitPan, PanEdgeHints } from '@/components/child/garden/usePortraitPan';
 import {
   Tree, PineTree, StructureIllustration,
 } from '@/components/child/garden/illustrations';
@@ -165,6 +166,8 @@ export default function MathMountainScene({
   const [tappedLocked, setTappedLocked] = useState<string | null>(null);
   const [starting, setStarting] = useState(false);
   const [expandedHabitat, setExpandedHabitat] = useState<string | null>(null);
+  // Portrait pan — opens centered on Operations Hollow (the starter cluster).
+  const portraitPan = usePortraitPan({ worldW: W, worldH: H, initialCenterX: 300 });
   // Selected structure → triggers a preview modal so kids see the
   // place's name and a one-line frame before jumping into a session.
   // Matches the central garden's tap UX (mountain skipped this step
@@ -226,10 +229,8 @@ export default function MathMountainScene({
   return (
     <BranchSceneLayout learnerId={learnerId} title="Math Mountain" iconEmoji="⛰️">
       <svg
-        viewBox={`0 0 ${W} ${H}`}
-        preserveAspectRatio="xMidYMid meet"
+        {...portraitPan.svgProps}
         className="absolute inset-0 w-full h-full"
-        style={{ touchAction: 'manipulation' }}
       >
         <defs>
           {/* Miyazaki sky — soft pastel blue at top, fades through cream
@@ -2214,6 +2215,8 @@ export default function MathMountainScene({
           );
         })}
       </svg>
+
+      <PanEdgeHints canLeft={portraitPan.canLeft} canRight={portraitPan.canRight} />
 
       {/* ── PREVIEW MODAL ──
            Same look + ergonomics as the central garden's modal so the

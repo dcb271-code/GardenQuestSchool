@@ -16,6 +16,7 @@ import SisterWalkers, { SISTERS_HOME } from '@/components/child/garden/SisterWal
 import WelcomeOverlay from '@/components/child/garden/WelcomeOverlay';
 import HabitatQuestModal from '@/components/child/garden/HabitatQuestModal';
 import KitchenModal from '@/components/child/garden/KitchenModal';
+import { usePortraitPan, PanEdgeHints } from '@/components/child/garden/usePortraitPan';
 import { useGardenSoundtrack } from '@/lib/audio/useGardenSoundtrack';
 import { playSparkle } from '@/lib/audio/sfx';
 import { StructureIllustration, Tree, PineTree, Flower, GrassTuft, CozyHouse } from '@/components/child/garden/illustrations';
@@ -221,6 +222,9 @@ export default function GardenScene({
   // Habitat ecology quest — opens when learner taps a not-yet-built habitat
   const [questHabitat, setQuestHabitat] = useState<MapStructure | null>(null);
   const [kitchenOpen, setKitchenOpen] = useState(false);
+  // Portrait screens (wall tablets) pan across the wide garden instead
+  // of letterboxing it tiny. Opens centered on the cottage/home corner.
+  const portraitPan = usePortraitPan({ worldW: MAP_WIDTH, worldH: MAP_HEIGHT, initialCenterX: 320 });
   // Just-built habitat code, used to trigger a transformation animation
   const [justBuiltCode, setJustBuiltCode] = useState<string | null>(null);
 
@@ -368,10 +372,8 @@ export default function GardenScene({
 
       <div className="flex-1 relative overflow-hidden">
         <svg
-          viewBox={`0 0 ${MAP_WIDTH} ${MAP_HEIGHT}`}
-          preserveAspectRatio="xMidYMid meet"
+          {...portraitPan.svgProps}
           className="absolute inset-0 w-full h-full"
-          style={{ touchAction: 'manipulation' }}
         >
           <defs>
             <radialGradient id="readingZone" cx="18%" cy="30%" r="48%">
@@ -1303,6 +1305,8 @@ export default function GardenScene({
 
           <rect width={MAP_WIDTH} height={MAP_HEIGHT} fill={tint} pointerEvents="none" />
         </svg>
+
+        <PanEdgeHints canLeft={portraitPan.canLeft} canRight={portraitPan.canRight} />
 
         <AnimatePresence>
           {selected && (
