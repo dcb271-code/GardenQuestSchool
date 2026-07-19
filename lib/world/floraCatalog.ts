@@ -400,4 +400,293 @@ export const FLORA_CATALOG: FloraData[] = [
     photoRoles: ['whole', 'leaf', 'fruit'],
     hazardLookalike: true,
   },
+
+  // ─── EVERYDAY GIANTS (2026-07 expansion) ──────────────────────────
+  // The trees she walks past daily — instant real-world recognition.
+
+  {
+    code: 'white_oak',
+    commonName: 'White Oak',
+    scientificName: 'Quercus alba',
+    kind: 'tree',
+    localTier: 'hyper_local',
+    emoji: '🌳',
+    seasons: ['spring', 'summer', 'fall', 'winter'],
+    notableFeatures: [
+      'leaves with rounded finger-like lobes — no points, no bristles',
+      'pale grey bark in loose flaky plates',
+      'acorns with a bumpy cap covering about a quarter of the nut',
+    ],
+    facts: [
+      'A white oak can live 300 years or more — some alive today were seedlings before Kentucky was a state.',
+      'One big oak can drop ten thousand acorns in a good year. Squirrels, deer, turkeys, and blue jays all come to dinner.',
+      'You can tell white oaks from red oaks by the leaf tips: white oak lobes are ROUND, red oak lobes end in little bristle points.',
+    ],
+    wikiSpecies: 'Quercus_alba',
+    inatTaxonId: 54779,
+    photoRoles: ['whole', 'leaf', 'bark', 'fruit'],
+  },
+
+  {
+    code: 'red_maple',
+    commonName: 'Red Maple',
+    scientificName: 'Acer rubrum',
+    kind: 'tree',
+    localTier: 'hyper_local',
+    emoji: '🍁',
+    seasons: ['spring', 'summer', 'fall'],
+    notableFeatures: [
+      'leaves with 3 pointy lobes and V-shaped notches between them',
+      'leaves grow in PAIRS, directly across from each other',
+      'something on it is red in every season — buds, flowers, stems, or fall leaves',
+    ],
+    facts: [
+      'Red maple keeps its promise all year: red buds in winter, red flowers in early spring, red leaf-stems in summer, red leaves in fall.',
+      'Its winged seeds are called samaras — kids call them helicopters. Throw one up and watch it spin.',
+      'Maple leaves always grow two-by-two, exactly opposite each other on the twig. Oaks and most other trees take turns instead.',
+    ],
+    wikiSpecies: 'Acer_rubrum',
+    inatTaxonId: 48098,
+    photoRoles: ['whole', 'leaf', 'bark', 'flower', 'fruit'],
+  },
+
+  {
+    code: 'sweetgum',
+    commonName: 'Sweetgum',
+    scientificName: 'Liquidambar styraciflua',
+    kind: 'tree',
+    localTier: 'hyper_local',
+    emoji: '⭐',
+    seasons: ['spring', 'summer', 'fall', 'winter'],
+    notableFeatures: [
+      'star-shaped leaves with five sharp points',
+      'spiky round seed balls ("gumballs") that litter the ground',
+      'twigs sometimes have corky ridges like little wings',
+    ],
+    facts: [
+      'Every sweetgum leaf is a five-pointed star — crush one gently and it smells sweet, which is how the tree got its name.',
+      'The spiky gumballs are seed cases. Each one held dozens of tiny seeds that goldfinches love.',
+      'In fall a single sweetgum can wear yellow, orange, red, and deep purple leaves all at the same time.',
+    ],
+    wikiSpecies: 'Liquidambar_styraciflua',
+    inatTaxonId: 49658,
+    photoRoles: ['whole', 'leaf', 'bark', 'fruit'],
+  },
+
+  {
+    code: 'american_sycamore',
+    commonName: 'American Sycamore',
+    scientificName: 'Platanus occidentalis',
+    kind: 'tree',
+    localTier: 'hyper_local',
+    emoji: '🦴',
+    seasons: ['spring', 'summer', 'fall', 'winter'],
+    notableFeatures: [
+      'camouflage bark — patches of grey, green, and cream where it peels',
+      'upper branches turn ghost-white',
+      'huge maple-ish leaves, and round seed balls on long strings',
+    ],
+    facts: [
+      'Sycamore bark cannot stretch, so it flakes off in puzzle pieces — that is what makes the camouflage pattern.',
+      'The higher you look, the whiter the branches get. In winter a sycamore looks like white bones against the sky.',
+      'Sycamores love water. Find one and a creek is usually close by — old explorers used them to find rivers.',
+    ],
+    wikiSpecies: 'Platanus_occidentalis',
+    inatTaxonId: 49662,
+    photoRoles: ['whole', 'leaf', 'bark', 'fruit'],
+  },
+
+  // ─── MEADOW & ROADSIDE ────────────────────────────────────────────
+  // The "weeds" kids actually pick.
+
+  {
+    code: 'dandelion',
+    commonName: 'Dandelion',
+    scientificName: 'Taraxacum officinale',
+    kind: 'flower',
+    localTier: 'hyper_local',
+    emoji: '🌼',
+    seasons: ['spring', 'summer', 'fall'],
+    notableFeatures: [
+      'one bright yellow flower on a hollow, milky stem',
+      'jagged tooth-edged leaves in a circle at the ground',
+      'turns into the famous white wish-puff seed head',
+    ],
+    facts: [
+      'The name comes from French — dent de lion, "lion\'s tooth" — for the jagged leaves.',
+      'One wish-puff can carry two hundred seeds, each on its own tiny parachute that can ride the wind for miles.',
+      'A dandelion flower is really a bouquet: every yellow strap is its own little flower packed in with a hundred others.',
+    ],
+    wikiSpecies: 'Taraxacum_officinale',
+    inatTaxonId: 47602,
+    photoRoles: ['whole', 'leaf', 'flower', 'fruit'],
+  },
+
+  {
+    code: 'black_eyed_susan',
+    commonName: 'Black-eyed Susan',
+    scientificName: 'Rudbeckia hirta',
+    kind: 'flower',
+    localTier: 'hyper_local',
+    emoji: '🌻',
+    seasons: ['summer', 'fall'],
+    notableFeatures: [
+      'golden petals around a dark chocolate-brown dome',
+      'rough, hairy stems and leaves',
+      'blooms in big cheerful patches along roads and meadows',
+    ],
+    facts: [
+      'The "black eye" is a dome of hundreds of tiny dark flowers — the golden petals are just the frame around them.',
+      'Run a finger up the stem: it is fuzzy like a kitten\'s tongue. The hairs help keep crawling insects from stealing nectar.',
+      'Bees and butterflies see patterns on the petals that people cannot — landing stripes in ultraviolet light.',
+    ],
+    wikiSpecies: 'Rudbeckia_hirta',
+    inatTaxonId: 62741,
+    // No leaf role: every harvested "leaf" frame had other species'
+    // foliage tangled in (vetch photobombs) — teaching the wrong
+    // leaves is worse than teaching none.
+    photoRoles: ['whole', 'flower'],
+  },
+
+  {
+    code: 'tall_goldenrod',
+    commonName: 'Goldenrod',
+    scientificName: 'Solidago altissima',
+    kind: 'flower',
+    localTier: 'hyper_local',
+    emoji: '🌾',
+    seasons: ['summer', 'fall'],
+    notableFeatures: [
+      'a plume of hundreds of tiny golden flowers, arching like a firework',
+      'tall single stems in big patches',
+      'blooms late, when most flowers are finished',
+    ],
+    facts: [
+      'Goldenrod is Kentucky\'s state flower — those golden September fields are the state saying hello.',
+      'It gets blamed for fall sneezes, but goldenrod pollen is heavy and sticky and travels by BEE, not by wind. The real sneeze-maker is ragweed, blooming quietly nearby.',
+      'Over a hundred kinds of butterflies, bees, and beetles visit goldenrod — it is the last big diner open before winter.',
+    ],
+    wikiSpecies: 'Solidago_altissima',
+    inatTaxonId: 79148,
+    photoRoles: ['whole', 'leaf', 'flower'],
+  },
+
+  {
+    code: 'chicory',
+    commonName: 'Chicory',
+    scientificName: 'Cichorium intybus',
+    kind: 'flower',
+    localTier: 'hyper_local',
+    emoji: '🩵',
+    seasons: ['summer', 'fall'],
+    notableFeatures: [
+      'sky-blue flowers with square-tipped, fringed petals',
+      'grows on tough wiry stems along roadsides',
+      'each flower lasts a single morning',
+    ],
+    facts: [
+      'Chicory flowers are morning people: they open at sunrise and usually close by lunchtime.',
+      'True-blue flowers are rare in nature — chicory blue is so distinctive that the color is named after it in some languages.',
+      'People roast chicory roots to make a coffee-like drink — New Orleans still loves it.',
+    ],
+    wikiSpecies: 'Cichorium_intybus',
+    inatTaxonId: 52913,
+    photoRoles: ['whole', 'leaf', 'flower'],
+  },
+
+  // ─── CURIOUS CHARACTERS ───────────────────────────────────────────
+  // Maximum wonder-per-plant.
+
+  {
+    code: 'jewelweed',
+    commonName: 'Jewelweed',
+    scientificName: 'Impatiens capensis',
+    kind: 'flower',
+    localTier: 'hyper_local',
+    emoji: '🧡',
+    seasons: ['summer', 'fall'],
+    notableFeatures: [
+      'orange trumpet flowers with red freckles, hanging like earrings',
+      'fat ripe seed pods that POP when touched',
+      'rain beads up on the leaves like silver jewels',
+    ],
+    facts: [
+      'Its other name is touch-me-not — but you SHOULD touch the fat pods: they explode and fling seeds, and it never gets old.',
+      'Water rolls up into silver beads on the leaves. Dip a leaf underwater and it turns shiny like foil.',
+      'Jewelweed often grows near poison ivy, and old woods-wisdom says its juice soothes the itch. Scientists still argue; hummingbirds do not care and drink from it anyway.',
+    ],
+    wikiSpecies: 'Impatiens_capensis',
+    inatTaxonId: 47888,
+    photoRoles: ['whole', 'leaf', 'flower', 'fruit'],
+  },
+
+  {
+    code: 'jack_in_the_pulpit',
+    commonName: 'Jack-in-the-Pulpit',
+    scientificName: 'Arisaema triphyllum',
+    kind: 'flower',
+    localTier: 'canonical_native',
+    emoji: '🎪',
+    seasons: ['spring', 'summer'],
+    notableFeatures: [
+      'a striped green hood curling over a little spike ("Jack" in his pulpit)',
+      'leaves of three large leaflets — but soft, matte, and all from one stalk at the ground',
+      'a club of bright red berries in late summer',
+    ],
+    facts: [
+      'The stripy hood is a tiny roofed room. "Jack" is the spike inside, and small flies are his only visitors.',
+      'It has three leaflets like poison ivy — but Jack grows straight from the forest floor on its own stalk, never climbing, never shiny.',
+      'A plant can change its mind about being male or female from year to year, depending on how much food its root stored.',
+    ],
+    wikiSpecies: 'Arisaema_triphyllum',
+    inatTaxonId: 50310,
+    photoRoles: ['whole', 'leaf', 'flower', 'fruit'],
+    hazardLookalike: true,
+  },
+
+  {
+    code: 'cattail',
+    commonName: 'Cattail',
+    scientificName: 'Typha latifolia',
+    kind: 'flower',
+    localTier: 'hyper_local',
+    emoji: '🌭',
+    seasons: ['spring', 'summer', 'fall', 'winter'],
+    notableFeatures: [
+      'the famous brown corn-dog head on a tall stalk',
+      'flat sword-shaped leaves taller than a grown-up',
+      'always standing in or beside still water',
+    ],
+    facts: [
+      'The brown "corn dog" is a package of up to a quarter of a MILLION seeds. In winter it bursts into a snowstorm of fluff.',
+      'Red-winged blackbirds build their nests by weaving cattail leaves; muskrats build whole lodges out of the stalks.',
+      'Cattails are water-cleaners: their roots catch mud and soak up pollution, so ponds with cattails run clearer.',
+    ],
+    wikiSpecies: 'Typha_latifolia',
+    inatTaxonId: 48685,
+    photoRoles: ['whole', 'leaf', 'fruit'],
+  },
+
+  {
+    code: 'pawpaw',
+    commonName: 'Pawpaw',
+    scientificName: 'Asimina triloba',
+    kind: 'tree',
+    localTier: 'hyper_local',
+    emoji: '🥭',
+    seasons: ['spring', 'summer', 'fall'],
+    notableFeatures: [
+      'huge droopy tropical-looking leaves, biggest at the branch tip',
+      'greenish fruit like a small lumpy mango — the "Kentucky banana"',
+      'grows in shady patches, many trunks together',
+    ],
+    facts: [
+      'Pawpaw is the biggest fruit native to North America — it tastes like banana custard with mango, and Kentucky is right in pawpaw country.',
+      'Its deep-maroon spring flowers smell faintly of old socks on purpose: they are inviting flies and beetles, not bees.',
+      'Zebra swallowtail caterpillars eat pawpaw leaves and nothing else — find a pawpaw patch and you may find that butterfly.',
+    ],
+    wikiSpecies: 'Asimina_triloba',
+    inatTaxonId: 50897,
+    photoRoles: ['whole', 'leaf', 'bark', 'flower', 'fruit'],
+  },
 ];

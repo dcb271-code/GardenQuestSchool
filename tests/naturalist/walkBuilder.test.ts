@@ -18,7 +18,10 @@ describe('canonicalKeyPath', () => {
       'leaf_compound',
       'tree_or_flower',
       'flower_red',
+      'flower_water',
+      'flower_orange',
       'flower_blue',
+      'flower_yellow',
       'flower_three_petals',
       'flower_umbrella',
     ]);
@@ -37,6 +40,7 @@ describe('canonicalKeyPath', () => {
       'root',
       'leaf_compound',
       'compound_count',
+      'three_leaflet_ground',
       'three_leaflet_stalk',
       'three_leaflet_pairs',
     ]);
@@ -112,7 +116,8 @@ describe('dedupeWalkSteps', () => {
     // milkweed: root + tree_or_flower were answered the same way, but
     // flower_red flips from left (cardinal) to right — kept from there.
     expect(walk[1].map(s => s.nodeId)).toEqual([
-      'flower_red', 'flower_blue', 'flower_three_petals', 'flower_umbrella',
+      'flower_red', 'flower_water', 'flower_orange', 'flower_blue',
+      'flower_yellow', 'flower_three_petals', 'flower_umbrella',
     ]);
   });
 
