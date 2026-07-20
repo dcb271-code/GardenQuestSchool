@@ -13,13 +13,17 @@
  */
 
 export type LessonVisual =
-  | { kind: 'ten_frame'; filled: number; extra?: number }               // extra = second color dots
+  | { kind: 'ten_frame'; filled: number; extra?: number; leftOver?: number }               // extra = second color dots
   | { kind: 'number_line'; from: number; to: number; hops: number[]; startAt?: number }
-  | { kind: 'array'; rows: number; cols: number; splitAtCol?: number; rotate?: boolean }
-  | { kind: 'equal_groups'; groups: number; per: number; emoji: string }
+  | { kind: 'array'; rows: number; cols: number; splitAtCol?: number; splitAtRow?: number; rotate?: boolean }
+  | { kind: 'equal_groups'; groups: number; per: number }
   | { kind: 'blocks'; tens: number; ones: number; tens2?: number; ones2?: number }
   | { kind: 'pie'; num: number; den: number; second?: { num: number; den: number } }
-  | { kind: 'equations'; lines: string[]; highlight?: number };         // highlight = line index
+  | { kind: 'equations'; lines: string[]; highlight?: number }          // highlight = line index
+  /** Clock face; `minuteHandOn` is the numeral the big hand points at. */
+  | { kind: 'clock'; minuteHandOn: number }
+  /** Two-column fact table — keeps its columns, unlike an equations list. */
+  | { kind: 'fact_table'; rows: [string, string][] };
 
 export interface LessonSlide {
   text: string;             // narrated aloud
@@ -72,7 +76,7 @@ export const BUNNY_LESSONS: BunnyLesson[] = [
       },
       {
         text: 'Borrow 2 from the 5 to fill the frame. Now the ten is FULL, and you have 3 left over.',
-        visual: { kind: 'ten_frame', filled: 8, extra: 2 },
+        visual: { kind: 'ten_frame', filled: 8, extra: 2, leftOver: 3 },
       },
       {
         text: 'Ten and three is thirteen — no finger counting needed. Eight plus five is thirteen, every time.',
@@ -196,7 +200,7 @@ export const BUNNY_LESSONS: BunnyLesson[] = [
       },
       {
         text: 'And times 4 is double, TWICE. 7 × 4: double 7 is 14… double again is 28.',
-        visual: { kind: 'array', rows: 4, cols: 7, splitAtCol: 0 },
+        visual: { kind: 'array', rows: 4, cols: 7, splitAtRow: 2 },
       },
       {
         text: 'Double-double works for any number. 6×4? 12… 24. 8×4? 16… 32. You never need to memorize the fours!',
@@ -212,12 +216,16 @@ export const BUNNY_LESSONS: BunnyLesson[] = [
     minLevel: 2, maxLevel: 3,
     slides: [
       {
-        text: 'The 5 times table hides on every clock! When the big hand points at the 3, it is 15 minutes — because 3 × 5 is 15.',
-        visual: { kind: 'number_line', from: 0, to: 30, hops: [5, 5, 5, 5, 5, 5], startAt: 0 },
+        text: 'The 5 times table hides on every clock! Every number on the face is five minutes further round. When the big hand points at the 3, it is 15 minutes past — because 3 × 5 is 15.',
+        visual: { kind: 'clock', minuteHandOn: 3 },
       },
       {
-        text: 'And here is a pattern: the fives always end in 5 or 0. 5, 10, 15, 20, 25, 30 — flip flop, flip flop.',
-        visual: { kind: 'equations', lines: ['1×5=5   2×5=10', '3×5=15  4×5=20', '5×5=25  6×5=30'] },
+        text: 'It works the whole way round. The big hand on the 7? That is 7 × 5 — thirty-five minutes past. You have been reading the five times table your whole life without knowing it.',
+        visual: { kind: 'clock', minuteHandOn: 7 },
+      },
+      {
+        text: 'And here is a pattern to pocket: the fives always end in 5 or 0. Five, ten, fifteen, twenty — flip, flop, flip, flop.',
+        visual: { kind: 'fact_table', rows: [['1 × 5 = 5', '2 × 5 = 10'], ['3 × 5 = 15', '4 × 5 = 20'], ['5 × 5 = 25', '6 × 5 = 30']] },
       },
     ],
   },
@@ -230,7 +238,7 @@ export const BUNNY_LESSONS: BunnyLesson[] = [
     slides: [
       {
         text: 'Twelve carrots, three bunny friends. Dividing just asks: if we share FAIRLY, how many does each bunny get?',
-        visual: { kind: 'equal_groups', groups: 3, per: 4, emoji: '🥕' },
+        visual: { kind: 'equal_groups', groups: 3, per: 4 },
       },
       {
         text: 'Deal them out like cards — one for you, one for you, one for you — until the pile is gone. Four each!',
@@ -325,6 +333,52 @@ export const BUNNY_LESSONS: BunnyLesson[] = [
     ],
   },
   {
+    code: 'compensate_add',
+    title: 'Make it friendly, then pay it back',
+    emoji: '🤝',
+    topic: 'adding',
+    minLevel: 3, maxLevel: 4,
+    slides: [
+      {
+        text: 'Adding 29 is awkward. Adding 30 is easy. So do the easy one — and remember you owe a little back.',
+        visual: { kind: 'equations', lines: ['47 + 29 = ?', '47 + 30 is easier…'], highlight: 1 },
+      },
+      {
+        text: 'Hop a whole 30 instead of 29. That lands you on 77 — which is one step too far, because 30 was one bigger than the 29 you actually wanted.',
+        visual: { kind: 'number_line', from: 45, to: 80, hops: [30], startAt: 47 },
+      },
+      {
+        text: 'So now pay the extra back. Step one down from 77, and there is your answer: seventy-six.',
+        visual: { kind: 'number_line', from: 72, to: 80, hops: [-1], startAt: 77 },
+      },
+      {
+        text: 'That is called compensating: borrow a bit to make the number friendly, then pay it back at the end. It works for taking away too — 63 minus 19 is 63 minus 20, plus one back.',
+        visual: { kind: 'equations', lines: ['47 + 29', '= 47 + 30 − 1', '= 77 − 1 = 76'], highlight: 1 },
+      },
+    ],
+  },
+  {
+    code: 'subtract_across_zero',
+    title: 'Taking away from a round number',
+    emoji: '🕳️',
+    topic: 'taking away',
+    minLevel: 3, maxLevel: 4,
+    slides: [
+      {
+        text: 'Three hundred take away one hundred and eighty-seven looks horrible. All those zeros to borrow from! But you never have to borrow at all.',
+        visual: { kind: 'equations', lines: ['300 − 187 = ?'], highlight: 0 },
+      },
+      {
+        text: 'Do not count back. Count UP from 187 and see how far it is. Thirteen gets you to 200 — a nice round stop. Then a hundred more gets you to 300.',
+        visual: { kind: 'number_line', from: 180, to: 310, hops: [13, 100], startAt: 187 },
+      },
+      {
+        text: 'Thirteen and one hundred is one hundred and thirteen. No borrowing, no crossed-out zeros — just two friendly hops.',
+        visual: { kind: 'equations', lines: ['187 + 13 = 200', '200 + 100 = 300', '13 + 100 = 113'], highlight: 2 },
+      },
+    ],
+  },
+  {
     code: 'round_estimate',
     title: 'Round first, then check yourself',
     emoji: '🎯',
@@ -343,10 +397,13 @@ export const BUNNY_LESSONS: BunnyLesson[] = [
   },
 ];
 
-/** Lessons visible to a learner at the given level: window covers
- *  level or level+1 (level 1 → bands 1–2, level 2 → 2–3, …). */
+/** Lessons visible to a learner at the given level: every band that
+ *  CONTAINS that level (level 1 → the 1–2 band, level 2 → the 1–2 and
+ *  2–3 bands, level 3 → 2–3 and 3–4). A band that merely starts at
+ *  level+1 is a whole band ahead and stays hidden until she gets
+ *  there — that is what "level 2 would have 2-3" means. */
 export function lessonsForLevel(level: number): BunnyLesson[] {
-  return BUNNY_LESSONS.filter(l => l.minLevel <= level + 1 && l.maxLevel >= level);
+  return BUNNY_LESSONS.filter(l => l.minLevel <= level && l.maxLevel >= level);
 }
 
 export function lessonTopics(lessons: BunnyLesson[]): string[] {
