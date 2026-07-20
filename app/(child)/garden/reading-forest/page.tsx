@@ -53,6 +53,15 @@ export default async function ReadingForestPage({
     correctByCode.set(code, (correctByCode.get(code) ?? 0) + 1);
   }
 
+  // Old Bramble offers reading lessons banded by level (see
+  // lib/world/forestLessons.ts — floored at 3, so a younger reader
+  // still gets his starter shelf rather than an empty one).
+  const { data: learnerRow } = await db
+    .from('learner')
+    .select('grade_level')
+    .eq('id', learnerId)
+    .maybeSingle();
+
   const skillNameByCode = new Map(READING_SKILLS.map(s => [s.code, s.name]));
 
   const structureStates: Record<string, ReadingForestStructureState> = {};
@@ -83,6 +92,7 @@ export default async function ReadingForestPage({
       clusters={READING_FOREST_CLUSTERS}
       structureStates={structureStates}
       masteredCodes={Array.from(mastered)}
+      learnerLevel={learnerRow?.grade_level ?? 3}
     />
   );
 }

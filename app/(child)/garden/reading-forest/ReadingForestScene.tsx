@@ -54,6 +54,7 @@ import { useCalmMode } from '@/lib/settings/useCalmMode';
 import { Tree, PineTree, Flower, GrassTuft, StructureIllustration } from '@/components/child/garden/illustrations';
 import { MarkerIcon, hasMarkerIcon } from '@/components/child/garden/markerIcons';
 import UnlockHintChips from '@/components/child/garden/UnlockHintChips';
+import BearTeachModal from '@/components/child/garden/BearTeachModal';
 import { pickBeaconSkill, type HintSkill } from '@/lib/world/unlockHints';
 import { MATH_SKILLS } from '@/lib/packs/math/skills';
 import { READING_SKILLS as ALL_READING_SKILLS } from '@/lib/packs/reading/skills';
@@ -87,6 +88,8 @@ interface ReadingForestSceneProps {
   clusters: BranchCluster[];
   structureStates: Record<string, ReadingForestStructureState>;
   masteredCodes?: string[];
+  /** Drives which of Old Bramble's reading lessons are on offer. */
+  learnerLevel?: number;
 }
 
 const W = BRANCH_MAP_WIDTH;   // 1440
@@ -136,7 +139,7 @@ const HABITAT_BY_SKILL: Record<string, string> = Object.entries(HABITAT_GROUPS)
   .reduce((acc, [k, g]) => { g.codes.forEach(c => { acc[c] = k; }); return acc; }, {} as Record<string, string>);
 
 export default function ReadingForestScene({
-  learnerId, structures, clusters, structureStates, masteredCodes = [],
+  learnerId, structures, clusters, structureStates, masteredCodes = [], learnerLevel = 3,
 }: ReadingForestSceneProps) {
   const router = useRouter();
   const { settings } = useAccessibilitySettings();
@@ -167,6 +170,8 @@ export default function ReadingForestScene({
   // Which habitat group is currently expanded. Tapping the marker
   // toggles; tapping again collapses back to the marker.
   const [expandedHabitat, setExpandedHabitat] = useState<string | null>(null);
+  // Old Bramble's reading lessons.
+  const [bearOpen, setBearOpen] = useState(false);
 
   const startSkill = async (skillCode: string) => {
     if (starting) return;
@@ -881,6 +886,163 @@ export default function ReadingForestScene({
           <ellipse cx={-22} cy={-9} rx={11} ry={10} fill="#FFE89A" opacity={0.22} />
         </g>
 
+        {/* ── 14b-2. OLD BRAMBLE'S READING TREE ──
+             The forest's storyteller. A big old bear in spectacles
+             sits against the trunk with a book open on his knees, a
+             lantern hanging above him and a stack of already-read
+             books at his elbow. Tapping him opens his lessons: an
+             illustrated science passage, then "what did you learn?"
+             comprehension questions.
+
+             He leans on a broad mossy stump rather than a full tree:
+             a canopy here merged with the south-glade framing tree
+             into one green blob, and a stump keeps the whole vignette
+             under ~70px so it drops into the gap between the glade
+             trees and the Story Rocks without crowding a label.
+             Native SVG hit target (the iPad foreignObject problems
+             are documented elsewhere here). */}
+        <g
+          transform="translate(556, 598)"
+          style={{ cursor: 'pointer', touchAction: 'manipulation' }}
+          onClick={() => setBearOpen(true)}
+          role="button"
+          aria-label="Old Bramble the bear — read a story and answer questions"
+          tabIndex={0}
+        >
+          {/* generous invisible hit target over the whole vignette */}
+          <rect x={-52} y={-100} width={112} height={124} fill="transparent" />
+
+          {/* — the broad mossy stump he leans against — */}
+          <g pointerEvents="none">
+            <ellipse cx={-2} cy={4} rx={38} ry={7} fill="#000" opacity={0.18} />
+            {/* stump body, wider than the bear so he reads as leaning on it */}
+            <path d="M -34 2 q -4 -26 -1 -38 q 2 -7 35 -7 q 33 0 35 7 q 3 12 -1 38 Z"
+                  fill="#8B5A2B" stroke="#5A3B1F" strokeWidth={1.7} strokeLinejoin="round" />
+            {/* sawn top with tree rings */}
+            <ellipse cx={0} cy={-36} rx={35} ry={9} fill="#A06B36" stroke="#5A3B1F" strokeWidth={1.6} />
+            <ellipse cx={0} cy={-36} rx={24} ry={6} fill="none" stroke="#5A3B1F" strokeWidth={0.7} opacity={0.5} />
+            <ellipse cx={0} cy={-36} rx={13} ry={3.2} fill="none" stroke="#5A3B1F" strokeWidth={0.7} opacity={0.5} />
+            {/* bark texture + moss skirt */}
+            <path d="M -22 -24 q -2 12 -1 22 M 22 -24 q 2 12 1 22" stroke="#5A3B1F" strokeWidth={0.8} fill="none" opacity={0.35} />
+            <ellipse cx={-20} cy={-37} rx={11} ry={3.4} fill="#7BA46F" opacity={0.9} />
+            <ellipse cx={18} cy={-36} rx={8} ry={2.8} fill="#7BA46F" opacity={0.8} />
+            <ellipse cx={-24} cy={0} rx={12} ry={3.4} fill="#7BA46F" opacity={0.7} />
+            {/* a small toadstool by the root */}
+            <g transform="translate(-40, 2)">
+              <path d="M -1.5 0 q -1 -5 0.5 -7 l 2 0 q 1.5 2 0.5 7 Z" fill="#FFFAF2" stroke="#3F2614" strokeWidth={0.9} />
+              <path d="M -6 -6 q 2 -6 6 -6 q 4 0 6 6 q -6 2 -12 0 Z" fill="#C4694A" stroke="#3F2614" strokeWidth={1} strokeLinejoin="round" />
+            </g>
+            {/* lantern hooked on the stump */}
+            <line x1={30} y1={-52} x2={30} y2={-44} stroke="#5A3B1F" strokeWidth={0.9} />
+            <ellipse cx={30} cy={-40} rx={4.2} ry={4.8} fill="#FFD06B" stroke="#3F2614" strokeWidth={1.1} />
+            <line x1={26} y1={-40} x2={34} y2={-40} stroke="#3F2614" strokeWidth={0.5} opacity={0.5} />
+            <ellipse cx={30} cy={-40} rx={12} ry={11} fill="#FFE89A" opacity={0.22} />
+          </g>
+
+          {/* — Old Bramble —
+               NOTE: framer-motion writes its own transform, which
+               overwrites a `transform` ATTRIBUTE on the same node. Any
+               offset has to live on a plain wrapper <g>, never on the
+               animated one, or the child snaps back to the origin. */}
+          <g transform="translate(-4, 0)">
+          <motion.g
+            animate={calmAmbient ? undefined : { scaleY: [1, 1.018, 1] }}
+            transition={{ duration: 4.2, repeat: Infinity, ease: 'easeInOut' }}
+            style={{ transformOrigin: '0px 0px' }}
+          >
+            {/* seated bulk */}
+            <ellipse cx={0} cy={-9} rx={22} ry={14} fill="#6B4E38" stroke="#3F2614" strokeWidth={1.6} />
+            {/* hind legs + pads */}
+            <ellipse cx={-17} cy={-4} rx={9} ry={6} fill="#5E4430" stroke="#3F2614" strokeWidth={1.4} />
+            <ellipse cx={-19} cy={-4} rx={4} ry={3} fill="#A98C6B" />
+            <ellipse cx={17} cy={-4} rx={9} ry={6} fill="#5E4430" stroke="#3F2614" strokeWidth={1.4} />
+            <ellipse cx={19} cy={-4} rx={4} ry={3} fill="#A98C6B" />
+            {/* body */}
+            <path d="M -18 -12 q -4 -22 6 -30 q 12 -8 24 0 q 10 8 6 30 Z"
+                  fill="#7A5A40" stroke="#3F2614" strokeWidth={1.6} strokeLinejoin="round" />
+            <ellipse cx={0} cy={-22} rx={8} ry={9} fill="#A98C6B" opacity={0.55} />
+            {/* head */}
+            <ellipse cx={0} cy={-50} rx={14} ry={12.5} fill="#7A5A40" stroke="#3F2614" strokeWidth={1.6} />
+            <circle cx={-11} cy={-60} r={5} fill="#7A5A40" stroke="#3F2614" strokeWidth={1.4} />
+            <circle cx={11} cy={-60} r={5} fill="#7A5A40" stroke="#3F2614" strokeWidth={1.4} />
+            <circle cx={-11} cy={-60} r={2.2} fill="#A98C6B" />
+            <circle cx={11} cy={-60} r={2.2} fill="#A98C6B" />
+            {/* muzzle */}
+            <ellipse cx={0} cy={-44} rx={7.5} ry={5.5} fill="#C9B192" stroke="#3F2614" strokeWidth={1.2} />
+            <ellipse cx={0} cy={-47} rx={2.6} ry={1.9} fill="#3F2614" />
+            <path d="M 0 -45 q -2.5 3 -5 1 M 0 -45 q 2.5 3 5 1" stroke="#3F2614" strokeWidth={0.9} fill="none" strokeLinecap="round" />
+            {/* spectacles — the whole character in two circles */}
+            <circle cx={-5.5} cy={-53} r={4.6} fill="#FFFAF2" opacity={0.35} stroke="#C9A227" strokeWidth={1.3} />
+            <circle cx={5.5} cy={-53} r={4.6} fill="#FFFAF2" opacity={0.35} stroke="#C9A227" strokeWidth={1.3} />
+            <line x1={-0.9} y1={-53} x2={0.9} y2={-53} stroke="#C9A227" strokeWidth={1.3} />
+            <line x1={-10.1} y1={-54} x2={-14} y2={-56} stroke="#C9A227" strokeWidth={1.1} strokeLinecap="round" />
+            <line x1={10.1} y1={-54} x2={14} y2={-56} stroke="#C9A227" strokeWidth={1.1} strokeLinecap="round" />
+            {/* kind half-closed eyes, looking down at the page */}
+            <path d="M -7.6 -53 q 2.1 2.2 4.2 0" stroke="#3F2614" strokeWidth={1.5} fill="none" strokeLinecap="round" />
+            <path d="M 3.4 -53 q 2.1 2.2 4.2 0" stroke="#3F2614" strokeWidth={1.5} fill="none" strokeLinecap="round" />
+            <circle cx={-4} cy={-43} r={0.5} fill="#3F2614" opacity={0.6} />
+            <circle cx={4} cy={-43} r={0.5} fill="#3F2614" opacity={0.6} />
+
+            {/* the open book on his knees */}
+            <g transform="translate(0, -20)">
+              <path d="M -14 0 L 0 -3 L 0 9 L -14 12 Z" fill="#FFFAF2" stroke="#3F2614" strokeWidth={1.3} strokeLinejoin="round" />
+              <path d="M 0 -3 L 14 0 L 14 12 L 0 9 Z" fill="#FDF6E8" stroke="#3F2614" strokeWidth={1.3} strokeLinejoin="round" />
+              <line x1={0} y1={-3} x2={0} y2={9} stroke="#3F2614" strokeWidth={0.8} />
+              {[1.5, 4, 6.5].map((dy, i) => (
+                <g key={i}>
+                  <line x1={-10} y1={dy} x2={-4} y2={dy - 0.9} stroke="#8A7E6C" strokeWidth={0.45} />
+                  <line x1={4} y1={dy - 0.6} x2={10} y2={dy + 0.3} stroke="#8A7E6C" strokeWidth={0.45} />
+                </g>
+              ))}
+            </g>
+            {/* paws holding the covers */}
+            <ellipse cx={-14} cy={-14} rx={5} ry={3.6} fill="#5E4430" stroke="#3F2614" strokeWidth={1.3} transform="rotate(-16 -14 -14)" />
+            <ellipse cx={14} cy={-14} rx={5} ry={3.6} fill="#5E4430" stroke="#3F2614" strokeWidth={1.3} transform="rotate(16 14 -14)" />
+          </motion.g>
+          </g>
+
+          {/* stack of already-read books at his elbow */}
+          <g transform="translate(34, -2)" pointerEvents="none">
+            <path d="M -11 0 L 11 0 L 11 -4 L -11 -4 Z" fill="#C34A36" stroke="#3F2614" strokeWidth={1.2} strokeLinejoin="round" />
+            <path d="M -10 -4 L 10 -4 L 10 -8 L -10 -8 Z" fill="#6B8E5A" stroke="#3F2614" strokeWidth={1.2} strokeLinejoin="round" />
+            <path d="M -8 -8 L 9 -8 L 9 -12 L -8 -12 Z" fill="#E8A87C" stroke="#3F2614" strokeWidth={1.2} strokeLinejoin="round" />
+            <line x1={-8} y1={-2} x2={8} y2={-2} stroke="#FFFAF2" strokeWidth={0.7} opacity={0.7} />
+            <line x1={-7} y1={-6} x2={7} y2={-6} stroke="#FFFAF2" strokeWidth={0.7} opacity={0.7} />
+          </g>
+
+          {/* thought bubble — an open book, so the invitation reads
+              without any words on it */}
+          <g transform="translate(38, -78)" pointerEvents="none">
+          <motion.g
+            animate={calmAmbient ? undefined : { y: [0, -3, 0] }}
+            transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
+          >
+            <circle cx={-14} cy={16} r={2} fill="#FFFAF2" stroke="#8B5A2B" strokeWidth={0.9} opacity={0.9} />
+            <circle cx={-9} cy={11} r={3} fill="#FFFAF2" stroke="#8B5A2B" strokeWidth={1} opacity={0.95} />
+            <ellipse cx={2} cy={0} rx={15} ry={12} fill="#FFFAF2" stroke="#8B5A2B" strokeWidth={1.4} />
+            <path d="M -6 -3 L 2 -4.6 L 2 4 L -6 5.6 Z" fill="#FDF6E8" stroke="#6b4423" strokeWidth={0.9} strokeLinejoin="round" />
+            <path d="M 2 -4.6 L 10 -3 L 10 5.6 L 2 4 Z" fill="#FFFFFF" stroke="#6b4423" strokeWidth={0.9} strokeLinejoin="round" />
+            <line x1={2} y1={-4.6} x2={2} y2={4} stroke="#6b4423" strokeWidth={0.6} />
+          </motion.g>
+          </g>
+
+          {/* name plate — same pill vocabulary the structures use */}
+          <g pointerEvents="none">
+            <rect x={-44} y={22} width={88} height={17} rx={8.5}
+                  fill="#FFFAF2" stroke="#E8A87C" strokeWidth={1.2} />
+            <text x={0} y={34} textAnchor="middle" fontSize={9.5} fontWeight={700} fill="#6b4423"
+                  style={{ userSelect: 'none' }}>
+              Old Bramble
+            </text>
+            <rect x={-38} y={41} width={76} height={13} rx={6.5}
+                  fill="#FDF6E8" stroke="#C7B89A" strokeWidth={0.9} />
+            <text x={0} y={50.5} textAnchor="middle" fontSize={8} fontStyle="italic" fill="#6b4423"
+                  style={{ userSelect: 'none' }}>
+              story &amp; questions
+            </text>
+          </g>
+        </g>
+
         {/* ── 14c. OWL PERCH IN MORPHOLOGY GROVE ──
              A small owl on a mossy stump just below the ancient oak,
              with stacked acorns at the base. Awake at dusk/night via
@@ -1297,6 +1459,12 @@ export default function ReadingForestScene({
       </svg>
 
       <PanEdgeHints canLeft={portraitPan.canLeft} canRight={portraitPan.canRight} />
+
+      <BearTeachModal
+        open={bearOpen}
+        learnerLevel={learnerLevel}
+        onClose={() => setBearOpen(false)}
+      />
 
       <AnimatePresence>
         {lockedHint && (
