@@ -65,6 +65,11 @@ export default async function HabitatInteriorPage({
   const cfg = HABITAT_INTERIORS[code];
 
   if (code === 'bunny_burrow') {
+    const { data: learnerRow } = await db
+      .from('learner')
+      .select('grade_level')
+      .eq('id', learnerId)
+      .single();
     return (
       <BunnyBurrowInterior
         learnerId={learnerId}
@@ -73,6 +78,7 @@ export default async function HabitatInteriorPage({
         themedStructureEmoji={cfg.themedStructureEmoji}
         discoveredSpecies={discoveredSpecies}
         undiscoveredCount={undiscoveredCount}
+        learnerLevel={learnerRow?.grade_level ?? 2}
       />
     );
   }

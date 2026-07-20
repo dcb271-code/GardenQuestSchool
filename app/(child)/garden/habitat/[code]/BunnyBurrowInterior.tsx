@@ -21,6 +21,7 @@ import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import type { SpeciesData } from '@/lib/world/speciesCatalog';
 import HabitatInteriorLayout from '@/components/child/garden/HabitatInteriorLayout';
+import BunnyTeachModal from '@/components/child/garden/BunnyTeachModal';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
 
 interface BunnyBurrowInteriorProps {
@@ -30,6 +31,8 @@ interface BunnyBurrowInteriorProps {
   themedStructureEmoji: string;
   discoveredSpecies: SpeciesData[];
   undiscoveredCount: number;
+  /** Learner's level (1–5) — windows which bunny lessons appear. */
+  learnerLevel?: number;
 }
 
 // Shared ink + wood tones (match components/child/garden/illustrations.tsx)
@@ -836,12 +839,13 @@ function speciesSlot(i: number) {
 
 export default function BunnyBurrowInterior({
   learnerId, themedSkillCode, themedStructureLabel, themedStructureEmoji,
-  discoveredSpecies, undiscoveredCount,
+  discoveredSpecies, undiscoveredCount, learnerLevel = 2,
 }: BunnyBurrowInteriorProps) {
   const router = useRouter();
   const { settings } = useAccessibilitySettings();
   const reducedMotion = settings.reducedMotion;
   const [starting, setStarting] = useState(false);
+  const [teachOpen, setTeachOpen] = useState(false);
 
   const startSkill = async () => {
     if (starting) return;
@@ -1128,11 +1132,25 @@ export default function BunnyBurrowInterior({
           <TeaTable x={0} y={0} reducedMotion={reducedMotion} />
         </g>
 
-        {/* THE BURROW BUNNY — sitting by the tea table, waiting for a
-            friend. Paws (internal y=20 × scale 4.6) land at y≈730 on
-            the floor. */}
-        <g transform="translate(484, 628)">
+        {/* THE BURROW BUNNY — sitting by the tea table. Tap to open
+            the bunny's little school: tricks and mental-math lessons,
+            no quizzes. Native SVG hit target (iPad-safe). */}
+        <g
+          transform="translate(484, 628)"
+          style={{ cursor: 'pointer', touchAction: 'manipulation' }}
+          onClick={() => setTeachOpen(true)}
+          role="button"
+          aria-label="ask the bunny to teach you a trick"
+        >
+          <circle r={96} cy={30} fill="transparent" />
           <CottontailBunny scale={4.6} reducedMotion={reducedMotion} />
+          {/* thought bubble invitation */}
+          <g transform="translate(78, -66)" pointerEvents="none">
+            <circle cx={-26} cy={30} r={5} fill="#FFFAF2" stroke="#3F2614" strokeWidth={1.4} />
+            <circle cx={-14} cy={16} r={8} fill="#FFFAF2" stroke="#3F2614" strokeWidth={1.5} />
+            <ellipse cx={12} cy={-6} rx={30} ry={22} fill="#FFFAF2" stroke="#3F2614" strokeWidth={1.8} />
+            <text x={12} y={2} textAnchor="middle" fontSize={20} fontWeight={800} fill="#6B4423">?</text>
+          </g>
         </g>
 
         {/* basket of carrots + books by the hearth */}
@@ -1258,6 +1276,11 @@ export default function BunnyBurrowInterior({
           );
         })}
       </svg>
+      <BunnyTeachModal
+        open={teachOpen}
+        learnerLevel={learnerLevel}
+        onClose={() => setTeachOpen(false)}
+      />
     </HabitatInteriorLayout>
   );
 }
