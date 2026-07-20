@@ -337,6 +337,7 @@ export default async function GardenPage({
       learnerId={learnerId}
       firstName={firstName}
       structureStates={structureStates}
+      masteredCodes={Array.from(mastered)}
       pendingArrival={pendingArrival}
       branchUnlock={branchUnlock}
       characterRotation={{ alertCharacterCode }}

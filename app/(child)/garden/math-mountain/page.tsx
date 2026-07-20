@@ -84,6 +84,7 @@ export default async function MathMountainPage({
       structures={MATH_MOUNTAIN_STRUCTURES}
       clusters={MATH_MOUNTAIN_CLUSTERS}
       structureStates={structureStates}
+      masteredCodes={Array.from(mastered)}
     />
   );
 }

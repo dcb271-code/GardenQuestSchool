@@ -60,6 +60,10 @@ import {
   Tree, PineTree, StructureIllustration,
 } from '@/components/child/garden/illustrations';
 import { MarkerIcon, hasMarkerIcon } from '@/components/child/garden/markerIcons';
+import UnlockHintChips from '@/components/child/garden/UnlockHintChips';
+import { pickBeaconSkill, type HintSkill } from '@/lib/world/unlockHints';
+import { MATH_SKILLS } from '@/lib/packs/math/skills';
+import { READING_SKILLS } from '@/lib/packs/reading/skills';
 import type { MathMountainStructureState } from './page';
 
 // Local Sway helper — same shape as GardenScene's private Sway: a
@@ -90,6 +94,7 @@ interface MathMountainSceneProps {
   structures: MapStructure[];
   clusters: BranchCluster[];
   structureStates: Record<string, MathMountainStructureState>;
+  masteredCodes?: string[];
 }
 
 const W = BRANCH_MAP_WIDTH;   // 1440
@@ -179,7 +184,7 @@ const HABITAT_BY_SKILL: Record<string, string> = Object.entries(HABITAT_GROUPS)
   .reduce((acc, [k, g]) => { g.codes.forEach(c => { acc[c] = k; }); return acc; }, {} as Record<string, string>);
 
 export default function MathMountainScene({
-  learnerId, structures, clusters, structureStates,
+  learnerId, structures, clusters, structureStates, masteredCodes = [],
 }: MathMountainSceneProps) {
   const router = useRouter();
   const { settings } = useAccessibilitySettings();
@@ -188,6 +193,23 @@ export default function MathMountainScene({
   const calm = useCalmMode();
   const calmAmbient = reducedMotion || calm;
   const [tappedLocked, setTappedLocked] = useState<string | null>(null);
+  // Locked stop → guidance modal ("this opens when you master…").
+  const [lockedHint, setLockedHint] = useState<MapStructure | null>(null);
+  const allHintSkills: HintSkill[] = [...MATH_SKILLS, ...READING_SKILLS];
+  // "✨ next" beacon: among this scene's playable-but-unmastered stops,
+  // the one whose mastery opens the most doors.
+  const beaconSkill = pickBeaconSkill(
+    structures
+      .filter(st => st.kind === 'skill' && st.skillCode
+        && structureStates[st.code]?.unlocked && !structureStates[st.code]?.completed)
+      .map(st => st.skillCode!) ,
+    allHintSkills,
+    new Set(masteredCodes),
+  );
+  // If the beacon structure lives inside a collapsed group, surface
+  // the ribbon on the group MARKER instead (otherwise it never shows).
+  const beaconStructCode = structures.find(st => st.skillCode === beaconSkill)?.code ?? null;
+  const beaconGroupKey = beaconStructCode ? (HABITAT_BY_SKILL[beaconStructCode] ?? null) : null;
   const [starting, setStarting] = useState(false);
   const [expandedHabitat, setExpandedHabitat] = useState<string | null>(null);
   // Portrait pan — opens centered on Operations Hollow (the starter cluster).
@@ -242,8 +264,7 @@ export default function MathMountainScene({
   const onStructureTap = (s: MapStructure) => {
     const state = structureStates[s.code];
     if (!state?.unlocked) {
-      setTappedLocked(s.code);
-      window.setTimeout(() => setTappedLocked(null), 2500);
+      setLockedHint(s);
       return;
     }
     // Unlocked → open a preview modal first (parity with garden).
@@ -1884,6 +1905,21 @@ export default function MathMountainScene({
                   <circle r={UNIFORM * 0.68} fill="#FFD93D" opacity={0.28} />
                 )}
 
+                {/* "next" beacon — the playable stop that opens the
+                    most locked doors right now */}
+                {s.skillCode === beaconSkill && (
+                  <motion.g
+                    animate={reducedMotion ? undefined : { y: [0, -4, 0] }}
+                    transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+                    pointerEvents="none"
+                  >
+                    <rect x={-26} y={-UNIFORM - 26} width={52} height={17} rx={8.5}
+                          fill="#C34A36" stroke="#8E2F20" strokeWidth={1} />
+                    <text y={-UNIFORM - 14} textAnchor="middle" fontSize={10.5}
+                          fontWeight={800} fill="#FFFAF2">✨ next</text>
+                  </motion.g>
+                )}
+
                 <g style={{
                   // CSS filters removed — per-structure raster passes
                   // crawled on low-power tablets. Completed glow is the
@@ -2362,6 +2398,19 @@ export default function MathMountainScene({
                 )}
                 {!isExpanded && illustration}
 
+                {!isExpanded && beaconGroupKey === key && (
+                  <motion.g
+                    animate={reducedMotion ? undefined : { y: [0, -4, 0] }}
+                    transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+                    pointerEvents="none"
+                  >
+                    <rect x={-26} y={-78} width={52} height={17} rx={8.5}
+                          fill="#C34A36" stroke="#8E2F20" strokeWidth={1} />
+                    <text y={-66} textAnchor="middle" fontSize={10.5}
+                          fontWeight={800} fill="#FFFAF2">✨ next</text>
+                  </motion.g>
+                )}
+
                 {/* Label banner — sits below the illustration. The
                     cottage habitat needs an extra ~14 units of clearance
                     because its illustration extends further down (deck +
@@ -2422,6 +2471,54 @@ export default function MathMountainScene({
       </svg>
 
       <PanEdgeHints canLeft={portraitPan.canLeft} canRight={portraitPan.canRight} />
+
+      {/* Locked stop → actionable guidance */}
+      <AnimatePresence>
+        {lockedHint && (
+          <motion.div
+            className="absolute inset-0 flex items-center justify-center p-6 z-30"
+            style={{ background: 'radial-gradient(circle at 50% 40%, rgba(20,25,40,0.35), rgba(20,25,40,0.55))' }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            onClick={() => setLockedHint(null)}
+          >
+            <motion.div
+              className="bg-cream border-4 border-ochre rounded-3xl max-w-sm w-full p-5 shadow-2xl space-y-3"
+              initial={{ scale: 0.92, y: 10, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              transition={{ duration: 0.3, ease: [0.22, 0.9, 0.34, 1] }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="text-center space-y-1">
+                <div className="text-3xl">🔒</div>
+                <div className="font-display text-[22px] text-bark leading-tight" style={{ fontWeight: 600 }}>
+                  <span className="italic text-forest">{lockedHint.label.toLowerCase()}</span>
+                </div>
+                <div className="font-display italic text-[13px] text-bark/60">
+                  not open yet — but the path is ready for you
+                </div>
+              </div>
+              {lockedHint.skillCode && (
+                <UnlockHintChips
+                  skillCode={lockedHint.skillCode}
+                  masteredCodes={masteredCodes}
+                  currentScene="math_mountain"
+                  learnerId={learnerId}
+                  onPractice={code => { setLockedHint(null); startSkill(code); }}
+                />
+              )}
+              <button
+                onClick={() => setLockedHint(null)}
+                className="w-full bg-white border-2 border-ochre rounded-full py-2.5 font-display italic text-bark/70"
+                style={{ touchAction: 'manipulation', minHeight: 44 }}
+              >
+                maybe later
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* ── PREVIEW MODAL ──
            Same look + ergonomics as the central garden's modal so the

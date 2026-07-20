@@ -82,6 +82,7 @@ export default async function ReadingForestPage({
       structures={READING_FOREST_STRUCTURES}
       clusters={READING_FOREST_CLUSTERS}
       structureStates={structureStates}
+      masteredCodes={Array.from(mastered)}
     />
   );
 }

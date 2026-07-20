@@ -20,6 +20,7 @@ import CompanionSpot from '@/components/child/garden/CompanionSpot';
 import CompanionModal from '@/components/child/garden/CompanionModal';
 import type { CompanionStatus } from '@/app/api/companion/route';
 import { usePortraitPan, PanEdgeHints } from '@/components/child/garden/usePortraitPan';
+import UnlockHintChips from '@/components/child/garden/UnlockHintChips';
 import { useCalmMode } from '@/lib/settings/useCalmMode';
 import { useGardenSoundtrack } from '@/lib/audio/useGardenSoundtrack';
 import { playSparkle } from '@/lib/audio/sfx';
@@ -171,6 +172,7 @@ export default function GardenScene({
   learnerId,
   firstName = null,
   structureStates,
+  masteredCodes = [],
   pendingArrival,
   branchUnlock = {
     math_mountain: { unlocked: false, justUnlocked: false },
@@ -186,6 +188,7 @@ export default function GardenScene({
   learnerId: string;
   firstName?: string | null;
   structureStates: Record<string, StructureState>;
+  masteredCodes?: string[];
   pendingArrival: SpeciesData | null;
   branchUnlock?: Record<'math_mountain' | 'reading_forest', { unlocked: boolean; justUnlocked: boolean }>;
   characterRotation?: { alertCharacterCode: 'nana' | 'hodge' | 'signpost' };
@@ -1371,26 +1374,53 @@ export default function GardenScene({
                   )}
                 </div>
 
-                {selected.kind === 'skill' && !structureStates[selected.code]?.unlocked && (
-                  <>
-                    <div className="bg-white/70 rounded-xl p-3 border-2 border-ochre/40">
-                      <div className="font-display italic text-[13px] text-bark/65 tracking-wider uppercase">
-                        not ready yet
+                {selected.kind === 'skill' && !structureStates[selected.code]?.unlocked && (() => {
+                  // Garden stops are zone-ordered: the actionable next
+                  // step is this zone's current "isNext" stop. Offer it
+                  // as one tap into practice; fall back to prereq
+                  // resolution for anything outside a zone order.
+                  const zoneNext = GARDEN_STRUCTURES.find(g =>
+                    g.kind === 'skill' && g.zone === selected.zone &&
+                    g.code !== selected.code && structureStates[g.code]?.isNext);
+                  return (
+                    <>
+                      <div className="bg-white/70 rounded-xl p-3 border-2 border-ochre/40">
+                        <div className="font-display italic text-[13px] text-bark/65 tracking-wider uppercase">
+                          not open yet
+                        </div>
+                        <div className="mt-1 font-display text-[15px] text-bark" style={{ fontWeight: 600 }}>
+                          {structureStates[selected.code]?.prereqDisplay || 'complete an earlier stop in this zone first'}
+                        </div>
                       </div>
-                      <div className="mt-1 font-display text-[15px] text-bark" style={{ fontWeight: 600 }}>
-                        {structureStates[selected.code]?.prereqDisplay || 'complete an earlier stop in this zone first'}
-                      </div>
-                    </div>
-                    <motion.button
-                      onClick={() => setSelected(null)}
-                      className="w-full bg-white border-2 border-ochre rounded-full py-3 font-display italic text-bark/70"
-                      style={{ touchAction: 'manipulation', minHeight: 52 }}
-                      whileTap={{ scale: 0.97 }}
-                    >
-                      ok
-                    </motion.button>
-                  </>
-                )}
+                      {zoneNext?.skillCode ? (
+                        <motion.button
+                          onClick={() => { setSelected(null); startSkill(zoneNext.skillCode!); }}
+                          className="w-full bg-forest text-white rounded-full py-3.5 font-display"
+                          style={{ touchAction: 'manipulation', minHeight: 56, fontWeight: 600 }}
+                          whileTap={{ scale: 0.97 }}
+                        >
+                          practice {zoneNext.label} now →
+                        </motion.button>
+                      ) : selected.skillCode ? (
+                        <UnlockHintChips
+                          skillCode={selected.skillCode}
+                          masteredCodes={masteredCodes}
+                          currentScene="garden"
+                          learnerId={learnerId}
+                          onPractice={code => { setSelected(null); startSkill(code); }}
+                        />
+                      ) : null}
+                      <motion.button
+                        onClick={() => setSelected(null)}
+                        className="w-full bg-white border-2 border-ochre rounded-full py-3 font-display italic text-bark/70"
+                        style={{ touchAction: 'manipulation', minHeight: 52 }}
+                        whileTap={{ scale: 0.97 }}
+                      >
+                        maybe later
+                      </motion.button>
+                    </>
+                  );
+                })()}
 
                 {structureStates[selected.code]?.unlocked && selected.kind === 'skill' && selected.skillCode && (
                   <motion.button
