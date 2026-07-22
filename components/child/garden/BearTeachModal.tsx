@@ -25,6 +25,7 @@ const TOPIC_EMOJI: Record<string, string> = {
   'seeds & growing': '🌱',
   'creatures': '🦋',
   'the forest floor': '🍄',
+  'protecting nature': '🐾',
 };
 
 type Phase = 'topics' | 'lessons' | 'reading' | 'questions' | 'done';
@@ -108,7 +109,7 @@ export default function BearTeachModal({
           onClick={close}
         >
           <motion.div
-            className="relative bg-cream border-4 border-terracotta rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto"
+            className="relative bg-cream border-4 border-terracotta rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 modal-max-h overflow-y-auto"
             initial={{ scale: 0.9, y: 12, opacity: 0 }}
             animate={{ scale: 1, y: 0, opacity: 1 }}
             exit={{ scale: 0.95, y: 8, opacity: 0 }}
@@ -135,7 +136,7 @@ export default function BearTeachModal({
                 <motion.div key="topics" className="space-y-3"
                   initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }}>
                   <p className="font-display italic text-[15px] text-bark/75 text-center">
-                    Sit down, little one. What shall I read you about today?
+                    Sit down, little one. What shall we read about today?
                   </p>
                   <div className="grid grid-cols-2 gap-2">
                     {topics.map(t => (

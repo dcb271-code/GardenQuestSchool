@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import type { SpeciesData } from '@/lib/world/speciesCatalog';
+import { conservationOf } from '@/lib/world/speciesCatalog';
 import { HABITAT_CATALOG } from '@/lib/world/habitatCatalog';
 import { SpeciesIllustration } from '@/components/child/garden/speciesIllustrations';
 
@@ -81,6 +82,22 @@ export default function JournalSpeciesCard({
             <div className="text-sm mt-2 text-bark/80 leading-snug">
               {species.funFact}
             </div>
+            {(() => {
+              const c = conservationOf(species);
+              return (
+                <div className="mt-2">
+                  <span className={`inline-flex items-center gap-1 border rounded-full px-2 py-0.5 text-[12px] ${c.badgeClass}`} style={{ fontWeight: 600 }}>
+                    <span className="text-sm">{c.emoji}</span>
+                    <span>{c.label}</span>
+                  </span>
+                  {c.note && (
+                    <span className="block font-display italic text-[12px] text-forest mt-1">
+                      {c.note}
+                    </span>
+                  )}
+                </div>
+              );
+            })()}
           </>
         )}
         {!unlocked && (

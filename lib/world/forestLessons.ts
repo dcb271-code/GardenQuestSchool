@@ -41,7 +41,13 @@ export type ForestVisual =
   /** One leaf in three states: green, gold, red. */
   | { kind: 'leaf_color'; stage: 1 | 2 | 3 }
   /** Fallen log with mushrooms, worms, mycelium threads underneath. */
-  | { kind: 'decomposers'; stage: 1 | 2 | 3 };
+  | { kind: 'decomposers'; stage: 1 | 2 | 3 }
+  /** A species' numbers over time as bars — falling away, or fallen then recovered. */
+  | { kind: 'population_chart'; shape: 'decline' | 'recovery'; label: string; caption: string }
+  /** A wild green home shrinking as roads and houses move in. stage 1-3. */
+  | { kind: 'habitat_shrink'; stage: 1 | 2 | 3 }
+  /** Milkweed plant carrying a monarch egg, then caterpillar, then butterfly. stage 1-3. */
+  | { kind: 'milkweed'; stage: 1 | 2 | 3 };
 
 export interface ForestPage {
   /** A real paragraph — this is the thing being comprehended. */
@@ -62,7 +68,7 @@ export interface ForestLesson {
   code: string;
   title: string;
   emoji: string;
-  topic: 'sky & weather' | 'how plants work' | 'seeds & growing' | 'creatures' | 'the forest floor';
+  topic: 'sky & weather' | 'how plants work' | 'seeds & growing' | 'creatures' | 'the forest floor' | 'protecting nature';
   minLevel: number;
   maxLevel: number;
   /** One-line hook shown on the lesson shelf. */
@@ -669,6 +675,293 @@ export const FOREST_LESSONS: ForestLesson[] = [
         ],
         correct: 1,
         why: 'It closes the loop. The tree took those nutrients out of the soil to build the leaf; the decomposers carry them back so roots can use them again.',
+      },
+    ],
+  },
+
+  // ─── Protecting nature (banded 3–5) ─────────────────────────────────
+  {
+    code: 'endangered_meaning',
+    title: 'What "endangered" means',
+    emoji: '🐾',
+    topic: 'protecting nature',
+    minLevel: 3, maxLevel: 4,
+    teaser: 'Some animals are running low — down to the very last few.',
+    pages: [
+      {
+        text: 'Imagine you had a whole jar of buttons, and every day a few went missing, until one morning only a small handful rattled around the bottom. That is what it means for an animal to be endangered: there are only a few of its kind left in the whole world, and the number keeps dropping. If nobody helps, an endangered animal can disappear forever — and in nature, forever is a very long time.',
+        visual: { kind: 'population_chart', shape: 'decline', label: 'a species in trouble', caption: 'fewer every year' },
+      },
+      {
+        text: 'Animals rarely vanish for just one reason. Most often their wild home — the woods or wetland or meadow they need — is cut down or built over, so there is nowhere left to live and nothing left to eat. Hunting too many, poison in the water, and weather that changes faster than they can keep up all add to it. Almost every one of these troubles was caused by people, which means it is also something people can help to fix.',
+        visual: { kind: 'habitat_shrink', stage: 2 },
+      },
+      {
+        text: 'Here is the part worth holding onto: endangered does not mean gone. It means there is still time. When people protect the wild home, stop the harm, and give the animals room to raise their young, the numbers can climb back up again. It has happened before, more than once. An endangered animal is not a lost cause — it is a neighbour asking for a little help while there is still a chance to give it.',
+        visual: { kind: 'population_chart', shape: 'recovery', label: 'when people help', caption: 'the numbers can climb back' },
+      },
+    ],
+    questions: [
+      {
+        prompt: 'What does it mean that an animal is endangered?',
+        choices: [
+          'There are only a few of its kind left, and the number keeps dropping',
+          'It lives somewhere dangerous',
+          'It is a brand-new kind of animal',
+          'It only comes out at night',
+        ],
+        correct: 0,
+        why: 'Endangered means the numbers have fallen very low and are still dropping — like a button jar down to its last handful. Without help, that animal could disappear.',
+      },
+      {
+        prompt: 'What is the most common reason animals become endangered?',
+        choices: [
+          'They simply grow old',
+          'Their wild home is cut down or built over',
+          'They stop having babies on purpose',
+          'They decide to move to the city',
+        ],
+        correct: 1,
+        why: 'Losing the wild home is the biggest cause. With their woods or wetland gone, there is nowhere to live and nothing to eat.',
+      },
+      {
+        prompt: 'Why does the bear say endangered is not the same as gone?',
+        choices: [
+          'Because the animals always recover on their own',
+          'Because there is still time to help, and the numbers can climb back up',
+          'Because someone probably counted them wrong',
+          'Because no animal is ever truly gone',
+        ],
+        correct: 1,
+        why: 'Endangered means there is still a chance. Protect the home and give them room, and a shrinking number can grow again.',
+      },
+    ],
+  },
+  {
+    code: 'habitat_loss',
+    title: 'Why a home matters',
+    emoji: '🏡',
+    topic: 'protecting nature',
+    minLevel: 3, maxLevel: 4,
+    teaser: 'Take away the home and you take away everything at once.',
+    pages: [
+      {
+        text: 'Every wild animal has a habitat — the particular place that gives it the four things any creature needs: food to eat, water to drink, shelter to hide in, and a safe spot to raise its babies. A frog’s habitat is a pond and its damp green edges. A woodpecker’s is a stand of old trees. Take an animal out of its habitat and it is like taking you out of your house with no food, no bed, and no roof. The place is not a nice extra. It is everything.',
+        visual: { kind: 'habitat_shrink', stage: 1 },
+      },
+      {
+        text: 'Habitats do not usually vanish all at once. More often they are nibbled away a piece at a time. A road goes through the middle of a wood. A field of wildflowers becomes a car park. A wetland is drained to build houses. Each change seems small on its own, but the wild home gets smaller and more broken up, until the animals are crowded onto scraps of land too little to feed them all.',
+        visual: { kind: 'habitat_shrink', stage: 2 },
+      },
+      {
+        text: 'A habitat cut into tiny pieces causes a trouble people do not always expect. Animals need room to roam, to find a mate, and to move somewhere new when food runs short. When a wood is sliced into little islands by roads and fences, an animal on one island cannot safely reach the next. It is stranded. That is why protecting one big, connected wild place matters far more than saving a handful of scattered scraps — an animal needs its whole home, not the crumbs.',
+        visual: { kind: 'habitat_shrink', stage: 3 },
+      },
+    ],
+    questions: [
+      {
+        prompt: 'What four things does a habitat give an animal?',
+        choices: [
+          'Food, water, shelter, and a safe place to raise babies',
+          'Sunlight, soil, seeds, and rain',
+          'Friends, toys, warmth, and music',
+          'Roads, houses, fences, and fields',
+        ],
+        correct: 0,
+        why: 'A habitat provides all four: food, water, shelter, and a safe place for young. That is why it is everything to the animal, not just a nice extra.',
+      },
+      {
+        prompt: 'How do habitats usually disappear?',
+        choices: [
+          'All at once, in a single day',
+          'A little at a time — a road here, a car park there',
+          'Only when there is a fire',
+          'The animals wear them out',
+        ],
+        correct: 1,
+        why: 'Habitats are usually nibbled away piece by piece. Each change looks small, but together they leave the wild home tiny and broken up.',
+      },
+      {
+        prompt: 'Why is a habitat cut into little islands such a problem?',
+        choices: [
+          'The islands are prettier than a whole wood',
+          'Animals get stranded and cannot reach food, mates, or new ground',
+          'Little islands are always too cold',
+          'Animals would rather stay in one spot anyway',
+        ],
+        correct: 1,
+        why: 'Animals need room to roam and connect. Roads and fences strand them on scraps too small to survive on, which is why a whole, connected home matters most.',
+      },
+    ],
+  },
+  {
+    code: 'monarch_milkweed',
+    title: 'The monarch needs milkweed',
+    emoji: '🦋',
+    topic: 'protecting nature',
+    minLevel: 3, maxLevel: 4,
+    teaser: 'One plant is the whole reason baby monarchs exist.',
+    pages: [
+      {
+        text: 'You have met the monarch butterfly already — the orange-and-black traveller that flies thousands of miles. But every monarch begins its life as a tiny egg, and the mother will lay that egg on one kind of plant only: milkweed. Not a rose, not an oak, not a blade of grass. Milkweed, and nothing else. If she cannot find any milkweed, she cannot lay her eggs at all.',
+        visual: { kind: 'milkweed', stage: 1 },
+      },
+      {
+        text: 'When the egg hatches, out comes a striped caterpillar with a big appetite, and it eats the very same milkweed it was born on. Milkweed is more than a meal — its leaves hold a bitter juice that soaks into the caterpillar and stays in the grown butterfly, making it taste horrible to birds. So the one plant feeds the young monarch and guards it from being eaten, both at once. No milkweed means no caterpillars, and no caterpillars means no next monarchs.',
+        visual: { kind: 'milkweed', stage: 2 },
+      },
+      {
+        text: 'Here is the part that puts the ending in your hands. All across the country milkweed has been mowed down and sprayed away, and as the milkweed vanished the monarchs grew fewer and fewer. But milkweed is easy to grow, and a butterfly cannot tell a huge meadow from a small garden patch — it only needs the plant to be there. Tuck a little milkweed into your garden and you have built a monarch nursery. A child with a packet of seeds can genuinely help this butterfly.',
+        visual: { kind: 'milkweed', stage: 3 },
+      },
+    ],
+    questions: [
+      {
+        prompt: 'Where will a mother monarch lay her eggs?',
+        choices: [
+          'On any flower she happens to like',
+          'On milkweed, and nothing else',
+          'On the ground near water',
+          'On oak leaves',
+        ],
+        correct: 1,
+        why: 'Only milkweed. A mother monarch will not lay her eggs on any other plant, so no milkweed means no place for her eggs at all.',
+      },
+      {
+        prompt: 'How does milkweed protect the caterpillar as well as feed it?',
+        choices: [
+          'Its bitter juice makes the monarch taste horrible to birds',
+          'Its leaves are sharp and spiky',
+          'It wraps the caterpillar up in silk',
+          'It glows in the dark to scare predators',
+        ],
+        correct: 0,
+        why: 'The plant does double duty. Its bitter juice soaks into the caterpillar and stays in the butterfly, so birds learn to leave monarchs alone.',
+      },
+      {
+        prompt: 'How can a child actually help monarch butterflies?',
+        choices: [
+          'By catching them gently in a net',
+          'By planting milkweed, even just a small patch',
+          'By feeding them honey from a spoon',
+          'By keeping them safe indoors',
+        ],
+        correct: 1,
+        why: 'Plant milkweed. A monarch cannot tell a big meadow from a small garden — it just needs the plant there, so even one patch becomes a real nursery.',
+      },
+    ],
+  },
+  {
+    code: 'comeback_stories',
+    title: 'Animals that came back',
+    emoji: '🦅',
+    topic: 'protecting nature',
+    minLevel: 4, maxLevel: 5,
+    teaser: 'Two American giants almost vanished — and then did not.',
+    pages: [
+      {
+        text: 'Not every story about endangered animals is a sad one. Take the bald eagle, the great white-headed bird that is the symbol of the United States. Sixty years ago it had very nearly disappeared. A chemical called DDT, sprayed on farms to kill insects, washed into the rivers and built up in the fish the eagles ate. It made their eggshells so thin that the eggs cracked before any chick could hatch, and the great birds slid toward vanishing.',
+        visual: { kind: 'population_chart', shape: 'recovery', label: 'bald eagle', caption: 'nearly gone, then saved' },
+      },
+      {
+        text: 'So people decided to act. The country banned DDT, made it against the law to harm the eagles, and protected the tall trees where they build their nests. Slowly — because a big bird raises only a chick or two a year — the eagles recovered. Where once you would have been lucky to spot a single one, today bald eagles fish over lakes and rivers all across the land again. The very bird that was almost lost is now a common sight.',
+        visual: { kind: 'population_chart', shape: 'recovery', label: 'bald eagle', caption: 'nearly gone, then saved' },
+      },
+      {
+        text: 'The American bison tells the same lesson on an even bigger scale. Millions of these shaggy giants once thundered across the plains, so many that a single herd could take days to pass. In only a few dozen years they were hunted down to a few hundred animals — nearly every bison on the whole continent, gone. Then ranchers, parks, and Native nations gathered up the survivors and protected them, and the herds grew back into the tens of thousands. Both stories share one moral: when people decide to help, even an animal on the very edge can be pulled back.',
+        visual: { kind: 'population_chart', shape: 'recovery', label: 'American bison', caption: 'down to hundreds, back to thousands' },
+      },
+    ],
+    questions: [
+      {
+        prompt: 'What nearly wiped out the bald eagle?',
+        choices: [
+          'Hunters who wanted their feathers',
+          'A chemical called DDT that thinned their eggshells so the eggs cracked',
+          'They ran out of rivers to fish in',
+          'A disease that spread among them',
+        ],
+        correct: 1,
+        why: 'DDT was the culprit. It built up in the fish the eagles ate and made their eggshells so thin the eggs broke before a chick could hatch.',
+      },
+      {
+        prompt: 'What helped the bald eagle recover?',
+        choices: [
+          'Banning DDT, protecting the birds, and saving their nesting trees',
+          'Feeding them fish by hand',
+          'Moving every last eagle into a zoo',
+          'Waiting quietly and doing nothing',
+        ],
+        correct: 0,
+        why: 'People acted: they banned the chemical, made harming eagles against the law, and protected the tall nesting trees. Slowly the great birds came back.',
+      },
+      {
+        prompt: 'What one moral do the eagle and the bison share?',
+        choices: [
+          'Big animals never really disappear',
+          'When people decide to help, even an animal on the edge can be pulled back',
+          'Chemicals are always the whole problem',
+          'The plains are a better home than the rivers',
+        ],
+        correct: 1,
+        why: 'Both were nearly lost and both recovered once people protected them — proof that even an animal on the very edge can be saved with real effort.',
+      },
+    ],
+  },
+  {
+    code: 'how_kids_help',
+    title: 'How you can help',
+    emoji: '🌍',
+    topic: 'protecting nature',
+    minLevel: 4, maxLevel: 5,
+    teaser: 'You do not have to be grown up to protect wild things.',
+    pages: [
+      {
+        text: 'You do not have to wait until you are grown to help wild animals — a garden is one of the best places in the world to start. Every flower you plant is a filling station for bees and butterflies, and native plants, the kind that naturally grow where you live, feed far more creatures than fancy ones brought from faraway lands. A patch of milkweed, a clump of wildflowers, even a few pots on a step can turn your garden into a habitat.',
+        visual: { kind: 'milkweed', stage: 3 },
+      },
+      {
+        text: 'Wild animals also need the very things a too-tidy garden takes away. A little pile of logs or a heap of autumn leaves, left in a quiet corner, becomes a home for beetles, toads, and the hedgehog looking for somewhere to sleep. A shallow dish of clean water, refilled often, is a lifesaver for a thirsty bird or bee on a hot day. Helping is sometimes as simple as choosing not to sweep every last wild thing away.',
+        visual: { kind: 'decomposers', stage: 1 },
+      },
+      {
+        text: 'The last way to help is about doing less harm. Litter dropped on the ground blows into streams and hurts the animals that live there, so putting rubbish in a bin is a real act of protection, small as it seems. Keeping water clean, using less plastic, and gently telling other people why wild homes matter all add up. No single child can save every animal — but a garden full of milkweed, a dish of clean water, and a bin used instead of the ground is help that a monarch or a hedgehog can truly feel.',
+        visual: { kind: 'habitat_shrink', stage: 1 },
+      },
+    ],
+    questions: [
+      {
+        prompt: 'Why are native plants especially good to grow for wildlife?',
+        choices: [
+          'They are always the cheapest',
+          'They naturally grow where you live and feed far more local creatures',
+          'They never need any water',
+          'They grow the fastest of all',
+        ],
+        correct: 1,
+        why: 'Native plants belong where you live, so local bees, butterflies, and birds are already suited to them — they feed far more creatures than exotic ones.',
+      },
+      {
+        prompt: 'Why leave a pile of logs or autumn leaves in a quiet corner?',
+        choices: [
+          'Because it looks neat and tidy',
+          'It becomes a home for beetles, toads, and hedgehogs',
+          'It keeps the grass short',
+          'It scares pests away from the garden',
+        ],
+        correct: 1,
+        why: 'A too-tidy garden leaves nowhere to hide. A log pile or leaf heap gives beetles, toads, and sleepy hedgehogs a real home.',
+      },
+      {
+        prompt: 'How does putting litter in a bin protect animals?',
+        choices: [
+          'Litter left on the ground blows into streams and harms the animals living there',
+          'Bins are a good place for animals to feed',
+          'Litter helps the plants grow bigger',
+          'It does not really make any difference',
+        ],
+        correct: 0,
+        why: 'Dropped litter blows into water and hurts the creatures there. A bin instead of the ground is a small act that genuinely protects wildlife.',
       },
     ],
   },

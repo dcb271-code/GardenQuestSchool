@@ -909,6 +909,223 @@ function Decomposers({ stage }: { stage: number }) {
   );
 }
 
+// ─── 12. Population chart ───────────────────────────────────────────
+
+function PopulationChart({ shape, label, caption }: { shape: 'decline' | 'recovery'; label: string; caption: string }) {
+  // A little bar chart of "how many are left" across time. Decline just
+  // falls away to almost nothing; recovery falls, bottoms out, then
+  // climbs back — the shape IS the story.
+  const heights = shape === 'decline'
+    ? [58, 46, 30, 16, 7]
+    : [58, 34, 12, 30, 52];
+  const BASE = 158, X0 = 56, BW = 34, GAP = 16;
+  const barColor = (h: number, i: number) => {
+    if (shape === 'recovery' && i >= 3) return FOREST;
+    if (h <= 16) return RED;
+    if (h <= 34) return TERRA;
+    return FOREST;
+  };
+  return (
+    <svg viewBox="0 0 340 200" className={VB}>
+      <rect x={0} y={0} width={340} height={200} rx={10} fill="#F2EDE0" stroke={INK} strokeWidth={1.6} />
+
+      {/* the "how many" axis + baseline */}
+      <line x1={X0 - 14} y1={30} x2={X0 - 14} y2={BASE} stroke={INK} strokeWidth={1.4} opacity={0.5} />
+      <line x1={X0 - 14} y1={BASE} x2={310} y2={BASE} stroke={INK} strokeWidth={1.6} />
+      <text x={X0 - 22} y={44} fontSize={7.5} fontStyle="italic" fill={INK} opacity={0.7}
+            textAnchor="middle" transform={`rotate(-90 ${X0 - 22} 44)`}>how many are left</text>
+      <text x={183} y={176} textAnchor="middle" fontSize={8} fontStyle="italic" fill={INK} opacity={0.7}>as the years go by →</text>
+
+      {heights.map((h, i) => {
+        const x = X0 + i * (BW + GAP);
+        return (
+          <g key={i}>
+            <rect x={x} y={BASE - h} width={BW} height={h} rx={3}
+                  fill={barColor(h, i)} stroke={INK} strokeWidth={1.4} />
+            {/* little critter dots to read the bar as "animals" */}
+            {Array.from({ length: Math.max(1, Math.round(h / 12)) }).map((_, k) => (
+              <circle key={k} cx={x + BW / 2} cy={BASE - 8 - k * 11} r={2.2}
+                      fill={CREAM} stroke={INK} strokeWidth={0.7} />
+            ))}
+          </g>
+        );
+      })}
+
+      {/* an arrow that traces the trend across the bar tops */}
+      {shape === 'decline' ? (
+        <>
+          <Arrow d={`M ${X0 + 6} ${BASE - 64} q 90 40 ${(BW + GAP) * 4 - 12} 78`} color={RED} width={2.2} />
+          <Head x={X0 + (BW + GAP) * 4 - 6} y={BASE - 64 + 78} angle={54} color={RED} />
+          <Tag x={150} y={54} text={caption} tone="#FFE2CC" w={Math.min(200, caption.length * 6.2 + 16)} />
+        </>
+      ) : (
+        <>
+          <Arrow d={`M ${X0 + 6} ${BASE - 64} q 46 96 92 96 q 46 0 92 -60`} color={FOREST} width={2.2} />
+          <Head x={X0 + (BW + GAP) * 4 + 4} y={BASE - 60} angle={-52} color={FOREST} />
+          <Tag x={150} y={40} text={caption} tone="#E6F0DC" w={Math.min(230, caption.length * 6.2 + 16)} />
+        </>
+      )}
+
+      <Tag x={183} y={192} text={label} tone={CREAM} w={Math.min(240, label.length * 6.4 + 18)} />
+    </svg>
+  );
+}
+
+// ─── 13. Habitat shrinking ──────────────────────────────────────────
+
+function HabitatShrink({ stage }: { stage: number }) {
+  // A patch of wild green home, eaten into by roads and houses as the
+  // stage climbs. Stage 1 whole; stage 2 a road + houses take a bite;
+  // stage 3 only a small stranded island of green is left.
+  const greenW = stage === 1 ? 300 : stage === 2 ? 176 : 78;
+  return (
+    <svg viewBox="0 0 340 200" className={VB}>
+      {/* the built-over ground underneath everything */}
+      <rect x={0} y={0} width={340} height={200} rx={10} fill="#CFC7B8" stroke={INK} strokeWidth={1.6} />
+      {/* grey grid to read as pavement / lots */}
+      {stage >= 2 && [70, 130, 190, 250, 310].map(x => (
+        <line key={`v${x}`} x1={x} y1={20} x2={x} y2={184} stroke="#B4AB99" strokeWidth={1} />
+      ))}
+      {stage >= 2 && [56, 96, 136].map(y => (
+        <line key={`h${y}`} x1={16} y1={y} x2={324} y2={y} stroke="#B4AB99" strokeWidth={1} />
+      ))}
+
+      {/* the wild green home, centred, shrinking */}
+      <g>
+        <rect x={170 - greenW / 2} y={40} width={greenW} height={118} rx={12}
+              fill={FOREST} stroke={INK} strokeWidth={1.8} opacity={0.9} />
+        {/* a few trees + a pond so it reads as a habitat, not a lawn */}
+        {stage <= 2 && [[170 - greenW / 2 + 24, 132], [170 + greenW / 2 - 28, 120]].map(([x, y], i) => (
+          <g key={i}>
+            <rect x={x - 1.6} y={y} width={3.2} height={12} fill={DARK_BARK} stroke={INK} strokeWidth={0.8} />
+            <path d={`M ${x} ${y - 20} l 12 22 l -24 0 Z`} fill={SAGE} stroke={INK} strokeWidth={1.1} strokeLinejoin="round" />
+          </g>
+        ))}
+        <ellipse cx={170} cy={110} rx={Math.min(26, greenW / 3)} ry={11} fill={WATER} stroke={INK} strokeWidth={1.2} />
+        {/* one animal left in the green */}
+        <g transform={`translate(170, ${stage === 3 ? 78 : 132})`}>
+          <ellipse cx={0} cy={0} rx={7} ry={5} fill="#B98A5A" stroke={INK} strokeWidth={1.2} />
+          <circle cx={6} cy={-4} r={3.4} fill="#B98A5A" stroke={INK} strokeWidth={1.1} />
+          <path d="M 8 -7 q 2 -4 4 -2 M 5 -7 q -1 -4 -3 -3" stroke={INK} strokeWidth={1} fill="none" strokeLinecap="round" />
+        </g>
+      </g>
+
+      {/* the road that cuts the bite out */}
+      {stage >= 2 && (
+        <g>
+          <rect x={0} y={168} width={340} height={18} fill="#7C756A" stroke={INK} strokeWidth={1.4} />
+          {[20, 70, 120, 170, 220, 270, 320].map(x => (
+            <line key={x} x1={x} y1={177} x2={x + 24} y2={177} stroke={GOLD} strokeWidth={2} strokeLinecap="round" />
+          ))}
+        </g>
+      )}
+      {/* little houses moving in on the taken ground */}
+      {stage >= 2 && (
+        stage === 2
+          ? [[276, 60], [304, 90]]
+          : [[240, 58], [272, 84], [300, 60], [246, 108], [284, 128], [64, 66], [40, 104], [96, 128]]
+      ).map(([x, y], i) => (
+        <g key={i}>
+          <rect x={x - 10} y={y} width={20} height={16} fill="#E4DCCB" stroke={INK} strokeWidth={1.2} />
+          <path d={`M ${x - 12} ${y} l 12 -10 l 12 10 Z`} fill={TERRA} stroke={INK} strokeWidth={1.2} strokeLinejoin="round" />
+          <rect x={x - 3} y={y + 6} width={6} height={10} fill={DARK_BARK} />
+        </g>
+      ))}
+
+      <Tag x={170} y={30}
+           text={stage === 1 ? 'a whole wild home' : stage === 2 ? 'roads and houses move in' : 'only a scrap left'}
+           tone={stage === 3 ? '#FFE2CC' : CREAM}
+           w={stage === 2 ? 156 : 120} />
+    </svg>
+  );
+}
+
+// ─── 14. Milkweed + monarch ─────────────────────────────────────────
+
+function Milkweed({ stage }: { stage: number }) {
+  // The one plant a monarch cannot do without. Stage 1 an egg on a
+  // leaf; stage 2 a striped caterpillar munching; stage 3 the grown
+  // butterfly with a "plant me" nudge.
+  return (
+    <svg viewBox="0 0 340 200" className={VB}>
+      <rect x={0} y={0} width={340} height={200} rx={10} fill="#E8F1E2" stroke={INK} strokeWidth={1.6} />
+      {/* soil strip */}
+      <path d="M 0 172 L 340 172 L 340 190 q 0 10 -10 10 L 10 200 q -10 0 -10 -10 Z" fill={SOIL} stroke={INK} strokeWidth={1.5} />
+
+      {/* the milkweed: upright stem, paired leaves, a pink flower cluster */}
+      <g transform="translate(150, 0)">
+        <path d="M 0 172 q -4 -60 2 -116" stroke={FOREST} strokeWidth={5} fill="none" strokeLinecap="round" />
+        {/* paired oval leaves up the stem */}
+        {[[142, -1], [112, 1], [82, -1]].map(([y, s], i) => (
+          <g key={i}>
+            <path d={`M ${s} ${y} q -34 -6 -46 -20 q 30 -10 46 6 Z`} fill={SAGE} stroke={INK} strokeWidth={1.4} strokeLinejoin="round" />
+            <path d={`M ${s} ${y} q 34 -6 46 -20 q -30 -10 -46 6 Z`} fill={SAGE} stroke={INK} strokeWidth={1.4} strokeLinejoin="round" />
+          </g>
+        ))}
+        {/* the milkweed flower — a rounded cluster of little pink blooms */}
+        <g transform="translate(4, 44)">
+          {[[0, 0], [-9, 4], [9, 4], [-5, -6], [5, -6], [0, 9]].map(([x, y], i) => (
+            <circle key={i} cx={x} cy={y} r={4.4} fill="#E7A9C0" stroke={INK} strokeWidth={1.1} />
+          ))}
+        </g>
+      </g>
+
+      {/* stage 1 — the egg, tucked under a leaf */}
+      {stage === 1 && (
+        <g>
+          <ellipse cx={112} cy={118} rx={4} ry={5.5} fill="#FDF6E3" stroke={INK} strokeWidth={1.3} />
+          <line x1={112} y1={113} x2={112} y2={123} stroke={INK} strokeWidth={0.6} opacity={0.5} />
+          <Arrow d="M 74 96 q 20 8 34 18" color={RED} width={1.7} />
+          <Head x={110} y={115} angle={35} size={4.8} />
+          <Tag x={60} y={88} text="one tiny egg" tone="#FFE2CC" />
+        </g>
+      )}
+
+      {/* stage 2 — the striped caterpillar munching a leaf */}
+      {stage === 2 && (
+        <g transform="translate(108, 128)">
+          <path d="M -2 0 q 12 -10 26 -4 q 12 6 22 0" stroke="#F4E7A0" strokeWidth={11} fill="none" strokeLinecap="round" />
+          {[3, 12, 21, 30, 39].map(x => (
+            <g key={x}>
+              <line x1={x - 3} y1={-6} x2={x - 3} y2={6} stroke={INK} strokeWidth={2.4} strokeLinecap="round" />
+              <line x1={x} y1={-6} x2={x} y2={6} stroke="#3B3A46" strokeWidth={1.6} strokeLinecap="round" opacity={0.85} />
+            </g>
+          ))}
+          <path d="M 44 -3 q 5 -3 9 -1 M 44 -6 q 3 -5 7 -6" stroke={INK} strokeWidth={1.4} fill="none" strokeLinecap="round" />
+          <circle cx={47} cy={1} r={1} fill={INK} />
+          <Tag x={44} y={-24} text="a hungry caterpillar" tone="#FFF0CF" />
+        </g>
+      )}
+
+      {/* stage 3 — the grown monarch + a nudge to plant one */}
+      {stage === 3 && (
+        <>
+          <g transform="translate(226, 74)">
+            {/* orange wings with black edges and white dots */}
+            <path d="M -3 4 q -30 -22 -30 -2 q 0 24 30 12 Z" fill={TERRA} stroke={INK} strokeWidth={1.6} strokeLinejoin="round" />
+            <path d="M 3 4 q 30 -22 30 -2 q 0 24 -30 12 Z" fill={TERRA} stroke={INK} strokeWidth={1.6} strokeLinejoin="round" />
+            <path d="M -3 6 q -22 6 -24 20 q 20 6 24 -6 Z" fill="#D98A4E" stroke={INK} strokeWidth={1.5} strokeLinejoin="round" />
+            <path d="M 3 6 q 22 6 24 20 q -20 6 -24 -6 Z" fill="#D98A4E" stroke={INK} strokeWidth={1.5} strokeLinejoin="round" />
+            {[[-20, 2], [-26, 22], [22, 2], [26, 22]].map(([x, y], i) => (
+              <circle key={i} cx={x} cy={y} r={1.5} fill={CREAM} />
+            ))}
+            <ellipse cx={0} cy={8} rx={2.6} ry={13} fill="#3B3A46" stroke={INK} strokeWidth={1.1} />
+            <path d="M -1 -5 q -6 -8 -11 -12 M 1 -5 q 6 -8 11 -12" stroke={INK} strokeWidth={1.5} fill="none" strokeLinecap="round" />
+            <circle cx={-12} cy={-18} r={2.4} fill={INK} />
+            <circle cx={12} cy={-18} r={2.4} fill={INK} />
+          </g>
+          <Tag x={256} y={118} text="a grown monarch" tone="#FFF0CF" />
+          <g transform="translate(150, 30)">
+            <Tag x={0} y={0} text="plant me — build a nursery" tone="#E6F0DC" w={168} />
+            <Arrow d="M 0 10 q 2 12 4 22" color={FOREST} width={1.8} />
+            <Head x={4} y={34} angle={80} color={FOREST} size={5} />
+          </g>
+        </>
+      )}
+    </svg>
+  );
+}
+
 // ─── Dispatcher ─────────────────────────────────────────────────────
 
 export default function ForestVisualView({ visual }: { visual: ForestVisual }) {
@@ -924,5 +1141,8 @@ export default function ForestVisualView({ visual }: { visual: ForestVisual }) {
     case 'moth_butterfly': return <MothButterfly highlight={visual.highlight} />;
     case 'leaf_color':     return <LeafColor stage={visual.stage} />;
     case 'decomposers':    return <Decomposers stage={visual.stage} />;
+    case 'population_chart': return <PopulationChart shape={visual.shape} label={visual.label} caption={visual.caption} />;
+    case 'habitat_shrink': return <HabitatShrink stage={visual.stage} />;
+    case 'milkweed':       return <Milkweed stage={visual.stage} />;
   }
 }

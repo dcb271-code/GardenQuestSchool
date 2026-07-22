@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { SpeciesData } from '@/lib/world/speciesCatalog';
+import { conservationOf } from '@/lib/world/speciesCatalog';
 import { HABITAT_CATALOG } from '@/lib/world/habitatCatalog';
 import { SpeciesIllustration } from '@/components/child/garden/speciesIllustrations';
 
@@ -117,6 +118,17 @@ export default function SpeciesDetailModal({
               <div className="font-display italic text-[13px] text-bark/55 mt-1 tracking-wide">
                 {species.scientificName}
               </div>
+              {(() => {
+                const c = conservationOf(species);
+                return (
+                  <div className="mt-2 flex justify-center">
+                    <span className={`inline-flex items-center gap-1 border-2 rounded-full px-3 py-1 text-[13px] ${c.badgeClass}`} style={{ fontWeight: 600 }}>
+                      <span className="text-base">{c.emoji}</span>
+                      <span>{c.label}</span>
+                    </span>
+                  </div>
+                );
+              })()}
             </div>
 
             <div className="bg-white/70 border-2 border-sage/40 rounded-xl p-4 space-y-3 relative z-10">
@@ -156,6 +168,19 @@ export default function SpeciesDetailModal({
                   </div>
                 </div>
               )}
+
+              {(() => {
+                const note = conservationOf(species).note;
+                if (!note) return null;
+                return (
+                  <div className="border-t border-sage/30 pt-3">
+                    <p className="font-display italic text-[14px] text-forest leading-snug flex items-start gap-1.5">
+                      <span className="not-italic">🌱</span>
+                      <span>{note}</span>
+                    </p>
+                  </div>
+                );
+              })()}
             </div>
 
             {learnerId && (
