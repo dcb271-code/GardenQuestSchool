@@ -16,11 +16,12 @@
     --scene-inset-top: env(safe-area-inset-top, 0px);
     --scene-inset-bottom: env(safe-area-inset-bottom, 0px);
   }
-  /* The frame hides a bit more at the bottom than the top — measured
-     on the cozyla, hence the asymmetric insets. */
+  /* Measured on the cozyla: only the BOTTOM edge is actually hidden
+     by the frame in portrait — the top is fine, and padding it just
+     wasted an inch of blank header. So the comfort inset applies to
+     the bottom only. */
   @media (orientation: portrait) and (pointer: coarse) {
     :root {
-      --scene-inset-top: max(env(safe-area-inset-top, 0px), 5vh);
       --scene-inset-bottom: max(env(safe-area-inset-bottom, 0px), 7vh);
     }
   }
