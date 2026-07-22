@@ -170,7 +170,10 @@ const HABITAT_GROUPS: Record<string, {
             'mm4_granite_sums', 'mm4_cloud_rounding', 'mm4_slice_share',
             'mm4_long_shadows', 'mm4_dewdrop_decimals', 'mm4_double_eagle',
             'mm4_frost_compare', 'mm4_terrace_gardens', 'mm4_tall_tales'],
-    x: 720, y: 300, label: 'High Meadow Waystation',
+    // East of the tea-house pavilion (680,296) — the two used to sit
+    // on top of each other; the shelter now takes the old mid-pine
+    // spot and the pine moved beside the pavilion.
+    x: 860, y: 305, label: 'High Meadow Waystation',
   },
   summit: {
     codes: ['mm5_summit_product', 'mm5_long_stair', 'mm5_meadow_portions',
@@ -600,15 +603,28 @@ export default function MathMountainScene({
              water flowing past — a nice "cave continues deeper"
              read instead of getting clipped. */}
         <g pointerEvents="none" transform="translate(0, 168) scale(0.82)">
-          {/* ── FAR-DISTANT HILL SILHOUETTE ────────────────────────
-              Soft mid-tone shape behind the main hill for atmospheric
-              depth. */}
+          {/* ── BACK RIDGES ────────────────────────────────────────
+              Two soft ridgelines peeking over the main hill's crest,
+              LEFT side only — both dive back under the hill body well
+              before its right edge, so nothing pokes out into the
+              river zone (the old full-width silhouette slab used to
+              peek out past the hill and read as leftover draft art).
+              No ink outline — distance is drawn with value, not line. */}
           <path
-            d="M -10 790
-               C 10 700, 50 620, 120 590
-               C 200 574, 270 600, 330 660
-               C 370 710, 390 760, 400 790 Z"
-            fill="#9B8868" opacity={0.45}
+            d="M -10 640
+               C 0 590, 15 555, 40 535
+               C 58 522, 76 522, 90 538
+               C 100 550, 108 572, 112 600
+               L -10 600 Z"
+            fill="#BFC49E" opacity={0.85}
+          />
+          <path
+            d="M 30 620
+               C 48 555, 80 505, 115 492
+               C 145 484, 172 500, 192 532
+               C 202 550, 210 572, 214 592
+               L 30 620 Z"
+            fill="#9BA37E" opacity={0.9}
           />
 
           {/* ── MAIN HILL BODY ────────────────────────────────────
@@ -616,22 +632,47 @@ export default function MathMountainScene({
               Spans x=-10..240 horizontally, peaking at y=545, base
               at y=790 — fully contained in the viewBox. Warm earthy
               tone (#A8956F) instead of grey stone. */}
+          {/* Bottom line sits at local y=770 (screen ≈799) — the SVG
+              does NOT clip at the viewBox edge when letterboxed, so
+              anything past y=800 paints a tan band under the world
+              frame (that band was the "old draft peeking through"). */}
           <path
-            d="M -10 790
-               C -10 720, 0 640, 25 590
+            d="M -10 770
+               C -10 712, 0 640, 25 590
                C 50 560, 90 545, 130 545
                C 178 548, 218 575, 240 615
-               C 260 650, 268 740, 268 790 Z"
+               C 258 648, 266 720, 268 770 Z"
             fill="#A8956F" stroke="#3F2614" strokeWidth={1.6} strokeLinejoin="round"
           />
 
-          {/* HILL SHADOW — right-side falls into shadow, blending
-              into the foothills */}
-          <path
-            d="M 175 600 C 200 625, 230 660, 252 720 C 260 750, 264 780, 268 790
-               L 175 790 Z"
-            fill="#7A6651" opacity={0.55}
-          />
+          {/* ── ROCK FACE on the right shoulder ───────────────────
+              Outlined granite outcrop band on the hill's east slope,
+              tucked INSIDE the hill silhouette and kept ABOVE the
+              waterline (screen 690 ≈ local 637) — a detached blob
+              here read as a gray fin sticking out of the river.
+              Bottom edge dips just under the water so the river
+              trims it cleanly. */}
+          <g transform="translate(-18, 0)">
+            <path
+              d="M 186 583
+                 C 208 592, 228 608, 242 630
+                 C 246 638, 248 644, 249 650
+                 L 210 650
+                 C 202 624, 194 602, 186 583 Z"
+              fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.4} strokeLinejoin="round"
+            />
+            {/* facet seams — hand-drawn cracks giving the face planes */}
+            <path d="M 198 600 C 208 614, 218 630, 224 646"
+                  stroke="#3F3026" strokeWidth={1} fill="none" strokeLinecap="round" opacity={0.7} />
+            <path d="M 216 612 C 226 624, 234 636, 238 648"
+                  stroke="#3F3026" strokeWidth={0.9} fill="none" strokeLinecap="round" opacity={0.6} />
+            {/* lit facet tops — sun catches the upper edges */}
+            <path d="M 190 588 C 208 596, 224 610, 236 628"
+                  stroke="#A89D8A" strokeWidth={2.4} fill="none" strokeLinecap="round" opacity={0.8} />
+            {/* moss tucked on the ledges */}
+            <ellipse cx={206} cy={608} rx={6} ry={2} fill="#7BA46F" opacity={0.8} transform="rotate(30 206 608)" />
+            <ellipse cx={228} cy={632} rx={5} ry={1.8} fill="#6B8E5A" opacity={0.7} transform="rotate(38 228 632)" />
+          </g>
 
           {/* HILL HIGHLIGHT — sun catches the upper-left curve */}
           <path
@@ -839,69 +880,11 @@ export default function MathMountainScene({
             <circle cx={1} cy={0.2} r={0.4} fill="#FFFAF2" />
           </g>
 
-          {/* ── FOOTHILLS extending from hill base to the right ──
-              Gentle rolling shapes (NOT jagged rocks) that carry the
-              hillside's earthy palette toward the meadow. They sit
-              BELOW the river surface so the river covers their crest
-              naturally — reading as a low ridge along the river's
-              south bank. */}
-          <path
-            d="M 240 790
-               C 270 752, 308 740, 348 744
-               C 388 752, 428 760, 460 768
-               L 460 800 L 240 800 Z"
-            fill="#A8956F" stroke="#3F2614" strokeWidth={1.3} strokeLinejoin="round"
-          />
-          {/* foothill darker shading */}
-          <path
-            d="M 360 752 C 400 760, 440 766, 460 770 L 460 800 L 360 800 Z"
-            fill="#7A6651" opacity={0.45}
-          />
-          {/* mossy crest along foothill tops */}
-          <path
-            d="M 250 768 C 280 750, 320 745, 360 748 C 400 754, 430 762, 455 768"
-            stroke="#6B8E5A" strokeWidth={4} fill="none" strokeLinecap="round" opacity={0.85}
-          />
-          <path
-            d="M 252 766 C 280 748, 320 743, 360 746 C 400 752, 428 760, 452 766"
-            stroke="#7BA46F" strokeWidth={1.8} fill="none" strokeLinecap="round" opacity={0.65}
-          />
-
-          {/* tiny pines on the foothill crests */}
-          <g transform="translate(290, 745)">
-            <line x1={0} y1={0} x2={0} y2={-9} stroke="#3F2614" strokeWidth={1.0} strokeLinecap="round" />
-            <path d="M 0 -9 L -3 -6 L 3 -6 Z M 0 -6 L -2.5 -3 L 2.5 -3 Z"
-                  fill="#3D5C32" stroke="#1F3018" strokeWidth={0.5} strokeLinejoin="round" />
-          </g>
-          <g transform="translate(370, 750)">
-            <line x1={0} y1={0} x2={0} y2={-8} stroke="#3F2614" strokeWidth={1.0} strokeLinecap="round" />
-            <path d="M 0 -8 L -2.5 -5 L 2.5 -5 Z M 0 -5 L -2.5 -2 L 2.5 -2 Z"
-                  fill="#3D5C32" stroke="#1F3018" strokeWidth={0.5} strokeLinejoin="round" />
-          </g>
-
-          {/* wildflowers scattered on the foothills */}
-          {[
-            { fx: 270, fy: 760, c: '#FFD166' },
-            { fx: 320, fy: 752, c: '#FFB7C5' },
-            { fx: 340, fy: 754, c: '#E6B0D0' },
-            { fx: 410, fy: 762, c: '#FFD166' },
-            { fx: 432, fy: 766, c: '#FFB7C5' },
-          ].map((f, i) => (
-            <g key={`fh-flower-${i}`} transform={`translate(${f.fx}, ${f.fy})`}>
-              {[0, 90, 180, 270].map(deg => (
-                <ellipse key={deg} cx={0} cy={-1.3} rx={1} ry={1.7} fill={f.c}
-                         stroke="#8B6938" strokeWidth={0.25} transform={`rotate(${deg})`} />
-              ))}
-              <circle cx={0} cy={0} r={0.7} fill="#FFD166" />
-            </g>
-          ))}
-
-          {/* a small fern at the foothill's eastern end, near the river bank */}
-          <g transform="translate(450, 768)">
-            <path d="M 0 0 Q -3 -8 -6 -14" stroke="#3F5A30" strokeWidth={1.2} fill="none" strokeLinecap="round" />
-            <path d="M 0 0 Q 0 -10 -1 -16" stroke="#3F5A30" strokeWidth={1.2} fill="none" strokeLinecap="round" />
-            <path d="M 0 0 Q 3 -8 4 -14" stroke="#3F5A30" strokeWidth={1.1} fill="none" strokeLinecap="round" />
-          </g>
+          {/* (Foothills deleted — the old tan shapes stuck out past the
+              green riverbank as a bare wedge and read as leftover
+              draft art. The south bank in section 6d now carries the
+              ridge, in the bank's own grassy palette, drawn ABOVE the
+              river so the seam is clean.) */}
         </g>
 
         {/* ── 6c. CAVE CLICK-TARGET ─────────────────────────────
@@ -931,9 +914,10 @@ export default function MathMountainScene({
              (y:740), climbs back up toward the right-edge garden exit
              (y:680). That gentle 60-pixel vertical wander turns a
              "horizontal strip" into a watercourse with a destination.
-             BIG BRIDGE at (540, 700), SKIP BRIDGE at (1320, 700) —
-             both bridge decks sit just above the river surface where
-             it dips beneath them. Log-jam dam at midpoint (820, 740). */}
+             BIG BRIDGE at (740, 738), SKIP BRIDGE at (1330, 701) —
+             each bridge structure's y is river-center − 9 so the
+             icon's own stream ribbon (icon-local y≈+9) lines up with
+             the real water. Log-jam dam at midpoint (820, 740). */}
         <g pointerEvents="none">
           {/* sandy wet bank — a warm earth strip under both water
               edges (the old translucent green wash was invisible
@@ -1020,24 +1004,65 @@ export default function MathMountainScene({
             </g>
           ))}
 
-          {/* SOUTH BANK below the cave stretch — grassy slope covering
-              the raw hillside fill left under the water (the exposed
-              tan slabs + shadow seams read as broken geometry).
-              Blends right into the existing foreground mound. */}
+          {/* SOUTH BANK below the cave stretch — a grassy ridge that
+              rolls east from the hill's rock face and settles to the
+              bottom edge. Drawn AFTER the water so the seam against
+              the river is one clean ink line; carries the pines,
+              outcrops, and wildflowers the old tan foothills used to
+              hold (those stuck out past the grass as a bare wedge). */}
+          {/* fill and ink are separate paths: stroking the closed fill
+              would draw a hard line along the world's bottom edge */}
           <path
             d="M 0 705
                C 40 708, 100 710, 160 712
-               C 210 714, 250 720, 290 736
-               C 310 748, 320 780, 322 800
+               C 220 715, 270 722, 320 734
+               C 365 745, 400 760, 420 778
+               C 428 787, 432 795, 433 800
                L 0 800 Z"
             fill="#A9C68F"
           />
           <path
-            d="M 0 706 C 50 709, 120 711, 180 714 C 230 717, 265 726, 292 740"
+            d="M 0 705
+               C 40 708, 100 710, 160 712
+               C 220 715, 270 722, 320 734
+               C 365 745, 400 760, 420 778
+               C 428 787, 432 795, 433 800"
+            stroke="#3F2614" strokeWidth={1.3} fill="none" strokeLinecap="round"
+          />
+          {/* moss crest along the waterline */}
+          <path
+            d="M 0 706 C 50 709, 120 711, 180 714 C 240 717, 295 726, 340 738 C 378 749, 405 763, 420 778"
             stroke="#6B8E5A" strokeWidth={4} fill="none" strokeLinecap="round" opacity={0.8}
           />
-          {/* grass tufts + wildflowers on the bank */}
-          {[[46, 724], [118, 730], [196, 736], [258, 748]].map(([gx, gy], i) => (
+          <path
+            d="M 4 708 C 60 711, 130 713, 190 716 C 248 720, 300 729, 344 741"
+            stroke="#7BA46F" strokeWidth={1.8} fill="none" strokeLinecap="round" opacity={0.6}
+          />
+          {/* rock outcrops breaking through the bank grass — carries
+              the hill's granite east so the rock face doesn't end
+              abruptly at the water */}
+          <g transform="translate(300, 744)">
+            <ellipse cx={0} cy={0} rx={13} ry={5.5} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.3} />
+            <ellipse cx={-3} cy={-2.5} rx={7} ry={2.2} fill="#A89D8A" opacity={0.9} />
+            <ellipse cx={2} cy={-4} rx={6} ry={1.6} fill="#7BA46F" opacity={0.7} />
+          </g>
+          <g transform="translate(372, 762)">
+            <ellipse cx={0} cy={0} rx={9} ry={4} fill="#8A7E6C" stroke="#3F3026" strokeWidth={1.2} />
+            <ellipse cx={-2} cy={-1.8} rx={5} ry={1.6} fill="#A89D8A" opacity={0.9} />
+          </g>
+          {/* tiny pines on the bank ridge */}
+          <g transform="translate(260, 738)">
+            <line x1={0} y1={0} x2={0} y2={-11} stroke="#3F2614" strokeWidth={1.2} strokeLinecap="round" />
+            <path d="M 0 -11 L -4 -7 L 4 -7 Z M 0 -7 L -3 -3.5 L 3 -3.5 Z"
+                  fill="#3D5C32" stroke="#1F3018" strokeWidth={0.6} strokeLinejoin="round" />
+          </g>
+          <g transform="translate(342, 752)">
+            <line x1={0} y1={0} x2={0} y2={-9} stroke="#3F2614" strokeWidth={1.1} strokeLinecap="round" />
+            <path d="M 0 -9 L -3 -6 L 3 -6 Z M 0 -6 L -2.5 -2.5 L 2.5 -2.5 Z"
+                  fill="#3D5C32" stroke="#1F3018" strokeWidth={0.5} strokeLinejoin="round" />
+          </g>
+          {/* grass tufts + wildflowers along the bank */}
+          {[[46, 724], [118, 730], [196, 736], [258, 752], [330, 758], [396, 776]].map(([gx, gy], i) => (
             <g key={`mmbank-${i}`} transform={`translate(${gx}, ${gy})`}>
               <path d="M 0 0 Q -2 -6 -1 -9" stroke="#5C7E4F" strokeWidth={1.2} fill="none" strokeLinecap="round" />
               <path d="M 0 0 Q 1 -7 3 -9" stroke="#5C7E4F" strokeWidth={1.2} fill="none" strokeLinecap="round" />
@@ -1045,7 +1070,7 @@ export default function MathMountainScene({
                 <g transform="translate(7, -2)">
                   {[0, 90, 180, 270].map(deg => (
                     <ellipse key={deg} cx={0} cy={-1.2} rx={0.9} ry={1.5}
-                             fill={i === 0 ? '#FFB7C5' : '#FFD166'}
+                             fill={i === 0 ? '#FFB7C5' : i === 4 ? '#E6B0D0' : '#FFD166'}
                              stroke="#8B6938" strokeWidth={0.25} transform={`rotate(${deg})`} />
                   ))}
                   <circle cx={0} cy={0} r={0.6} fill="#FFD166" />
@@ -1053,6 +1078,12 @@ export default function MathMountainScene({
               )}
             </g>
           ))}
+          {/* a small fern where the bank meets the bottom edge */}
+          <g transform="translate(414, 780)">
+            <path d="M 0 0 Q -3 -8 -6 -14" stroke="#3F5A30" strokeWidth={1.2} fill="none" strokeLinecap="round" />
+            <path d="M 0 0 Q 0 -10 -1 -16" stroke="#3F5A30" strokeWidth={1.2} fill="none" strokeLinecap="round" />
+            <path d="M 0 0 Q 3 -8 4 -14" stroke="#3F5A30" strokeWidth={1.1} fill="none" strokeLinecap="round" />
+          </g>
           {/* shimmer ripples — track the bend */}
           {[
             { x: 130, y: 694 }, { x: 200, y: 692 },
@@ -1311,9 +1342,11 @@ export default function MathMountainScene({
         <Sway x={130} y={300} delay={1.0}><PineTree x={130} y={300} size={44} /></Sway>
         <Sway x={460} y={300} delay={2.1}><PineTree x={460} y={300} size={42} /></Sway>
 
-        {/* Mid-distance pines on the upper hills (between plateau structures) */}
+        {/* Mid-distance pines on the upper hills (between plateau
+            structures). The eastern one swapped spots with the High
+            Meadow waystation — it now stands beside the tea-house. */}
         <Sway x={620} y={310} delay={0.4}><PineTree x={620} y={310} size={40} /></Sway>
-        <Sway x={860} y={310} delay={1.6}><PineTree x={860} y={310} size={42} /></Sway>
+        <Sway x={740} y={300} delay={1.6}><PineTree x={740} y={300} size={42} /></Sway>
 
         {/* Far-right edge — separates Glen from frame */}
         <Sway x={1402} y={460} delay={0.8}><Tree x={1402} y={460} size={50} variant={3} /></Sway>

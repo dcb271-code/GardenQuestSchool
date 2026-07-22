@@ -49,9 +49,11 @@ export const MATH_MOUNTAIN_STRUCTURES: MapStructure[] = [
   { code: 'mm_regroup_ridge', kind: 'skill', skillCode: 'math.add.within_100.with_regrouping',
     label: 'Regrouping Ridge', subLabel: '2-digit regroup', themeEmoji: '⛰️',
     x: 150, y: 712, size: 64, zone: 'math' },
+  // Bridges sit ON the river: y = river-center − 9 so the bridge
+  // icon's stream ribbon aligns with the real water course.
   { code: 'mm_big_bridge', kind: 'skill', skillCode: 'math.add.within_1000',
     label: 'Big Number Bridge', subLabel: '3-digit add', themeEmoji: '🌉',
-    x: 770, y: 706, size: 60, zone: 'math' },
+    x: 740, y: 738, size: 60, zone: 'math' },
   { code: 'mm_leaf_drops', kind: 'skill', skillCode: 'math.subtract.within_20.no_crossing',
     label: 'Leaf Drops', subLabel: 'subtract within 20', themeEmoji: '🍂',
     x: 460, y: 560, size: 60, zone: 'math' },
@@ -110,7 +112,7 @@ export const MATH_MOUNTAIN_STRUCTURES: MapStructure[] = [
     x: 1180, y: 570, size: 64, zone: 'math' },
   { code: 'mm_skip_bridge', kind: 'skill', skillCode: 'math.multiply.skip_count_bridge',
     label: 'Skip Count Bridge', subLabel: 'skip → multiply', themeEmoji: '🌉',
-    x: 1320, y: 690, size: 60, zone: 'math' },
+    x: 1330, y: 701, size: 60, zone: 'math' },
   { code: 'mm_times_to_5', kind: 'skill', skillCode: 'math.multiply.facts_to_5',
     label: 'Times Tables ×0–×5', subLabel: 'multiplication facts', themeEmoji: '✖️',
     x: 1090, y: 620, size: 60, zone: 'math' },
