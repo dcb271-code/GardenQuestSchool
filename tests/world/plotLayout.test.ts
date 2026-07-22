@@ -3,18 +3,18 @@ import { describe, it, expect } from 'vitest';
 import { PLOTS, plotsForGarden, getPlot } from '@/lib/world/plotLayout';
 
 describe('PLOTS', () => {
-  it('contains exactly 24 plots', () => {
-    expect(PLOTS).toHaveLength(24);
+  it('contains exactly 25 plots', () => {
+    expect(PLOTS).toHaveLength(25);
   });
   it('has the expected per-quadrant counts', () => {
     expect(plotsForGarden('vegetable')).toHaveLength(6);
     expect(plotsForGarden('fruit')).toHaveLength(5);
-    expect(plotsForGarden('flower')).toHaveLength(7);
+    expect(plotsForGarden('flower')).toHaveLength(8);
     expect(plotsForGarden('japanese')).toHaveLength(6);
   });
   it('all plot codes are unique', () => {
     const codes = new Set(PLOTS.map(p => p.code));
-    expect(codes.size).toBe(24);
+    expect(codes.size).toBe(25);
   });
   it('plot codes follow the convention <garden>-<n>', () => {
     for (const p of PLOTS) {

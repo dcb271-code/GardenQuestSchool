@@ -62,4 +62,29 @@ describe('PlantStageIllustration', () => {
     const { container } = render(svgWrap(<PlantStageIllustration code="plant_cherry_bloom" x={0} y={0} size={60} />));
     expect(container.querySelector('g')).not.toBeNull();
   });
+
+  it('renders plant_coneflower_bloom', () => {
+    const { container } = render(svgWrap(<PlantStageIllustration code="plant_coneflower_bloom" x={0} y={0} size={50} />));
+    expect(container.querySelector('g')).not.toBeNull();
+  });
+
+  it('renders plant_blackeyedsusan_bloom', () => {
+    const { container } = render(svgWrap(<PlantStageIllustration code="plant_blackeyedsusan_bloom" x={0} y={0} size={50} />));
+    expect(container.querySelector('g')).not.toBeNull();
+  });
+
+  it('renders plant_milkweed_pods', () => {
+    const { container } = render(svgWrap(<PlantStageIllustration code="plant_milkweed_pods" x={0} y={0} size={50} />));
+    expect(container.querySelector('g')).not.toBeNull();
+  });
+
+  it('renders plant_lupine_bloom', () => {
+    const { container } = render(svgWrap(<PlantStageIllustration code="plant_lupine_bloom" x={0} y={0} size={50} />));
+    expect(container.querySelector('g')).not.toBeNull();
+  });
+
+  it('renders plant_beebalm_bloom', () => {
+    const { container } = render(svgWrap(<PlantStageIllustration code="plant_beebalm_bloom" x={0} y={0} size={50} />));
+    expect(container.querySelector('g')).not.toBeNull();
+  });
 });

@@ -24,12 +24,17 @@ export const SEED_EARN_SCHEDULE: SeedEarn[] = [
   { atCorrect: 250,  plantCode: 'tulip',     opensQuadrant: 'flower' },
   { atCorrect: 325,  plantCode: 'pumpkin' },
   { atCorrect: 375,  plantCode: 'daisy' },
+  { atCorrect: 425,  plantCode: 'blackeyedsusan' },
   { atCorrect: 500,  plantCode: 'sunflower' },
+  { atCorrect: 575,  plantCode: 'coneflower' },
   { atCorrect: 700,  plantCode: 'apple',     opensQuadrant: 'fruit' },
   { atCorrect: 750,  plantCode: 'strawberry' },
+  { atCorrect: 800,  plantCode: 'milkweed' },
   { atCorrect: 850,  plantCode: 'blueberry' },
   { atCorrect: 950,  plantCode: 'bamboo',    opensQuadrant: 'japanese' },
+  { atCorrect: 1100, plantCode: 'beebalm' },
   { atCorrect: 1250, plantCode: 'bonsai' },
+  { atCorrect: 1400, plantCode: 'lupine' },
   { atCorrect: 1600, plantCode: 'cherry' },
 ];
 

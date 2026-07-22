@@ -46,7 +46,7 @@ describe('loadGrowState', () => {
     expect(state.openQuadrants.has('vegetable')).toBe(true);
     expect(state.openQuadrants.has('flower')).toBe(false);
     expect(state.earnedSeeds).toEqual([]);
-    expect(state.plots).toHaveLength(24);
+    expect(state.plots).toHaveLength(25);
     for (const p of state.plots) expect(p.plant).toBeUndefined();
   });
 

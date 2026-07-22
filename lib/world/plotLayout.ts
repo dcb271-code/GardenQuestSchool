@@ -1,11 +1,11 @@
 // lib/world/plotLayout.ts
 //
-// 24 fixed plot positions for the Tiny Garden reward-game. Plots are
+// 25 fixed plot positions for the Tiny Garden reward-game. Plots are
 // grouped into 4 quadrants — each with its OWN character-driven layout
 // instead of a 2x2 grid:
 //   • Vegetable patch  (6) — two staggered furrow rows of 3
 //   • Fruit grove      (5) — loose orchard, cross-pattern
-//   • Flower garden    (7) — scattered along a winding S-curve
+//   • Flower garden    (8) — scattered along a winding S-curve
 //   • Japanese garden  (6) — moss islands between stepping stones
 // The plot's `garden` field matches the quadrant — and constrains which
 // seeds can be planted in it (radish only in vegetable plots, etc.).
@@ -41,10 +41,12 @@ export const PLOTS: PlotData[] = [
   { code: 'fruit-4', garden: 'fruit', x: 905,  y: 385 },
   { code: 'fruit-5', garden: 'fruit', x: 1185, y: 385 },
 
-  // FLOWER GARDEN (bottom-left) — 7 plots scattered along a winding
+  // FLOWER GARDEN (bottom-left) — 8 plots scattered along a winding
   // S-curve, as if planted along a meandering footpath through the bed.
   // Deliberately NOT a grid — the eye traces the curve from upper-left
-  // down to the lower-right corner.
+  // down to the lower-right corner. flower-8 tucks into the curve's
+  // inner elbow (clear of the bird bath at ~527,699 and the lavender
+  // spikes), so every flower species can be in the ground at once.
   { code: 'flower-1', garden: 'flower', x: 155, y: 525 },
   { code: 'flower-2', garden: 'flower', x: 235, y: 560 },
   { code: 'flower-3', garden: 'flower', x: 310, y: 610 },
@@ -52,6 +54,7 @@ export const PLOTS: PlotData[] = [
   { code: 'flower-5', garden: 'flower', x: 380, y: 650 },
   { code: 'flower-6', garden: 'flower', x: 455, y: 595 },
   { code: 'flower-7', garden: 'flower', x: 530, y: 535 },
+  { code: 'flower-8', garden: 'flower', x: 390, y: 545 },
 
   // JAPANESE GARDEN (bottom-right) — 6 plots as MOSS ISLANDS arranged
   // AROUND the central sand garden + along the stepping-stone path.

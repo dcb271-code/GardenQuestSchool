@@ -1426,6 +1426,514 @@ function BlueberryBerries({ x, y, size }: StageProps) {
   );
 }
 
+// ─── PURPLE CONEFLOWER ──────────────────────────────────────────────────
+function ConeflowerSeed({ x, y, size }: StageProps) {
+  const r = size * 0.06;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={0} rx={r * 4} ry={r * 2} fill="#6B4423" opacity={0.35} />
+      {/* small angular grey-brown seed */}
+      <path d={`M 0 ${-r} L ${r * 0.7} ${r * 0.5} L ${-r * 0.7} ${r * 0.5} Z`} fill="#3F2614" stroke={STROKE} strokeWidth={0.5} transform="rotate(20)" />
+    </g>
+  );
+}
+
+function ConeflowerSprout({ x, y, size }: StageProps) {
+  const h = size * 0.19;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={size * 0.05} rx={size * 0.16} ry={size * 0.04} fill="#6B4423" opacity={0.4} />
+      <line x1={0} y1={size * 0.05} x2={0} y2={-h} stroke="#7BA46F" strokeWidth={1.4} strokeLinecap="round" />
+      {/* coarse lance-shaped seed leaves */}
+      <ellipse cx={-size * 0.06} cy={-h * 0.85} rx={size * 0.04} ry={size * 0.08} fill="#95B88F" stroke={STROKE} strokeWidth={0.8} transform={`rotate(-32 ${-size * 0.06} ${-h * 0.85})`} />
+      <ellipse cx={size * 0.06} cy={-h * 0.85} rx={size * 0.04} ry={size * 0.08} fill="#7BA46F" stroke={STROKE} strokeWidth={0.8} transform={`rotate(32 ${size * 0.06} ${-h * 0.85})`} />
+    </g>
+  );
+}
+
+function ConeflowerBud({ x, y, size }: StageProps) {
+  // Stem with a spiky green bud, first orange hints of the cone peeking
+  const h = size * 0.42;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={size * 0.06} rx={size * 0.16} ry={size * 0.04} fill="#6B4423" opacity={0.4} />
+      <line x1={0} y1={size * 0.06} x2={0} y2={-h * 0.75} stroke="#7BA46F" strokeWidth={1.3} strokeLinecap="round" />
+      {/* rough lance base leaves */}
+      <ellipse cx={-size * 0.08} cy={-h * 0.22} rx={size * 0.045} ry={size * 0.11} fill="#5C7E4F" stroke={STROKE} strokeWidth={0.8} transform={`rotate(-28 ${-size * 0.08} ${-h * 0.22})`} />
+      <ellipse cx={size * 0.08} cy={-h * 0.22} rx={size * 0.045} ry={size * 0.11} fill="#7BA46F" stroke={STROKE} strokeWidth={0.8} transform={`rotate(28 ${size * 0.08} ${-h * 0.22})`} />
+      {/* spiky bud — dome with sepal points */}
+      <circle cx={0} cy={-h * 0.85} r={size * 0.09} fill="#7BA46F" stroke={STROKE} strokeWidth={1} />
+      {[-60, -20, 20, 60].map(a => (
+        <path key={a} d={`M 0 ${-h * 0.85} l ${size * 0.025} ${-size * 0.05} l ${-size * 0.05} 0 Z`} fill="#5C7E4F" stroke={STROKE} strokeWidth={0.6} transform={`rotate(${a} 0 ${-h * 0.85})`} />
+      ))}
+      {/* orange cone peeking */}
+      <circle cx={0} cy={-h * 0.85} r={size * 0.035} fill="#E8933F" />
+    </g>
+  );
+}
+
+function ConeflowerBloom({ x, y, size }: StageProps) {
+  // Side view: orange-brown cone dome with pink-purple petals sweeping
+  // DOWNWARD like a badminton birdie
+  const h = size * 0.52;
+  const cy = -h * 0.82;         // cone center
+  const cr = size * 0.11;       // cone radius
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={size * 0.07} rx={size * 0.2} ry={size * 0.05} fill="#6B4423" opacity={0.35} />
+      {/* stem */}
+      <line x1={0} y1={size * 0.07} x2={0} y2={cy + cr} stroke="#7BA46F" strokeWidth={1.5} strokeLinecap="round" />
+      {/* coarse base leaves */}
+      <ellipse cx={-size * 0.1} cy={-h * 0.18} rx={size * 0.05} ry={size * 0.13} fill="#5C7E4F" stroke={STROKE} strokeWidth={0.9} transform={`rotate(-30 ${-size * 0.1} ${-h * 0.18})`} />
+      <ellipse cx={size * 0.1} cy={-h * 0.18} rx={size * 0.05} ry={size * 0.13} fill="#7BA46F" stroke={STROKE} strokeWidth={0.9} transform={`rotate(30 ${size * 0.1} ${-h * 0.18})`} />
+      {/* drooping pink petals — fan downward from the cone base */}
+      {[
+        { dx: -0.19, dy: 0.1, rot: -58, fill: '#C87BA8' },
+        { dx: -0.12, dy: 0.15, rot: -32, fill: '#DDA3C4' },
+        { dx: -0.04, dy: 0.17, rot: -10, fill: '#C87BA8' },
+        { dx: 0.04, dy: 0.17, rot: 10, fill: '#DDA3C4' },
+        { dx: 0.12, dy: 0.15, rot: 32, fill: '#C87BA8' },
+        { dx: 0.19, dy: 0.1, rot: 58, fill: '#DDA3C4' },
+      ].map((p, i) => {
+        const px = size * p.dx;
+        const py = cy + cr + size * p.dy;
+        return (
+          <ellipse key={i} cx={px} cy={py} rx={size * 0.035} ry={size * 0.11} fill={p.fill} stroke={STROKE} strokeWidth={0.8} transform={`rotate(${p.rot} ${px} ${py})`} />
+        );
+      })}
+      {/* orange-brown cone dome */}
+      <path d={`M ${-cr} ${cy + cr * 0.55} A ${cr} ${cr} 0 1 1 ${cr} ${cy + cr * 0.55} Z`} fill="#C87137" stroke={STROKE} strokeWidth={1.1} />
+      {/* spiky stipple on the cone */}
+      {[
+        [-0.5, -0.2], [0, -0.5], [0.5, -0.2], [-0.25, 0.1], [0.25, 0.1], [0, -0.1],
+      ].map(([dx, dy], i) => (
+        <circle key={i} cx={cr * dx} cy={cy + cr * dy} r={cr * 0.14} fill="#8B5A2B" />
+      ))}
+      {/* warm rim highlight */}
+      <path d={`M ${-cr * 0.6} ${cy - cr * 0.55} Q 0 ${cy - cr * 1.05} ${cr * 0.6} ${cy - cr * 0.55}`} stroke="#E8933F" strokeWidth={1} fill="none" opacity={0.8} />
+    </g>
+  );
+}
+
+// ─── BLACK-EYED SUSAN ───────────────────────────────────────────────────
+function BlackeyedsusanSeed({ x, y, size }: StageProps) {
+  const r = size * 0.055;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={0} rx={r * 4} ry={r * 2} fill="#6B4423" opacity={0.35} />
+      <ellipse cx={0} cy={0} rx={r * 0.55} ry={r} fill="#3F2614" transform="rotate(-18)" />
+    </g>
+  );
+}
+
+function BlackeyedsusanSprout({ x, y, size }: StageProps) {
+  // Fuzzy little sprout — the whole plant is bristly-haired
+  const h = size * 0.18;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={size * 0.05} rx={size * 0.16} ry={size * 0.04} fill="#6B4423" opacity={0.4} />
+      <line x1={0} y1={size * 0.05} x2={0} y2={-h} stroke="#7BA46F" strokeWidth={1.4} strokeLinecap="round" />
+      {/* tiny fuzz hairs on the stem */}
+      <line x1={0} y1={-h * 0.35} x2={-size * 0.02} y2={-h * 0.42} stroke="#95B88F" strokeWidth={0.5} strokeLinecap="round" />
+      <line x1={0} y1={-h * 0.6} x2={size * 0.02} y2={-h * 0.67} stroke="#95B88F" strokeWidth={0.5} strokeLinecap="round" />
+      <ellipse cx={-size * 0.06} cy={-h * 0.88} rx={size * 0.05} ry={size * 0.07} fill="#95B88F" stroke={STROKE} strokeWidth={0.8} transform={`rotate(-28 ${-size * 0.06} ${-h * 0.88})`} />
+      <ellipse cx={size * 0.06} cy={-h * 0.88} rx={size * 0.05} ry={size * 0.07} fill="#7BA46F" stroke={STROKE} strokeWidth={0.8} transform={`rotate(28 ${size * 0.06} ${-h * 0.88})`} />
+    </g>
+  );
+}
+
+function BlackeyedsusanBud({ x, y, size }: StageProps) {
+  // Stem with a round bud — dark center just peeking through gold tips
+  const h = size * 0.4;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={size * 0.06} rx={size * 0.16} ry={size * 0.04} fill="#6B4423" opacity={0.4} />
+      <line x1={0} y1={size * 0.06} x2={0} y2={-h * 0.75} stroke="#7BA46F" strokeWidth={1.2} strokeLinecap="round" />
+      {/* base leaves */}
+      <ellipse cx={-size * 0.08} cy={-h * 0.2} rx={size * 0.05} ry={size * 0.1} fill="#5C7E4F" stroke={STROKE} strokeWidth={0.7} transform={`rotate(-25 ${-size * 0.08} ${-h * 0.2})`} />
+      <ellipse cx={size * 0.08} cy={-h * 0.2} rx={size * 0.05} ry={size * 0.1} fill="#7BA46F" stroke={STROKE} strokeWidth={0.7} transform={`rotate(25 ${size * 0.08} ${-h * 0.2})`} />
+      {/* sepal cup */}
+      <circle cx={0} cy={-h * 0.85} r={size * 0.09} fill="#7BA46F" stroke={STROKE} strokeWidth={1} />
+      {/* gold petal tips peeking */}
+      {[-45, 0, 45].map(a => (
+        <ellipse key={a} cx={0} cy={-h * 0.85 - size * 0.075} rx={size * 0.022} ry={size * 0.045} fill="#FFC24B" stroke={STROKE} strokeWidth={0.6} transform={`rotate(${a} 0 ${-h * 0.85})`} />
+      ))}
+      {/* dark eye just visible */}
+      <circle cx={0} cy={-h * 0.85} r={size * 0.035} fill="#3F2614" />
+    </g>
+  );
+}
+
+function BlackeyedsusanBloom({ x, y, size }: StageProps) {
+  // Top-down: golden petals around a big dark brown "eye"
+  const r = size * 0.4;
+  const petalCount = 12;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={r * 0.8} rx={r * 0.9} ry={r * 0.14} fill="#6B4423" opacity={0.3} />
+      {/* base leaves peeking */}
+      <ellipse cx={-r * 0.6} cy={r * 0.55} rx={r * 0.18} ry={r * 0.4} fill="#5C7E4F" stroke={STROKE} strokeWidth={0.9} transform={`rotate(-30 ${-r * 0.6} ${r * 0.55})`} />
+      <ellipse cx={r * 0.6} cy={r * 0.55} rx={r * 0.18} ry={r * 0.4} fill="#7BA46F" stroke={STROKE} strokeWidth={0.9} transform={`rotate(30 ${r * 0.6} ${r * 0.55})`} />
+      {/* petal shadow layer */}
+      {Array.from({ length: petalCount }).map((_, i) => {
+        const a = (i / petalCount) * 360;
+        return (
+          <ellipse key={`s${i}`} cx={0} cy={-r * 0.55} rx={r * 0.14} ry={r * 0.38} fill="#E8933F" opacity={0.6} transform={`rotate(${a + 4})`} />
+        );
+      })}
+      {/* golden petals */}
+      {Array.from({ length: petalCount }).map((_, i) => {
+        const a = (i / petalCount) * 360;
+        return (
+          <ellipse key={i} cx={0} cy={-r * 0.55} rx={r * 0.13} ry={r * 0.36} fill="#FFC24B" stroke={STROKE} strokeWidth={0.9} transform={`rotate(${a})`} />
+        );
+      })}
+      {/* the black eye — domed brown center */}
+      <circle cx={0} cy={0} r={r * 0.28} fill="#3F2614" stroke={STROKE} strokeWidth={1.1} />
+      {/* dome highlight ring */}
+      <circle cx={0} cy={0} r={r * 0.18} fill="none" stroke="#5A3B1F" strokeWidth={0.8} opacity={0.8} />
+      <circle cx={-r * 0.08} cy={-r * 0.08} r={r * 0.045} fill="#8B5A2B" opacity={0.8} />
+    </g>
+  );
+}
+
+// ─── COMMON MILKWEED ────────────────────────────────────────────────────
+function MilkweedSeed({ x, y, size }: StageProps) {
+  // Flat brown seed with a hint of its silky parachute
+  const r = size * 0.06;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={0} rx={r * 4} ry={r * 2} fill="#6B4423" opacity={0.35} />
+      <ellipse cx={0} cy={0} rx={r * 0.9} ry={r * 0.6} fill="#7A4A1F" stroke={STROKE} strokeWidth={0.6} transform="rotate(-15)" />
+      {/* silk wisps */}
+      <path d={`M ${r * 0.7} ${-r * 0.3} q ${r * 0.8} ${-r * 0.5} ${r * 1.6} ${-r * 0.3}`} stroke="#FFFAF2" strokeWidth={0.5} fill="none" opacity={0.8} />
+      <path d={`M ${r * 0.7} ${-r * 0.1} q ${r * 0.9} ${-r * 0.1} ${r * 1.7} ${r * 0.2}`} stroke="#FFFAF2" strokeWidth={0.5} fill="none" opacity={0.7} />
+    </g>
+  );
+}
+
+function MilkweedSprout({ x, y, size }: StageProps) {
+  // Stout sprout with a pair of broad oval leaves
+  const h = size * 0.18;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={size * 0.05} rx={size * 0.16} ry={size * 0.04} fill="#6B4423" opacity={0.4} />
+      <line x1={0} y1={size * 0.05} x2={0} y2={-h * 0.8} stroke="#8CB27A" strokeWidth={1.7} strokeLinecap="round" />
+      {/* broad opposite seed leaves */}
+      <ellipse cx={-size * 0.08} cy={-h * 0.9} rx={size * 0.08} ry={size * 0.05} fill="#95B88F" stroke={STROKE} strokeWidth={0.8} transform={`rotate(-20 ${-size * 0.08} ${-h * 0.9})`} />
+      <ellipse cx={size * 0.08} cy={-h * 0.9} rx={size * 0.08} ry={size * 0.05} fill="#7BA46F" stroke={STROKE} strokeWidth={0.8} transform={`rotate(20 ${size * 0.08} ${-h * 0.9})`} />
+    </g>
+  );
+}
+
+function MilkweedLeafy({ x, y, size }: StageProps) {
+  // Upright stalk with pairs of BROAD oval leaves, pale midribs
+  const h = size * 0.42;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={size * 0.07} rx={size * 0.2} ry={size * 0.05} fill="#6B4423" opacity={0.35} />
+      <line x1={0} y1={size * 0.07} x2={0} y2={-h} stroke="#8CB27A" strokeWidth={1.8} strokeLinecap="round" />
+      {[0.3, 0.6, 0.88].map((frac, i) => {
+        const ly = -h * frac;
+        const lw = size * (0.13 - i * 0.02);
+        return (
+          <g key={frac}>
+            <ellipse cx={-lw} cy={ly} rx={lw} ry={lw * 0.55} fill={i % 2 === 0 ? '#5C7E4F' : '#7BA46F'} stroke={STROKE} strokeWidth={0.9} transform={`rotate(${-14 - i * 4} ${-lw} ${ly})`} />
+            <ellipse cx={lw} cy={ly} rx={lw} ry={lw * 0.55} fill={i % 2 === 0 ? '#7BA46F' : '#95B88F'} stroke={STROKE} strokeWidth={0.9} transform={`rotate(${14 + i * 4} ${lw} ${ly})`} />
+            {/* pale midribs */}
+            <line x1={-lw * 0.3} y1={ly} x2={-lw * 1.7} y2={ly - lw * 0.45} stroke="#FFFAF2" strokeWidth={0.5} opacity={0.55} />
+            <line x1={lw * 0.3} y1={ly} x2={lw * 1.7} y2={ly - lw * 0.45} stroke="#FFFAF2" strokeWidth={0.5} opacity={0.55} />
+          </g>
+        );
+      })}
+    </g>
+  );
+}
+
+function MilkweedBloom({ x, y, size }: StageProps) {
+  // Stalk with broad leaves and dusty-pink globe flower clusters
+  const h = size * 0.5;
+  const globes: Array<[number, number, number]> = [
+    [0, -h * 0.95, size * 0.1],
+    [-size * 0.14, -h * 0.72, size * 0.08],
+  ];
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={size * 0.07} rx={size * 0.2} ry={size * 0.05} fill="#6B4423" opacity={0.35} />
+      <line x1={0} y1={size * 0.07} x2={0} y2={-h * 0.9} stroke="#8CB27A" strokeWidth={1.8} strokeLinecap="round" />
+      {/* broad leaves */}
+      {[0.28, 0.55].map((frac, i) => {
+        const ly = -h * frac;
+        const lw = size * 0.12;
+        return (
+          <g key={frac}>
+            <ellipse cx={-lw} cy={ly} rx={lw} ry={lw * 0.55} fill={i % 2 === 0 ? '#5C7E4F' : '#7BA46F'} stroke={STROKE} strokeWidth={0.9} transform={`rotate(-16 ${-lw} ${ly})`} />
+            <ellipse cx={lw} cy={ly} rx={lw} ry={lw * 0.55} fill={i % 2 === 0 ? '#7BA46F' : '#95B88F'} stroke={STROKE} strokeWidth={0.9} transform={`rotate(16 ${lw} ${ly})`} />
+          </g>
+        );
+      })}
+      {/* short flower stems to the globes */}
+      <line x1={0} y1={-h * 0.85} x2={globes[1][0]} y2={globes[1][1]} stroke="#8CB27A" strokeWidth={1} strokeLinecap="round" />
+      {/* dusty-pink globe clusters — ball of tiny florets */}
+      {globes.map(([gx, gy, gr], gi) => (
+        <g key={gi}>
+          <circle cx={gx} cy={gy} r={gr} fill="#C08A9C" stroke={STROKE} strokeWidth={1} />
+          {[0, 60, 120, 180, 240, 300].map(a => (
+            <circle
+              key={a}
+              cx={gx + Math.cos((a * Math.PI) / 180) * gr * 0.62}
+              cy={gy + Math.sin((a * Math.PI) / 180) * gr * 0.62}
+              r={gr * 0.32}
+              fill="#D9A7B5"
+              stroke={STROKE}
+              strokeWidth={0.5}
+            />
+          ))}
+          <circle cx={gx} cy={gy} r={gr * 0.3} fill="#E6C3CD" />
+        </g>
+      ))}
+    </g>
+  );
+}
+
+function MilkweedPods({ x, y, size }: StageProps) {
+  // Autumn stalk with spindle pods — one split open, silk sailing out
+  const h = size * 0.5;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={size * 0.07} rx={size * 0.2} ry={size * 0.05} fill="#6B4423" opacity={0.35} />
+      <line x1={0} y1={size * 0.07} x2={0} y2={-h * 0.9} stroke="#8CB27A" strokeWidth={1.7} strokeLinecap="round" />
+      {/* broad leaves, a touch golden with the season */}
+      <ellipse cx={-size * 0.12} cy={-h * 0.3} rx={size * 0.11} ry={size * 0.06} fill="#7BA46F" stroke={STROKE} strokeWidth={0.9} transform={`rotate(-16 ${-size * 0.12} ${-h * 0.3})`} />
+      <ellipse cx={size * 0.12} cy={-h * 0.32} rx={size * 0.11} ry={size * 0.06} fill="#D2C77A" stroke={STROKE} strokeWidth={0.9} transform={`rotate(16 ${size * 0.12} ${-h * 0.32})`} />
+      {/* closed warty pod — pointed spindle */}
+      <g transform={`rotate(24 ${size * 0.1} ${-h * 0.72})`}>
+        <path d={`M ${size * 0.1} ${-h * 0.72 - size * 0.13} Q ${size * 0.16} ${-h * 0.72} ${size * 0.1} ${-h * 0.72 + size * 0.13} Q ${size * 0.04} ${-h * 0.72} ${size * 0.1} ${-h * 0.72 - size * 0.13} Z`} fill="#8CB27A" stroke={STROKE} strokeWidth={1} />
+        {[-0.05, 0, 0.05].map((dy, i) => (
+          <circle key={i} cx={size * 0.1} cy={-h * 0.72 + size * dy} r={size * 0.008} fill="#5C7E4F" />
+        ))}
+      </g>
+      {/* split pod — open with white silk spilling */}
+      <g transform={`rotate(-26 ${-size * 0.1} ${-h * 0.85})`}>
+        <path d={`M ${-size * 0.1} ${-h * 0.85 - size * 0.13} Q ${-size * 0.02} ${-h * 0.85} ${-size * 0.1} ${-h * 0.85 + size * 0.13} Q ${-size * 0.18} ${-h * 0.85} ${-size * 0.1} ${-h * 0.85 - size * 0.13} Z`} fill="#A66838" stroke={STROKE} strokeWidth={1} />
+        {/* silk fluff */}
+        <circle cx={-size * 0.1} cy={-h * 0.85 - size * 0.03} r={size * 0.035} fill="#FFFAF2" stroke={STROKE} strokeWidth={0.4} />
+        <circle cx={-size * 0.08} cy={-h * 0.85 + size * 0.03} r={size * 0.03} fill="#FFFAF2" stroke={STROKE} strokeWidth={0.4} />
+      </g>
+      {/* two silk seeds sailing off on the wind */}
+      {[
+        { sx: -size * 0.24, sy: -h * 1.05 },
+        { sx: size * 0.2, sy: -h * 1.12 },
+      ].map((s, i) => (
+        <g key={i}>
+          <circle cx={s.sx} cy={s.sy} r={size * 0.01} fill="#7A4A1F" />
+          <path d={`M ${s.sx} ${s.sy} q ${size * 0.02} ${-size * 0.03} ${size * 0.045} ${-size * 0.035}`} stroke="#FFFAF2" strokeWidth={0.6} fill="none" opacity={0.9} />
+          <path d={`M ${s.sx} ${s.sy} q ${-size * 0.01} ${-size * 0.035} ${size * 0.01} ${-size * 0.05}`} stroke="#FFFAF2" strokeWidth={0.6} fill="none" opacity={0.8} />
+        </g>
+      ))}
+    </g>
+  );
+}
+
+// ─── LUPINE ─────────────────────────────────────────────────────────────
+function LupineSeed({ x, y, size }: StageProps) {
+  // Round pea-like seed, a little bigger than most
+  const r = size * 0.07;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={0} rx={r * 4} ry={r * 2} fill="#6B4423" opacity={0.35} />
+      <circle cx={0} cy={0} r={r * 0.85} fill="#5A3B1F" stroke={STROKE} strokeWidth={0.6} />
+      <circle cx={-r * 0.25} cy={-r * 0.25} r={r * 0.2} fill="#8B5A2B" opacity={0.8} />
+    </g>
+  );
+}
+
+function LupineSprout({ x, y, size }: StageProps) {
+  // A single tiny palmate fan — leaflets spread like fingers
+  const h = size * 0.17;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={size * 0.05} rx={size * 0.16} ry={size * 0.04} fill="#6B4423" opacity={0.4} />
+      <line x1={0} y1={size * 0.05} x2={0} y2={-h * 0.7} stroke="#7BA46F" strokeWidth={1.3} strokeLinecap="round" />
+      {/* 5 narrow leaflets radiating from the stem tip */}
+      {[-64, -32, 0, 32, 64].map((a, i) => (
+        <ellipse key={a} cx={0} cy={-h * 0.7 - size * 0.055} rx={size * 0.022} ry={size * 0.055} fill={i % 2 === 0 ? '#7BA46F' : '#95B88F'} stroke={STROKE} strokeWidth={0.7} transform={`rotate(${a} 0 ${-h * 0.7})`} />
+      ))}
+    </g>
+  );
+}
+
+function LupineLeaves({ x, y, size }: StageProps) {
+  // Rosette of palmate leaves, a dewdrop caught in the center of one
+  const r = size * 0.26;
+  const fans = [
+    { fx: -r * 0.55, fy: -r * 0.15, rot: -20 },
+    { fx: r * 0.5, fy: -r * 0.2, rot: 18 },
+    { fx: 0, fy: -r * 0.55, rot: 0 },
+    { fx: -r * 0.15, fy: r * 0.1, rot: -6 },
+    { fx: r * 0.35, fy: r * 0.18, rot: 24 },
+  ];
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={r * 0.7} rx={r * 1.1} ry={r * 0.18} fill="#6B4423" opacity={0.32} />
+      {fans.map((f, fi) => (
+        <g key={fi} transform={`translate(${f.fx},${f.fy}) rotate(${f.rot})`}>
+          {/* short stem back toward the crown */}
+          <line x1={0} y1={r * 0.35} x2={0} y2={0} stroke="#5C7E4F" strokeWidth={0.9} strokeLinecap="round" />
+          {/* leaflet fan */}
+          {[-72, -36, 0, 36, 72].map((a, i) => (
+            <ellipse key={a} cx={0} cy={-r * 0.19} rx={r * 0.075} ry={r * 0.2} fill={(fi + i) % 2 === 0 ? '#7BA46F' : '#95B88F'} stroke={STROKE} strokeWidth={0.8} transform={`rotate(${a})`} />
+          ))}
+        </g>
+      ))}
+      {/* dewdrop sparkling in the top fan */}
+      <circle cx={0} cy={-r * 0.55} r={r * 0.06} fill="#A8CFD8" stroke={STROKE} strokeWidth={0.4} />
+      <circle cx={-r * 0.02} cy={-r * 0.57} r={r * 0.02} fill="#FFFFFF" />
+    </g>
+  );
+}
+
+function LupineBloom({ x, y, size }: StageProps) {
+  // Tall spires of stacked purple pea-flowers, palmate leaves at the base
+  const h = size * 0.6;
+  const spires = [
+    { sx: 0, top: 1.0, w: 1.0 },
+    { sx: -size * 0.16, top: 0.72, w: 0.8 },
+    { sx: size * 0.15, top: 0.62, w: 0.75 },
+  ];
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={size * 0.08} rx={size * 0.24} ry={size * 0.05} fill="#6B4423" opacity={0.32} />
+      {spires.map((s, si) => {
+        const top = -h * s.top;
+        return (
+          <g key={si}>
+            {/* stem */}
+            <line x1={s.sx} y1={size * 0.06} x2={s.sx} y2={top} stroke="#5C7E4F" strokeWidth={1.3} strokeLinecap="round" />
+            {/* stacked pea-flowers — pairs shrinking toward the tip */}
+            {[0.55, 0.66, 0.77, 0.88].map((frac, i) => {
+              const fy = top * frac - (1 - frac) * h * 0.05;
+              const fr = size * (0.042 - i * 0.006) * s.w;
+              return (
+                <g key={i}>
+                  <circle cx={s.sx - fr * 1.1} cy={fy} r={fr} fill={i % 2 === 0 ? '#A675B0' : '#C8A2D8'} stroke={STROKE} strokeWidth={0.7} />
+                  <circle cx={s.sx + fr * 1.1} cy={fy} r={fr} fill={i % 2 === 0 ? '#C8A2D8' : '#A675B0'} stroke={STROKE} strokeWidth={0.7} />
+                </g>
+              );
+            })}
+            {/* green budding tip */}
+            <ellipse cx={s.sx} cy={top} rx={size * 0.02 * s.w} ry={size * 0.035 * s.w} fill="#95B88F" stroke={STROKE} strokeWidth={0.6} />
+          </g>
+        );
+      })}
+      {/* palmate leaves at the base */}
+      {[
+        { fx: -size * 0.14, fy: -size * 0.02, rot: -24 },
+        { fx: size * 0.13, fy: 0, rot: 22 },
+      ].map((f, fi) => (
+        <g key={fi} transform={`translate(${f.fx},${f.fy}) rotate(${f.rot})`}>
+          {[-72, -36, 0, 36, 72].map((a, i) => (
+            <ellipse key={a} cx={0} cy={-size * 0.05} rx={size * 0.02} ry={size * 0.05} fill={(fi + i) % 2 === 0 ? '#7BA46F' : '#95B88F'} stroke={STROKE} strokeWidth={0.7} transform={`rotate(${a})`} />
+          ))}
+        </g>
+      ))}
+    </g>
+  );
+}
+
+// ─── BEE BALM ───────────────────────────────────────────────────────────
+function BeebalmSeed({ x, y, size }: StageProps) {
+  const r = size * 0.055;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={0} rx={r * 4} ry={r * 2} fill="#6B4423" opacity={0.35} />
+      <circle cx={0} cy={0} r={r} fill="#3F2614" />
+    </g>
+  );
+}
+
+function BeebalmSprout({ x, y, size }: StageProps) {
+  // Minty sprout — it IS in the mint family — with pointed opposite leaves
+  const h = size * 0.2;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={size * 0.05} rx={size * 0.16} ry={size * 0.04} fill="#6B4423" opacity={0.4} />
+      <line x1={0} y1={size * 0.05} x2={0} y2={-h} stroke="#7BA46F" strokeWidth={1.4} strokeLinecap="round" />
+      <ellipse cx={-size * 0.06} cy={-h * 0.55} rx={size * 0.05} ry={size * 0.03} fill="#5C7E4F" stroke={STROKE} strokeWidth={0.7} transform={`rotate(-30 ${-size * 0.06} ${-h * 0.55})`} />
+      <ellipse cx={size * 0.06} cy={-h * 0.55} rx={size * 0.05} ry={size * 0.03} fill="#7BA46F" stroke={STROKE} strokeWidth={0.7} transform={`rotate(30 ${size * 0.06} ${-h * 0.55})`} />
+      <ellipse cx={-size * 0.055} cy={-h * 0.9} rx={size * 0.055} ry={size * 0.032} fill="#95B88F" stroke={STROKE} strokeWidth={0.7} transform={`rotate(-32 ${-size * 0.055} ${-h * 0.9})`} />
+      <ellipse cx={size * 0.055} cy={-h * 0.9} rx={size * 0.055} ry={size * 0.032} fill="#7BA46F" stroke={STROKE} strokeWidth={0.7} transform={`rotate(32 ${size * 0.055} ${-h * 0.9})`} />
+    </g>
+  );
+}
+
+function BeebalmBud({ x, y, size }: StageProps) {
+  // Leafy stem topped with a round green bud cluster, red tips peeking
+  const h = size * 0.42;
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={size * 0.06} rx={size * 0.16} ry={size * 0.04} fill="#6B4423" opacity={0.4} />
+      <line x1={0} y1={size * 0.06} x2={0} y2={-h * 0.78} stroke="#7BA46F" strokeWidth={1.3} strokeLinecap="round" />
+      {/* pointed opposite leaves */}
+      <ellipse cx={-size * 0.08} cy={-h * 0.3} rx={size * 0.06} ry={size * 0.035} fill="#5C7E4F" stroke={STROKE} strokeWidth={0.7} transform={`rotate(-28 ${-size * 0.08} ${-h * 0.3})`} />
+      <ellipse cx={size * 0.08} cy={-h * 0.3} rx={size * 0.06} ry={size * 0.035} fill="#7BA46F" stroke={STROKE} strokeWidth={0.7} transform={`rotate(28 ${size * 0.08} ${-h * 0.3})`} />
+      <ellipse cx={-size * 0.07} cy={-h * 0.55} rx={size * 0.055} ry={size * 0.032} fill="#95B88F" stroke={STROKE} strokeWidth={0.7} transform={`rotate(-30 ${-size * 0.07} ${-h * 0.55})`} />
+      <ellipse cx={size * 0.07} cy={-h * 0.55} rx={size * 0.055} ry={size * 0.032} fill="#7BA46F" stroke={STROKE} strokeWidth={0.7} transform={`rotate(30 ${size * 0.07} ${-h * 0.55})`} />
+      {/* round bud cluster */}
+      <circle cx={0} cy={-h * 0.88} r={size * 0.085} fill="#7BA46F" stroke={STROKE} strokeWidth={1} />
+      {/* first scarlet tips poking out */}
+      {[-50, 0, 50, 180].map(a => (
+        <circle key={a} cx={0} cy={-h * 0.88 - size * 0.07} r={size * 0.018} fill="#C84A3A" transform={`rotate(${a} 0 ${-h * 0.88})`} />
+      ))}
+    </g>
+  );
+}
+
+function BeebalmBloom({ x, y, size }: StageProps) {
+  // Shaggy scarlet firework blooms — thin tubular petals bursting from
+  // a center pom. One big bloom and a smaller sidekick.
+  const h = size * 0.52;
+  const blooms = [
+    { bx: 0, by: -h * 0.9, br: size * 0.14, spikes: 14 },
+    { bx: size * 0.2, by: -h * 0.62, br: size * 0.095, spikes: 11 },
+  ];
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={size * 0.07} rx={size * 0.2} ry={size * 0.05} fill="#6B4423" opacity={0.35} />
+      {/* main stem + side stem */}
+      <line x1={0} y1={size * 0.07} x2={0} y2={blooms[0].by + blooms[0].br * 0.5} stroke="#5C7E4F" strokeWidth={1.4} strokeLinecap="round" />
+      <line x1={0} y1={-h * 0.35} x2={blooms[1].bx} y2={blooms[1].by + blooms[1].br * 0.5} stroke="#5C7E4F" strokeWidth={1.1} strokeLinecap="round" />
+      {/* pointed minty leaves */}
+      <ellipse cx={-size * 0.09} cy={-h * 0.25} rx={size * 0.065} ry={size * 0.038} fill="#5C7E4F" stroke={STROKE} strokeWidth={0.8} transform={`rotate(-28 ${-size * 0.09} ${-h * 0.25})`} />
+      <ellipse cx={size * 0.09} cy={-h * 0.22} rx={size * 0.065} ry={size * 0.038} fill="#7BA46F" stroke={STROKE} strokeWidth={0.8} transform={`rotate(28 ${size * 0.09} ${-h * 0.22})`} />
+      <ellipse cx={-size * 0.08} cy={-h * 0.5} rx={size * 0.06} ry={size * 0.035} fill="#95B88F" stroke={STROKE} strokeWidth={0.8} transform={`rotate(-32 ${-size * 0.08} ${-h * 0.5})`} />
+      {/* firework blooms */}
+      {blooms.map((b, bi) => (
+        <g key={bi}>
+          {/* shaggy tubular petals — thin rays with curled tips */}
+          {Array.from({ length: b.spikes }).map((_, i) => {
+            const a = (i / b.spikes) * 360 + (bi === 0 ? 0 : 14);
+            const rad = (a * Math.PI) / 180;
+            const len = b.br * (i % 2 === 0 ? 1.0 : 0.78);
+            const tipX = b.bx + Math.cos(rad) * len;
+            const tipY = b.by + Math.sin(rad) * len;
+            return (
+              <g key={i}>
+                <line x1={b.bx + Math.cos(rad) * b.br * 0.25} y1={b.by + Math.sin(rad) * b.br * 0.25} x2={tipX} y2={tipY} stroke={i % 2 === 0 ? '#C84A3A' : '#E6705F'} strokeWidth={1.4} strokeLinecap="round" />
+                {/* curl at the tip */}
+                <circle cx={tipX} cy={tipY} r={b.br * 0.09} fill={i % 2 === 0 ? '#E6705F' : '#C84A3A'} />
+              </g>
+            );
+          })}
+          {/* center pom */}
+          <circle cx={b.bx} cy={b.by} r={b.br * 0.32} fill="#A93A2C" stroke={STROKE} strokeWidth={0.9} />
+          <circle cx={b.bx - b.br * 0.08} cy={b.by - b.br * 0.08} r={b.br * 0.1} fill="#E6705F" opacity={0.8} />
+        </g>
+      ))}
+    </g>
+  );
+}
+
 export function PlantStageIllustration({ code, x, y, size }: Props) {
   switch (code) {
     case 'plant_radish_seed':    return <RadishSeed x={x} y={y} size={size} />;
@@ -1498,6 +2006,32 @@ export function PlantStageIllustration({ code, x, y, size }: Props) {
     case 'plant_blueberry_sprout':  return <BlueberrySprout x={x} y={y} size={size} />;
     case 'plant_blueberry_bush':    return <BlueberryBush x={x} y={y} size={size} />;
     case 'plant_blueberry_berries': return <BlueberryBerries x={x} y={y} size={size} />;
+    // purple coneflower
+    case 'plant_coneflower_seed':   return <ConeflowerSeed x={x} y={y} size={size} />;
+    case 'plant_coneflower_sprout': return <ConeflowerSprout x={x} y={y} size={size} />;
+    case 'plant_coneflower_bud':    return <ConeflowerBud x={x} y={y} size={size} />;
+    case 'plant_coneflower_bloom':  return <ConeflowerBloom x={x} y={y} size={size} />;
+    // black-eyed susan
+    case 'plant_blackeyedsusan_seed':   return <BlackeyedsusanSeed x={x} y={y} size={size} />;
+    case 'plant_blackeyedsusan_sprout': return <BlackeyedsusanSprout x={x} y={y} size={size} />;
+    case 'plant_blackeyedsusan_bud':    return <BlackeyedsusanBud x={x} y={y} size={size} />;
+    case 'plant_blackeyedsusan_bloom':  return <BlackeyedsusanBloom x={x} y={y} size={size} />;
+    // common milkweed
+    case 'plant_milkweed_seed':   return <MilkweedSeed x={x} y={y} size={size} />;
+    case 'plant_milkweed_sprout': return <MilkweedSprout x={x} y={y} size={size} />;
+    case 'plant_milkweed_leafy':  return <MilkweedLeafy x={x} y={y} size={size} />;
+    case 'plant_milkweed_bloom':  return <MilkweedBloom x={x} y={y} size={size} />;
+    case 'plant_milkweed_pods':   return <MilkweedPods x={x} y={y} size={size} />;
+    // lupine
+    case 'plant_lupine_seed':   return <LupineSeed x={x} y={y} size={size} />;
+    case 'plant_lupine_sprout': return <LupineSprout x={x} y={y} size={size} />;
+    case 'plant_lupine_leaves': return <LupineLeaves x={x} y={y} size={size} />;
+    case 'plant_lupine_bloom':  return <LupineBloom x={x} y={y} size={size} />;
+    // bee balm
+    case 'plant_beebalm_seed':   return <BeebalmSeed x={x} y={y} size={size} />;
+    case 'plant_beebalm_sprout': return <BeebalmSprout x={x} y={y} size={size} />;
+    case 'plant_beebalm_bud':    return <BeebalmBud x={x} y={y} size={size} />;
+    case 'plant_beebalm_bloom':  return <BeebalmBloom x={x} y={y} size={size} />;
     default: return null;
   }
 }
