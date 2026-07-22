@@ -7,6 +7,8 @@ import SpeciesGrid from './SpeciesGrid';
 import { buildFloraJournal } from '@/lib/naturalist/floraJournal';
 import { FLORA_CATALOG } from '@/lib/world/floraCatalog';
 import { RECIPE_CATALOG, getRecipe } from '@/lib/world/recipeCatalog';
+import { flowerEmoji } from '@/lib/world/ikebana';
+import { PLANT_CATALOG } from '@/lib/world/plantCatalog';
 import { publicUrlFor } from '@/lib/naturalist/floraPhotoStorage';
 import FloraJournalGrid from './FloraJournalGrid';
 
@@ -86,6 +88,16 @@ export default async function JournalPage({
     .order('cooked_at', { ascending: false });
   const meals = mealRows ?? [];
   const cookedRecipeCodes = new Set(meals.map(m => m.recipe_code));
+
+  // ── Flower arrangements (ikebana with Bachan) ───────────────────
+  const { data: arrangementRows } = await db
+    .from('arrangement')
+    .select('shin_plant_code, soe_plant_code, hikae_plant_code, arranged_at')
+    .eq('learner_id', learnerId!)
+    .order('arranged_at', { ascending: false });
+  const arrangements = arrangementRows ?? [];
+  const plantNameOf = (code: string) =>
+    PLANT_CATALOG.find(p => p.code === code)?.commonName ?? code;
 
   const backHref = learnerId ? `/garden?learner=${learnerId}` : '/picker';
 
@@ -271,6 +283,38 @@ export default async function JournalPage({
           </ul>
         )}
       </section>
+
+      {arrangements.length > 0 && (
+        <section>
+          <div className="flex items-baseline justify-between mb-3">
+            <h2 className="font-display italic text-[13px] text-bark/55 tracking-[0.2em] uppercase">
+              flower arrangements
+            </h2>
+            <div className="font-display text-[14px] text-bark/65">
+              <span className="font-bold text-forest">{arrangements.length}</span>
+              <span className="text-bark/40"> with Bachan</span>
+            </div>
+          </div>
+          <ul className="space-y-2.5">
+            {arrangements.map((a, i) => (
+              <li key={i} className="bg-white border-4 border-ochre/60 rounded-2xl px-4 py-3 flex items-center gap-3">
+                <span className="text-3xl shrink-0" aria-hidden>
+                  {flowerEmoji(a.shin_plant_code)}{flowerEmoji(a.soe_plant_code)}{flowerEmoji(a.hikae_plant_code)}
+                </span>
+                <span className="flex-1 min-w-0">
+                  <span className="block font-display text-[17px] text-bark truncate" style={{ fontWeight: 600 }}>
+                    {plantNameOf(a.shin_plant_code)}, {plantNameOf(a.soe_plant_code)} &amp; {plantNameOf(a.hikae_plant_code)}
+                  </span>
+                  <span className="block font-display italic text-[13px] text-bark/60">
+                    ikebana with Bachan ·{' '}
+                    {a.arranged_at ? new Date(a.arranged_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : ''}
+                  </span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
     </main>
   );
 }

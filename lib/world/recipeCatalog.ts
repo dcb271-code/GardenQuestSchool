@@ -2,9 +2,10 @@
  * Bachan's Kitchen recipe catalog.
  *
  * A recipe is cooked from HARVESTED plants (garden_plot rows with
- * harvested_at set and BOTH consumption columns null —
- * consumed_by_meal_id and consumed_by_companion_id; the garden friend
- * eats from the same basket). Cooking consumes the ingredients — eat
+ * harvested_at set and ALL consumption columns null —
+ * consumed_by_meal_id, consumed_by_companion_id, and
+ * consumed_by_arrangement_id; the garden friend and Bachan's ikebana
+ * vase draw from the same basket). Cooking consumes the ingredients — eat
  * what you grow, then grow some more — and ends with a picnic shared
  * with a guest.
  *

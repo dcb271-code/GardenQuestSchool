@@ -16,6 +16,7 @@ import SisterWalkers, { SISTERS_HOME } from '@/components/child/garden/SisterWal
 import WelcomeOverlay from '@/components/child/garden/WelcomeOverlay';
 import HabitatQuestModal from '@/components/child/garden/HabitatQuestModal';
 import KitchenModal from '@/components/child/garden/KitchenModal';
+import IkebanaModal from '@/components/child/garden/IkebanaModal';
 import CompanionSpot from '@/components/child/garden/CompanionSpot';
 import CompanionModal from '@/components/child/garden/CompanionModal';
 import type { CompanionStatus } from '@/app/api/companion/route';
@@ -224,6 +225,9 @@ export default function GardenScene({
   const [highlightCode, setHighlightCode] = useState<string | null>(null);
   const [starting, setStarting] = useState(false);
   const [tappedCode, setTappedCode] = useState<string | null>(null);
+  // A stop whose star is already earned — nudge toward something new
+  // before replaying it.
+  const [masteredWarn, setMasteredWarn] = useState<MapStructure | null>(null);
 
   // Sister walkers — always start at home on a fresh load; walk to
   // tapped structure before starting a session.
@@ -233,6 +237,17 @@ export default function GardenScene({
   // Habitat ecology quest — opens when learner taps a not-yet-built habitat
   const [questHabitat, setQuestHabitat] = useState<MapStructure | null>(null);
   const [kitchenOpen, setKitchenOpen] = useState(false);
+  // Ikebana with Bachan — offered once enough flowers have ever been
+  // harvested; tapping her then asks "arrange or practice?".
+  const [ikebanaUnlocked, setIkebanaUnlocked] = useState(false);
+  const [ikebanaOpen, setIkebanaOpen] = useState(false);
+  const [bachanChoiceOpen, setBachanChoiceOpen] = useState(false);
+  useEffect(() => {
+    fetch(`/api/ikebana?learner=${learnerId}`)
+      .then(r => r.json())
+      .then(d => setIkebanaUnlocked(!!d.unlocked))
+      .catch(() => {});
+  }, [learnerId]);
   // Garden friend (companion) — fetched client-side; null = none adopted.
   const [companion, setCompanion] = useState<CompanionStatus | null>(null);
   const [companionOpen, setCompanionOpen] = useState(false);
@@ -280,6 +295,17 @@ export default function GardenScene({
     y: s.y + s.size * 0.6,              // stand just in front of the base
   });
 
+  // Walk the sisters over first (1.2s), then start the session.
+  const walkThenStart = (s: MapStructure) => {
+    setSistersTarget(walkOffsetFor(s));
+    setSistersWalking(true);
+    const walkMs = reducedMotion ? 200 : 1200;
+    window.setTimeout(() => {
+      setSistersWalking(false);
+      startSkill(s.skillCode!);
+    }, walkMs);
+  };
+
   const onStructureTap = (s: MapStructure) => {
     const state = structureStates[s.code];
     if (!state?.unlocked) {
@@ -291,14 +317,13 @@ export default function GardenScene({
     window.setTimeout(() => setTappedCode(null), 700);
 
     if (s.kind === 'skill' && s.skillCode) {
-      // Walk the sisters over first (1.2s), then start the session
-      setSistersTarget(walkOffsetFor(s));
-      setSistersWalking(true);
-      const walkMs = reducedMotion ? 200 : 1200;
-      window.setTimeout(() => {
-        setSistersWalking(false);
-        startSkill(s.skillCode!);
-      }, walkMs);
+      // Star already earned (check + star badges) → confirm before
+      // replaying a finished stop; suggest a fresh one instead.
+      if (state.correctCount >= 30 || state.mastered) {
+        setMasteredWarn(s);
+        return;
+      }
+      walkThenStart(s);
       return;
     }
     // Habitats:
@@ -332,10 +357,12 @@ export default function GardenScene({
         // back to 100vh on browsers that don't support it.
         height: '100dvh',
         minHeight: '100vh',
+        paddingBottom: 'var(--scene-inset-bottom)',
       }}
     >
       <div
         className="flex items-center justify-between bg-cream/90 backdrop-blur border-b border-ochre/30 px-3 py-2 landscape:py-1.5"
+        style={{ paddingTop: 'calc(0.5rem + var(--scene-inset-top))' }}
       >
         <Link
           href="/picker"
@@ -1204,7 +1231,12 @@ export default function GardenScene({
                   key={s.code}
                   transform={`translate(${s.x}, ${s.y})`}
                   style={{ cursor: 'pointer', touchAction: 'manipulation' }}
-                  onClick={() => { if (rec?.skillCode) startSkill(rec.skillCode); }}
+                  onClick={() => {
+                    // Bachan offers ikebana once it's unlocked — a
+                    // tiny chooser keeps her skill nudge reachable.
+                    if (code === 'nana' && ikebanaUnlocked) { setBachanChoiceOpen(true); return; }
+                    if (rec?.skillCode) startSkill(rec.skillCode);
+                  }}
                   aria-label={isAlert ? `${s.label} — ${rec?.structureLabel ?? ''}` : `${s.label} is resting`}
                 >
                   {/* invisible hit target — meets 60pt min */}
@@ -1288,23 +1320,24 @@ export default function GardenScene({
             transform="translate(268, 582)"
             style={{ cursor: 'pointer', touchAction: 'manipulation' }}
             onClick={() => setKitchenOpen(true)}
-            aria-label="Bachan's kitchen — cook something from the harvest basket"
+            aria-label="picnic with Bachan — cook something from the harvest basket"
           >
             <circle r={34} fill="transparent" />
-            {/* checkered picnic blanket */}
-            <rect x={-26} y={-4} width={52} height={30} rx={6} fill="#F2E8D8" stroke="#C34A36" strokeWidth={1.2} />
+            {/* checkered picnic blanket — kept small so it doesn't
+                dwarf Bachan and the sisters beside it */}
+            <rect x={-17} y={-2} width={34} height={20} rx={4} fill="#F2E8D8" stroke="#C34A36" strokeWidth={1} />
             {Array.from({ length: 3 }).map((_, r) =>
               Array.from({ length: 5 }).map((_, c) => (
                 (r + c) % 2 === 0 && (
-                  <rect key={`${r}-${c}`} x={-26 + c * 10.4} y={-4 + r * 10} width={10.4} height={10} rx={2}
+                  <rect key={`${r}-${c}`} x={-17 + c * 6.8} y={-2 + r * 6.67} width={6.8} height={6.67} rx={1.5}
                         fill="#C34A36" opacity={0.28} />
                 )
               )),
             )}
-            <text y={8} textAnchor="middle" fontSize={22}>🧺</text>
-            <rect x={-34} y={30} width={68} height={15} rx={4} fill="rgba(195, 141, 158, 0.95)" />
-            <text y={41} textAnchor="middle" fontSize={9} fontWeight={700} fill="#fffaf2">
-              Kitchen
+            <text y={6} textAnchor="middle" fontSize={14}>🧺</text>
+            <rect x={-24} y={22} width={48} height={13} rx={4} fill="rgba(195, 141, 158, 0.95)" />
+            <text y={32} textAnchor="middle" fontSize={9} fontWeight={700} fill="#fffaf2">
+              Picnic
             </text>
           </g>
 
@@ -1339,6 +1372,142 @@ export default function GardenScene({
         </svg>
 
         <PanEdgeHints canLeft={portraitPan.canLeft} canRight={portraitPan.canRight} />
+
+        {/* ── Bachan's porch chooser: arrange flowers, or practice ── */}
+        <AnimatePresence>
+          {bachanChoiceOpen && (
+            <motion.div
+              className="absolute inset-0 flex items-center justify-center p-6 z-20"
+              style={{ background: 'radial-gradient(circle at 50% 40%, rgba(20, 25, 40, 0.3), rgba(20, 25, 40, 0.5))' }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              onClick={() => setBachanChoiceOpen(false)}
+            >
+              <motion.div
+                className="bg-cream border-4 border-terracotta rounded-3xl max-w-sm w-full p-6 space-y-4 text-center shadow-2xl"
+                initial={{ scale: 0.9, y: 12, opacity: 0 }}
+                animate={{ scale: 1, y: 0, opacity: 1 }}
+                exit={{ scale: 0.95, y: 8, opacity: 0 }}
+                transition={{ duration: 0.35, ease: [0.22, 0.9, 0.34, 1] }}
+                onClick={e => e.stopPropagation()}
+              >
+                <div className="text-6xl">👵</div>
+                <h3
+                  className="font-display text-[24px] text-bark leading-tight"
+                  style={{ fontWeight: 600, letterSpacing: '-0.01em' }}
+                >
+                  hello, little one
+                </h3>
+                <div className="font-display italic text-[14px] text-bark/65">
+                  what shall we do together?
+                </div>
+                <motion.button
+                  onClick={() => { setBachanChoiceOpen(false); setIkebanaOpen(true); }}
+                  className="w-full bg-forest text-white rounded-full py-3.5 font-display"
+                  style={{ touchAction: 'manipulation', minHeight: 56, fontWeight: 600 }}
+                  whileTap={{ scale: 0.97 }}
+                >
+                  🌸 arrange flowers
+                </motion.button>
+                {characterRecs.nana?.skillCode && (
+                  <motion.button
+                    onClick={() => { setBachanChoiceOpen(false); startSkill(characterRecs.nana!.skillCode); }}
+                    className="w-full bg-white border-2 border-ochre rounded-full py-3 font-display text-bark"
+                    style={{ touchAction: 'manipulation', minHeight: 52, fontWeight: 600 }}
+                    whileTap={{ scale: 0.97 }}
+                  >
+                    🌱 practice {characterRecs.nana.structureLabel}
+                  </motion.button>
+                )}
+                <motion.button
+                  onClick={() => setBachanChoiceOpen(false)}
+                  className="w-full bg-white border-2 border-ochre rounded-full py-3 font-display italic text-bark/70"
+                  style={{ touchAction: 'manipulation', minHeight: 52 }}
+                  whileTap={{ scale: 0.97 }}
+                >
+                  maybe later
+                </motion.button>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* ── already-mastered nudge: check + star are earned here ── */}
+        <AnimatePresence>
+          {masteredWarn && (() => {
+            // Best fresh stop: prefer the zone-ordered "next" one,
+            // else the unlocked un-starred stop closest to finishing.
+            const freshPick = (() => {
+              let best: MapStructure | null = null;
+              let bestCount = -1;
+              for (const g of GARDEN_STRUCTURES) {
+                if (g.kind !== 'skill' || !g.skillCode || g.code === masteredWarn.code) continue;
+                const st = structureStates[g.code];
+                if (!st?.unlocked || st.correctCount >= 30 || st.mastered) continue;
+                if (st.isNext) return g;
+                if (st.correctCount > bestCount) { best = g; bestCount = st.correctCount; }
+              }
+              return best;
+            })();
+            return (
+              <motion.div
+                className="absolute inset-0 flex items-center justify-center p-6 z-20"
+                style={{ background: 'radial-gradient(circle at 50% 40%, rgba(20, 25, 40, 0.3), rgba(20, 25, 40, 0.5))' }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.25 }}
+                onClick={() => setMasteredWarn(null)}
+              >
+                <motion.div
+                  className="bg-cream border-4 border-terracotta rounded-3xl max-w-sm w-full p-6 space-y-4 text-center shadow-2xl"
+                  initial={{ scale: 0.9, y: 12, opacity: 0 }}
+                  animate={{ scale: 1, y: 0, opacity: 1 }}
+                  exit={{ scale: 0.95, y: 8, opacity: 0 }}
+                  transition={{ duration: 0.35, ease: [0.22, 0.9, 0.34, 1] }}
+                  onClick={e => e.stopPropagation()}
+                >
+                  <div className="text-6xl">⭐</div>
+                  <div>
+                    <h3
+                      className="font-display text-[24px] text-bark leading-tight"
+                      style={{ fontWeight: 600, letterSpacing: '-0.01em' }}
+                    >
+                      you mastered {masteredWarn.label}!
+                    </h3>
+                    <div className="font-display italic text-[13px] text-bark/55 mt-0.5 tracking-wider">
+                      the check and the star are already yours
+                    </div>
+                  </div>
+                  <div className="bg-white/70 rounded-xl p-3 border-2 border-ochre/40 font-display text-[14px] text-bark/80 leading-snug">
+                    you know this one by heart — a brand-new adventure
+                    will grow your garden even more!
+                  </div>
+                  {freshPick?.skillCode && (
+                    <motion.button
+                      onClick={() => { const g = freshPick; setMasteredWarn(null); walkThenStart(g); }}
+                      className="w-full bg-forest text-white rounded-full py-3.5 font-display"
+                      style={{ touchAction: 'manipulation', minHeight: 56, fontWeight: 600 }}
+                      whileTap={{ scale: 0.97 }}
+                    >
+                      ✨ try {freshPick.label} {freshPick.themeEmoji}
+                    </motion.button>
+                  )}
+                  <motion.button
+                    onClick={() => { const g = masteredWarn; setMasteredWarn(null); walkThenStart(g); }}
+                    className="w-full bg-white border-2 border-ochre rounded-full py-3 font-display italic text-bark/70"
+                    style={{ touchAction: 'manipulation', minHeight: 52 }}
+                    whileTap={{ scale: 0.97 }}
+                  >
+                    practice here anyway
+                  </motion.button>
+                </motion.div>
+              </motion.div>
+            );
+          })()}
+        </AnimatePresence>
 
         <AnimatePresence>
           {selected && (
@@ -1608,6 +1777,13 @@ export default function GardenScene({
         learnerId={learnerId}
         onClose={() => setKitchenOpen(false)}
         onCooked={() => router.refresh()}
+      />
+
+      {/* Ikebana with Bachan — arrange harvested flowers on the porch */}
+      <IkebanaModal
+        open={ikebanaOpen}
+        learnerId={learnerId}
+        onClose={() => setIkebanaOpen(false)}
       />
 
       {/* Habitat ecology quest — opens when an available habitat is tapped */}

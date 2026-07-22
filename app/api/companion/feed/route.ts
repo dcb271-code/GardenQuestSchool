@@ -41,6 +41,7 @@ export async function POST(req: Request) {
     .not('harvested_at', 'is', null)
     .is('consumed_by_meal_id', null)
     .is('consumed_by_companion_id', null)
+    .is('consumed_by_arrangement_id', null)
     .order('harvested_at', { ascending: true })
     .limit(1);
   const row = harvestRows?.[0];
@@ -51,7 +52,8 @@ export async function POST(req: Request) {
     .update({ consumed_by_companion_id: companion.id })
     .eq('id', row.id)
     .is('consumed_by_meal_id', null)
-    .is('consumed_by_companion_id', null);
+    .is('consumed_by_companion_id', null)
+    .is('consumed_by_arrangement_id', null);
   if (cErr) return NextResponse.json({ error: cErr.message }, { status: 500 });
 
   const { data: updated, error: uErr } = await db
