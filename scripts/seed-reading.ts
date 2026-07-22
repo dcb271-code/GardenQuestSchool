@@ -668,7 +668,7 @@ const PREFIX_DMN_WORDS: AffixWord[] = [
   { word: 'misread', affix: 'mis' }, { word: 'misunderstand', affix: 'mis' },
   { word: 'nonstop', affix: 'non' }, { word: 'nonsense', affix: 'non' },
   { word: 'nonfiction', affix: 'non' }, { word: 'nonliving', affix: 'non' },
-  { word: 'nonstick', affix: 'non' }, { word: 'nonempty', affix: 'non' },
+  { word: 'nonstick', affix: 'non' }, { word: 'nonslip', affix: 'non' },
 ];
 
 type SentenceMeaning = { sentence: string; question: string; correct: string; distractors: string[] };
@@ -691,7 +691,7 @@ const PREFIX_DMN_MEANINGS: SentenceMeaning[] = [
   { sentence: 'It is DISHONEST to say you watered the plants when you did not.', question: 'To be DISHONEST means to…', correct: 'not tell the truth', distractors: ['always tell the truth', 'talk a great deal', 'be very kind'] },
   { sentence: 'It is easy to MISTAKE a young weed for a flower.', question: 'To MISTAKE one plant for another means to…', correct: 'think it is something it is not', distractors: ['pull the flower on purpose', 'water it very well', 'know exactly what it is'] },
   { sentence: 'A wild deer will DISOBEY no rule but its own fear.', question: 'To DISOBEY a rule means to…', correct: 'not follow it', distractors: ['follow it carefully', 'write a new rule', 'read it aloud'] },
-  { sentence: 'After the harvest, the shed was NONEMPTY, packed with baskets.', question: 'A NONEMPTY shed…', correct: 'has something in it', distractors: ['is completely bare', 'has a broken door', 'is far too high'] },
+  { sentence: 'Esme wore NONSLIP boots to cross the muddy garden path.', question: 'NONSLIP boots…', correct: 'keep you from slipping', distractors: ['make you slide faster', 'are always muddy', 'are far too big'] },
 ];
 
 const SUFFIX_FLN_WORDS: AffixWord[] = [
