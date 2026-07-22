@@ -5,18 +5,21 @@
 @layer base {
   /* Scene edge insets. Baseline: the device's own safe areas (notches,
      rounded corners — viewportFit: 'cover' pushes content under them).
-     On landscape touch screens (the wall tablet) the physical frame can
+     On PORTRAIT touch screens (the wall tablet) the physical frame can
      obscure the top and bottom edges beyond what the OS reports, so a
-     4vh comfort inset keeps the header and edge tap targets visible.
-     Desktop browsers (fine pointers) are unaffected. */
+     5vh comfort inset keeps the header and edge tap targets visible.
+     Side benefit: the portrait pan fits the world to container height,
+     so a shorter container renders the garden smaller — meaning less
+     left-to-right panning to cross it. Landscape and desktop browsers
+     (fine pointers) get only the real device safe areas. */
   :root {
     --scene-inset-top: env(safe-area-inset-top, 0px);
     --scene-inset-bottom: env(safe-area-inset-bottom, 0px);
   }
-  @media (orientation: landscape) and (pointer: coarse) {
+  @media (orientation: portrait) and (pointer: coarse) {
     :root {
-      --scene-inset-top: max(env(safe-area-inset-top, 0px), 4vh);
-      --scene-inset-bottom: max(env(safe-area-inset-bottom, 0px), 4vh);
+      --scene-inset-top: max(env(safe-area-inset-top, 0px), 5vh);
+      --scene-inset-bottom: max(env(safe-area-inset-bottom, 0px), 5vh);
     }
   }
 
