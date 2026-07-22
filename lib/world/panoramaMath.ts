@@ -14,7 +14,17 @@ export interface PanWindow {
   visibleW: number;
   /** Highest allowed pan offset (0 when inactive). */
   maxPan: number;
+  /** viewBox y/height. When panning, the world renders slightly
+   *  zoomed out (see PORTRAIT_ZOOM_OUT) so the viewBox is taller than
+   *  the world and the world floats vertically centered in it. */
+  viewY: number;
+  viewH: number;
 }
+
+/** In pan mode the world fills this fraction of the container height.
+ *  Slightly under 1 widens the visible window, which directly cuts
+ *  how far a small arm has to drag to cross the garden. */
+export const PORTRAIT_ZOOM_OUT = 0.9;
 
 /**
  * Compute the pan window for a container. Activates only for clearly
@@ -27,14 +37,16 @@ export function panWindow(
   containerW: number, containerH: number,
 ): PanWindow {
   if (containerW <= 0 || containerH <= 0) {
-    return { active: false, visibleW: worldW, maxPan: 0 };
+    return { active: false, visibleW: worldW, maxPan: 0, viewY: 0, viewH: worldH };
   }
   const containerAspect = containerW / containerH;
   const worldAspect = worldW / worldH;
   const active = containerAspect < worldAspect * 0.7;
-  if (!active) return { active: false, visibleW: worldW, maxPan: 0 };
-  const visibleW = worldH * containerAspect;
-  return { active: true, visibleW, maxPan: Math.max(0, worldW - visibleW) };
+  if (!active) return { active: false, visibleW: worldW, maxPan: 0, viewY: 0, viewH: worldH };
+  const viewH = worldH / PORTRAIT_ZOOM_OUT;
+  const visibleW = viewH * containerAspect;
+  const viewY = -(viewH - worldH) / 2;
+  return { active: true, visibleW, maxPan: Math.max(0, worldW - visibleW), viewY, viewH };
 }
 
 export function clampPan(panX: number, maxPan: number): number {

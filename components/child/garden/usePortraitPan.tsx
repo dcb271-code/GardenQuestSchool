@@ -74,8 +74,8 @@ export function usePortraitPan({
   const momentumRaf = useRef(0);
 
   const pxToWorld = useCallback(
-    (px: number) => (container.h > 0 ? px * (worldH / container.h) : 0),
-    [container.h, worldH],
+    (px: number) => (container.h > 0 ? px * (win.viewH / container.h) : 0),
+    [container.h, win.viewH],
   );
 
   const stopMomentum = useCallback(() => {
@@ -147,7 +147,7 @@ export function usePortraitPan({
   const svgProps = {
     ref: svgRef,
     viewBox: win.active
-      ? `${panX} 0 ${win.visibleW} ${worldH}`
+      ? `${panX} ${win.viewY} ${win.visibleW} ${win.viewH}`
       : `0 0 ${worldW} ${worldH}`,
     preserveAspectRatio: 'xMidYMid meet' as const,
     style: win.active

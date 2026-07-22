@@ -17,11 +17,12 @@
     --scene-inset-bottom: env(safe-area-inset-bottom, 0px);
   }
   /* Measured on the cozyla: only the BOTTOM edge is actually hidden
-     by the frame in portrait — the top is fine, and padding it just
-     wasted an inch of blank header. So the comfort inset applies to
-     the bottom only. */
+     by the frame in portrait — a big top inset just wasted an inch of
+     blank header. The 14px top guard is for phone status bars/notches
+     (negligible on the wall tablet). */
   @media (orientation: portrait) and (pointer: coarse) {
     :root {
+      --scene-inset-top: max(env(safe-area-inset-top, 0px), 14px);
       --scene-inset-bottom: max(env(safe-area-inset-bottom, 0px), 7vh);
     }
   }

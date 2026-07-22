@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { panWindow, clampPan, centeredPan } from '@/lib/world/panoramaMath';
+import { panWindow, clampPan, centeredPan, PORTRAIT_ZOOM_OUT } from '@/lib/world/panoramaMath';
 
 describe('panoramaMath — portrait panorama viewport', () => {
   it('inactive in landscape: full world, no pan', () => {
@@ -12,9 +12,20 @@ describe('panoramaMath — portrait panorama viewport', () => {
   it('active on a portrait wall tablet (1080×1920)', () => {
     const w = panWindow(1440, 800, 1080, 1920);
     expect(w.active).toBe(true);
-    // window fills the height: visibleW = 800 * (1080/1920) = 450
-    expect(w.visibleW).toBeCloseTo(450);
-    expect(w.maxPan).toBeCloseTo(1440 - 450);
+    // world zoomed out to 90% of height, so the viewBox is taller than
+    // the world and the visible window is wider than a full-height fit:
+    // viewH = 800/0.9 ≈ 888.9, visibleW = viewH * (1080/1920) = 500
+    expect(w.viewH).toBeCloseTo(800 / PORTRAIT_ZOOM_OUT);
+    expect(w.visibleW).toBeCloseTo((800 / PORTRAIT_ZOOM_OUT) * (1080 / 1920));
+    expect(w.maxPan).toBeCloseTo(1440 - w.visibleW);
+    // world floats centered: equal bands above and below
+    expect(w.viewY).toBeCloseTo(-(w.viewH - 800) / 2);
+  });
+
+  it('zoom-out shortens the pan trek vs a full-height fit', () => {
+    const w = panWindow(1440, 800, 1080, 1920);
+    const fullHeightVisibleW = 800 * (1080 / 1920);
+    expect(w.maxPan).toBeLessThan(1440 - fullHeightVisibleW);
   });
 
   it('stays inactive for mildly-narrow near-landscape shapes', () => {
