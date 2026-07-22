@@ -6,6 +6,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import ErrorRetryCard from '@/components/child/ErrorRetryCard';
 import LessonHeader from '@/components/child/LessonHeader';
 import SkillIntroOverlay from '@/components/child/SkillIntroOverlay';
+import ScratchpadOverlay from '@/components/child/ScratchpadOverlay';
+import { getMathHint } from '@/lib/packs/math/hints';
 import { getItemHandler, getPromptText } from '@/lib/packs';
 import { useNarrator } from '@/lib/audio/useNarrator';
 import { useAccessibilitySettings, type ChallengeLevel } from '@/lib/settings/useAccessibilitySettings';
@@ -55,6 +57,9 @@ function LessonPageInner({ params }: { params: { sessionId: string } }) {
   // the narrator silent during that window so the prompt audio doesn't
   // talk under the explainer card.
   const [introVisible, setIntroVisible] = useState(false);
+  // Work-it-out-by-hand scratchpad + per-skill method hint.
+  const [scratchOpen, setScratchOpen] = useState(false);
+  const [hintOpen, setHintOpen] = useState(false);
   const startTime = useRef<number>(Date.now());
 
   const promptText = item
@@ -78,6 +83,9 @@ function LessonPageInner({ params }: { params: { sessionId: string } }) {
   const loadNext = useCallback(async () => {
     setStatus('loading');
     setRetries(0);
+    // Fresh page, fresh tools.
+    setScratchOpen(false);
+    setHintOpen(false);
     try {
       const challenge = settings.challengeLevel ?? 'normal';
       const res = await fetch(`/api/session/${params.sessionId}/item?challenge=${challenge}`);
@@ -171,6 +179,9 @@ function LessonPageInner({ params }: { params: { sessionId: string } }) {
     ? `${item.themeEmoji ?? '🔍'} ${item.themeTitle ?? 'Exploration'}`
     : 'Loading…';
 
+  const hint = item ? getMathHint(item.skillCode, item.content) : null;
+  const itemActive = !!item && (status === 'ready' || status === 'retry');
+
   return (
     <main className="max-w-xl mx-auto p-4 min-h-screen flex flex-col">
       <LessonHeader
@@ -180,6 +191,8 @@ function LessonPageInner({ params }: { params: { sessionId: string } }) {
         onReplayAudio={() => replay()}
         onWonder={() => {/* Plan 3 virtue detector */}}
         onSkip={item ? skip : undefined}
+        onHint={itemActive && hint ? () => setHintOpen(true) : undefined}
+        onScratchpad={itemActive ? () => setScratchOpen(true) : undefined}
       />
 
       <SkillIntroOverlay
@@ -288,6 +301,53 @@ function LessonPageInner({ params }: { params: { sessionId: string } }) {
           {status === 'moving-on' && <MovingOnFeedback key="moving-on" reducedMotion={reducedMotion} />}
         </AnimatePresence>
       </div>
+
+      {/* 💡 method hint — teaches HOW, keyed to this item's skill */}
+      <AnimatePresence>
+        {hintOpen && hint && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center p-5"
+            style={{
+              background: 'radial-gradient(circle at 50% 40%, rgba(20, 25, 40, 0.35), rgba(20, 25, 40, 0.55))',
+              backdropFilter: 'blur(2px)',
+            }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            onClick={() => setHintOpen(false)}
+          >
+            <motion.div
+              className="bg-cream border-4 border-terracotta rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4 text-center modal-max-h overflow-y-auto"
+              initial={{ scale: 0.9, y: 12, opacity: 0 }}
+              animate={{ scale: 1, y: 0, opacity: 1 }}
+              exit={{ scale: 0.95, y: 8, opacity: 0 }}
+              transition={{ duration: 0.35, ease: [0.22, 0.9, 0.34, 1] }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="text-4xl">💡</div>
+              <h3
+                className="font-display text-[22px] text-bark leading-tight"
+                style={{ fontWeight: 600, letterSpacing: '-0.01em' }}
+              >
+                <span className="italic text-forest">{hint.title}</span>
+              </h3>
+              <div>{hint.body}</div>
+              <motion.button
+                onClick={() => setHintOpen(false)}
+                className="w-full bg-forest text-white rounded-full py-3.5 font-display"
+                style={{ touchAction: 'manipulation', minHeight: 56, fontWeight: 600 }}
+                whileTap={{ scale: 0.97 }}
+              >
+                got it — back to the problem
+              </motion.button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ✏️ scratchpad — draw the working out right on the screen */}
+      <ScratchpadOverlay open={scratchOpen} onClose={() => setScratchOpen(false)} />
     </main>
   );
 }

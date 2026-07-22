@@ -11,7 +11,7 @@ export interface LessonProgress {
 }
 
 export default function LessonHeader({
-  breadcrumb, learnerId, progress, onReplayAudio, onWonder, onSkip,
+  breadcrumb, learnerId, progress, onReplayAudio, onWonder, onSkip, onHint, onScratchpad,
 }: {
   breadcrumb: string;
   learnerId?: string | null;
@@ -19,6 +19,10 @@ export default function LessonHeader({
   onReplayAudio?: () => void;
   onWonder?: () => void;
   onSkip?: () => void;
+  /** Show the 💡 hint button — pass only when a hint exists for this item. */
+  onHint?: () => void;
+  /** Show the ✏️ scratchpad button. */
+  onScratchpad?: () => void;
 }) {
   const router = useRouter();
   const [confirming, setConfirming] = useState(false);
@@ -96,6 +100,30 @@ export default function LessonHeader({
           >
             🔊
           </motion.button>
+          {onScratchpad && (
+            <motion.button
+              onClick={onScratchpad}
+              aria-label="open the scratchpad to work it out by hand"
+              className="text-2xl p-2 rounded-full bg-white border border-ochre hover:bg-ochre/10 active:bg-ochre/20"
+              style={{ touchAction: 'manipulation', minWidth: 44, minHeight: 44 }}
+              whileTap={{ scale: 0.9 }}
+              whileHover={{ scale: 1.06 }}
+            >
+              ✏️
+            </motion.button>
+          )}
+          {onHint && (
+            <motion.button
+              onClick={onHint}
+              aria-label="show me a hint"
+              className="text-2xl p-2 rounded-full bg-white border border-ochre hover:bg-ochre/10 active:bg-ochre/20"
+              style={{ touchAction: 'manipulation', minWidth: 44, minHeight: 44 }}
+              whileTap={{ scale: 0.9 }}
+              whileHover={{ scale: 1.06 }}
+            >
+              💡
+            </motion.button>
+          )}
           <motion.button
             onClick={onWonder}
             aria-label="wondering"
