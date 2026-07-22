@@ -20,6 +20,7 @@ export default function BranchHeader({ learnerId, title, iconEmoji }: BranchHead
   return (
     <div
       className="flex items-center justify-between bg-cream/90 backdrop-blur border-b border-ochre/30 px-3 py-2 landscape:py-1.5"
+      style={{ paddingTop: 'calc(0.5rem + var(--scene-inset-top))' }}
     >
       <Link
         href={backHref}

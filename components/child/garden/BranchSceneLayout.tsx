@@ -40,7 +40,7 @@ export default function BranchSceneLayout({
   return (
     <div
       className="bg-[#F5EBDC] flex flex-col overflow-hidden"
-      style={{ height: '100dvh', minHeight: '100vh' }}
+      style={{ height: '100dvh', minHeight: '100vh', paddingBottom: 'var(--scene-inset-bottom)' }}
     >
       <BranchHeader learnerId={learnerId} title={title} iconEmoji={iconEmoji} />
       <div className="flex-1 relative overflow-hidden">

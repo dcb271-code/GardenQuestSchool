@@ -74,8 +74,8 @@ export default function GrowScene({
                 'rgba(20, 25, 60, 0.18)';
 
   return (
-    <div className="bg-[#F5EBDC] flex flex-col overflow-hidden" style={{ height: '100dvh', minHeight: '100vh' }}>
-      <header className="flex items-center justify-between bg-cream/90 backdrop-blur border-b border-ochre/30 px-3 py-2">
+    <div className="bg-[#F5EBDC] flex flex-col overflow-hidden" style={{ height: '100dvh', minHeight: '100vh', paddingBottom: 'var(--scene-inset-bottom)' }}>
+      <header className="flex items-center justify-between bg-cream/90 backdrop-blur border-b border-ochre/30 px-3 py-2" style={{ paddingTop: 'calc(0.5rem + var(--scene-inset-top))' }}>
         <Link
           href={`/garden?learner=${learnerId}`}
           className="text-xl p-1.5 rounded-full bg-white border border-ochre"

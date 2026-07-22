@@ -3,6 +3,23 @@
 @tailwind utilities;
 
 @layer base {
+  /* Scene edge insets. Baseline: the device's own safe areas (notches,
+     rounded corners — viewportFit: 'cover' pushes content under them).
+     On landscape touch screens (the wall tablet) the physical frame can
+     obscure the top and bottom edges beyond what the OS reports, so a
+     4vh comfort inset keeps the header and edge tap targets visible.
+     Desktop browsers (fine pointers) are unaffected. */
+  :root {
+    --scene-inset-top: env(safe-area-inset-top, 0px);
+    --scene-inset-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  @media (orientation: landscape) and (pointer: coarse) {
+    :root {
+      --scene-inset-top: max(env(safe-area-inset-top, 0px), 4vh);
+      --scene-inset-bottom: max(env(safe-area-inset-bottom, 0px), 4vh);
+    }
+  }
+
   html { -webkit-text-size-adjust: 100%; }
   body {
     @apply bg-cream text-bark font-body antialiased;
@@ -17,6 +34,11 @@
 }
 
 @layer utilities {
+  /* Centered modal panels: cap height inside the visible (uninsetted)
+     band of the screen instead of raw vh. */
+  .modal-max-h {
+    max-height: calc(100dvh - var(--scene-inset-top) - var(--scene-inset-bottom) - 2rem);
+  }
   .dyslexic-font,
   .dyslexic-font * {
     font-family: 'OpenDyslexic', 'Nunito', system-ui, sans-serif !important;
