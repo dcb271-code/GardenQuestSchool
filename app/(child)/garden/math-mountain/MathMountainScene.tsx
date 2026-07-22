@@ -2560,17 +2560,30 @@ export default function MathMountainScene({
                 )}
               </div>
 
-              {selected.skillCode && (
-                <motion.button
-                  onClick={() => startSkill(selected.skillCode!)}
-                  disabled={starting}
-                  className="w-full bg-forest text-white rounded-full py-4 font-display disabled:opacity-50"
-                  style={{ touchAction: 'manipulation', minHeight: 60, fontWeight: 600 }}
-                  whileTap={{ scale: 0.97 }}
-                >
-                  {starting ? 'starting…' : '🔍 start exploring'}
-                </motion.button>
-              )}
+              {selected.skillCode && (() => {
+                const st = structureStates[selected.code];
+                // Same "fully done" bar as the central garden's star.
+                const starEarned = !!st && (st.correctCount >= 30 || st.mastered);
+                return (
+                  <>
+                    {starEarned && (
+                      <div className="bg-white/70 rounded-xl p-3 border-2 border-ochre/40 font-display text-[14px] text-bark/80 leading-snug">
+                        ⭐ you&apos;ve mastered this one! pick a new spot
+                        to keep growing.
+                      </div>
+                    )}
+                    <motion.button
+                      onClick={() => startSkill(selected.skillCode!)}
+                      disabled={starting}
+                      className="w-full bg-forest text-white rounded-full py-4 font-display disabled:opacity-50"
+                      style={{ touchAction: 'manipulation', minHeight: 60, fontWeight: 600 }}
+                      whileTap={{ scale: 0.97 }}
+                    >
+                      {starting ? 'starting…' : starEarned ? 'practice here anyway' : '🔍 start exploring'}
+                    </motion.button>
+                  </>
+                );
+              })()}
 
               <motion.button
                 onClick={() => setSelected(null)}

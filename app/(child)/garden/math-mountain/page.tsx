@@ -19,6 +19,8 @@ export interface MathMountainStructureState {
   correctCount: number;
   target: number;
   prereqDisplay: string;
+  /** Cross-session mastery — with 30 correct, earns the "fully done" nudge. */
+  mastered: boolean;
 }
 
 export default async function MathMountainPage({
@@ -71,6 +73,7 @@ export default async function MathMountainPage({
       unlocked,
       completed,
       correctCount,
+      mastered: mastered.has(s.skillCode),
       target: ZONE_COMPLETION_TARGET,
       prereqDisplay: unlocked
         ? ''
