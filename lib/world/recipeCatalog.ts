@@ -273,6 +273,93 @@ export const RECIPE_CATALOG: Recipe[] = [
     ],
     outro: 'Breakfast by bumblebee — the garden\'s busiest workers helped make this.',
   },
+  {
+    code: 'peach_cobbler',
+    name: 'Sunset Peach Cobbler',
+    emoji: '🍑',
+    description: 'Warm peaches from beyond the trellis under a golden crumble lid.',
+    ingredients: { peach: 3 },
+    facts: [
+      'Cobbler got its name because the bumpy crust looks like an old cobblestone street.',
+      'Cooking a peach makes it even sweeter — heat breaks its sugars free.',
+    ],
+    questions: [
+      {
+        prompt: 'The cobbler needs 3 peaches. If you picked 5, how many are left to eat fresh?',
+        choices: ['2', '3', '1', '8'],
+        correctIndex: 0,
+      },
+      {
+        prompt: 'Why does the top of a cobbler look so bumpy?',
+        choices: [
+          'The crust bakes like cobblestones on a street',
+          'The peaches jump while it bakes',
+          'It\'s always cut that way after',
+          'The oven shakes it into bumps',
+        ],
+        correctIndex: 0,
+      },
+    ],
+    outro: 'The first cobbler from the new orchard — worth every right answer.',
+  },
+  {
+    code: 'bramble_jam',
+    name: 'Bramble Patch Jam',
+    emoji: '🫙',
+    description: 'Raspberries and blackberries stirred slow into a ruby-dark jar.',
+    ingredients: { raspberry: 2, blackberry: 2 },
+    facts: [
+      'Jam thickens because berries hide a natural glue called pectin that wakes up when heated.',
+      'One jar of jam saves a whole afternoon of summer for a snowy day.',
+    ],
+    questions: [
+      {
+        prompt: 'The jam takes 2 raspberries and 2 blackberries. How many berries all together?',
+        choices: ['4', '2', '6', '22'],
+        correctIndex: 0,
+      },
+      {
+        prompt: 'What makes jam turn thick instead of staying juice?',
+        choices: [
+          'Pectin — a natural glue inside the berries',
+          'The jar squeezes it tight',
+          'Sugar turns into rubber',
+          'You stir it backwards',
+        ],
+        correctIndex: 0,
+      },
+    ],
+    outro: 'Ruby jam from your own brambles — winter toast is going to be lucky.',
+  },
+  {
+    code: 'moonlight_tea_party',
+    name: 'Moonlight Tea Party',
+    emoji: '🫖',
+    description: 'Chamomile and lavender steeped warm, with mint from the old garden.',
+    ingredients: { chamomile: 2, lavender: 1, mint: 1 },
+    facts: [
+      'Chamomile flowers are dried before steeping — drying keeps their apple smell for months.',
+      'Herbal "tea" isn\'t really tea at all — true tea comes from one special leaf. This is a tisane.',
+    ],
+    questions: [
+      {
+        prompt: 'The pot needs 2 chamomile, 1 lavender, and 1 mint. How many plants is that?',
+        choices: ['4', '3', '5', '211'],
+        correctIndex: 0,
+      },
+      {
+        prompt: 'What do you call a warm drink made from herbs instead of tea leaves?',
+        choices: [
+          'A tisane',
+          'A soupline',
+          'A leaf-latte',
+          'A grass gulp',
+        ],
+        correctIndex: 0,
+      },
+    ],
+    outro: 'A tea party under the moon garden\'s lantern — even Luna came to sit.',
+  },
 ];
 
 export function getRecipe(code: string): Recipe | undefined {
