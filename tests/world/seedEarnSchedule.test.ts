@@ -8,8 +8,8 @@ import {
 } from '@/lib/world/seedEarnSchedule';
 
 describe('SEED_EARN_SCHEDULE', () => {
-  it('has 20 entries in ascending threshold order', () => {
-    expect(SEED_EARN_SCHEDULE).toHaveLength(20);
+  it('has 39 entries in ascending threshold order', () => {
+    expect(SEED_EARN_SCHEDULE).toHaveLength(39);
     for (let i = 1; i < SEED_EARN_SCHEDULE.length; i++) {
       expect(SEED_EARN_SCHEDULE[i].atCorrect).toBeGreaterThan(SEED_EARN_SCHEDULE[i - 1].atCorrect);
     }
@@ -36,7 +36,9 @@ describe('getEarnedSeedCodes', () => {
     expect(codes).toContain('blueberry');
     expect(codes).toContain('milkweed');
     expect(codes).toContain('lupine');
-    expect(codes).toHaveLength(20);
+    expect(codes).toContain('pawpaw');
+    expect(codes).toContain('nightphlox');
+    expect(codes).toHaveLength(39);
   });
 });
 
@@ -55,6 +57,14 @@ describe('getOpenQuadrants', () => {
   it('japanese opens at 950', () => {
     expect(getOpenQuadrants(949).has('japanese')).toBe(false);
     expect(getOpenQuadrants(950).has('japanese')).toBe(true);
+  });
+  it('beyond-the-trellis quadrants open at their thresholds', () => {
+    expect(getOpenQuadrants(1799).has('orchard')).toBe(false);
+    expect(getOpenQuadrants(1800).has('orchard')).toBe(true);
+    expect(getOpenQuadrants(2100).has('berry')).toBe(true);
+    expect(getOpenQuadrants(2550).has('herb')).toBe(true);
+    expect(getOpenQuadrants(3299).has('moon')).toBe(false);
+    expect(getOpenQuadrants(3300).has('moon')).toBe(true);
   });
 });
 

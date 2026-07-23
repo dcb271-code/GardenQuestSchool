@@ -11,6 +11,8 @@ import {
 
 const baseState: GrowState = {
   cumulativeCorrect: 100,
+  masteredCount: 0,
+  trellisUnlocked: false,
   earnedSeeds: [
     { code: 'radish' } as any,
     { code: 'tulip' } as any,

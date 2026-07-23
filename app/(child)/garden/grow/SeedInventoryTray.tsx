@@ -13,6 +13,10 @@ const QUADRANT_LABEL: Record<GardenType, string> = {
   flower: 'flower',
   fruit: 'fruit',
   japanese: 'japanese',
+  orchard: 'orchard',
+  berry: 'berry',
+  herb: 'herb',
+  moon: 'moon',
 };
 
 export default function SeedInventoryTray({

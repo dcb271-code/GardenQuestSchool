@@ -2,20 +2,24 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { type PlantData } from '@/lib/world/plantCatalog';
+import { type PlantData, type GardenType } from '@/lib/world/plantCatalog';
 import { PlantStageIllustration } from '@/components/child/garden/PlantStageIllustration';
 
 const QUADRANT_LABEL: Record<string, string> = {
   flower: 'flower garden',
   fruit: 'fruit grove',
   japanese: 'japanese garden',
+  orchard: 'orchard',
+  berry: 'berry patch',
+  herb: 'herb & tea garden',
+  moon: 'moon garden',
 };
 
 export default function SeedEarnedCard({
   plant, opensQuadrant, isFirstEver, learnerId, index,
 }: {
   plant: PlantData;
-  opensQuadrant?: 'flower' | 'fruit' | 'japanese';
+  opensQuadrant?: Exclude<GardenType, 'vegetable'>;
   isFirstEver: boolean;
   learnerId: string;
   index: number;

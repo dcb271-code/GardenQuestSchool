@@ -3,7 +3,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { type PlantData } from '@/lib/world/plantCatalog';
+import { type PlantData, type GardenType } from '@/lib/world/plantCatalog';
 import { PlantStageIllustration } from '@/components/child/garden/PlantStageIllustration';
 import { plantSeed } from './actions';
 import { playSeedPlant } from '@/lib/audio/sfx';
@@ -15,7 +15,7 @@ export default function EmptyPlotPicker({
   onClose: () => void;
   learnerId: string;
   plotCode: string;
-  plotGarden: 'vegetable' | 'flower' | 'fruit' | 'japanese';
+  plotGarden: GardenType;
   earnedSeeds: PlantData[];
 }) {
   const [planting, setPlanting] = useState(false);

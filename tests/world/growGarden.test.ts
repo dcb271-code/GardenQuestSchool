@@ -2,19 +2,9 @@
 import { describe, it, expect, vi } from 'vitest';
 import { loadGrowState } from '@/lib/world/growGarden';
 
-function mockDb(plotRows: any[], correctCount: number) {
-  // Build a chainable mock that handles both 'attempt' and 'garden_plot' calls.
-  const attemptChain = {
-    select: vi.fn().mockReturnThis(),
-    eq: vi.fn().mockReturnThis(),
-    is: vi.fn().mockResolvedValue({ data: plotRows, error: null }),
-    then: undefined,
-  };
-  const plotChain = {
-    select: vi.fn().mockReturnThis(),
-    eq: vi.fn().mockReturnThis(),
-    is: vi.fn().mockResolvedValue({ data: plotRows, error: null }),
-  };
+function mockDb(plotRows: any[], correctCount: number, masteredCount = 0) {
+  // Build a chainable mock that handles 'attempt', 'skill_progress',
+  // and 'garden_plot' calls.
   return {
     from: vi.fn().mockImplementation((table: string) => {
       if (table === 'attempt') {
@@ -22,6 +12,15 @@ function mockDb(plotRows: any[], correctCount: number) {
           select: vi.fn().mockReturnValue({
             eq: vi.fn().mockReturnValue({
               eq: vi.fn().mockResolvedValue({ count: correctCount, error: null }),
+            }),
+          }),
+        };
+      }
+      if (table === 'skill_progress') {
+        return {
+          select: vi.fn().mockReturnValue({
+            eq: vi.fn().mockReturnValue({
+              eq: vi.fn().mockResolvedValue({ count: masteredCount, error: null }),
             }),
           }),
         };
@@ -46,8 +45,17 @@ describe('loadGrowState', () => {
     expect(state.openQuadrants.has('vegetable')).toBe(true);
     expect(state.openQuadrants.has('flower')).toBe(false);
     expect(state.earnedSeeds).toEqual([]);
-    expect(state.plots).toHaveLength(25);
+    expect(state.plots).toHaveLength(45);
     for (const p of state.plots) expect(p.plant).toBeUndefined();
+    expect(state.masteredCount).toBe(0);
+    expect(state.trellisUnlocked).toBe(false);
+  });
+
+  it('unlocks the trellis at the mastery threshold', async () => {
+    const db = mockDb([], 0, 4);
+    const state = await loadGrowState(db, 'l');
+    expect(state.masteredCount).toBe(4);
+    expect(state.trellisUnlocked).toBe(true);
   });
 
   it('attaches plant data + computes progress relative to planted_at_correct', async () => {

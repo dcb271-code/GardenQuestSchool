@@ -1,9 +1,9 @@
 // lib/world/growGarden.ts
 //
-// Single aggregator that loads everything the /garden/grow page
-// renders. Returns cumulativeCorrect (universal growth tick),
-// derived earned seeds, open quadrants, and 16 plots each
-// optionally annotated with the plant currently growing in it.
+// Single aggregator that loads everything the /garden/grow pages
+// (both screens) render. Returns cumulativeCorrect (universal growth
+// tick), derived earned seeds, open quadrants, the trellis-gate state,
+// and every plot optionally annotated with the plant growing in it.
 //
 // Per-plant progress = cumulativeCorrect - planted_at_correct.
 // All plants grow at the same rate (1 correct = +1 to every planted
@@ -18,6 +18,7 @@ import {
 } from './seedEarnSchedule';
 import { PLANT_CATALOG, getPlant, type PlantData } from './plantCatalog';
 import { PLOTS, type PlotData } from './plotLayout';
+import { isTrellisUnlocked } from './trellisGating';
 
 export interface PlantInPlot {
   data: PlantData;
@@ -35,7 +36,9 @@ export interface GrowState {
   cumulativeCorrect: number;
   earnedSeeds: PlantData[];                // seeds the learner can plant
   openQuadrants: Set<GardenType>;
-  plots: PlotWithPlant[];                  // always 16, plant optional
+  plots: PlotWithPlant[];                  // every plot on both screens, plant optional
+  masteredCount: number;                   // skills mastered — drives the trellis gate
+  trellisUnlocked: boolean;                // second grow screen reachable?
 }
 
 interface GardenPlotRow {
@@ -50,6 +53,15 @@ export async function loadGrowState(
   learnerId: string,
 ): Promise<GrowState> {
   const cumulativeCorrect = await getCumulativeCorrect(db, learnerId);
+
+  // Mastered-skill count for the trellis gate. Fail-soft to 0 — a
+  // missing skill_progress table just keeps the trellis closed.
+  const { count: masteredRows } = await db
+    .from('skill_progress')
+    .select('*', { count: 'exact', head: true })
+    .eq('learner_id', learnerId)
+    .eq('mastery_state', 'mastered');
+  const masteredCount = masteredRows ?? 0;
 
   const { data: plotRows, error } = await db
     .from('garden_plot')
@@ -74,6 +86,8 @@ export async function loadGrowState(
         .filter((p): p is PlantData => !!p),
       openQuadrants: getOpenQuadrants(cumulativeCorrect),
       plots: PLOTS.map(plot => ({ plot })),
+      masteredCount,
+      trellisUnlocked: isTrellisUnlocked(masteredCount),
     };
   }
 
@@ -109,5 +123,7 @@ export async function loadGrowState(
     earnedSeeds,
     openQuadrants: getOpenQuadrants(cumulativeCorrect),
     plots,
+    masteredCount,
+    trellisUnlocked: isTrellisUnlocked(masteredCount),
   };
 }

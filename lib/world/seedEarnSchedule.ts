@@ -7,12 +7,16 @@
 //
 // See docs/superpowers/specs/2026-05-01-tiny-garden-design.md §6.
 
-export type GardenType = 'vegetable' | 'flower' | 'fruit' | 'japanese';
+export type GardenType =
+  // home screen — the original four beds
+  | 'vegetable' | 'flower' | 'fruit' | 'japanese'
+  // beyond-the-trellis screen — see lib/world/trellisGating.ts
+  | 'orchard' | 'berry' | 'herb' | 'moon';
 
 export interface SeedEarn {
   atCorrect: number;
   plantCode: string;
-  opensQuadrant?: 'flower' | 'fruit' | 'japanese';
+  opensQuadrant?: Exclude<GardenType, 'vegetable'>;
 }
 
 export const SEED_EARN_SCHEDULE: SeedEarn[] = [
@@ -36,6 +40,29 @@ export const SEED_EARN_SCHEDULE: SeedEarn[] = [
   { atCorrect: 1250, plantCode: 'bonsai' },
   { atCorrect: 1400, plantCode: 'lupine' },
   { atCorrect: 1600, plantCode: 'cherry' },
+  // ── beyond the trellis ──────────────────────────────────────────
+  // These quadrants live on the second grow screen. The screen itself
+  // is gated on MASTERY (trellisGating.ts), not on this count — the
+  // counts below only pace seed earns / quadrant opens once through.
+  { atCorrect: 1800, plantCode: 'peach',          opensQuadrant: 'orchard' },
+  { atCorrect: 1950, plantCode: 'pawpaw' },
+  { atCorrect: 2100, plantCode: 'raspberry',      opensQuadrant: 'berry' },
+  { atCorrect: 2250, plantCode: 'plum' },
+  { atCorrect: 2400, plantCode: 'blackberry' },
+  { atCorrect: 2550, plantCode: 'basil',          opensQuadrant: 'herb' },
+  { atCorrect: 2700, plantCode: 'persimmon' },
+  { atCorrect: 2850, plantCode: 'lavender' },
+  { atCorrect: 3000, plantCode: 'gooseberry' },
+  { atCorrect: 3150, plantCode: 'chamomile' },
+  { atCorrect: 3300, plantCode: 'moonflower',     opensQuadrant: 'moon' },
+  { atCorrect: 3450, plantCode: 'fig' },
+  { atCorrect: 3600, plantCode: 'elderberry' },
+  { atCorrect: 3750, plantCode: 'rosemary' },
+  { atCorrect: 3900, plantCode: 'eveningprimrose' },
+  { atCorrect: 4050, plantCode: 'currant' },
+  { atCorrect: 4200, plantCode: 'thyme' },
+  { atCorrect: 4350, plantCode: 'fouroclock' },
+  { atCorrect: 4500, plantCode: 'nightphlox' },
 ];
 
 export function getEarnedSeedCodes(cumulativeCorrect: number): string[] {

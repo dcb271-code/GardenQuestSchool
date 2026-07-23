@@ -11,6 +11,8 @@
 
 'use client';
 
+import { BeyondPlantStageIllustration } from './BeyondPlantStages';
+
 const STROKE = '#5A3B1F';
 
 interface Props {
@@ -2032,6 +2034,8 @@ export function PlantStageIllustration({ code, x, y, size }: Props) {
     case 'plant_beebalm_sprout': return <BeebalmSprout x={x} y={y} size={size} />;
     case 'plant_beebalm_bud':    return <BeebalmBud x={x} y={y} size={size} />;
     case 'plant_beebalm_bloom':  return <BeebalmBloom x={x} y={y} size={size} />;
-    default: return null;
+    // beyond-the-trellis plants (orchard / berry / herb / moon) live in
+    // their own file so this one stops growing.
+    default: return <BeyondPlantStageIllustration code={code} x={x} y={y} size={size} />;
   }
 }

@@ -30,7 +30,10 @@ describe('PLANT_CATALOG', () => {
   });
 
   it('every plant declares a positive growthCost and valid garden type', () => {
-    const validGardens = new Set(['vegetable', 'flower', 'fruit', 'japanese']);
+    const validGardens = new Set([
+      'vegetable', 'flower', 'fruit', 'japanese',
+      'orchard', 'berry', 'herb', 'moon',
+    ]);
     for (const p of PLANT_CATALOG) {
       expect(p.growthCost, p.code).toBeGreaterThan(0);
       expect(validGardens.has(p.garden), `${p.code} → ${p.garden}`).toBe(true);

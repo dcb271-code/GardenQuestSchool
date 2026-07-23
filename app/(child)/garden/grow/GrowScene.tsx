@@ -3,24 +3,29 @@
 // Atmospheric scene for /garden/grow. Renders a Miyazaki/Stardew/Animal
 // Crossing inspired top-down meadow — sky gradient, distant tree-line,
 // meadow, post-and-rail fence, winding stone path, four organic garden
-// beds (with bespoke anchors), 16 plot tap-targets, planted plants,
-// ambient life, and a wandering chicken. The plot positions and modal
-// behavior are unchanged.
+// beds (with bespoke anchors), plot tap-targets, planted plants,
+// ambient life, and a wandering chicken. Cecily & Esme walk to
+// whatever the child touches, and the trellis gate at the east edge
+// leads to the second grow screen (./beyond) once enough skills are
+// mastered.
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import type { GrowState } from '@/lib/world/growGarden';
-import { QUADRANT_LAYOUT } from '@/lib/world/plotLayout';
-import { SEED_EARN_SCHEDULE, type GardenType } from '@/lib/world/seedEarnSchedule';
+import { QUADRANT_LAYOUT, GARDEN_SCREEN } from '@/lib/world/plotLayout';
+import { type GardenType } from '@/lib/world/seedEarnSchedule';
 import { plantStageFor } from '@/lib/world/plantCatalog';
 import { PlantStageIllustration } from '@/components/child/garden/PlantStageIllustration';
 import {
   VegetableBackground, FlowerBackground, FruitGroveBackground, JapaneseBackground,
 } from '@/components/child/garden/QuadrantBackgrounds';
 import AmbientLayer from '@/components/child/garden/AmbientLayer';
+import SisterWalkers from '@/components/child/garden/SisterWalkers';
+import TrellisGate from '@/components/child/garden/TrellisGate';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
 import EmptyPlotPicker from './EmptyPlotPicker';
 import { usePortraitPan, PanEdgeHints } from '@/components/child/garden/usePortraitPan';
@@ -28,6 +33,8 @@ import { useCalmMode } from '@/lib/settings/useCalmMode';
 import PlantInspectModal from './PlantInspectModal';
 import HarvestCelebration from './HarvestCelebration';
 import SeedInventoryTray from './SeedInventoryTray';
+import EmptyPlotMarker from './EmptyPlotMarker';
+import QuadrantSignModal, { TrellisSignModal } from './QuadrantSignModal';
 
 const VB_W = 1440;
 const VB_H = 900;
@@ -43,17 +50,47 @@ const ZONES = {
   japanese:  { x: 800, y: 460, w: 520, h: 285 },
 } as const;
 
+// Where Cecily idles when she isn't walking to a plot — the grass
+// beside the path entrance at the bottom of the scene. She and Esme
+// emerge from the path mouth itself on mount.
+const SISTERS_IDLE = { x: 655, y: 795 };
+const SISTERS_EMERGE = { x: 720, y: 880 };
+
+// Trellis gate to the second grow screen — east edge, on the meadow
+// strip between the japanese bed (ends x:1320) and the frame edge,
+// below the stream bend.
+const TRELLIS_POS = { x: 1392, y: 700 };
+
 export default function GrowScene({
   learnerId, state,
 }: {
   learnerId: string;
   state: GrowState;
 }) {
+  const router = useRouter();
   const [pickerPlotCode, setPickerPlotCode] = useState<string | null>(null);
   const [inspectPlotCode, setInspectPlotCode] = useState<string | null>(null);
   const [celebrating, setCelebrating] = useState(false);
   // Which locked quadrant's explanation sign is open (null = none).
   const [signQuadrant, setSignQuadrant] = useState<GardenType | null>(null);
+  const [trellisSignOpen, setTrellisSignOpen] = useState(false);
+
+  // The sisters walk to whatever the child touches. `walking` drives
+  // the leg-scissor animation for the duration of the stroll.
+  const [sisterSpot, setSisterSpot] = useState(SISTERS_IDLE);
+  const [sistersWalking, setSistersWalking] = useState(false);
+  const walkTimer = useRef<number | undefined>(undefined);
+  const walkTo = (x: number, y: number) => {
+    setSisterSpot({ x: x - 34, y: y + 22 });  // stand beside the plot, not on it
+    setSistersWalking(true);
+    window.clearTimeout(walkTimer.current);
+    walkTimer.current = window.setTimeout(() => setSistersWalking(false), 1350);
+  };
+  useEffect(() => () => window.clearTimeout(walkTimer.current), []);
+
+  // This scene renders only the home screen's plots — the rest live
+  // beyond the trellis.
+  const homePlots = state.plots.filter(p => GARDEN_SCREEN[p.plot.garden] === 'home');
   // Portrait pan — opens centered on the vegetable bed (the always-open one).
   const portraitPan = usePortraitPan({ worldW: VB_W, worldH: VB_H, initialCenterX: 340 });
   const { settings } = useAccessibilitySettings();
@@ -466,7 +503,9 @@ export default function GrowScene({
           })()}
 
           {/* Quadrant title pills (kept above each bed) */}
-          {Object.entries(QUADRANT_LAYOUT).map(([garden, q]) => {
+          {Object.entries(QUADRANT_LAYOUT)
+            .filter(([garden]) => GARDEN_SCREEN[garden as GardenType] === 'home')
+            .map(([garden, q]) => {
             const isOpen = state.openQuadrants.has(garden as any);
             return (
               <g key={garden} pointerEvents="none">
@@ -538,13 +577,17 @@ export default function GrowScene({
           {/* Empty plot tap targets — character-driven per quadrant.
               Each garden gets a marker that fits its visual world,
               not a generic dashed ellipse. */}
-          {state.plots.map(p => {
+          {homePlots.map(p => {
             if (p.plant) return null;
             const isOpen = state.openQuadrants.has(p.plot.garden);
             return (
               <g key={`empty-${p.plot.code}`}
                  style={{ cursor: isOpen ? 'pointer' : 'not-allowed', touchAction: 'manipulation' }}
-                 onClick={() => isOpen && setPickerPlotCode(p.plot.code)}
+                 onClick={() => {
+                   if (!isOpen) return;
+                   walkTo(p.plot.x, p.plot.y);
+                   setPickerPlotCode(p.plot.code);
+                 }}
                  opacity={isOpen ? 1 : 0.55}>
                 {/* invisible square hit-target so the tap area is
                     bigger than the visible marker — easier for fingers */}
@@ -555,14 +598,17 @@ export default function GrowScene({
           })}
 
           {/* Planted plants */}
-          {state.plots.map(p => {
+          {homePlots.map(p => {
             if (!p.plant) return null;
             const stage = plantStageFor(p.plant.data, p.plant.progress);
             const sizePx = p.plant.isMature ? 64 : 48;
             return (
               <g key={p.plot.code}
                  style={{ cursor: 'pointer', touchAction: 'manipulation' }}
-                 onClick={() => setInspectPlotCode(p.plot.code)}>
+                 onClick={() => {
+                   walkTo(p.plot.x, p.plot.y);
+                   setInspectPlotCode(p.plot.code);
+                 }}>
                 <rect x={p.plot.x - 36} y={p.plot.y - 36} width={72} height={72} fill="transparent" />
                 {p.plant.isMature && (reducedMotion ? (
                   <circle cx={p.plot.x} cy={p.plot.y} r={36} fill="none" stroke="#FFD93D" strokeWidth={2} opacity={0.7} />
@@ -579,6 +625,33 @@ export default function GrowScene({
               </g>
             );
           })}
+
+          {/* TRELLIS GATE — the way to the second garden, east edge.
+              Locked until enough skills are mastered (trellisGating). */}
+          <g transform={`translate(${TRELLIS_POS.x}, ${TRELLIS_POS.y})`}>
+            <TrellisGate
+              locked={!state.trellisUnlocked}
+              label="beyond"
+              reducedMotion={reducedMotion}
+              onTap={() => {
+                if (state.trellisUnlocked) {
+                  walkTo(TRELLIS_POS.x - 30, TRELLIS_POS.y - 30);
+                  router.push(`/garden/grow/beyond?learner=${learnerId}`);
+                } else {
+                  setTrellisSignOpen(true);
+                }
+              }}
+            />
+          </g>
+
+          {/* CECILY & ESME — emerge from the path mouth, then walk to
+              whatever plot the child touches. */}
+          <SisterWalkers
+            target={sisterSpot}
+            walking={sistersWalking}
+            reducedMotion={reducedMotion}
+            emergeFrom={SISTERS_EMERGE}
+          />
 
           {/* AMBIENT LAYER — clouds drift, butterflies/bees, pollen, etc. */}
           <AmbientLayer reducedMotion={reducedMotion} />
@@ -659,86 +732,13 @@ export default function GrowScene({
           cumulativeCorrect={state.cumulativeCorrect}
           onClose={() => setSignQuadrant(null)}
         />
+
+        <TrellisSignModal
+          open={trellisSignOpen}
+          masteredCount={state.masteredCount}
+          onClose={() => setTrellisSignOpen(false)}
+        />
       </div>
-    </div>
-  );
-}
-
-// ─────────────────────────────────────────────────────────────────────────
-// LOCKED-QUADRANT SIGN — what is this bed, and when does it open?
-// ─────────────────────────────────────────────────────────────────────────
-
-const QUADRANT_BLURB: Record<string, { emoji: string; blurb: string }> = {
-  flower: {
-    emoji: '🌷',
-    blurb: 'Tulips, cheerful daisies, and a sunflower that will grow taller than you.',
-  },
-  fruit: {
-    emoji: '🍎',
-    blurb: 'An apple tree, sweet strawberries, and a blueberry bush for picking.',
-  },
-  japanese: {
-    emoji: '🎋',
-    blurb: 'Whispering bamboo, a tiny bonsai pine, and a cherry blossom tree.',
-  },
-};
-
-function QuadrantSignModal({
-  quadrant, cumulativeCorrect, onClose,
-}: {
-  quadrant: GardenType | null;
-  cumulativeCorrect: number;
-  onClose: () => void;
-}) {
-  if (!quadrant) return null;
-  const label = QUADRANT_LAYOUT[quadrant]?.label ?? quadrant;
-  const info = QUADRANT_BLURB[quadrant];
-  const threshold = SEED_EARN_SCHEDULE.find(s => s.opensQuadrant === quadrant)?.atCorrect ?? 0;
-  const remaining = Math.max(0, threshold - cumulativeCorrect);
-
-  return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-6"
-      style={{
-        background: 'radial-gradient(circle at 50% 40%, rgba(20, 25, 40, 0.4), rgba(20, 25, 40, 0.6))',
-        backdropFilter: 'blur(2px)',
-      }}
-      onClick={onClose}
-    >
-      <motion.div
-        className="relative bg-cream border-4 border-terracotta rounded-3xl max-w-sm w-full p-6 shadow-2xl text-center space-y-3"
-        initial={{ scale: 0.9, y: 12, opacity: 0 }}
-        animate={{ scale: 1, y: 0, opacity: 1 }}
-        transition={{ duration: 0.35, ease: [0.22, 0.9, 0.34, 1] }}
-        onClick={e => e.stopPropagation()}
-      >
-        <div className="text-5xl">{info?.emoji ?? '🪧'}</div>
-        <div className="font-display italic text-[12px] tracking-[0.3em] uppercase text-bark/55">
-          still sleeping
-        </div>
-        <h2 className="font-display text-[26px] text-bark leading-tight" style={{ fontWeight: 600 }}>
-          <span className="italic text-forest">{label.toLowerCase()}</span>
-        </h2>
-        <p className="font-display italic text-[15px] text-bark/75 leading-snug">
-          {info?.blurb}
-        </p>
-        <div className="bg-white/70 border-2 border-ochre/40 rounded-2xl px-4 py-3 font-display text-[15px] text-bark leading-snug">
-          This bed wakes up after{' '}
-          <span style={{ fontWeight: 700 }}>{threshold}</span> right answers.
-          <div className="mt-1 text-forest" style={{ fontWeight: 700 }}>
-            {remaining === 0
-              ? 'It\'s ready — go see!'
-              : `You're only ${remaining} away!`}
-          </div>
-        </div>
-        <button
-          onClick={onClose}
-          className="w-full bg-forest text-white rounded-full py-3.5 font-display"
-          style={{ touchAction: 'manipulation', minHeight: 56, fontWeight: 600 }}
-        >
-          keep growing
-        </button>
-      </motion.div>
     </div>
   );
 }
@@ -806,115 +806,6 @@ function WanderingChicken({ reducedMotion }: { reducedMotion: boolean }) {
       </motion.g>
     </motion.g>
   );
-}
-
-// ─────────────────────────────────────────────────────────────────────────
-// EMPTY-PLOT MARKERS — character-driven per quadrant (no dashed ellipses)
-// ─────────────────────────────────────────────────────────────────────────
-
-function EmptyPlotMarker({
-  garden, cx, cy, isOpen,
-}: {
-  garden: 'vegetable' | 'flower' | 'fruit' | 'japanese';
-  cx: number; cy: number; isOpen: boolean;
-}) {
-  // Subtle "tap me" affordance — when the quadrant is open, the marker
-  // gets a soft golden glow ring. When locked, no glow (the quadrant
-  // overlay already shows it's not interactive).
-  const glow = isOpen ? (
-    <circle cx={cx} cy={cy} r={20} fill="#FFD93D" opacity={0.10} />
-  ) : null;
-
-  switch (garden) {
-    case 'vegetable':
-      // Crumbled soil mound + wooden tag stake. Reads as a freshly
-      // dug planting hole waiting for a seed.
-      return (
-        <g>
-          {glow}
-          <ellipse cx={cx} cy={cy + 2} rx={20} ry={11} fill="#5C3A1E" opacity={0.55} />
-          <ellipse cx={cx} cy={cy} rx={17} ry={8.5} fill="#7A4F2C" stroke="#3F2614" strokeWidth={1.1} />
-          <ellipse cx={cx - 3} cy={cy - 1.5} rx={10} ry={3.5} fill="#9C6B3E" opacity={0.6} />
-          {/* tag stake on the right side */}
-          <line x1={cx + 11} y1={cy - 2} x2={cx + 11} y2={cy - 14}
-                stroke="#7B4F2C" strokeWidth={1.6} strokeLinecap="round" />
-          <rect x={cx + 4} y={cy - 18} width={14} height={6} rx={1}
-                fill="#F0E4CF" stroke="#5A3B1F" strokeWidth={0.7} />
-          <line x1={cx + 6} y1={cy - 15} x2={cx + 16} y2={cy - 15}
-                stroke="#5A3B1F" strokeWidth={0.5} opacity={0.7} />
-        </g>
-      );
-
-    case 'flower':
-      // Fairy ring of small pebbles around a bare patch.
-      return (
-        <g>
-          {glow}
-          <ellipse cx={cx} cy={cy + 1} rx={15} ry={8} fill="#7A8262" opacity={0.55} />
-          <ellipse cx={cx} cy={cy} rx={11} ry={5.5} fill="#8FA983" opacity={0.7} />
-          {[0, 60, 120, 180, 240, 300].map(deg => {
-            const rad = (deg * Math.PI) / 180;
-            const px = cx + Math.cos(rad) * 16;
-            const py = cy + Math.sin(rad) * 9;
-            const r = deg % 120 === 0 ? 3.4 : 2.8;
-            return (
-              <g key={deg}>
-                <ellipse cx={px + 0.4} cy={py + 0.6} rx={r} ry={r * 0.55} fill="#000" opacity={0.18} />
-                <ellipse cx={px} cy={py} rx={r} ry={r * 0.55}
-                         fill={deg % 60 === 0 ? '#B5A892' : '#A89D8A'}
-                         stroke="#6B5D48" strokeWidth={0.5} />
-              </g>
-            );
-          })}
-          {/* tiny sprout-stub center hint that something will grow */}
-          <path d={`M ${cx} ${cy + 2} L ${cx} ${cy - 2}`}
-                stroke="#5C7E4F" strokeWidth={0.9} strokeLinecap="round" opacity={0.6} />
-        </g>
-      );
-
-    case 'fruit':
-      // Planting hole + stake with twine-tied paper tag.
-      return (
-        <g>
-          {glow}
-          <ellipse cx={cx + 1} cy={cy + 4} rx={18} ry={9} fill="#3F2614" opacity={0.55} />
-          <ellipse cx={cx} cy={cy + 1} rx={15} ry={7} fill="#7A4F2C" stroke="#3F2614" strokeWidth={1.1} />
-          <ellipse cx={cx - 2} cy={cy - 0.5} rx={8} ry={3} fill="#9C6B3E" opacity={0.55} />
-          {/* stake */}
-          <line x1={cx - 9} y1={cy - 2} x2={cx - 9} y2={cy - 18}
-                stroke="#7B4F2C" strokeWidth={1.6} strokeLinecap="round" />
-          {/* twine */}
-          <path d={`M ${cx - 9} ${cy - 16} L ${cx - 2} ${cy - 13}`}
-                stroke="#A99878" strokeWidth={0.8} strokeLinecap="round" />
-          {/* paper tag, slightly tilted */}
-          <g transform={`rotate(-12 ${cx + 2} ${cy - 12})`}>
-            <rect x={cx - 2} y={cy - 15} width={11} height={6} rx={0.8}
-                  fill="#F0E4CF" stroke="#5A3B1F" strokeWidth={0.6} />
-            <line x1={cx} y1={cy - 12} x2={cx + 7} y2={cy - 12}
-                  stroke="#5A3B1F" strokeWidth={0.4} opacity={0.65} />
-          </g>
-        </g>
-      );
-
-    case 'japanese':
-      // Smooth river stone resting on a moss patch, with a tiny
-      // rake-mark sweep arcing past it.
-      return (
-        <g>
-          {glow}
-          {/* moss patch */}
-          <ellipse cx={cx} cy={cy + 2} rx={18} ry={9} fill="#5C7E4F" opacity={0.55} />
-          <ellipse cx={cx - 2} cy={cy + 1} rx={12} ry={5.5} fill="#7BA46F" opacity={0.7} />
-          {/* stone */}
-          <ellipse cx={cx + 1} cy={cy + 1} rx={11} ry={4.5} fill="#5F5B53" opacity={0.30} />
-          <ellipse cx={cx} cy={cy} rx={11} ry={4.5} fill="#9B948A" stroke="#5A3B1F" strokeWidth={0.9} />
-          <ellipse cx={cx - 2} cy={cy - 1} rx={5.5} ry={1.6} fill="#C2B5A2" opacity={0.75} />
-          {/* small rake-mark sweep arcing past the stone */}
-          <path d={`M ${cx - 16} ${cy + 8} Q ${cx} ${cy + 12} ${cx + 16} ${cy + 8}`}
-                stroke="#A89878" strokeWidth={0.7} fill="none" opacity={0.6} strokeLinecap="round" />
-        </g>
-      );
-  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────

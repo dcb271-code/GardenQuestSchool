@@ -1,20 +1,31 @@
 // tests/world/plotLayout.test.ts
 import { describe, it, expect } from 'vitest';
-import { PLOTS, plotsForGarden, getPlot } from '@/lib/world/plotLayout';
+import { PLOTS, plotsForGarden, plotsForScreen, getPlot, GARDEN_SCREEN } from '@/lib/world/plotLayout';
 
 describe('PLOTS', () => {
-  it('contains exactly 25 plots', () => {
-    expect(PLOTS).toHaveLength(25);
+  it('contains exactly 45 plots', () => {
+    expect(PLOTS).toHaveLength(45);
   });
   it('has the expected per-quadrant counts', () => {
     expect(plotsForGarden('vegetable')).toHaveLength(6);
     expect(plotsForGarden('fruit')).toHaveLength(5);
     expect(plotsForGarden('flower')).toHaveLength(8);
     expect(plotsForGarden('japanese')).toHaveLength(6);
+    expect(plotsForGarden('orchard')).toHaveLength(5);
+    expect(plotsForGarden('berry')).toHaveLength(5);
+    expect(plotsForGarden('herb')).toHaveLength(5);
+    expect(plotsForGarden('moon')).toHaveLength(5);
   });
   it('all plot codes are unique', () => {
     const codes = new Set(PLOTS.map(p => p.code));
-    expect(codes.size).toBe(25);
+    expect(codes.size).toBe(45);
+  });
+  it('splits cleanly across the two screens', () => {
+    expect(plotsForScreen('home')).toHaveLength(25);
+    expect(plotsForScreen('beyond')).toHaveLength(20);
+    for (const p of plotsForScreen('beyond')) {
+      expect(GARDEN_SCREEN[p.garden]).toBe('beyond');
+    }
   });
   it('plot codes follow the convention <garden>-<n>', () => {
     for (const p of PLOTS) {
