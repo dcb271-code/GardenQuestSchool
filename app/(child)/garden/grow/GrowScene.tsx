@@ -231,6 +231,11 @@ export default function GrowScene({
             const toFruit = `M 720 430 C 860 415, 980 405, 1080 365`;
             const toFlow  = `M 720 430 C 580 470, 460 530, 360 605`;
             const toJp    = `M 720 430 C 860 470, 980 530, 1100 605`;
+            // Spur to the trellis gate — leaves the trunk low, sweeps
+            // along the meadow strip below the japanese bed, crosses
+            // the stream (plank bridge drawn after the stream layer)
+            // and arrives at the arch (1392, 700).
+            const toGate  = `M 720 780 C 900 802, 1150 785, 1372 705`;
             return (
               <g pointerEvents="none">
                 {/* shadow base layer */}
@@ -239,18 +244,21 @@ export default function GrowScene({
                 <path d={toFruit} stroke="#A99878" strokeWidth={36} fill="none" strokeLinecap="round" opacity={0.20} />
                 <path d={toFlow}  stroke="#A99878" strokeWidth={36} fill="none" strokeLinecap="round" opacity={0.20} />
                 <path d={toJp}    stroke="#A99878" strokeWidth={36} fill="none" strokeLinecap="round" opacity={0.20} />
+                <path d={toGate}  stroke="#A99878" strokeWidth={28} fill="none" strokeLinecap="round" opacity={0.20} />
                 {/* warm tan surface */}
                 <path d={trunkD}  stroke="#EAD2A8" strokeWidth={34} fill="none" strokeLinecap="round" opacity={0.92} />
                 <path d={toVeg}   stroke="#EAD2A8" strokeWidth={26} fill="none" strokeLinecap="round" opacity={0.88} />
                 <path d={toFruit} stroke="#EAD2A8" strokeWidth={26} fill="none" strokeLinecap="round" opacity={0.88} />
                 <path d={toFlow}  stroke="#EAD2A8" strokeWidth={26} fill="none" strokeLinecap="round" opacity={0.88} />
                 <path d={toJp}    stroke="#EAD2A8" strokeWidth={26} fill="none" strokeLinecap="round" opacity={0.88} />
+                <path d={toGate}  stroke="#EAD2A8" strokeWidth={20} fill="none" strokeLinecap="round" opacity={0.88} />
                 {/* worn-center highlight ribbon */}
                 <path d={trunkD}  stroke="#F7E6C4" strokeWidth={12} fill="none" strokeLinecap="round" opacity={0.65} />
                 <path d={toVeg}   stroke="#F7E6C4" strokeWidth={9}  fill="none" strokeLinecap="round" opacity={0.6} />
                 <path d={toFruit} stroke="#F7E6C4" strokeWidth={9}  fill="none" strokeLinecap="round" opacity={0.6} />
                 <path d={toFlow}  stroke="#F7E6C4" strokeWidth={9}  fill="none" strokeLinecap="round" opacity={0.6} />
                 <path d={toJp}    stroke="#F7E6C4" strokeWidth={9}  fill="none" strokeLinecap="round" opacity={0.6} />
+                <path d={toGate}  stroke="#F7E6C4" strokeWidth={7}  fill="none" strokeLinecap="round" opacity={0.6} />
                 {/* stepping stones along the trunk and branches */}
                 {[
                   { x: 720, y: 820 }, { x: 715, y: 740 }, { x: 725, y: 660 },
@@ -259,6 +267,7 @@ export default function GrowScene({
                   { x: 800, y: 425 }, { x: 900, y: 408 }, { x: 1010, y: 385 },
                   { x: 640, y: 460 }, { x: 540, y: 510 }, { x: 440, y: 565 },
                   { x: 800, y: 460 }, { x: 900, y: 510 }, { x: 1020, y: 565 },
+                  { x: 880, y: 793 }, { x: 1040, y: 791 }, { x: 1300, y: 738 },
                 ].map((s, i) => (
                   <g key={i}>
                     <ellipse cx={s.x + 1} cy={s.y + 2} rx={10} ry={5.5} fill="#000" opacity={0.2} />
@@ -501,6 +510,26 @@ export default function GrowScene({
               </g>
             );
           })()}
+
+          {/* PLANK FOOTBRIDGE — carries the trellis spur path over the
+              stream (drawn after the water so the boards sit on top). */}
+          <g pointerEvents="none">
+            <ellipse cx={1207} cy={792} rx={36} ry={4.5} fill="#000" opacity={0.15} />
+            <rect x={1173} y={768} width={68} height={7.5} rx={2}
+                  fill="#A9774C" stroke="#5A3B1F" strokeWidth={1.1} />
+            <rect x={1173} y={777.5} width={68} height={7.5} rx={2}
+                  fill="#8A6238" stroke="#5A3B1F" strokeWidth={1.1} />
+            {/* board seams */}
+            {[1190, 1207, 1224].map(bx => (
+              <line key={bx} x1={bx} y1={769} x2={bx} y2={784}
+                    stroke="#5A3B1F" strokeWidth={0.7} opacity={0.5} />
+            ))}
+            {/* stub posts at each corner */}
+            {[[1175, 766], [1239, 766], [1175, 786], [1239, 786]].map(([px, py], i) => (
+              <circle key={i} cx={px} cy={py} r={2.4}
+                      fill="#7B4F2C" stroke="#3F2614" strokeWidth={0.8} />
+            ))}
+          </g>
 
           {/* Quadrant title pills (kept above each bed) */}
           {Object.entries(QUADRANT_LAYOUT)

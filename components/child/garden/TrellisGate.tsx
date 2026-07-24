@@ -37,8 +37,8 @@ export default function TrellisGate({
       onClick={onTap}
       aria-label={locked ? `trellis gate locked — ${label}` : `through the trellis ${label}`}
     >
-      {/* generous invisible tap target */}
-      <rect x={-56} y={-124} width={112} height={136} fill="transparent" />
+      {/* generous invisible tap target (includes the hanging sign) */}
+      <rect x={-56} y={-160} width={112} height={172} fill="transparent" />
 
       {/* ground shadow */}
       <ellipse cx={0} cy={2} rx={44} ry={6} fill="#000" opacity={0.2} />
@@ -52,10 +52,21 @@ export default function TrellisGate({
       />
       {!locked && (
         <>
-          {/* far meadow + path teasing what's beyond */}
+          {/* far meadow + path teasing what's beyond — the path TAPERS
+              as it recedes through the arch, like perspective, instead
+              of a uniform vertical stripe */}
           <path d="M -32 0 L -32 -34 Q 0 -44 32 -34 L 32 0 Z" fill="#AED29A" />
-          <path d="M -8 0 Q -2 -22 10 -38 Q 14 -46 12 -56" stroke="#EAD2A8"
-                strokeWidth={10} fill="none" strokeLinecap="round" opacity={0.9} />
+          <path d={`M -16 0
+                    C -10 -16, -3 -28, 3 -38
+                    Q 5 -43 5 -48
+                    L 10 -48
+                    Q 11 -42 11 -36
+                    C 12 -24, 13 -12, 14 0 Z`}
+                fill="#EAD2A8" opacity={0.92} />
+          {/* stepping stones shrinking into the distance */}
+          <ellipse cx={0} cy={-8} rx={6.5} ry={3} fill="#C9B489" stroke="#8A7050" strokeWidth={0.8} />
+          <ellipse cx={4} cy={-22} rx={4.8} ry={2.2} fill="#C9B489" stroke="#8A7050" strokeWidth={0.7} />
+          <ellipse cx={6.5} cy={-34} rx={3.4} ry={1.6} fill="#C9B489" stroke="#8A7050" strokeWidth={0.6} />
           {/* soft golden invitation glow */}
           {reducedMotion ? (
             <path d="M -32 0 L -32 -72 Q -32 -104 0 -104 Q 32 -104 32 -72 L 32 0 Z"
@@ -140,16 +151,20 @@ export default function TrellisGate({
         </g>
       )}
 
-      {/* label board on a little post beside the gate — counter-flipped
-          so text stays readable on a west gate */}
-      <g transform={flip ? 'translate(-52, -6) scale(-1, 1)' : 'translate(52, -6)'}>
-        <line x1={0} y1={4} x2={0} y2={-16} stroke={WOOD_DARK} strokeWidth={2.2} strokeLinecap="round" />
-        <rect x={-34} y={-34} width={68} height={20} rx={5}
+      {/* label board hanging over the arch peak — centered on the gate
+          so it can never fall off the screen edge, counter-flipped so
+          text stays readable on a west gate. The arrow points TOWARD
+          the gate below it. */}
+      <g transform={flip ? 'scale(-1, 1)' : undefined}>
+        {/* two little chains from the arch up to the board */}
+        <line x1={-14} y1={-126} x2={-14} y2={-134} stroke={WOOD_DARK} strokeWidth={1.2} />
+        <line x1={14} y1={-126} x2={14} y2={-134} stroke={WOOD_DARK} strokeWidth={1.2} />
+        <rect x={-37} y={-154} width={74} height={20} rx={5}
               fill={locked ? 'rgba(107, 68, 35, 0.92)' : 'rgba(255, 250, 242, 0.92)'}
               stroke={WOOD_DARK} strokeWidth={1.2} />
-        <text y={-21} textAnchor="middle" fontSize={9} fontStyle="italic" fontWeight={700}
+        <text y={-141} textAnchor="middle" fontSize={9} fontStyle="italic" fontWeight={700}
               fill={locked ? '#fffaf2' : '#6b4423'}>
-          {locked ? `🔒 ${label}` : `${label} →`}
+          {locked ? `🔒 ${label}` : flip ? `← ${label}` : `${label} →`}
         </text>
       </g>
     </g>
