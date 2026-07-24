@@ -255,6 +255,219 @@ export const HABITAT_QUESTS: Record<string, HabitatQuest> = {
   },
 };
 
-export function getHabitatQuest(code: string): HabitatQuest | undefined {
-  return HABITAT_QUESTS[code];
+// ─── Level 3+ question tier ────────────────────────────────────────────
+//
+// Same quests, harder thinking. The grade-2 sets above are recall
+// ("what do bunnies nibble?"); these are REASONING — food chains,
+// metamorphosis, decomposers, adaptation why-questions. Served in
+// place of the base questions for learners at Level 3+ (the intro and
+// outro stay the same). Same authoring rules: 4 choices, correct at
+// index 0 (shuffled at render), wrong answers plausible or gently silly.
+
+export const HABITAT_QUESTIONS_L3: Record<string, QuestQuestion[]> = {
+  bunny_burrow: [
+    {
+      prompt: 'A good burrow has more than one exit. Why dig extra doors?',
+      choices: [
+        'So a bunny can slip out one hole while a fox digs at another',
+        'To let more sunlight into the tunnels',
+        'Bunnies forget where the first door is',
+        'The extra dirt makes a nicer hill',
+      ],
+      correctIndex: 0,
+    },
+    {
+      prompt: 'Grass feeds the rabbit, and the rabbit feeds the fox. Where did the energy in the fox FIRST come from?',
+      choices: [
+        'The sun — the grass captured its light',
+        "The fox's sharp teeth",
+        "The rabbit's warm fur",
+        'The soil around the burrow',
+      ],
+      correctIndex: 0,
+    },
+    {
+      prompt: "In winter the meadow grass dies back. What's a cottontail's survival move?",
+      choices: [
+        'Switch to nibbling bark, twigs, and buds',
+        'Hibernate underground until spring like a bear',
+        'Migrate somewhere warm like a goose',
+        'Stop eating until the grass grows back',
+      ],
+      correctIndex: 0,
+    },
+  ],
+  frog_pond: [
+    {
+      prompt: 'A tadpole breathes with gills, then grows lungs. Why is that switch worth all the trouble?',
+      choices: [
+        'It lets the grown frog leave the water and hunt on land too',
+        'Lungs are just bigger gills',
+        'Gills stop working after a year',
+        "It isn't — frogs never leave the water",
+      ],
+      correctIndex: 0,
+    },
+    {
+      prompt: 'Mosquito → dragonfly → frog → heron. If the mosquitoes vanished, who would feel it LAST?',
+      choices: [
+        'The heron, at the top of the chain',
+        'The dragonfly, who eats the mosquitoes',
+        'The frog, in the middle',
+        'No one — food chains are not connected',
+      ],
+      correctIndex: 0,
+    },
+    {
+      prompt: 'A frog drinks and even breathes through its damp skin. What does that tell you about where frogs can live?',
+      choices: [
+        'Only damp places — a dry field would be dangerous for them',
+        'Anywhere at all, even deserts',
+        'Only underwater, forever',
+        'Only in treetops where rain lands first',
+      ],
+      correctIndex: 0,
+    },
+  ],
+  bee_hotel: [
+    {
+      prompt: 'A mason bee seals each egg into its own little mud room — with a lump of pollen inside. Why the pollen?',
+      choices: [
+        "It's a packed lunch waiting for the baby bee when it hatches",
+        'It glues the mud door shut',
+        'It makes the room smell nice',
+        "It's a soft pillow for the egg",
+      ],
+      correctIndex: 0,
+    },
+    {
+      prompt: 'Honeybees live in big hives; mason bees live all alone. What job do both do for flowering plants?',
+      choices: [
+        'Carry pollen flower to flower so the plants can make seeds',
+        'Drink up extra nectar so it never spoils',
+        'Guard the petals from hungry beetles',
+        'Bring the flowers water on dry days',
+      ],
+      correctIndex: 0,
+    },
+    {
+      prompt: 'Why do good bee hotels have tubes of several different widths?',
+      choices: [
+        'Different bee species need different-sized doorways',
+        'Wide tubes are for winter and narrow ones for summer',
+        'So the wind can whistle a tune through them',
+        'Bees enjoy a variety of decorations',
+      ],
+      correctIndex: 0,
+    },
+  ],
+  butterfly_bush: [
+    {
+      prompt: 'Monarch caterpillars eat only milkweed — which makes them taste terrible to birds. What is their bright orange color saying?',
+      choices: [
+        '"Don\'t eat me — I taste awful." It\'s a warning sign.',
+        '"I am ripe, like a little orange."',
+        'Nothing — orange is just pretty.',
+        '"I am secretly a flower."',
+      ],
+      correctIndex: 0,
+    },
+    {
+      prompt: "Inside the chrysalis, the caterpillar's body almost completely dissolves and rebuilds into a butterfly. What is this change called?",
+      choices: [
+        'Metamorphosis',
+        'Hibernation',
+        'Camouflage',
+        'Pollination',
+      ],
+      correctIndex: 0,
+    },
+    {
+      prompt: 'A butterfly sips nectar through a curled straw called a proboscis. What does the flower get in return?',
+      choices: [
+        'Its pollen gets carried to the next flower it visits',
+        'A song, hummed politely',
+        'A guard for the night',
+        'Nothing — flowers need no help from visitors',
+      ],
+      correctIndex: 0,
+    },
+  ],
+  ant_hill: [
+    {
+      prompt: 'An ant colony has queens, workers, and soldiers — each with one job. Why does splitting up the work help the colony?',
+      choices: [
+        'Each job gets done well, by ants built exactly for it',
+        'It stops arguments about who is fastest',
+        'Ants get bored if they do two things',
+        "It doesn't help — every ant secretly does every job",
+      ],
+      correctIndex: 0,
+    },
+    {
+      prompt: 'Ants mark the way to food with an invisible scent trail. What happens as MORE ants walk it?',
+      choices: [
+        'The trail smells stronger, so even more ants can find the food',
+        'The scent gets used up and disappears',
+        'The ants start getting lost more often',
+        'The trail turns into a tiny road of pebbles',
+      ],
+      correctIndex: 0,
+    },
+    {
+      prompt: 'Ant tunnels loosen the soil under the garden. How does that quietly help the plants above?',
+      choices: [
+        'Air and rainwater can reach the roots more easily',
+        'It keeps the plants politely short',
+        'It warms the soil like an oven',
+        "It doesn't — plants ignore the soil",
+      ],
+      correctIndex: 0,
+    },
+  ],
+  log_pile: [
+    {
+      prompt: 'Fungi and beetles slowly turn a dead log back into soil. What do we call living things with this recycling job?',
+      choices: [
+        'Decomposers',
+        'Predators',
+        'Pollinators',
+        'Producers',
+      ],
+      correctIndex: 0,
+    },
+    {
+      prompt: 'Imagine nothing ever rotted — no decomposers at all. What would happen to the forest?',
+      choices: [
+        'Dead leaves and logs would pile up, and the soil would run out of food',
+        'The forest would grow twice as fast',
+        'Nothing would change at all',
+        'The trees would learn to eat rocks instead',
+      ],
+      correctIndex: 0,
+    },
+    {
+      prompt: 'A centipede hunts at night and hides under bark all day. Why hide when the sun is out?',
+      choices: [
+        'Sunshine dries out its body — and daytime birds are hunting',
+        'It is afraid of the dark',
+        'Bark is warmer than sunlight',
+        'It needs somewhere quiet to practice counting its legs',
+      ],
+      correctIndex: 0,
+    },
+  ],
+};
+
+/** Learners at this level and above get the reasoning-tier questions. */
+export const QUEST_L3_MIN_LEVEL = 3;
+
+export function getHabitatQuest(code: string, learnerLevel: number = 2): HabitatQuest | undefined {
+  const quest = HABITAT_QUESTS[code];
+  if (!quest) return undefined;
+  const l3 = HABITAT_QUESTIONS_L3[code];
+  if (learnerLevel >= QUEST_L3_MIN_LEVEL && l3) {
+    return { ...quest, questions: l3 };
+  }
+  return quest;
 }

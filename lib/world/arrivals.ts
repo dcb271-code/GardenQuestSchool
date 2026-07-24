@@ -7,12 +7,15 @@ import type { SpeciesData } from './speciesCatalog';
  */
 export function computeEligibleSpecies(
   placedHabitatCodes: string[],
-  catalog: SpeciesData[]
+  catalog: SpeciesData[],
+  researcherBadgeCodes: string[] = []
 ): SpeciesData[] {
   const placedSet = new Set(placedHabitatCodes);
+  const badgeSet = new Set(researcherBadgeCodes);
   return catalog.filter(s =>
     s.habitatReqCodes.length > 0 &&
-    s.habitatReqCodes.every(h => placedSet.has(h))
+    s.habitatReqCodes.every(h => placedSet.has(h)) &&
+    (!s.requiresResearcherBadge || s.habitatReqCodes.every(h => badgeSet.has(h)))
   );
 }
 
@@ -50,17 +53,21 @@ export function pickArrivalForSession({
   alreadyUnlockedSpeciesCodes,
   practicedSkillCodes,
   speciesCatalog,
+  researcherBadgeCodes = [],
   rngSeed = Date.now(),
 }: {
   placedHabitatCodes: string[];
   alreadyUnlockedSpeciesCodes: string[];
   practicedSkillCodes: string[];
   speciesCatalog: SpeciesData[];
+  /** Habitats whose researcher quest is complete — gates rare visitors. */
+  researcherBadgeCodes?: string[];
   rngSeed?: number;
 }): SpeciesData | null {
   const placedSet = new Set(placedHabitatCodes);
   const unlockedSet = new Set(alreadyUnlockedSpeciesCodes);
   const practicedSet = new Set(practicedSkillCodes);
+  const badgeSet = new Set(researcherBadgeCodes);
 
   // Themed habitats — placed AND prereqSkillCodes intersect practicedSkills
   const themedHabitatCodes = HABITAT_CATALOG
@@ -73,6 +80,8 @@ export function pickArrivalForSession({
   const eligibleSpecies = speciesCatalog.filter(s =>
     s.habitatReqCodes.length > 0 &&
     s.habitatReqCodes.every(h => placedSet.has(h)) &&
+    // Rare visitors wait until every required habitat is badge-researched.
+    (!s.requiresResearcherBadge || s.habitatReqCodes.every(h => badgeSet.has(h))) &&
     !unlockedSet.has(s.code),
   );
 

@@ -172,22 +172,29 @@ export async function POST(
 
     const practicedSkillCodes = Array.from(new Set(attempts.map(a => a.skillCode).filter(Boolean)));
 
+    // Researcher badges gate the rare visitors (Level-3+ science quests).
+    const { data: existingState } = await db
+      .from('world_state')
+      .select('garden')
+      .eq('learner_id', session.learner_id)
+      .maybeSingle();
+    const existingGarden = (existingState?.garden as Record<string, any>) ?? {};
+    const researcherBadgeCodes: string[] = Array.isArray(existingGarden.researcher_badges)
+      ? existingGarden.researcher_badges
+      : [];
+
     const arrival = pickArrivalForSession({
       placedHabitatCodes: placedCodes,
       alreadyUnlockedSpeciesCodes: unlockedCodes,
       practicedSkillCodes,
       speciesCatalog: SPECIES_CATALOG,
+      researcherBadgeCodes,
       rngSeed: new Date(session.started_at).getTime(),
     });
 
     if (arrival) {
       // Stash on world_state.garden so the garden picks it up next visit.
-      const { data: existingState } = await db
-        .from('world_state')
-        .select('garden')
-        .eq('learner_id', session.learner_id)
-        .maybeSingle();
-      const garden = (existingState?.garden as Record<string, any>) ?? {};
+      const garden = existingGarden;
       garden.pendingArrivalSpeciesCode = arrival.code;
       await db.from('world_state').upsert(
         { learner_id: session.learner_id, garden, last_updated_at: new Date().toISOString() },

@@ -1,23 +1,30 @@
+// components/child/garden/ResearcherQuestModal.tsx
+//
+// The Level-3+ RESEARCHER quest for a built habitat — same gentle
+// quiz mechanics as HabitatQuestModal (retry on wrong, no penalty),
+// but harder field-science questions from researcherQuests.ts.
+// Completing it earns the habitat's 🔬 researcher badge (persisted via
+// /api/garden/habitat/research), a 'wondering' gem when under the
+// daily cap, and quietly makes the habitat eligible for RARE visitors.
+
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { HabitatTypeData } from '@/lib/world/habitatCatalog';
-import { getHabitatQuest } from '@/lib/world/habitatQuests';
+import { getResearcherQuest } from '@/lib/world/researcherQuests';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
 
-type Phase = 'intro' | 'question' | 'celebrate' | 'building';
+type Phase = 'intro' | 'question' | 'celebrate' | 'saving';
 
-export default function HabitatQuestModal({
-  open, habitat, learnerId, learnerLevel = 2, onClose, onBuilt,
+export default function ResearcherQuestModal({
+  open, habitat, learnerId, onClose, onBadged,
 }: {
   open: boolean;
   habitat: HabitatTypeData | null;
   learnerId: string;
-  /** Level 3+ learners get the harder reasoning-tier questions. */
-  learnerLevel?: number;
   onClose: () => void;
-  onBuilt: () => void;
+  onBadged: () => void;
 }) {
   const { settings } = useAccessibilitySettings();
   const reducedMotion = settings.reducedMotion;
@@ -25,55 +32,60 @@ export default function HabitatQuestModal({
   const [questionIdx, setQuestionIdx] = useState(0);
   const [wrongOnce, setWrongOnce] = useState(false);
   const [shakeToken, setShakeToken] = useState(0);
+  const [gemGranted, setGemGranted] = useState(false);
 
-  const quest = habitat ? getHabitatQuest(habitat.code, learnerLevel) : null;
+  const quest = habitat ? getResearcherQuest(habitat.code) : null;
 
-  // Reset on open / change
   useEffect(() => {
     if (open) {
       setPhase('intro');
       setQuestionIdx(0);
       setWrongOnce(false);
       setShakeToken(0);
+      setGemGranted(false);
     }
   }, [open, habitat?.code]);
 
-  if (!habitat || !quest) return null;
+  // Shuffle choices per question (stable while the question is up).
+  const current = quest?.questions[questionIdx] ?? null;
+  const shuffled = useMemo(() => {
+    if (!current) return null;
+    const order = current.choices.map((_, i) => i).sort(() => Math.random() - 0.5);
+    return { order, correctAt: order.indexOf(current.correctIndex) };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [current?.prompt, open]);
 
-  const current = quest.questions[questionIdx];
+  if (!habitat || !quest || !current || !shuffled) return null;
   const total = quest.questions.length;
 
-  const onAnswer = (idx: number) => {
-    if (idx === current.correctIndex) {
-      // Correct — advance
+  const onAnswer = (displayIdx: number) => {
+    if (displayIdx === shuffled.correctAt) {
       setWrongOnce(false);
       const next = questionIdx + 1;
       if (next >= total) {
         setPhase('celebrate');
+        void save();
       } else {
         setQuestionIdx(next);
       }
     } else {
-      // Wrong — gentle shake, no penalty, allow retry
       setShakeToken(t => t + 1);
       setWrongOnce(true);
     }
   };
 
-  const finishAndBuild = async () => {
-    setPhase('building');
+  const save = async () => {
     try {
-      await fetch('/api/garden/habitat/build', {
+      const res = await fetch('/api/garden/habitat/research', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ learnerId, habitatCode: habitat.code }),
       });
-      onBuilt();
+      const json = await res.json().catch(() => ({}));
+      setGemGranted(!!json.gemGranted);
+      onBadged();
     } catch (err) {
-      console.error('Failed to build habitat:', err);
-    } finally {
-      // close after a beat so the celebration registers
-      setTimeout(onClose, 250);
+      console.error('Failed to save researcher badge:', err);
     }
   };
 
@@ -90,21 +102,20 @@ export default function HabitatQuestModal({
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
-          onClick={() => phase !== 'building' && onClose()}
+          onClick={() => phase !== 'saving' && onClose()}
         >
           <motion.div
-            className="relative bg-cream border-4 border-terracotta rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4"
+            className="relative bg-cream border-4 border-forest rounded-3xl max-w-lg w-full p-6 shadow-2xl space-y-4"
             initial={{ scale: 0.9, y: 12, opacity: 0 }}
             animate={{ scale: 1, y: 0, opacity: 1 }}
             exit={{ scale: 0.95, y: 8, opacity: 0 }}
             transition={{ duration: 0.4, ease: [0.22, 0.9, 0.34, 1] }}
             onClick={e => e.stopPropagation()}
           >
-            {/* Habitat emoji + name banner */}
             <div className="text-center space-y-1">
-              <div className="text-5xl">{habitat.emoji}</div>
+              <div className="text-5xl">🔬</div>
               <div className="font-display italic text-[12px] tracking-[0.3em] uppercase text-bark/55">
-                building a
+                researcher quest
               </div>
               <h2
                 className="font-display text-[28px] text-bark leading-tight"
@@ -128,7 +139,9 @@ export default function HabitatQuestModal({
                     {quest.intro}
                   </p>
                   <p className="font-display text-[14px] text-bark/65">
-                    a quick {total} questions about <span className="italic">how it works</span>.
+                    {total} harder questions — real field science. Earn the{' '}
+                    <span className="not-italic">🔬</span> badge and someone{' '}
+                    <span className="italic">rare</span> may notice your garden.
                   </p>
                   <motion.button
                     onClick={() => setPhase('question')}
@@ -136,7 +149,7 @@ export default function HabitatQuestModal({
                     style={{ touchAction: 'manipulation', minHeight: 60, fontWeight: 600 }}
                     whileTap={{ scale: 0.97 }}
                   >
-                    let&apos;s learn
+                    open the field notebook
                   </motion.button>
                 </motion.div>
               )}
@@ -154,7 +167,14 @@ export default function HabitatQuestModal({
                     <div className="font-display italic text-[12px] tracking-[0.2em] uppercase text-bark/55">
                       question {questionIdx + 1} of {total}
                     </div>
-                    <ProgressDots total={total} active={questionIdx} />
+                    <div className="flex gap-1.5">
+                      {Array.from({ length: total }).map((_, i) => (
+                        <div
+                          key={i}
+                          className={`w-2 h-2 rounded-full ${i <= questionIdx ? 'bg-forest' : 'bg-ochre/40'}`}
+                        />
+                      ))}
+                    </div>
                   </div>
 
                   <motion.div
@@ -164,10 +184,10 @@ export default function HabitatQuestModal({
                       ? { x: [0, -7, 7, -5, 5, -2, 0] }
                       : { x: 0 }}
                     transition={{ duration: 0.5, ease: 'easeOut' }}
-                    className="bg-white/70 rounded-2xl p-4 border-2 border-ochre/40"
+                    className="bg-white/70 rounded-2xl p-4 border-2 border-forest/30"
                   >
                     <div
-                      className="font-display text-[19px] text-bark leading-snug"
+                      className="font-display text-[18px] text-bark leading-snug"
                       style={{ fontWeight: 600 }}
                     >
                       {current.prompt}
@@ -175,16 +195,16 @@ export default function HabitatQuestModal({
                   </motion.div>
 
                   <div className="space-y-2">
-                    {current.choices.map((choice, idx) => (
+                    {shuffled.order.map((choiceIdx, displayIdx) => (
                       <motion.button
-                        key={idx}
-                        onClick={() => onAnswer(idx)}
-                        className="w-full text-left bg-white border-4 border-ochre rounded-2xl px-4 py-3.5 font-display text-[17px] text-bark hover:bg-ochre/10"
+                        key={displayIdx}
+                        onClick={() => onAnswer(displayIdx)}
+                        className="w-full text-left bg-white border-4 border-ochre rounded-2xl px-4 py-3.5 font-display text-[16px] text-bark hover:bg-ochre/10"
                         style={{ touchAction: 'manipulation', minHeight: 56, fontWeight: 500 }}
                         whileTap={{ scale: 0.98 }}
                         whileHover={{ scale: 1.01 }}
                       >
-                        {choice}
+                        {current.choices[choiceIdx]}
                       </motion.button>
                     ))}
                   </div>
@@ -195,13 +215,13 @@ export default function HabitatQuestModal({
                       initial={{ opacity: 0, y: 4 }}
                       animate={{ opacity: 1, y: 0 }}
                     >
-                      not quite — give it another try
+                      a researcher checks the evidence again — try once more
                     </motion.div>
                   )}
                 </motion.div>
               )}
 
-              {(phase === 'celebrate' || phase === 'building') && (
+              {(phase === 'celebrate' || phase === 'saving') && (
                 <motion.div
                   key="celebrate"
                   className="space-y-4 text-center py-2"
@@ -210,26 +230,27 @@ export default function HabitatQuestModal({
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.45, ease: [0.22, 0.9, 0.34, 1] }}
                 >
-                  {/* Sparkle burst around the habitat emoji (shown above) */}
-                  {!reducedMotion && (
-                    <div className="relative h-2">
-                      <SparkleBurst />
-                    </div>
-                  )}
                   <div className="font-display text-[24px] text-bark" style={{ fontWeight: 600, letterSpacing: '-0.01em' }}>
-                    <span className="italic text-forest">your {habitat.name.toLowerCase()}</span> is ready
+                    🔬 <span className="italic text-forest">researcher badge</span> earned
                   </div>
                   <p className="font-display italic text-[16px] text-bark/75 leading-snug">
                     {quest.outro}
                   </p>
+                  {gemGranted && (
+                    <div className="bg-white/70 border-2 border-ochre/40 rounded-2xl px-4 py-3 font-display text-[15px] text-bark">
+                      💎 a <span style={{ fontWeight: 700 }}>wondering</span> gem for your collection
+                    </div>
+                  )}
+                  <p className="font-display text-[13px] text-bark/60 italic">
+                    badged habitats catch the eye of rare visitors…
+                  </p>
                   <motion.button
-                    onClick={finishAndBuild}
-                    disabled={phase === 'building'}
-                    className="w-full bg-sage text-white rounded-full py-4 font-display disabled:opacity-70"
+                    onClick={onClose}
+                    className="w-full bg-sage text-white rounded-full py-4 font-display"
                     style={{ touchAction: 'manipulation', minHeight: 60, fontWeight: 600 }}
                     whileTap={{ scale: 0.97 }}
                   >
-                    {phase === 'building' ? 'building…' : 'place it in the garden'}
+                    back to the garden
                   </motion.button>
                 </motion.div>
               )}
@@ -238,50 +259,5 @@ export default function HabitatQuestModal({
         </motion.div>
       )}
     </AnimatePresence>
-  );
-}
-
-function ProgressDots({ total, active }: { total: number; active: number }) {
-  return (
-    <div className="flex gap-1.5">
-      {Array.from({ length: total }).map((_, i) => (
-        <motion.div
-          key={i}
-          className={`w-2 h-2 rounded-full ${i <= active ? 'bg-forest' : 'bg-ochre/40'}`}
-          animate={{ scale: i === active ? 1.3 : 1 }}
-          transition={{ duration: 0.25 }}
-        />
-      ))}
-    </div>
-  );
-}
-
-function SparkleBurst() {
-  return (
-    <svg
-      className="absolute pointer-events-none"
-      width="220"
-      height="80"
-      viewBox="-110 -40 220 80"
-      style={{ left: '50%', top: '-30px', transform: 'translateX(-50%)' }}
-    >
-      {Array.from({ length: 10 }).map((_, i) => {
-        const angle = (i / 10) * Math.PI * 2;
-        const dx = Math.cos(angle) * 80;
-        const dy = Math.sin(angle) * 30;
-        const color = ['#FFD166', '#E8A87C', '#FFB7C5', '#95B88F'][i % 4];
-        return (
-          <motion.circle
-            key={i}
-            cx={0} cy={0} r={3}
-            fill={color}
-            initial={{ x: 0, y: 0, scale: 0.4, opacity: 1 }}
-            animate={{ x: dx, y: dy, scale: 1.3, opacity: 0 }}
-            transition={{ duration: 1.0, ease: 'easeOut', delay: i * 0.04 }}
-            style={{ filter: `drop-shadow(0 0 4px ${color})` }}
-          />
-        );
-      })}
-    </svg>
   );
 }

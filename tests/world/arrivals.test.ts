@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { computeEligibleSpecies, computeNewArrivals } from '@/lib/world/arrivals';
+import { computeEligibleSpecies, computeNewArrivals, pickArrivalForSession } from '@/lib/world/arrivals';
 import { SPECIES_CATALOG } from '@/lib/world/speciesCatalog';
 
 describe('arrivals', () => {
@@ -37,5 +37,53 @@ describe('arrivals', () => {
       SPECIES_CATALOG
     );
     expect(arrivals).toEqual([]);
+  });
+});
+
+describe('researcher-badge gated rare visitors', () => {
+  it('rare species are NOT eligible from a built habitat without its badge', () => {
+    const eligible = computeEligibleSpecies(['frog_pond'], SPECIES_CATALOG);
+    expect(eligible.map(s => s.code)).not.toContain('painted_turtle');
+  });
+
+  it('rare species become eligible once every required habitat is badged', () => {
+    const eligible = computeEligibleSpecies(['frog_pond'], SPECIES_CATALOG, ['frog_pond']);
+    expect(eligible.map(s => s.code)).toContain('painted_turtle');
+  });
+
+  it('a dual-habitat rare species needs BOTH badges', () => {
+    const oneBadge = computeEligibleSpecies(
+      ['frog_pond', 'log_pile'], SPECIES_CATALOG, ['log_pile'],
+    );
+    expect(oneBadge.map(s => s.code)).not.toContain('spotted_salamander');
+    const bothBadges = computeEligibleSpecies(
+      ['frog_pond', 'log_pile'], SPECIES_CATALOG, ['log_pile', 'frog_pond'],
+    );
+    expect(bothBadges.map(s => s.code)).toContain('spotted_salamander');
+  });
+
+  it('pickArrivalForSession never picks a rare species without the badge', () => {
+    // Everything common already discovered — only the turtle remains.
+    const commonPondCodes = SPECIES_CATALOG
+      .filter(s => !s.requiresResearcherBadge)
+      .map(s => s.code);
+    const withoutBadge = pickArrivalForSession({
+      placedHabitatCodes: ['frog_pond'],
+      alreadyUnlockedSpeciesCodes: commonPondCodes,
+      practicedSkillCodes: [],
+      speciesCatalog: SPECIES_CATALOG,
+      rngSeed: 1,
+    });
+    expect(withoutBadge).toBeNull();
+
+    const withBadge = pickArrivalForSession({
+      placedHabitatCodes: ['frog_pond'],
+      alreadyUnlockedSpeciesCodes: commonPondCodes,
+      practicedSkillCodes: [],
+      speciesCatalog: SPECIES_CATALOG,
+      researcherBadgeCodes: ['frog_pond'],
+      rngSeed: 1,
+    });
+    expect(withBadge?.code).toBe('painted_turtle');
   });
 });

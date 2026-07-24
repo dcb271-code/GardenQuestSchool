@@ -19,6 +19,13 @@ export interface SpeciesData {
   habitatReqCodes: string[];
   /** Real-world-ish conservation status. Absent is treated as 'stable'. */
   conservationStatus?: ConservationStatus;
+  /**
+   * Rare visitor: only arrives once EVERY required habitat has earned
+   * its researcher badge (the Level-3+ post-build science quest —
+   * see researcherQuests.ts). Quest-gated, not count-gated, so it
+   * can't be farmed on easy structures.
+   */
+  requiresResearcherBadge?: boolean;
 }
 
 export interface ConservationDisplay {
@@ -118,6 +125,23 @@ export const SPECIES_CATALOG: SpeciesData[] = [
     description: 'Wild rabbits with fluffy white tails.',
     funFact: 'Cottontails can run up to 18 mph and zigzag to escape predators.',
     illustrationKey: 'cottontail', emoji: '🐰', habitatReqCodes: ['bunny_burrow'], conservationStatus: 'stable' },
+
+  // ── RARE VISITORS — researcher-badge gated (Level 3+ science) ──────
+  { code: 'painted_turtle', commonName: 'Painted Turtle', scientificName: 'Chrysemys picta',
+    description: 'A pond turtle with red and yellow stripes along its shell edge, famous for sunbathing in stacks.',
+    funFact: 'Painted turtles pile on top of each other to bask — the sun\'s warmth is how they power up, since they can\'t make their own body heat.',
+    illustrationKey: 'painted_turtle', emoji: '🐢', habitatReqCodes: ['frog_pond'],
+    conservationStatus: 'stable', requiresResearcherBadge: true },
+  { code: 'spotted_salamander', commonName: 'Spotted Salamander', scientificName: 'Ambystoma maculatum',
+    description: 'A secretive blue-black salamander with two rows of yellow polka dots, who lives under logs and breeds in spring pools.',
+    funFact: 'Its eggs have algae living INSIDE them — the algae make oxygen for the babies and get a safe home in return. Scientists call that symbiosis.',
+    illustrationKey: 'spotted_salamander', emoji: '🦎', habitatReqCodes: ['log_pile', 'frog_pond'],
+    conservationStatus: 'needs_help', requiresResearcherBadge: true },
+  { code: 'luna_moth', commonName: 'Luna Moth', scientificName: 'Actias luna',
+    description: 'A big pale-green moth with long swallow tails on its wings, flying only on spring and summer nights.',
+    funFact: 'Adult luna moths have no mouth at all — they live about a week on energy saved up as a caterpillar. Turning off porch lights helps them find each other.',
+    illustrationKey: 'luna_moth', emoji: '🦋', habitatReqCodes: ['butterfly_bush'],
+    conservationStatus: 'needs_help', requiresResearcherBadge: true },
 ];
 
 export function getSpeciesByCode(code: string): SpeciesData | undefined {

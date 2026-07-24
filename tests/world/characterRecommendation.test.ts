@@ -47,4 +47,23 @@ describe('characterRecommendation', () => {
     expect(out.signpost.length).toBeGreaterThan(0);
     expect(out.signpost[0].skillCode).toBeTruthy();
   });
+
+  it('at Level 3+, Hodge picks the MOST ADVANCED math candidate, not the first', () => {
+    const out = partitionRecommendations(fakeCandidates, 3);
+    // multiply.equal_groups (level 0.55) beats add.within_10 (0.2) and
+    // subtract.within_10 (0.2).
+    expect(out.hodge?.skillCode).toBe('math.multiply.equal_groups');
+  });
+
+  it('below Level 3, Hodge keeps the engine\'s first math candidate', () => {
+    const out = partitionRecommendations(fakeCandidates, 2);
+    expect(out.hodge?.skillCode).toBe('math.add.within_10');
+  });
+
+  it('at Level 3+, Hodge\'s empty-engine fallback is multiplication, not baby subtraction', () => {
+    const out = partitionRecommendations([], 3);
+    expect(out.hodge?.skillCode).toBe('math.multiply.facts_to_5');
+    const out2 = partitionRecommendations([], 2);
+    expect(out2.hodge?.skillCode).toBe('math.subtract.within_10');
+  });
 });
