@@ -15,6 +15,10 @@ import AmbientLayer from '@/components/child/garden/AmbientLayer';
 import SisterWalkers, { SISTERS_HOME } from '@/components/child/garden/SisterWalkers';
 import WelcomeOverlay from '@/components/child/garden/WelcomeOverlay';
 import HabitatQuestModal from '@/components/child/garden/HabitatQuestModal';
+import ResearcherQuestModal from '@/components/child/garden/ResearcherQuestModal';
+import EstimationDuelModal from '@/components/child/garden/EstimationDuelModal';
+import { getResearcherQuest, RESEARCHER_MIN_LEVEL } from '@/lib/world/researcherQuests';
+import { ESTIMATION_MIN_LEVEL } from '@/lib/world/estimationDuel';
 import KitchenModal from '@/components/child/garden/KitchenModal';
 import IkebanaModal from '@/components/child/garden/IkebanaModal';
 import CompanionSpot from '@/components/child/garden/CompanionSpot';
@@ -185,6 +189,8 @@ export default function GardenScene({
   pendingArrivalIsFirstForHabitat = false,
   pendingArrivalHabitatCode = null,
   cumulativeCorrect = 0,
+  learnerLevel = 2,
+  researcherBadges = [],
 }: {
   learnerId: string;
   firstName?: string | null;
@@ -202,6 +208,8 @@ export default function GardenScene({
   pendingArrivalIsFirstForHabitat?: boolean;
   pendingArrivalHabitatCode?: string | null;
   cumulativeCorrect?: number;
+  learnerLevel?: number;
+  researcherBadges?: string[];
 }) {
   const router = useRouter();
   const { settings, update } = useAccessibilitySettings();
@@ -236,6 +244,10 @@ export default function GardenScene({
 
   // Habitat ecology quest — opens when learner taps a not-yet-built habitat
   const [questHabitat, setQuestHabitat] = useState<MapStructure | null>(null);
+  // Researcher quest (Level 3+, built habitats) + Hodge's duel chooser
+  const [researchHabitatCode, setResearchHabitatCode] = useState<string | null>(null);
+  const [hodgeChoiceOpen, setHodgeChoiceOpen] = useState(false);
+  const [duelOpen, setDuelOpen] = useState(false);
   const [kitchenOpen, setKitchenOpen] = useState(false);
   // Ikebana with Bachan — offered once enough flowers have ever been
   // harvested; tapping her then asks "arrange or practice?".
@@ -1235,6 +1247,9 @@ export default function GardenScene({
                     // Bachan offers ikebana once it's unlocked — a
                     // tiny chooser keeps her skill nudge reachable.
                     if (code === 'nana' && ikebanaUnlocked) { setBachanChoiceOpen(true); return; }
+                    // Hodge challenges Level-3+ learners to the
+                    // estimation duel — chooser keeps practice reachable.
+                    if (code === 'hodge' && learnerLevel >= ESTIMATION_MIN_LEVEL) { setHodgeChoiceOpen(true); return; }
                     if (rec?.skillCode) startSkill(rec.skillCode);
                   }}
                   aria-label={isAlert ? `${s.label} — ${rec?.structureLabel ?? ''}` : `${s.label} is resting`}
@@ -1423,6 +1438,66 @@ export default function GardenScene({
                 )}
                 <motion.button
                   onClick={() => setBachanChoiceOpen(false)}
+                  className="w-full bg-white border-2 border-ochre rounded-full py-3 font-display italic text-bark/70"
+                  style={{ touchAction: 'manipulation', minHeight: 52 }}
+                  whileTap={{ scale: 0.97 }}
+                >
+                  maybe later
+                </motion.button>
+              </motion.div>
+            </motion.div>
+          )}
+
+          {/* Hodge's chooser — Level 3+ learners pick between the
+              estimation duel and his (now ambitious) practice pick. */}
+          {hodgeChoiceOpen && (
+            <motion.div
+              className="absolute inset-0 flex items-center justify-center p-6 z-20"
+              style={{ background: 'radial-gradient(circle at 50% 40%, rgba(20, 25, 40, 0.3), rgba(20, 25, 40, 0.5))' }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.25 }}
+              onClick={() => setHodgeChoiceOpen(false)}
+            >
+              <motion.div
+                className="bg-cream border-4 border-terracotta rounded-3xl max-w-sm w-full p-6 space-y-4 text-center shadow-2xl"
+                initial={{ scale: 0.9, y: 12, opacity: 0 }}
+                animate={{ scale: 1, y: 0, opacity: 1 }}
+                exit={{ scale: 0.95, y: 8, opacity: 0 }}
+                transition={{ duration: 0.35, ease: [0.22, 0.9, 0.34, 1] }}
+                onClick={e => e.stopPropagation()}
+              >
+                <div className="text-6xl">🦫</div>
+                <h3
+                  className="font-display text-[24px] text-bark leading-tight"
+                  style={{ fontWeight: 600, letterSpacing: '-0.01em' }}
+                >
+                  hodge grins at you
+                </h3>
+                <div className="font-display italic text-[14px] text-bark/65">
+                  &ldquo;practice… or dare to out-estimate a beaver?&rdquo;
+                </div>
+                <motion.button
+                  onClick={() => { setHodgeChoiceOpen(false); setDuelOpen(true); }}
+                  className="w-full bg-forest text-white rounded-full py-3.5 font-display"
+                  style={{ touchAction: 'manipulation', minHeight: 56, fontWeight: 600 }}
+                  whileTap={{ scale: 0.97 }}
+                >
+                  🎯 estimation duel
+                </motion.button>
+                {characterRecs.hodge?.skillCode && (
+                  <motion.button
+                    onClick={() => { setHodgeChoiceOpen(false); startSkill(characterRecs.hodge!.skillCode); }}
+                    className="w-full bg-white border-2 border-ochre rounded-full py-3 font-display text-bark"
+                    style={{ touchAction: 'manipulation', minHeight: 52, fontWeight: 600 }}
+                    whileTap={{ scale: 0.97 }}
+                  >
+                    🌊 practice {characterRecs.hodge.structureLabel}
+                  </motion.button>
+                )}
+                <motion.button
+                  onClick={() => setHodgeChoiceOpen(false)}
                   className="w-full bg-white border-2 border-ochre rounded-full py-3 font-display italic text-bark/70"
                   style={{ touchAction: 'manipulation', minHeight: 52 }}
                   whileTap={{ scale: 0.97 }}
@@ -1625,15 +1700,29 @@ export default function GardenScene({
                                 visitors who love it
                               </div>
                               <div className="flex flex-wrap gap-1.5">
-                                {possibleSpecies.map(s => (
-                                  <span
-                                    key={s.code}
-                                    className="inline-flex items-center gap-1 bg-cream border border-ochre/50 rounded-full px-2 py-0.5 text-[12px]"
-                                  >
-                                    <span className="not-italic text-base">{s.emoji}</span>
-                                    <span className="not-italic" style={{ fontWeight: 600 }}>{s.commonName}</span>
-                                  </span>
-                                ))}
+                                {possibleSpecies.map(s => {
+                                  // Rare visitors stay a mystery until every
+                                  // habitat they need has its 🔬 badge.
+                                  const hidden = s.requiresResearcherBadge &&
+                                    !s.habitatReqCodes.every(c => researcherBadges.includes(c));
+                                  return hidden ? (
+                                    <span
+                                      key={s.code}
+                                      className="inline-flex items-center gap-1 bg-bark/5 border border-dashed border-bark/30 rounded-full px-2 py-0.5 text-[12px]"
+                                    >
+                                      <span className="not-italic text-base">❔</span>
+                                      <span className="not-italic italic text-bark/55">a rare visitor…</span>
+                                    </span>
+                                  ) : (
+                                    <span
+                                      key={s.code}
+                                      className="inline-flex items-center gap-1 bg-cream border border-ochre/50 rounded-full px-2 py-0.5 text-[12px]"
+                                    >
+                                      <span className="not-italic text-base">{s.emoji}</span>
+                                      <span className="not-italic" style={{ fontWeight: 600 }}>{s.commonName}</span>
+                                    </span>
+                                  );
+                                })}
                               </div>
                             </div>
                           )}
@@ -1713,6 +1802,26 @@ export default function GardenScene({
                             </div>
                           )}
                         </div>
+                      )}
+                      {/* Researcher quest (Level 3+) — the harder
+                          post-build science chain. Shows as a button
+                          until badged, then a quiet earned chip. */}
+                      {isBuilt && selected.habitatCode && learnerLevel >= RESEARCHER_MIN_LEVEL &&
+                        getResearcherQuest(selected.habitatCode) && (
+                        researcherBadges.includes(selected.habitatCode) ? (
+                          <div className="w-full text-center bg-forest/10 border-2 border-forest/40 rounded-full py-2.5 font-display text-[14px] text-forest" style={{ fontWeight: 600 }}>
+                            🔬 researcher badge earned
+                          </div>
+                        ) : (
+                          <motion.button
+                            onClick={() => { setResearchHabitatCode(selected.habitatCode!); setSelected(null); }}
+                            className="w-full bg-forest text-white rounded-full py-3.5 font-display"
+                            style={{ touchAction: 'manipulation', minHeight: 56, fontWeight: 600 }}
+                            whileTap={{ scale: 0.97 }}
+                          >
+                            🔬 researcher quest
+                          </motion.button>
+                        )
                       )}
                       {/* Step-inside CTA — appears once a species has
                           accepted the invitation (i.e. the habitat has
@@ -1795,6 +1904,7 @@ export default function GardenScene({
             : null
         }
         learnerId={learnerId}
+        learnerLevel={learnerLevel}
         onClose={() => setQuestHabitat(null)}
         onBuilt={() => {
           if (questHabitat?.code) {
@@ -1805,6 +1915,26 @@ export default function GardenScene({
           // come through.
           router.refresh();
         }}
+      />
+
+      {/* Researcher quest — Level 3+ harder science on built habitats */}
+      <ResearcherQuestModal
+        open={!!researchHabitatCode}
+        habitat={
+          researchHabitatCode
+            ? HABITAT_CATALOG.find(h => h.code === researchHabitatCode) ?? null
+            : null
+        }
+        learnerId={learnerId}
+        onClose={() => setResearchHabitatCode(null)}
+        onBadged={() => router.refresh()}
+      />
+
+      {/* Hodge's estimation duel — Level 3+ */}
+      <EstimationDuelModal
+        open={duelOpen}
+        learnerId={learnerId}
+        onClose={() => setDuelOpen(false)}
       />
     </div>
   );

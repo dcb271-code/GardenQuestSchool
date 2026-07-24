@@ -71,10 +71,14 @@ export default async function GardenPage({
 
   const { data: learner } = await db
     .from('learner')
-    .select('first_name')
+    .select('first_name, grade_level')
     .eq('id', learnerId)
     .single();
   const firstName = learner?.first_name ?? null;
+  // Learner level (1–5; DB column still called grade_level) — drives
+  // the harder ecology-quest tier, researcher quests, and Hodge's
+  // ambition. Defaults to 2 like the habitat/branch pages do.
+  const learnerLevel = learner?.grade_level ?? 2;
 
   // Existing skill-progress query (we still use mastery for habitat gating)
   const { data: progress } = await db
@@ -226,6 +230,14 @@ export default async function GardenPage({
     ? SPECIES_CATALOG.find(s => s.code === pendingCode) ?? null
     : null;
 
+  // Researcher badges (Level-3+ post-build science quests) — drives
+  // the 🔬 button/chip on habitat panels and the rare-visitor tease.
+  const researcherBadges: string[] = Array.isArray(
+    (worldStateRow?.garden as Record<string, any> | null)?.researcher_badges,
+  )
+    ? (worldStateRow!.garden as Record<string, any>).researcher_badges
+    : [];
+
   // ─── Branch unlock state ─────────────────────────────────────────
   const isCompleted = (structureCode: string) =>
     isStructureCompletedForGating(
@@ -284,7 +296,7 @@ export default async function GardenPage({
     // the characters still render in their sleeping state.
     candidates = [];
   }
-  const partitioned = partitionRecommendations(candidates);
+  const partitioned = partitionRecommendations(candidates, learnerLevel);
   const characterRecs = {
     hodge: partitioned.hodge ? { skillCode: partitioned.hodge.skillCode, structureLabel: partitioned.hodge.title } : null,
     nana: partitioned.nana ? { skillCode: partitioned.nana.skillCode, structureLabel: partitioned.nana.title } : null,
@@ -346,6 +358,8 @@ export default async function GardenPage({
       pendingArrivalIsFirstForHabitat={pendingArrivalIsFirstForHabitat}
       pendingArrivalHabitatCode={pendingArrivalHabitatCode}
       cumulativeCorrect={cumulativeCorrect}
+      learnerLevel={learnerLevel}
+      researcherBadges={researcherBadges}
     />
   );
 }
