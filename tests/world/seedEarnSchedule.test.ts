@@ -58,13 +58,13 @@ describe('getOpenQuadrants', () => {
     expect(getOpenQuadrants(949).has('japanese')).toBe(false);
     expect(getOpenQuadrants(950).has('japanese')).toBe(true);
   });
-  it('beyond-the-trellis quadrants open at their thresholds', () => {
-    expect(getOpenQuadrants(1799).has('orchard')).toBe(false);
-    expect(getOpenQuadrants(1800).has('orchard')).toBe(true);
-    expect(getOpenQuadrants(2100).has('berry')).toBe(true);
-    expect(getOpenQuadrants(2550).has('herb')).toBe(true);
-    expect(getOpenQuadrants(3299).has('moon')).toBe(false);
-    expect(getOpenQuadrants(3300).has('moon')).toBe(true);
+  it('beyond-the-trellis quadrants open at 1400 then every 200', () => {
+    expect(getOpenQuadrants(1399).has('orchard')).toBe(false);
+    expect(getOpenQuadrants(1400).has('orchard')).toBe(true);
+    expect(getOpenQuadrants(1600).has('berry')).toBe(true);
+    expect(getOpenQuadrants(1800).has('herb')).toBe(true);
+    expect(getOpenQuadrants(1999).has('moon')).toBe(false);
+    expect(getOpenQuadrants(2000).has('moon')).toBe(true);
   });
 });
 
