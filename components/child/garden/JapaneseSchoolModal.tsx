@@ -311,17 +311,24 @@ export default function JapaneseSchoolModal({
                   )}
                 </div>
 
-                <div className={drill[qIdx].kind === 'write' ? 'grid grid-cols-4 gap-2' : 'space-y-2'}>
+                {/* Character choices go TWO across, not four. At portrait
+                    width four boxes leave roughly a fingertip each, and
+                    picking between similar kana (さ/ち, ぬ/ね) became a
+                    game of aim rather than of reading. Two across gives
+                    a big target and room for the character to be large
+                    enough to actually tell apart. */}
+                <div className={drill[qIdx].kind === 'write' ? 'grid grid-cols-2 gap-3' : 'space-y-2'}>
                   {drill[qIdx].choices.map((choice, i) => (
                     <button
                       key={i}
                       onClick={() => answer(i)}
-                      className="bg-white border-4 border-ochre rounded-2xl font-display text-bark hover:bg-ochre/10"
+                      className="bg-white border-4 border-ochre rounded-2xl font-display text-bark hover:bg-ochre/10 flex items-center justify-center"
                       style={{
                         touchAction: 'manipulation',
-                        minHeight: 60,
+                        minHeight: drill[qIdx].kind === 'write' ? 96 : 60,
                         fontWeight: 600,
-                        fontSize: drill[qIdx].kind === 'write' ? 30 : 17,
+                        fontSize: drill[qIdx].kind === 'write' ? 48 : 17,
+                        lineHeight: 1,
                       }}
                       {...(drill[qIdx].kind === 'write' ? { lang: 'ja' } : {})}
                     >
