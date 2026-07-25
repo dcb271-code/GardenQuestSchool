@@ -26,6 +26,8 @@ import {
 import AmbientLayer from '@/components/child/garden/AmbientLayer';
 import SisterWalkers from '@/components/child/garden/SisterWalkers';
 import TrellisGate from '@/components/child/garden/TrellisGate';
+import JapaneseSchoolModal from '@/components/child/garden/JapaneseSchoolModal';
+import { isSchoolOpen } from '@/lib/world/japaneseSchool';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
 import EmptyPlotPicker from './EmptyPlotPicker';
 import { usePortraitPan, PanEdgeHints } from '@/components/child/garden/usePortraitPan';
@@ -74,6 +76,7 @@ export default function GrowScene({
   // Which locked quadrant's explanation sign is open (null = none).
   const [signQuadrant, setSignQuadrant] = useState<GardenType | null>(null);
   const [trellisSignOpen, setTrellisSignOpen] = useState(false);
+  const [schoolOpen, setSchoolOpen] = useState(false);
 
   // The sisters walk to whatever the child touches. `walking` drives
   // the leg-scissor animation for the duration of the stroll.
@@ -91,6 +94,14 @@ export default function GrowScene({
   // This scene renders only the home screen's plots — the rest live
   // beyond the trellis.
   const homePlots = state.plots.filter(p => GARDEN_SCREEN[p.plot.garden] === 'home');
+
+  // Bachan's writing table appears in the japanese bed once it's open
+  // and something is actually growing there — the plants are the
+  // curriculum's first vocabulary, so it shouldn't arrive before them.
+  const japaneseGrowing = state.plots.filter(
+    p => p.plot.garden === 'japanese' && p.plant,
+  ).length;
+  const schoolAvailable = isSchoolOpen(state.openQuadrants.has('japanese'), japaneseGrowing);
   // Portrait pan — opens centered on the vegetable bed (the always-open one).
   const portraitPan = usePortraitPan({ worldW: VB_W, worldH: VB_H, initialCenterX: 340 });
   const { settings } = useAccessibilitySettings();
@@ -655,6 +666,53 @@ export default function GrowScene({
             );
           })}
 
+          {/* BACHAN'S WRITING TABLE — a low writing desk on the moss
+              between the maple and the sand garden, clear of every
+              plot's tap target. Appears once the japanese bed is open
+              and something is growing in it. */}
+          {schoolAvailable && (
+            <g
+              transform="translate(935, 590)"
+              style={{ cursor: 'pointer', touchAction: 'manipulation' }}
+              onClick={() => { walkTo(935, 590); setSchoolOpen(true); }}
+              aria-label="Bachan's writing table — learn Japanese"
+            >
+              <rect x={-28} y={-30} width={56} height={58} fill="transparent" />
+              {/* woven mat */}
+              <ellipse cx={0} cy={14} rx={26} ry={9} fill="#C9A66A" stroke="#8A6238" strokeWidth={1} opacity={0.85} />
+              <ellipse cx={0} cy={14} rx={20} ry={6} fill="#D6B57A" opacity={0.7} />
+              {/* low table */}
+              <rect x={-19} y={-2} width={38} height={5} rx={1.6} fill="#8A6238" stroke="#3F2614" strokeWidth={1.1} />
+              <rect x={-15} y={3} width={3} height={9} rx={1} fill="#6E4A28" />
+              <rect x={12} y={3} width={3} height={9} rx={1} fill="#6E4A28" />
+              {/* paper, with two brush strokes of practice on it */}
+              <rect x={-11} y={-7} width={22} height={6} rx={0.8} fill="#FFFDF2" stroke="#B9B49A" strokeWidth={0.7} />
+              <path d="M -6 -5.6 L -6 -2.4 M -8 -4.4 L -4 -4.4" stroke="#3F2817" strokeWidth={0.7} strokeLinecap="round" />
+              <path d="M 3 -5.8 q 3 1.6 1 3.4" stroke="#3F2817" strokeWidth={0.7} fill="none" strokeLinecap="round" />
+              {/* inkstone + brush resting across it */}
+              <ellipse cx={15} cy={-4} rx={4} ry={2.4} fill="#3A3C52" stroke="#22242E" strokeWidth={0.7} />
+              <line x1={6} y1={-9} x2={19} y2={-12} stroke="#A9774C" strokeWidth={1.4} strokeLinecap="round" />
+              <path d="M 19 -12 l 3.5 -0.9" stroke="#2E2A24" strokeWidth={2} strokeLinecap="round" />
+              {/* a paper lantern on a slim pole, marking it from afar */}
+              <line x1={-22} y1={12} x2={-22} y2={-16} stroke="#6E4A28" strokeWidth={1.6} strokeLinecap="round" />
+              <ellipse cx={-22} cy={-20} rx={5.5} ry={7} fill="#F4E2C0" stroke="#8A6238" strokeWidth={1} />
+              {[-16.5, -20, -23.5].map(ly => (
+                <line key={ly} x1={-27} y1={ly} x2={-17} y2={ly} stroke="#C9A66A" strokeWidth={0.5} opacity={0.9} />
+              ))}
+              <text x={-22} y={-17.5} textAnchor="middle" fontSize={7} fill="#8A4520" lang="ja">字</text>
+              {/* soft invitation glow, like the trellis */}
+              {reducedMotion ? (
+                <circle cx={0} cy={-4} r={30} fill="#FFE89A" opacity={0.12} />
+              ) : (
+                <motion.circle
+                  cx={0} cy={-4} r={30} fill="#FFE89A"
+                  animate={{ opacity: [0.06, 0.2, 0.06] }}
+                  transition={{ duration: 3.4, repeat: Infinity, ease: 'easeInOut' }}
+                />
+              )}
+            </g>
+          )}
+
           {/* TRELLIS GATE — the way to the second garden, east edge.
               Locked until enough skills are mastered (trellisGating). */}
           <g transform={`translate(${TRELLIS_POS.x}, ${TRELLIS_POS.y})`}>
@@ -766,6 +824,13 @@ export default function GrowScene({
           open={trellisSignOpen}
           masteredCount={state.masteredCount}
           onClose={() => setTrellisSignOpen(false)}
+        />
+
+        {/* Bachan's writing table — the japanese-language curriculum */}
+        <JapaneseSchoolModal
+          open={schoolOpen}
+          learnerId={learnerId}
+          onClose={() => setSchoolOpen(false)}
         />
       </div>
     </div>
