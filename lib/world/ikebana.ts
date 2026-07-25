@@ -59,9 +59,29 @@ export const IKEBANA_FACTS: string[] = [
   'In Japan, ikebana is called kadō — "the way of flowers" — and people study it their whole lives.',
 ];
 
-/** Plants that can go in the vase. New flowers join automatically. */
+/**
+ * Plants that can go in the vase.
+ *
+ * The flower garden joins automatically, and so does the japanese
+ * garden — the kiku (chrysanthemum) is THE classical ikebana flower,
+ * and cut branches of sakura, momiji and bamboo are traditional
+ * material too. Two japanese-garden plants are deliberately excluded,
+ * for reasons that are true of real ikebana:
+ *
+ *   • moss — a carpet, not a stem; there is nothing to cut and stand
+ *     in a vase.
+ *   • bonsai — the whole art is the living tree kept whole for
+ *     decades. You never cut one for an arrangement.
+ *
+ * Anything else with a cuttable stem is fair game, so new flowers in
+ * either bed appear in the vase without a code change.
+ */
+const NOT_CUTTABLE = new Set(['moss', 'bonsai']);
+
 export function ikebanaFlowers(): PlantData[] {
-  return PLANT_CATALOG.filter(p => p.garden === 'flower');
+  return PLANT_CATALOG.filter(
+    p => (p.garden === 'flower' || p.garden === 'japanese') && !NOT_CUTTABLE.has(p.code),
+  );
 }
 
 export function ikebanaFlowerCodes(): string[] {
@@ -79,6 +99,12 @@ export function flowerEmoji(code: string): string {
     milkweed: '🌸',
     lupine: '💐',
     beebalm: '🌺',
+    // japanese garden — branches and blooms
+    kiku: '🏵️',
+    fuji: '💜',
+    momiji: '🍁',
+    cherry: '🌸',
+    bamboo: '🎋',
   };
   return map[code] ?? '🌸';
 }
