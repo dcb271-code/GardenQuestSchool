@@ -25,7 +25,7 @@ import {
   LETTERS, C_POSITION, FINGER_OF_C_POSITION, MIDDLE_C,
   midiOf, noteName, diatonicOf, noteFromDiatonic, stepOrSkip, directionOf,
   BEATS, VALUE_NAME, countAloud, isFullBar,
-  type Note, type NoteValue, type Letter,
+  type Note, type NoteValue, type Letter, type Clef,
 } from './theory';
 
 export type Strand = 'keyboard' | 'notation' | 'ear' | 'rhythm';
@@ -48,7 +48,7 @@ export interface TeachPage {
   /** Optional visual the lesson screen knows how to draw. */
   figure?:
     | { kind: 'keyboard'; highlight?: string[]; labelWhite?: boolean; octaves?: number }
-    | { kind: 'staff'; notes: Note[]; caption?: string }
+    | { kind: 'staff'; notes: Note[]; caption?: string; clef?: Clef }
     | { kind: 'rhythm'; pattern: NoteValue[] }
     | { kind: 'fingers' };
 }
@@ -70,13 +70,20 @@ export type Exercise =
   /** Tap a key on the drawn keyboard. */
   | { kind: 'find_key'; prompt: string; answer: string; keys: Note[]; hint: string }
   /** Multiple choice about a note drawn on a staff. */
-  | { kind: 'read_note'; prompt: string; note: Note; choices: string[]; correctIndex: number; hint: string }
+  | { kind: 'read_note'; prompt: string; note: Note; choices: string[]; correctIndex: number; hint: string; clef?: Clef }
   /** Listen, then choose. */
   | { kind: 'listen'; prompt: string; midis: number[]; playTogether?: boolean; choices: string[]; correctIndex: number; hint: string }
   /** Tap the rhythm back. */
   | { kind: 'tap_rhythm'; prompt: string; pattern: NoteValue[]; bpm: number; hint: string }
   /** Multiple choice about a drawn rhythm. */
-  | { kind: 'read_rhythm'; prompt: string; pattern: NoteValue[]; choices: string[]; correctIndex: number; hint: string };
+  | { kind: 'read_rhythm'; prompt: string; pattern: NoteValue[]; choices: string[]; correctIndex: number; hint: string }
+  /**
+   * Hear a short melody (optionally with the keys lighting up), then
+   * play it back on the keyboard. Imitation before notation — the
+   * oldest idea in music teaching and the heart of Gordon's audiation
+   * sequence. Cecily asked for this one herself.
+   */
+  | { kind: 'echo_melody'; prompt: string; midis: number[]; beats?: number[]; showLights: boolean; hint: string };
 
 /** Deterministic PRNG so a seeded exercise set is reproducible in tests. */
 function rng(seed: number) {
@@ -124,6 +131,53 @@ const QUARTER_BARS: NoteValue[][] = [
   ['quarter', 'half', 'quarter'],
   ['whole'],
 ];
+
+/**
+ * A singable little melody in C position.
+ *
+ * Rules that make it echo-able rather than random: it starts on a note
+ * of the tonic chord, moves mostly by step, never leaps more than a
+ * third, and comes to rest on C or G. That is what makes a phrase feel
+ * finished — and a phrase that feels finished is far easier to hold in
+ * your head, which is the whole skill being trained.
+ */
+function makeMelody(length: number, rand: () => number): number[] {
+  const C = 60;
+  const scale = [0, 2, 4, 5, 7];            // C D E F G, as offsets
+  const restful = [0, 4, 7];                // C, E, G — the tonic chord
+  const restfulIdx = restful.map(o => scale.indexOf(o));   // C, E, G
+  let idx = restfulIdx[Math.floor(rand() * restfulIdx.length)];
+  const out = [C + scale[idx]];
+  for (let i = 1; i < length; i++) {
+    const last = i === length - 1;
+    if (last) {
+      // Settle on the NEAREST restful note. Jumping to a fixed one
+      // could span a 4th or more, which contradicts the whole point of
+      // keeping the phrase singable — and every position is at most one
+      // scale-step from C, E or G anyway.
+      const best = Math.min(...restfulIdx.map(r => Math.abs(r - idx)));
+      const options = restfulIdx.filter(r => Math.abs(r - idx) === best);
+      idx = options[Math.floor(rand() * options.length)];
+    } else {
+      const move = rand() < 0.72 ? 1 : 2;    // mostly steps, some skips
+      const dir = rand() < 0.5 ? -1 : 1;
+      idx = Math.max(0, Math.min(scale.length - 1, idx + move * dir));
+    }
+    out.push(C + scale[idx]);
+  }
+  return out;
+}
+
+/** Rhythms that fit a short phrase, in beats. */
+function makeEchoRhythm(length: number, rand: () => number): number[] {
+  const out: number[] = [];
+  for (let i = 0; i < length; i++) {
+    const last = i === length - 1;
+    // End long, so the phrase settles instead of stopping abruptly.
+    out.push(last ? 2 : rand() < 0.7 ? 1 : 0.5);
+  }
+  return out;
+}
 
 export function buildExercises(unit: MusicUnit, seed: number): Exercise[] {
   const rand = rng(seed);
@@ -317,6 +371,105 @@ function exerciseFor(unitCode: string, rand: () => number): Exercise {
         hint: 'Add them up: a whole is 4, a half is 2, a quarter is 1.',
       };
     }
+    // ── ECHO ────────────────────────────────────────────────────────
+    case 'echo_three':
+      return {
+        kind: 'echo_melody',
+        prompt: 'Listen, then play it back.',
+        midis: makeMelody(3, rand),
+        showLights: true,
+        hint: 'Watch which stones light up, and hum it to yourself before you play.',
+      };
+    case 'echo_five':
+      return {
+        kind: 'echo_melody',
+        prompt: 'A longer one. Listen all the way through first.',
+        midis: makeMelody(5, rand),
+        showLights: true,
+        hint: 'Try to hear the shape — where it goes up, where it comes back down.',
+      };
+    case 'echo_by_ear': {
+      const len = 3 + Math.floor(rand() * 2);
+      return {
+        kind: 'echo_melody',
+        prompt: 'No lights this time. Just your ears.',
+        midis: makeMelody(len, rand),
+        showLights: false,
+        hint: 'Sing it back first, then find the notes. Your voice knows before your fingers do.',
+      };
+    }
+    case 'echo_with_rhythm': {
+      const len = 4;
+      const midis = makeMelody(len, rand);
+      return {
+        kind: 'echo_melody',
+        prompt: 'Same tune AND the same lengths — hold the long ones.',
+        midis,
+        beats: makeEchoRhythm(len, rand),
+        showLights: true,
+        hint: 'Listen for which notes linger. A long note is worth waiting on.',
+      };
+    }
+
+    // ── BASS CLEF ───────────────────────────────────────────────────
+    case 'bass_clef_intro': {
+      const notes: Note[] = [
+        { letter: 'G', octave: 2 }, { letter: 'B', octave: 2 }, { letter: 'D', octave: 3 },
+        { letter: 'F', octave: 3 }, { letter: 'A', octave: 3 },
+      ];
+      const note = pick(notes, rand);
+      const wrong = shuffle(WHITE_LETTERS.filter(l => l !== note.letter), rand).slice(0, 3);
+      const { choices, correctIndex } = mc(note.letter, wrong as string[], rand);
+      return {
+        kind: 'read_note',
+        prompt: 'Name this note — bass clef.',
+        note,
+        choices,
+        correctIndex,
+        hint: 'Bass lines climb G–B–D–F–A. The two dots hug the F line.',
+        clef: 'bass',
+      };
+    }
+    case 'bass_reading': {
+      const notes: Note[] = [
+        { letter: 'F', octave: 2 }, { letter: 'G', octave: 2 }, { letter: 'A', octave: 2 },
+        { letter: 'B', octave: 2 }, { letter: 'C', octave: 3 }, { letter: 'D', octave: 3 },
+        { letter: 'E', octave: 3 }, { letter: 'F', octave: 3 }, { letter: 'A', octave: 3 },
+      ];
+      const note = pick(notes, rand);
+      const wrong = shuffle(WHITE_LETTERS.filter(l => l !== note.letter), rand).slice(0, 3);
+      const { choices, correctIndex } = mc(note.letter, wrong as string[], rand);
+      return {
+        kind: 'read_note',
+        prompt: 'Name this note.',
+        note,
+        choices,
+        correctIndex,
+        hint: 'Spaces are A–C–E–G going up. Lines are G–B–D–F–A.',
+        clef: 'bass',
+      };
+    }
+
+    // ── INTERVALS BY NUMBER ─────────────────────────────────────────
+    case 'intervals_by_number': {
+      const startD = diatonicOf(pick(C_POSITION, rand));
+      const size = 2 + Math.floor(rand() * 4);       // 2nd … 5th
+      const up = rand() < 0.6;
+      const a = noteFromDiatonic(startD);
+      const b = noteFromDiatonic(startD + (size - 1) * (up ? 1 : -1));
+      const name = (n: number) => n === 2 ? 'a 2nd' : n === 3 ? 'a 3rd' : n === 4 ? 'a 4th' : 'a 5th';
+      const wrong = shuffle([2, 3, 4, 5].filter(n => n !== size), rand).slice(0, 2).map(name);
+      const { choices, correctIndex } = mc(name(size), wrong, rand);
+      return {
+        kind: 'read_note',
+        prompt: `From ${noteName(a)} to ${noteName(b)} — what size?`,
+        note: b,
+        choices,
+        correctIndex,
+        hint: 'Count BOTH notes: C to E is C-D-E, three letters, so a 3rd. A step is a 2nd.',
+      };
+    }
+
     case 'tap_it_back': {
       const pattern = pick(QUARTER_BARS.filter(b => b.length >= 2), rand);
       return {
@@ -505,6 +658,123 @@ export const UNITS: MusicUnit[] = [
       },
     ],
     outro: 'Eyes and ears agreeing on the same idea — that is when reading starts to feel easy.',
+  },
+  {
+    code: 'echo_three',
+    title: 'Echo the Ditty',
+    strand: 'ear',
+    blurb: 'I play a tiny tune. You play it back.',
+    exerciseCount: 5,
+    teach: [
+      {
+        heading: 'Listen, then answer',
+        body: 'Three notes will play, and the stones will light up as they sound. Wait until it finishes, then play the same three back. This is how musicians have learned tunes for thousands of years — long before anyone wrote anything down.',
+        figure: { kind: 'keyboard', highlight: ['C4', 'E4', 'G4'], labelWhite: true },
+      },
+      {
+        heading: 'Hum it first',
+        body: 'Here is the secret: hum the tune to yourself before you touch a key. If you can hum it, your fingers can nearly always find it. If you cannot hum it, listen once more — there is no rush and no penalty.',
+      },
+    ],
+    outro: 'Playing back what you hear is the ear and the hand learning to trust each other.',
+  },
+  {
+    code: 'echo_five',
+    title: 'Longer Ditties',
+    strand: 'ear',
+    blurb: 'Five notes now. Hold the whole shape in your head.',
+    exerciseCount: 5,
+    teach: [
+      {
+        heading: 'Hear the shape, not just the notes',
+        body: 'Five notes are too many to grab one at a time. Instead listen to the SHAPE — does it climb and come back? Does it dip in the middle? Remember the shape and the notes come along with it.',
+      },
+    ],
+    outro: 'You are holding a whole phrase in your head now. That is real musical memory.',
+  },
+  {
+    code: 'echo_by_ear',
+    title: 'No Lights',
+    strand: 'ear',
+    blurb: 'The stones stay dark. Only your ears to go on.',
+    exerciseCount: 5,
+    teach: [
+      {
+        heading: 'Ears only',
+        body: 'No lights this time — you have to find the notes by listening. Start by finding the FIRST note; hunt for it, and it is fine to try a few. Once the first one is right, the rest is just steps and skips from there.',
+      },
+    ],
+    outro: 'That is audiation — hearing music in your mind and then making it real.',
+  },
+  {
+    code: 'echo_with_rhythm',
+    title: 'Tune and Timing',
+    strand: 'ear',
+    blurb: 'The right notes AND the right lengths.',
+    exerciseCount: 5,
+    teach: [
+      {
+        heading: 'Both at once',
+        body: 'Now the notes have different lengths. Play the same tune, and hold the long notes as long as they were held for you. This is the hardest one here, and it is exactly what playing a real piece asks of you.',
+        figure: { kind: 'rhythm', pattern: ['quarter', 'quarter', 'quarter', 'half'] },
+      },
+    ],
+    outro: 'Notes and time together — that is a performance, not an exercise.',
+  },
+  {
+    code: 'intervals_by_number',
+    title: 'Counting the Distance',
+    strand: 'notation',
+    blurb: 'Steps and skips get proper names: 2nds, 3rds, 4ths, 5ths.',
+    exerciseCount: 6,
+    teach: [
+      {
+        heading: 'Count both ends',
+        body: 'A step is really a 2nd, and a skip is a 3rd. To find the size, count the letters including BOTH notes: C to E is C-D-E — three letters — so it is a 3rd. Nearly everyone forgets to count the note they started on.',
+        figure: { kind: 'staff', notes: [{ letter: 'C', octave: 4 }, { letter: 'E', octave: 4 }], caption: 'C to E — a 3rd' },
+      },
+      {
+        heading: 'Shapes on the page',
+        body: 'A 2nd goes line to the very next space. A 3rd goes line to line, or space to space. A 5th is a big friendly stretch — your thumb and little finger in C position are a 5th apart.',
+        figure: { kind: 'staff', notes: [{ letter: 'C', octave: 4 }, { letter: 'G', octave: 4 }], caption: 'C to G — a 5th' },
+      },
+    ],
+    outro: 'Numbers instead of nicknames. This is the language the rest of music is written in.',
+  },
+  {
+    code: 'bass_clef_intro',
+    title: 'The Other Clef',
+    strand: 'notation',
+    blurb: 'The left hand gets its own staff, and its own letters.',
+    exerciseCount: 6,
+    teach: [
+      {
+        heading: 'Two dots around the F line',
+        body: 'The bass clef is where your left hand lives. Its two dots sit either side of the F line, which is how the clef tells you where F is — and everything else counts from there.',
+        figure: { kind: 'staff', notes: [{ letter: 'F', octave: 3 }], caption: 'F — between the two dots', clef: 'bass' },
+      },
+      {
+        heading: 'New lines, new spaces',
+        body: 'The lines climb G–B–D–F–A, and the spaces climb A–C–E–G. The letters are the same old alphabet; they just sit in different places than they do in treble clef. That is the only thing that changes.',
+        figure: { kind: 'staff', notes: [{ letter: 'G', octave: 2 }, { letter: 'B', octave: 2 }, { letter: 'D', octave: 3 }, { letter: 'F', octave: 3 }, { letter: 'A', octave: 3 }], caption: 'the bass lines', clef: 'bass' },
+      },
+    ],
+    outro: 'Two clefs now. Your two hands can finally read at the same time.',
+  },
+  {
+    code: 'bass_reading',
+    title: 'Reading Down There',
+    strand: 'notation',
+    blurb: 'Getting quick with the left hand\'s notes.',
+    exerciseCount: 8,
+    teach: [
+      {
+        heading: 'Practice makes it automatic',
+        body: 'Bass clef feels slow at first for everybody — you are undoing a habit. Find one landmark you trust (F between the dots, or middle C just above the staff) and count from it. Speed arrives on its own.',
+        figure: { kind: 'staff', notes: [{ letter: 'C', octave: 4 }], caption: 'middle C — just ABOVE the bass staff', clef: 'bass' },
+      },
+    ],
+    outro: 'Middle C sits below the treble staff and above the bass one. It is the note where your two hands meet.',
   },
   {
     code: 'note_values',

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createServiceClient } from '@/lib/supabase/server';
 import { getUnit } from '@/lib/music/curriculum';
+import { recordResult, todayKey, type ReviewMap } from '@/lib/music/review';
 import { grantVirtueGem } from '@/lib/engine/virtueGrants';
 
 export const dynamic = 'force-dynamic';
@@ -60,9 +61,11 @@ export async function POST(req: Request) {
   const { error } = await db.from('attempt').insert(rows);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
+  // FIRST-TRY correct is what counts for scheduling: getting there
+  // after three wrong guesses is not the same as knowing it.
   const correctCount = body.results.filter(r => r.correct).length;
+  const accuracy = correctCount / body.results.length;
 
-  // Record the unit as done so the next one in its strand opens.
   const { data: stateRow } = await db
     .from('world_state')
     .select('garden')
@@ -73,13 +76,18 @@ export async function POST(req: Request) {
   const alreadyDone = done.includes(unit.code);
   // Finishing means getting most of it right, not merely reaching the end.
   const passed = correctCount >= Math.ceil(body.results.length * 0.7);
-  if (passed && !alreadyDone) {
-    garden.music_units = [...done, unit.code];
-    await db.from('world_state').upsert(
-      { learner_id: body.learnerId, garden, last_updated_at: new Date().toISOString() },
-      { onConflict: 'learner_id' },
-    );
-  }
+
+  // Schedule the unit's next review whatever happened — a shaky pass
+  // should come back tomorrow, a clean one in a month.
+  const review: ReviewMap = (garden.music_review as ReviewMap) ?? {};
+  review[unit.code] = recordResult(review[unit.code], accuracy, todayKey());
+  garden.music_review = review;
+  if (passed && !alreadyDone) garden.music_units = [...done, unit.code];
+
+  await db.from('world_state').upsert(
+    { learner_id: body.learnerId, garden, last_updated_at: new Date().toISOString() },
+    { onConflict: 'learner_id' },
+  );
 
   let gemGranted = false;
   if (passed && !alreadyDone) {
@@ -93,10 +101,12 @@ export async function POST(req: Request) {
   return NextResponse.json({
     recorded: rows.length,
     correctCount,
+    accuracy,
     passed,
     alreadyDone,
     gemGranted,
     completed: garden.music_units ?? done,
+    review,
   });
 }
 
@@ -115,5 +125,6 @@ export async function GET(req: Request) {
 
   return NextResponse.json({
     completed: Array.isArray(garden.music_units) ? garden.music_units : [],
+    review: (garden.music_review as ReviewMap) ?? {},
   });
 }
