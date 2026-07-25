@@ -49,6 +49,172 @@ const BACHAN_SHAWL = '#C38D9E';       // rose
 const BACHAN_APRON = '#FFFDF2';       // cream
 const BACHAN_SKIRT = '#6B8E5A';       // forest green
 
+// Hodge the beaver — warm chestnut fur, a paler muzzle and belly, and
+// the flat cross-hatched tail that makes a beaver a beaver at a glance.
+const HODGE_FUR = '#8A5E39';
+const HODGE_FUR_DARK = '#6B4527';
+const HODGE_BELLY = '#C9A374';
+const HODGE_TAIL = '#5C4029';
+const HODGE_TOOTH = '#F6EFD6';
+
+// ─────────────────────────────────────────────────────────────────────────
+// HODGE — the beaver by the brook. Drawn to the same (-16,-32)→(16,28)
+// box and the same line weights as BachanFigure so the two read as
+// neighbours rather than a character standing next to a sticker. He
+// leans on a gnawed log, because he is an engineer and never idle.
+// ─────────────────────────────────────────────────────────────────────────
+
+function HodgeFigure({ isAlert }: { isAlert: boolean }) {
+  return (
+    <g style={{ transform: 'translate(0, -6px)', opacity: isAlert ? 1 : 0.72 }}>
+      {/* ground shadow */}
+      <ellipse cx={0} cy={30} rx={16} ry={3.2} fill="#000" opacity={0.22} />
+
+      {/* TAIL — flat, paddle-shaped, swung out to one side with the
+          cross-hatched scales beavers actually have */}
+      <g transform="rotate(16 14 20)">
+        <ellipse cx={17} cy={21} rx={9} ry={5.5} fill={HODGE_TAIL} stroke={BACHAN_LINE} strokeWidth={1.3} />
+        {[-4, 0, 4].map(t => (
+          <line key={t} x1={10 + t + 2} y1={17.5} x2={10 + t + 2} y2={24.5}
+                stroke="#4A3320" strokeWidth={0.6} opacity={0.8} />
+        ))}
+        {[-2.4, 1.6].map(t => (
+          <line key={t} x1={9} y1={21 + t} x2={25} y2={21 + t}
+                stroke="#4A3320" strokeWidth={0.6} opacity={0.8} />
+        ))}
+      </g>
+
+      {/* HIND FEET — webbed, poking out below the body */}
+      <ellipse cx={-7} cy={27} rx={4.4} ry={2.4} fill={HODGE_FUR_DARK} stroke={BACHAN_LINE} strokeWidth={1} />
+      <ellipse cx={5} cy={27.5} rx={4.4} ry={2.4} fill={HODGE_FUR_DARK} stroke={BACHAN_LINE} strokeWidth={1} />
+
+      {/* BODY — pear-shaped, wider at the bottom */}
+      <path
+        d="M -9 -2
+           Q -13 10 -12 20
+           Q -6 26 0 26
+           Q 7 26 12 20
+           Q 13 10 9 -2 Z"
+        fill={HODGE_FUR} stroke={BACHAN_LINE} strokeWidth={1.4} strokeLinejoin="round"
+      />
+      {/* paler belly */}
+      <path d="M -6 4 Q -8 12 -7 20 Q -3 23 0 23 Q 4 23 7 20 Q 8 12 6 4 Z"
+            fill={HODGE_BELLY} opacity={0.9} />
+
+      {/* THE GNAWED LOG he leans on — a beaver's calling card */}
+      <g>
+        <ellipse cx={-13} cy={22} rx={7} ry={3.4} fill="#8A6238" stroke={BACHAN_LINE} strokeWidth={1.1}
+                 transform="rotate(-12 -13 22)" />
+        <ellipse cx={-18.5} cy={20.8} rx={2.4} ry={3} fill="#C9A66A" stroke={BACHAN_LINE} strokeWidth={0.9} />
+        {/* the chewed point */}
+        <path d="M -7.5 23.5 L -4 21.5 L -7.5 20 Z" fill="#C9A66A" stroke={BACHAN_LINE} strokeWidth={0.8}
+              strokeLinejoin="round" />
+      </g>
+
+      {/* ARMS — one resting on the log, one at his side */}
+      <path d="M -8 2 Q -12 10 -10 17" stroke={HODGE_FUR} strokeWidth={3.2} fill="none" strokeLinecap="round" />
+      <path d="M 8 2 Q 12 9 10 15" stroke={HODGE_FUR} strokeWidth={3.2} fill="none" strokeLinecap="round" />
+      <ellipse cx={-10} cy={18} rx={2.2} ry={1.8} fill={HODGE_FUR_DARK} stroke={BACHAN_LINE} strokeWidth={0.8} />
+      <ellipse cx={10} cy={16} rx={2.2} ry={1.8} fill={HODGE_FUR_DARK} stroke={BACHAN_LINE} strokeWidth={0.8} />
+
+      {/* HEAD — broad and round */}
+      <ellipse cx={0} cy={-11} rx={10.5} ry={9} fill={HODGE_FUR} stroke={BACHAN_LINE} strokeWidth={1.4} />
+
+      {/* small round ears set wide */}
+      <circle cx={-8.5} cy={-18} r={2.8} fill={HODGE_FUR_DARK} stroke={BACHAN_LINE} strokeWidth={1} />
+      <circle cx={8.5} cy={-18} r={2.8} fill={HODGE_FUR_DARK} stroke={BACHAN_LINE} strokeWidth={1} />
+
+      {/* MUZZLE — pale, wide, sitting low on the face */}
+      <ellipse cx={0} cy={-7} rx={7} ry={5} fill={HODGE_BELLY} stroke={BACHAN_LINE} strokeWidth={1} />
+      {/* nose */}
+      <ellipse cx={0} cy={-10} rx={2} ry={1.5} fill="#3F2817" />
+      {/* whisker dots + whiskers */}
+      {[-3.5, 3.5].map(sx => (
+        <g key={sx}>
+          <circle cx={sx} cy={-7.5} r={0.4} fill={BACHAN_LINE} opacity={0.6} />
+          <path d={`M ${sx * 1.6} ${-7.6} q ${sx > 0 ? 5 : -5} ${-1.4} ${sx > 0 ? 7 : -7} ${-1}`}
+                stroke={BACHAN_LINE} strokeWidth={0.5} fill="none" opacity={0.55} strokeLinecap="round" />
+        </g>
+      ))}
+      {/* THE TEETH — two big orange-tinged incisors, the whole point */}
+      <rect x={-2.4} y={-6.2} width={2.1} height={3.6} rx={0.5}
+            fill={HODGE_TOOTH} stroke={BACHAN_LINE} strokeWidth={0.7} />
+      <rect x={0.3} y={-6.2} width={2.1} height={3.6} rx={0.5}
+            fill={HODGE_TOOTH} stroke={BACHAN_LINE} strokeWidth={0.7} />
+
+      {/* EYES — friendly, dark, with a shine */}
+      <circle cx={-4.2} cy={-14} r={1.9} fill="#2A1A0E" />
+      <circle cx={4.2} cy={-14} r={1.9} fill="#2A1A0E" />
+      <circle cx={-3.6} cy={-14.8} r={0.7} fill="#FFFFFF" opacity={0.9} />
+      <circle cx={4.8} cy={-14.8} r={0.7} fill="#FFFFFF" opacity={0.9} />
+      {/* soft brows give him his cheerful, slightly smug look */}
+      <path d="M -6.4 -17 Q -4.2 -18 -2.2 -17.2" stroke={HODGE_FUR_DARK} strokeWidth={0.8}
+            fill="none" strokeLinecap="round" />
+      <path d="M 2.2 -17.2 Q 4.2 -18 6.4 -17" stroke={HODGE_FUR_DARK} strokeWidth={0.8}
+            fill="none" strokeLinecap="round" />
+    </g>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────
+// THE WANDERER'S SIGNPOST — a weathered wooden post with pointing arms,
+// one per direction the child can go. Same box and line weights again.
+// ─────────────────────────────────────────────────────────────────────────
+
+function SignpostFigure({ isAlert }: { isAlert: boolean }) {
+  const WOOD = '#A9774C';
+  const WOOD_DARK = '#7B4F2C';
+  return (
+    <g style={{ transform: 'translate(0, -6px)', opacity: isAlert ? 1 : 0.72 }}>
+      <ellipse cx={0} cy={30} rx={12} ry={3} fill="#000" opacity={0.22} />
+
+      {/* a tuft of grass round the foot so it sits IN the ground */}
+      <path d="M -8 30 Q -7 25 -5 22 M -5 30 Q -4 26 -2 23"
+            stroke="#5C7E4F" strokeWidth={1.3} fill="none" strokeLinecap="round" />
+      <path d="M 8 30 Q 7 25 5 22 M 5 30 Q 4 26 2 23"
+            stroke="#5C7E4F" strokeWidth={1.3} fill="none" strokeLinecap="round" />
+
+      {/* POST */}
+      <rect x={-3} y={-22} width={6} height={52} rx={1.5}
+            fill={WOOD} stroke={BACHAN_LINE} strokeWidth={1.3} />
+      {/* woodgrain */}
+      <line x1={-1} y1={-19} x2={-1} y2={26} stroke={WOOD_DARK} strokeWidth={0.6} opacity={0.6} />
+      <line x1={1.2} y1={-14} x2={1.2} y2={20} stroke={WOOD_DARK} strokeWidth={0.5} opacity={0.45} />
+      {/* little peaked cap keeps the rain out */}
+      <path d="M -5 -22 L 0 -27 L 5 -22 Z" fill={WOOD_DARK} stroke={BACHAN_LINE}
+            strokeWidth={1.1} strokeLinejoin="round" />
+
+      {/* THREE ARMS pointing different ways, each a plank with a
+          pointed end and two nail-heads */}
+      {[
+        { y: -17, dir: 1, w: 20 },
+        { y: -7, dir: -1, w: 22 },
+        { y: 3, dir: 1, w: 17 },
+      ].map((arm, i) => (
+        <g key={i} transform={`translate(0, ${arm.y}) scale(${arm.dir}, 1)`}>
+          <path
+            d={`M 2 -3.4 L ${arm.w - 4} -3.4 L ${arm.w} 0 L ${arm.w - 4} 3.4 L 2 3.4 Z`}
+            fill={WOOD} stroke={BACHAN_LINE} strokeWidth={1.2} strokeLinejoin="round"
+          />
+          {/* faint carved line standing in for lettering */}
+          <line x1={5} y1={0} x2={arm.w - 6} y2={0}
+                stroke={WOOD_DARK} strokeWidth={0.8} opacity={0.65} strokeLinecap="round" />
+          <circle cx={4} cy={-2} r={0.5} fill={WOOD_DARK} opacity={0.8} />
+          <circle cx={4} cy={2} r={0.5} fill={WOOD_DARK} opacity={0.8} />
+        </g>
+      ))}
+
+      {/* a little vine curling up the post — the garden reclaiming it */}
+      <path d="M 3 24 Q 7 18 3 12 Q -1 7 3 1"
+            stroke="#5C7E4F" strokeWidth={1.1} fill="none" strokeLinecap="round" />
+      <ellipse cx={6} cy={19} rx={2} ry={1.3} fill="#7BA46F" stroke="#3F5A30" strokeWidth={0.5}
+               transform="rotate(-24 6 19)" />
+      <ellipse cx={0.5} cy={9} rx={2} ry={1.3} fill="#7BA46F" stroke="#3F5A30" strokeWidth={0.5}
+               transform="rotate(20 0.5 9)" />
+    </g>
+  );
+}
+
 function BachanFigure({ isAlert }: { isAlert: boolean }) {
   // Whole figure scales from a (-16, -32) → (16, 28) box. Slight idle
   // sway when alert; otherwise still.
@@ -1257,19 +1423,21 @@ export default function GardenScene({
                   {/* invisible hit target — meets 60pt min */}
                   <circle r={36} fill="transparent" />
 
-                  {/* The figure itself: Bachan is a hand-illustrated
-                      grandmother in the same style as Cecily / Esme
-                      (see SisterWalkers). Hodge is a beaver, the
-                      Signpost is a wooden post — both work fine as
-                      large emoji at this scale and don't need bespoke
-                      art yet. */}
+                  {/* The figures are all hand-illustrated now, in the
+                      same style as Cecily / Esme (see SisterWalkers)
+                      and to the same box, so nobody on the map reads
+                      as a sticker beside a drawing. */}
                   {code === 'nana' ? (
                     <BachanFigure isAlert={isAlert} />
+                  ) : code === 'hodge' ? (
+                    <HodgeFigure isAlert={isAlert} />
+                  ) : code === 'signpost' ? (
+                    <SignpostFigure isAlert={isAlert} />
                   ) : (
                     <text
                       textAnchor="middle"
                       dominantBaseline="central"
-                      fontSize={code === 'signpost' ? 36 : 32}
+                      fontSize={36}
                       opacity={isAlert ? 1 : 0.55}
                     >
                       {s.themeEmoji}
@@ -1278,11 +1446,11 @@ export default function GardenScene({
 
                   {/* name banner */}
                   <rect
-                    x={-44} y={code === 'nana' ? 28 : 22} width={88} height={16} rx={4}
+                    x={-44} y={28} width={88} height={16} rx={4}
                     fill="rgba(195, 141, 158, 0.95)"
                   />
                   <text
-                    x={0} y={code === 'nana' ? 39 : 33} textAnchor="middle"
+                    x={0} y={39} textAnchor="middle"
                     fontSize={9} fontWeight={700}
                     fill="#fffaf2"
                   >
@@ -1292,12 +1460,12 @@ export default function GardenScene({
                   {isAlert && rec?.structureLabel && (
                     <>
                       <rect
-                        x={-62} y={code === 'nana' ? 46 : 40} width={124} height={14} rx={4}
+                        x={-62} y={46} width={124} height={14} rx={4}
                         fill="rgba(255, 250, 242, 0.88)"
                         stroke="#d8c8a8" strokeWidth={0.5}
                       />
                       <text
-                        x={0} y={code === 'nana' ? 55 : 49} textAnchor="middle"
+                        x={0} y={55} textAnchor="middle"
                         fontSize={8} fontStyle="italic"
                         fill="#6b4423"
                       >
