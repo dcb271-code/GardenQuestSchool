@@ -76,6 +76,34 @@ export default function PlantInspectModal({
               <h3 className="font-display text-[22px] text-bark" style={{ fontWeight: 600 }}>{plant.commonName}</h3>
               <div className="font-display italic text-[12px] text-bark/55">{plant.scientificName}</div>
             </div>
+            {/* Japanese-garden plants carry their real name in kanji.
+                The characters are set large enough to actually look at
+                — that's the point — with the reading beneath and one
+                line about what the characters are made of. */}
+            {plant.japanese && (
+              <div className="bg-white/60 border-2 border-sage/50 rounded-xl px-3 py-2.5 space-y-1">
+                <div className="flex items-center justify-center gap-3">
+                  <span
+                    lang="ja"
+                    className="text-bark leading-none"
+                    style={{ fontSize: 34, fontWeight: 500 }}
+                  >
+                    {plant.japanese.kanji}
+                  </span>
+                  <span className="text-left">
+                    <span className="block font-display text-[15px] text-bark" style={{ fontWeight: 700 }}>
+                      {plant.japanese.romaji}
+                    </span>
+                    <span className="block font-display italic text-[12px] text-bark/60">
+                      &ldquo;{plant.japanese.gloss}&rdquo;
+                    </span>
+                  </span>
+                </div>
+                <div className="font-display text-[12px] text-bark/70 leading-snug text-left">
+                  {plant.japanese.note}
+                </div>
+              </div>
+            )}
             <div className="font-display italic text-[14px] text-forest">{progressHint(plant, progress)}</div>
             <div className="bg-white/70 border-2 border-ochre/40 rounded-xl p-3 text-left text-[14px] text-bark font-display">
               {plant.facts[factIndex]}

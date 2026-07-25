@@ -8,8 +8,8 @@ import {
 } from '@/lib/world/seedEarnSchedule';
 
 describe('SEED_EARN_SCHEDULE', () => {
-  it('has 39 entries in ascending threshold order', () => {
-    expect(SEED_EARN_SCHEDULE).toHaveLength(39);
+  it('has 43 entries in ascending threshold order', () => {
+    expect(SEED_EARN_SCHEDULE).toHaveLength(43);
     for (let i = 1; i < SEED_EARN_SCHEDULE.length; i++) {
       expect(SEED_EARN_SCHEDULE[i].atCorrect).toBeGreaterThan(SEED_EARN_SCHEDULE[i - 1].atCorrect);
     }
@@ -38,7 +38,9 @@ describe('getEarnedSeedCodes', () => {
     expect(codes).toContain('lupine');
     expect(codes).toContain('pawpaw');
     expect(codes).toContain('nightphlox');
-    expect(codes).toHaveLength(39);
+    expect(codes).toContain('moss');
+    expect(codes).toContain('fuji');
+    expect(codes).toHaveLength(43);
   });
 });
 

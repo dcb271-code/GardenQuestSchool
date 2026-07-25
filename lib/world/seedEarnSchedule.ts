@@ -35,12 +35,20 @@ export const SEED_EARN_SCHEDULE: SeedEarn[] = [
   { atCorrect: 750,  plantCode: 'strawberry' },
   { atCorrect: 800,  plantCode: 'milkweed' },
   { atCorrect: 850,  plantCode: 'blueberry' },
-  { atCorrect: 950,  plantCode: 'bamboo',    opensQuadrant: 'japanese' },
+  // Japanese garden: 6 plots, so it opens with a CHEAP filler (moss,
+  // 40 to mature) and then earns a species roughly every 75–100 so the
+  // bed is never five empty moss islands and one lonely bamboo.
+  { atCorrect: 950,  plantCode: 'moss',      opensQuadrant: 'japanese' },
+  { atCorrect: 1000, plantCode: 'bamboo' },
+  { atCorrect: 1075, plantCode: 'kiku' },
   { atCorrect: 1100, plantCode: 'beebalm' },
-  { atCorrect: 1250, plantCode: 'bonsai' },
-  // lupine + cherry moved slightly EARLIER (1400→1350, 1600→1550) to
-  // free their old slots for the orchard/berry quadrant opens below —
-  // strictly more generous, no learner can lose an earned seed.
+  { atCorrect: 1150, plantCode: 'momiji' },
+  { atCorrect: 1225, plantCode: 'bonsai' },
+  { atCorrect: 1300, plantCode: 'fuji' },
+  // lupine + cherry moved EARLIER (lupine 1400→1350; cherry 1600→1550
+  // →1450) to free slots for the orchard/berry opens and to pull the
+  // japanese bed's third tree within reach — strictly more generous,
+  // so no learner can lose a seed they already earned.
   { atCorrect: 1350, plantCode: 'lupine' },
   // ── beyond the trellis ──────────────────────────────────────────
   // These quadrants live on the second grow screen. The screen itself
@@ -48,8 +56,8 @@ export const SEED_EARN_SCHEDULE: SeedEarn[] = [
   // counts below only pace seed earns / quadrant opens once through.
   // Quadrants wake at 1400 and then every 200: 1600 / 1800 / 2000.
   { atCorrect: 1400, plantCode: 'peach',          opensQuadrant: 'orchard' },
+  { atCorrect: 1450, plantCode: 'cherry' },
   { atCorrect: 1500, plantCode: 'pawpaw' },
-  { atCorrect: 1550, plantCode: 'cherry' },
   { atCorrect: 1600, plantCode: 'raspberry',      opensQuadrant: 'berry' },
   { atCorrect: 1700, plantCode: 'plum' },
   { atCorrect: 1750, plantCode: 'blackberry' },

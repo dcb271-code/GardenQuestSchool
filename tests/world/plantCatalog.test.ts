@@ -1,7 +1,7 @@
 // tests/world/plantCatalog.test.ts
 import { describe, it, expect } from 'vitest';
 import { PLANT_CATALOG, getPlant, plantStageFor } from '@/lib/world/plantCatalog';
-import { SEED_EARN_SCHEDULE } from '@/lib/world/seedEarnSchedule';
+import { SEED_EARN_SCHEDULE, getEarnedSeedCodes } from '@/lib/world/seedEarnSchedule';
 
 describe('PLANT_CATALOG', () => {
   it('has an entry for every plant code in the earn schedule', () => {
@@ -60,5 +60,51 @@ describe('plantStageFor', () => {
     // radish stages at 0, 0.2, 0.5, 1.0
     expect(plantStageFor(radish, radish.growthCost * 0.4).illustration).toBe('plant_radish_sprout');
     expect(plantStageFor(radish, radish.growthCost * 0.6).illustration).toBe('plant_radish_leaves');
+  });
+});
+
+describe('japanese garden', () => {
+  const japanesePlants = PLANT_CATALOG.filter(p => p.garden === 'japanese');
+
+  it('has at least as many species as the bed has plots (6)', () => {
+    expect(japanesePlants.length).toBeGreaterThanOrEqual(6);
+  });
+
+  it('every japanese-garden plant carries a kanji name; no other garden does', () => {
+    for (const p of PLANT_CATALOG) {
+      if (p.garden === 'japanese') {
+        expect(p.japanese, `${p.code} is missing its japanese name`).toBeDefined();
+      } else {
+        expect(p.japanese, `${p.code} should not have a japanese name`).toBeUndefined();
+      }
+    }
+  });
+
+  it('kanji entries are well-formed: real characters, a reading, a gloss and a note', () => {
+    for (const p of japanesePlants) {
+      const j = p.japanese!;
+      expect(j.kanji.length, p.code).toBeGreaterThanOrEqual(1);
+      // CJK ideographs only — catches a stray romaji/kana typo in the field.
+      expect(j.kanji, p.code).toMatch(/^[一-鿿]+$/);
+      expect(j.romaji, p.code).toMatch(/^[a-z]+$/);
+      expect(j.gloss.length, p.code).toBeGreaterThan(2);
+      expect(j.note.length, p.code).toBeGreaterThan(20);
+    }
+  });
+
+  it('the bed fills soon after it opens — a cheap plant is earnable at the unlock', () => {
+    const openAt = SEED_EARN_SCHEDULE.find(s => s.opensQuadrant === 'japanese')!;
+    const opener = getPlant(openAt.plantCode)!;
+    expect(opener.garden).toBe('japanese');
+    // Whatever opens the bed must be quick to mature, so the plots
+    // aren't bare while the child waits on a 400-cost tree.
+    expect(opener.growthCost).toBeLessThanOrEqual(100);
+  });
+
+  it('6 japanese species are earnable by 1300 correct — one per plot', () => {
+    const earnedBy1300 = getEarnedSeedCodes(1300)
+      .map(c => getPlant(c)!)
+      .filter(p => p.garden === 'japanese');
+    expect(earnedBy1300.length).toBeGreaterThanOrEqual(6);
   });
 });

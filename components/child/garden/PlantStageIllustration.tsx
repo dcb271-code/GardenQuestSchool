@@ -12,6 +12,7 @@
 'use client';
 
 import { BeyondPlantStageIllustration } from './BeyondPlantStages';
+import { JapanesePlantStageIllustration } from './JapanesePlantStages';
 
 const STROKE = '#5A3B1F';
 
@@ -2034,8 +2035,14 @@ export function PlantStageIllustration({ code, x, y, size }: Props) {
     case 'plant_beebalm_sprout': return <BeebalmSprout x={x} y={y} size={size} />;
     case 'plant_beebalm_bud':    return <BeebalmBud x={x} y={y} size={size} />;
     case 'plant_beebalm_bloom':  return <BeebalmBloom x={x} y={y} size={size} />;
-    // beyond-the-trellis plants (orchard / berry / herb / moon) live in
-    // their own file so this one stops growing.
-    default: return <BeyondPlantStageIllustration code={code} x={x} y={y} size={size} />;
+    // Later plant sets live in their own files so this one stops
+    // growing. Each dispatcher returns null for codes it doesn't know,
+    // so we fall through the chain: beyond-the-trellis (orchard /
+    // berry / herb / moon), then the japanese-garden additions.
+    default:
+      return (
+        BeyondPlantStageIllustration({ code, x, y, size })
+        ?? <JapanesePlantStageIllustration code={code} x={x} y={y} size={size} />
+      );
   }
 }

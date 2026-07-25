@@ -73,6 +73,13 @@ export default function EmptyPlotPicker({
                     <span className="font-display text-[13px] text-bark" style={{ fontWeight: 600 }}>
                       {seed.commonName}
                     </span>
+                    {seed.japanese && (
+                      <span className="font-display text-[11px] text-bark/60 leading-none">
+                        <span lang="ja" className="text-[13px]">{seed.japanese.kanji}</span>
+                        {' '}
+                        <span className="italic">{seed.japanese.romaji}</span>
+                      </span>
+                    )}
                   </button>
                 ))}
               </div>

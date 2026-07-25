@@ -16,6 +16,25 @@ export interface PlantStage {
   illustration: string;          // PlantStageIllustration code: plant_<code>_<stage>
 }
 
+/**
+ * The Japanese name of a plant, for the japanese-garden bed. Shown on
+ * the plant's card as real kanji with its reading — the girls are
+ * quarter-Japanese, so this bed carries a little of their own
+ * language rather than generic "zen" decoration.
+ *
+ * `note` teaches something true about the CHARACTERS themselves.
+ * Several of these plants share the grass radical 艹 (the little
+ * "grass hat" drawn on top of a character to mark a growing plant) —
+ * a pattern a child can start spotting on her own, which is the whole
+ * point of including the kanji at all.
+ */
+export interface JapaneseName {
+  kanji: string;                 // 竹
+  romaji: string;                // take
+  gloss: string;                 // short literal meaning
+  note: string;                  // one kid-readable line about the characters
+}
+
 export interface PlantData {
   code: string;
   commonName: string;
@@ -27,6 +46,8 @@ export interface PlantData {
   facts: string[];               // 2-3 short kid-readable facts
   growingTip: string;
   stages: PlantStage[];          // first atProgress=0, last atProgress=1
+  /** Japanese-garden plants only — kanji + reading shown on the card. */
+  japanese?: JapaneseName;
 }
 
 export const PLANT_CATALOG: PlantData[] = [
@@ -417,6 +438,10 @@ export const PLANT_CATALOG: PlantData[] = [
       { atProgress: 0.55, illustration: 'plant_bamboo_stalk' },
       { atProgress: 1,    illustration: 'plant_bamboo_cluster' },
     ],
+    japanese: {
+      kanji: '竹', romaji: 'take', gloss: 'bamboo',
+      note: 'The character is a little picture of two bamboo stems with leaves drooping off them.',
+    },
   },
   {
     code: 'bonsai',
@@ -438,6 +463,10 @@ export const PLANT_CATALOG: PlantData[] = [
       { atProgress: 0.55, illustration: 'plant_bonsai_young' },
       { atProgress: 1,    illustration: 'plant_bonsai_mature' },
     ],
+    japanese: {
+      kanji: '盆栽', romaji: 'bonsai', gloss: 'tray planting',
+      note: 'Two characters: 盆 (bon) is a shallow tray, and 栽 (sai) means planting. A tree planted in a tray.',
+    },
   },
   {
     code: 'cherry',
@@ -460,6 +489,114 @@ export const PLANT_CATALOG: PlantData[] = [
       { atProgress: 0.75, illustration: 'plant_cherry_young' },
       { atProgress: 1,    illustration: 'plant_cherry_bloom' },
     ],
+    japanese: {
+      kanji: '桜', romaji: 'sakura', gloss: 'cherry blossom',
+      note: 'The left half, 木, means "tree" — it tells you straight away that this is a kind of tree.',
+    },
+  },
+
+  // ─── JAPANESE GARDEN (added 2026-07-25) ───────────────────────────
+  {
+    code: 'moss',
+    commonName: 'Garden moss',
+    scientificName: 'Bryophyta',
+    garden: 'japanese',
+    growthCost: 40,
+    sun: 'shade',
+    water: 'high',
+    facts: [
+      'Moss has no roots at all. It drinks rain straight through its tiny leaves.',
+      'Moss makes no seeds and no flowers — it grows from spores, the way a mushroom does.',
+      'A temple garden in Kyoto grows more than 120 different kinds of moss together. People call it the moss temple.',
+    ],
+    growingTip: 'Moss wants shade and damp. Never let it bake in the afternoon sun.',
+    stages: [
+      { atProgress: 0,    illustration: 'plant_moss_spore' },
+      { atProgress: 0.3,  illustration: 'plant_moss_patch' },
+      { atProgress: 0.65, illustration: 'plant_moss_cushion' },
+      { atProgress: 1,    illustration: 'plant_moss_carpet' },
+    ],
+    japanese: {
+      kanji: '苔', romaji: 'koke', gloss: 'moss',
+      note: 'See the little "grass hat" ⺾ on top? That mark is added to characters for small growing plants — look for it on other plants here.',
+    },
+  },
+  {
+    code: 'momiji',
+    commonName: 'Japanese maple',
+    scientificName: 'Acer palmatum',
+    garden: 'japanese',
+    growthCost: 280,
+    sun: 'partial',
+    water: 'medium',
+    facts: [
+      'In autumn whole families travel just to look at maples turning red. The word for it is momijigari — "autumn-leaf hunting."',
+      'A leaf\'s yellow was hiding inside it all summer. But a maple\'s red is brand new — the tree makes it in autumn, like one last burst of paint.',
+      'Its other name, kaede, comes from kaeru-de: "frog\'s hand." The pointed leaves look like little webbed hands.',
+    ],
+    growingTip: 'Harsh afternoon sun scorches the leaf edges. Dappled shade keeps the colour clean.',
+    stages: [
+      { atProgress: 0,    illustration: 'plant_momiji_seed' },
+      { atProgress: 0.12, illustration: 'plant_momiji_sprout' },
+      { atProgress: 0.4,  illustration: 'plant_momiji_twig' },
+      { atProgress: 0.72, illustration: 'plant_momiji_young' },
+      { atProgress: 1,    illustration: 'plant_momiji_blaze' },
+    ],
+    japanese: {
+      kanji: '紅葉', romaji: 'momiji', gloss: 'crimson leaves',
+      note: '紅 means crimson and 葉 means leaf. The very same two characters can also be read kōyō — the word for autumn colour itself.',
+    },
+  },
+  {
+    code: 'kiku',
+    commonName: 'Chrysanthemum',
+    scientificName: 'Chrysanthemum morifolium',
+    garden: 'japanese',
+    growthCost: 90,
+    sun: 'full',
+    water: 'medium',
+    facts: [
+      'The kiku is Japan\'s imperial flower. A sixteen-petal chrysanthemum is stamped on the cover of every Japanese passport.',
+      'What looks like ONE flower is really hundreds of tiny flowers packed together — every "petal" is its own little bloom.',
+      'At autumn kiku festivals, growers show single plants trained to open hundreds of blossoms at once.',
+    ],
+    growingTip: 'Pinch the growing tips in early summer and one plant will give you many more flowers.',
+    stages: [
+      { atProgress: 0,    illustration: 'plant_kiku_seed' },
+      { atProgress: 0.25, illustration: 'plant_kiku_sprout' },
+      { atProgress: 0.6,  illustration: 'plant_kiku_bud' },
+      { atProgress: 1,    illustration: 'plant_kiku_bloom' },
+    ],
+    japanese: {
+      kanji: '菊', romaji: 'kiku', gloss: 'chrysanthemum',
+      note: 'The grass hat ⺾ sits on top again — and underneath is a hand gathering grain, like petals gathered into a bundle.',
+    },
+  },
+  {
+    code: 'fuji',
+    commonName: 'Wisteria',
+    scientificName: 'Wisteria floribunda',
+    garden: 'japanese',
+    growthCost: 320,
+    sun: 'full',
+    water: 'medium',
+    facts: [
+      'Wisteria flowers hang down in long chains. On old vines a single chain can dangle longer than your arm — a purple waterfall.',
+      'A fuji vine climbs by twisting its whole stem around its support, winding up and around like a spiral staircase.',
+      'One wisteria in Japan is over 150 years old. It is so heavy that a whole roof of poles holds its branches up.',
+    ],
+    growingTip: 'Give fuji something strong to climb — an old vine can bend a thin metal frame.',
+    stages: [
+      { atProgress: 0,    illustration: 'plant_fuji_seed' },
+      { atProgress: 0.15, illustration: 'plant_fuji_sprout' },
+      { atProgress: 0.45, illustration: 'plant_fuji_vine' },
+      { atProgress: 0.75, illustration: 'plant_fuji_trellis' },
+      { atProgress: 1,    illustration: 'plant_fuji_cascade' },
+    ],
+    japanese: {
+      kanji: '藤', romaji: 'fuji', gloss: 'wisteria',
+      note: 'The grass hat ⺾ once more. You will meet this character in people\'s names too — Satō and Itō both carry the wisteria in them.',
+    },
   },
   // ORCHARD (beyond the trellis)
   {
