@@ -21,6 +21,9 @@ import {
   JAPANESE_UNITS, buildDrill, isUnitUnlocked, getUnit,
   type JapaneseUnit, type DrillQuestion,
 } from '@/lib/world/japaneseSchool';
+import { canTrace } from '@/lib/world/japaneseStrokes';
+import { speakJapanese, prefetchJapanese } from '@/lib/audio/japaneseVoice';
+import TracePad from './TracePad';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
 
 type Phase = 'units' | 'learn' | 'drill' | 'done';
@@ -43,6 +46,9 @@ export default function JapaneseSchoolModal({
   const [missed, setMissed] = useState(false);
   const [wrongCount, setWrongCount] = useState(0);
   const [gemGranted, setGemGranted] = useState(false);
+  /** Flashcards can flip into tracing the character with a finger. */
+  const [tracing, setTracing] = useState(false);
+  const [tracedChars, setTracedChars] = useState<string[]>([]);
 
   const unit: JapaneseUnit | null = unitCode ? getUnit(unitCode) ?? null : null;
   const drill: DrillQuestion[] = useMemo(
@@ -62,12 +68,17 @@ export default function JapaneseSchoolModal({
   }, [open, learnerId]);
 
   const startUnit = (code: string) => {
+    const u = getUnit(code);
     setUnitCode(code);
     setCardIdx(0);
     setQIdx(0);
     setMissed(false);
     setWrongCount(0);
+    setTracing(false);
+    setTracedChars([]);
     setPhase('learn');
+    // Warm the audio cache so the first finished trace speaks instantly.
+    if (u) prefetchJapanese(u.chars.map(c => c.char));
   };
 
   const answer = (idx: number) => {
@@ -191,22 +202,62 @@ export default function JapaneseSchoolModal({
                     {unit.intro}
                   </p>
                 )}
-                <div className="bg-white/80 border-2 border-sage/50 rounded-2xl py-5 px-4 text-center space-y-2">
-                  <div lang="ja" className="text-bark leading-none" style={{ fontSize: 76, fontWeight: 500 }}>
-                    {unit.chars[cardIdx].char}
-                  </div>
-                  <div className="font-display text-[22px] text-forest" style={{ fontWeight: 700 }}>
-                    {unit.chars[cardIdx].romaji}
-                    {unit.chars[cardIdx].meaning && (
-                      <span className="text-bark/70 text-[16px] font-normal italic">
-                        {' '}— {unit.chars[cardIdx].meaning}
+                {tracing && canTrace(unit.chars[cardIdx].char) ? (
+                  <TracePad
+                    char={unit.chars[cardIdx].char}
+                    onComplete={() => setTracedChars(t =>
+                      t.includes(unit.chars[cardIdx].char) ? t : [...t, unit.chars[cardIdx].char])}
+                    onSkip={() => setTracing(false)}
+                  />
+                ) : (
+                  <div className="bg-white/80 border-2 border-sage/50 rounded-2xl py-5 px-4 text-center space-y-2">
+                    <button
+                      onClick={() => void speakJapanese(unit.chars[cardIdx].char)}
+                      className="block mx-auto"
+                      style={{ touchAction: 'manipulation' }}
+                      aria-label={`hear ${unit.chars[cardIdx].romaji}`}
+                    >
+                      <span lang="ja" className="text-bark leading-none" style={{ fontSize: 76, fontWeight: 500 }}>
+                        {unit.chars[cardIdx].char}
                       </span>
-                    )}
+                    </button>
+                    <div className="font-display text-[22px] text-forest" style={{ fontWeight: 700 }}>
+                      {unit.chars[cardIdx].romaji}
+                      {unit.chars[cardIdx].meaning && (
+                        <span className="text-bark/70 text-[16px] font-normal italic">
+                          {' '}— {unit.chars[cardIdx].meaning}
+                        </span>
+                      )}
+                      {tracedChars.includes(unit.chars[cardIdx].char) && (
+                        <span className="text-forest text-[15px]"> ✍️</span>
+                      )}
+                    </div>
+                    <div className="font-display text-[13px] text-bark/75 leading-snug">
+                      {unit.chars[cardIdx].mnemonic}
+                    </div>
+                    <button
+                      onClick={() => void speakJapanese(unit.chars[cardIdx].char)}
+                      className="font-display italic text-[12px] text-bark/55"
+                      style={{ touchAction: 'manipulation' }}
+                    >
+                      🔊 tap the character to hear it
+                    </button>
                   </div>
-                  <div className="font-display text-[13px] text-bark/75 leading-snug">
-                    {unit.chars[cardIdx].mnemonic}
-                  </div>
-                </div>
+                )}
+
+                {/* Tracing is an OPTION on every card, never a gate — a
+                    child who just wants to read on can. */}
+                {canTrace(unit.chars[cardIdx].char) && (
+                  <button
+                    onClick={() => setTracing(t => !t)}
+                    className={`w-full rounded-full py-2.5 font-display border-2 ${
+                      tracing ? 'bg-white border-ochre text-bark/70 italic' : 'bg-sage/15 border-sage text-bark'
+                    }`}
+                    style={{ touchAction: 'manipulation', minHeight: 48, fontWeight: 600 }}
+                  >
+                    {tracing ? 'back to the card' : '✍️ trace it with your finger'}
+                  </button>
+                )}
                 <div className="flex items-center justify-center gap-1.5">
                   {unit.chars.map((_, i) => (
                     <div key={i} className={`w-2 h-2 rounded-full ${i <= cardIdx ? 'bg-forest' : 'bg-ochre/40'}`} />
@@ -215,7 +266,7 @@ export default function JapaneseSchoolModal({
                 <div className="flex gap-2">
                   {cardIdx > 0 && (
                     <button
-                      onClick={() => setCardIdx(i => i - 1)}
+                      onClick={() => { setTracing(false); setCardIdx(i => i - 1); }}
                       className="flex-1 bg-white border-2 border-ochre rounded-full py-3 font-display text-bark/70"
                       style={{ touchAction: 'manipulation', minHeight: 52 }}
                     >
@@ -223,7 +274,11 @@ export default function JapaneseSchoolModal({
                     </button>
                   )}
                   <button
-                    onClick={() => cardIdx + 1 < unit.chars.length ? setCardIdx(i => i + 1) : setPhase('drill')}
+                    onClick={() => {
+                      setTracing(false);
+                      if (cardIdx + 1 < unit.chars.length) setCardIdx(i => i + 1);
+                      else setPhase('drill');
+                    }}
                     className="flex-[2] bg-forest text-white rounded-full py-3 font-display"
                     style={{ touchAction: 'manipulation', minHeight: 52, fontWeight: 600 }}
                   >
@@ -297,6 +352,11 @@ export default function JapaneseSchoolModal({
                 <p className="font-display italic text-[15px] text-bark/75 leading-snug px-2">
                   {unit.outro}
                 </p>
+                {tracedChars.length > 0 && (
+                  <div className="font-display text-[13px] text-bark/75">
+                    ✍️ you hand-wrote {tracedChars.length} of them
+                  </div>
+                )}
                 {wrongCount === 0 && (
                   <div className="font-display text-[13px] text-forest" style={{ fontWeight: 600 }}>
                     ✨ not a single wrong tap
