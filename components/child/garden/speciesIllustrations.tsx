@@ -823,6 +823,223 @@ export function CottontailRabbit({ size = 60 }: SpeciesProps) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────
+// RARE VISITORS — researcher-badge gated. These are the reward for the
+// hardest science in the game, so each one leads with the feature a
+// field guide would use to identify it: the turtle's red shell margin,
+// the salamander's two rows of yellow spots, the luna moth's long
+// twisted tails.
+// ─────────────────────────────────────────────────────────────────────────
+
+export function PaintedTurtle({ size = 60 }: SpeciesProps) {
+  // Basking pose, seen from above-front. The tell: olive shell with a
+  // RED-marked rim, and yellow head stripes.
+  const SHELL = '#4E6B4A';
+  const SHELL_DARK = '#3A5238';
+  const SHELL_HI = '#688A5E';
+  const SKIN = '#3F6B52';
+  const RED = '#C0442F';
+  const YELLOW = '#E8C04A';
+  return (
+    <Svg size={size}>
+      <ellipse cx={0} cy={24} rx={24} ry={3} fill="#000" opacity={0.22} />
+
+      {/* back feet */}
+      <ellipse cx={-19} cy={12} rx={7} ry={4.5} fill={SKIN} stroke={STROKE} strokeWidth={1.8}
+               transform="rotate(28 -19 12)" />
+      <ellipse cx={19} cy={12} rx={7} ry={4.5} fill={SKIN} stroke={STROKE} strokeWidth={1.8}
+               transform="rotate(-28 19 12)" />
+      {/* front feet, paddling forward */}
+      <ellipse cx={-18} cy={-4} rx={7.5} ry={4.5} fill={SKIN} stroke={STROKE} strokeWidth={1.8}
+               transform="rotate(-24 -18 -4)" />
+      <ellipse cx={18} cy={-4} rx={7.5} ry={4.5} fill={SKIN} stroke={STROKE} strokeWidth={1.8}
+               transform="rotate(24 18 -4)" />
+      {/* little claws */}
+      {[[-23, -7], [-24, -3], [23, -7], [24, -3]].map(([cx, cy], i) => (
+        <line key={i} x1={cx} y1={cy} x2={cx + (cx < 0 ? -2.5 : 2.5)} y2={cy - 1}
+              stroke={STROKE} strokeWidth={1.2} strokeLinecap="round" />
+      ))}
+      {/* stubby tail */}
+      <path d="M 0 14 Q 1 20 -1 22" stroke={STROKE} strokeWidth={2} fill={SKIN} strokeLinecap="round" />
+
+      {/* SHELL — red-margined rim first, so it reads as a border */}
+      <ellipse cx={0} cy={3} rx={21} ry={17} fill={RED} stroke={STROKE} strokeWidth={2.2} />
+      <ellipse cx={0} cy={3} rx={17.5} ry={13.5} fill={SHELL} stroke={SHELL_DARK} strokeWidth={1.4} />
+      {/* scute pattern — a centre row flanked by two */}
+      {[-9, 0, 9].map(sx => (
+        <ellipse key={sx} cx={sx} cy={3} rx={4.2} ry={11} fill={SHELL_HI} opacity={0.55}
+                 stroke={SHELL_DARK} strokeWidth={1} />
+      ))}
+      {[-13, -4.5, 4.5, 13].map(sx => (
+        <line key={sx} x1={sx} y1={-9} x2={sx} y2={15} stroke={SHELL_DARK} strokeWidth={0.9} opacity={0.8} />
+      ))}
+      <line x1={-17} y1={3} x2={17} y2={3} stroke={SHELL_DARK} strokeWidth={0.9} opacity={0.7} />
+      {/* shell shine */}
+      <ellipse cx={-7} cy={-4} rx={5} ry={2.6} fill="#FFFFFF" opacity={0.22} />
+
+      {/* HEAD, stretched out to bask */}
+      <ellipse cx={0} cy={-19} rx={8} ry={7} fill={SKIN} stroke={STROKE} strokeWidth={2} />
+      {/* yellow stripes — the painted turtle's signature */}
+      {[-3.5, 0, 3.5].map(ly => (
+        <path key={ly} d={`M -7 ${-22 + (ly + 3.5) * 1.1} Q 0 ${-23 + (ly + 3.5) * 1.1} 7 ${-22 + (ly + 3.5) * 1.1}`}
+              stroke={YELLOW} strokeWidth={1.3} fill="none" strokeLinecap="round" opacity={0.9} />
+      ))}
+      <circle cx={-3.2} cy={-20.5} r={1.7} fill="#FFFFFF" stroke={STROKE} strokeWidth={0.9} />
+      <circle cx={3.2} cy={-20.5} r={1.7} fill="#FFFFFF" stroke={STROKE} strokeWidth={0.9} />
+      <circle cx={-3.2} cy={-20.5} r={0.9} fill="#1A1A1A" />
+      <circle cx={3.2} cy={-20.5} r={0.9} fill="#1A1A1A" />
+      <path d="M -2.5 -15.5 Q 0 -14 2.5 -15.5" stroke={STROKE} strokeWidth={1.2} fill="none" strokeLinecap="round" />
+    </Svg>
+  );
+}
+
+export function SpottedSalamander({ size = 60 }: SpeciesProps) {
+  // Long blue-black body with TWO irregular rows of yellow spots —
+  // the one feature that identifies it at a glance.
+  const BODY = '#2E3140';
+  const BODY_HI = '#454A5E';
+  const BELLY = '#6B7080';
+  const SPOT = '#E8C04A';
+  return (
+    <Svg size={size}>
+      <ellipse cx={0} cy={20} rx={26} ry={3} fill="#000" opacity={0.2} />
+
+      {/* long curving body + tail, drawn as one tapering stroke */}
+      <path
+        d="M -30 6 Q -20 -2 -8 0 Q 4 2 14 -3 Q 24 -8 31 -2"
+        stroke={BODY} strokeWidth={13} fill="none" strokeLinecap="round"
+      />
+      <path
+        d="M -30 6 Q -20 -2 -8 0 Q 4 2 14 -3 Q 24 -8 31 -2"
+        stroke={STROKE} strokeWidth={14.5} fill="none" strokeLinecap="round" opacity={0.35}
+      />
+      <path
+        d="M -30 6 Q -20 -2 -8 0 Q 4 2 14 -3 Q 24 -8 31 -2"
+        stroke={BODY} strokeWidth={12} fill="none" strokeLinecap="round"
+      />
+      {/* belly highlight along the underside */}
+      <path d="M -26 9 Q -12 4 2 5 Q 14 5 26 0" stroke={BELLY} strokeWidth={2.6}
+            fill="none" strokeLinecap="round" opacity={0.5} />
+
+      {/* four short legs with splayed toes */}
+      {[[-18, 7, -1], [8, 5, -1], [-14, 7, 1], [12, 4, 1]].map(([lx, ly, dir], i) => (
+        <g key={i}>
+          <path d={`M ${lx} ${ly} q ${(dir as number) * 3} 6 ${(dir as number) * 6} 7`}
+                stroke={BODY} strokeWidth={3.4} fill="none" strokeLinecap="round" />
+          {[-1.6, 0, 1.6].map(t => (
+            <line key={t} x1={(lx as number) + (dir as number) * 6} y1={(ly as number) + 7}
+                  x2={(lx as number) + (dir as number) * 6 + t} y2={(ly as number) + 10}
+                  stroke={BODY} strokeWidth={1.1} strokeLinecap="round" />
+          ))}
+        </g>
+      ))}
+
+      {/* HEAD — blunt and rounded */}
+      <ellipse cx={-31} cy={5} rx={9} ry={7} fill={BODY} stroke={STROKE} strokeWidth={1.8} />
+      <ellipse cx={-33} cy={3} rx={4} ry={2.4} fill={BODY_HI} opacity={0.6} />
+      <circle cx={-34} cy={1.5} r={2} fill="#0F1116" stroke={STROKE} strokeWidth={0.8} />
+      <circle cx={-34.6} cy={0.8} r={0.7} fill="#FFFFFF" opacity={0.9} />
+      <path d="M -38 7 Q -34 9 -29 8" stroke={STROKE} strokeWidth={1.1} fill="none" strokeLinecap="round" />
+
+      {/* THE SPOTS — two rows, irregular sizes, following the spine */}
+      {[
+        [-25, 1, 2.6], [-17, -1.5, 3.0], [-9, -0.5, 2.4], [-1, 0.5, 2.8], [7, -2, 2.5],
+        [15, -5, 2.7], [23, -7, 2.2], [29, -5, 1.8],
+      ].map(([sx, sy, r], i) => (
+        <circle key={`top-${i}`} cx={sx} cy={sy} r={r} fill={SPOT} stroke="#B99A2E" strokeWidth={0.5} />
+      ))}
+      {[
+        [-21, 7, 2.3], [-13, 5.5, 2.6], [-5, 6.5, 2.2], [3, 7, 2.5], [11, 3.5, 2.3],
+        [19, 0.5, 2.4], [26, -0.5, 1.9],
+      ].map(([sx, sy, r], i) => (
+        <circle key={`bot-${i}`} cx={sx} cy={sy} r={r} fill={SPOT} stroke="#B99A2E" strokeWidth={0.5} />
+      ))}
+    </Svg>
+  );
+}
+
+export function LunaMoth({ size = 60 }: SpeciesProps) {
+  // Pale green, with the long twisted TAILS that make it unmistakable
+  // and unlike the butterflies already in the journal.
+  const WING = '#B8DCA0';
+  const WING_HI = '#D4EDC0';
+  const WING_EDGE = '#7FA86A';
+  const PURPLE = '#8A6A94';
+  const BODY = '#F0EDE0';
+  return (
+    <Svg size={size}>
+      <ellipse cx={0} cy={30} rx={16} ry={2.5} fill="#000" opacity={0.18} />
+
+      {/* HINDWINGS with the long sweeping tails */}
+      {[-1, 1].map(side => (
+        <g key={side} transform={`scale(${side}, 1)`}>
+          <path
+            d="M 2 2 Q 20 4 24 14 Q 26 24 18 30 Q 14 34 12 30 Q 10 22 8 14 Q 6 6 2 2 Z"
+            fill={WING} stroke={WING_EDGE} strokeWidth={1.6} strokeLinejoin="round"
+          />
+          {/* the tail — long, slim, with a gentle twist at the tip */}
+          <path
+            d="M 15 26 Q 19 36 15 44 Q 13 47 11 44 Q 13 36 12 28"
+            fill={WING} stroke={WING_EDGE} strokeWidth={1.4} strokeLinejoin="round"
+          />
+        </g>
+      ))}
+
+      {/* FOREWINGS — broad, with the deep-purple leading edge */}
+      {[-1, 1].map(side => (
+        <g key={side} transform={`scale(${side}, 1)`}>
+          <path
+            d="M 2 -2 Q 16 -18 28 -16 Q 34 -12 30 -2 Q 24 8 10 8 Q 4 6 2 -2 Z"
+            fill={WING} stroke={WING_EDGE} strokeWidth={1.7} strokeLinejoin="round"
+          />
+          {/* purple costal margin along the top edge */}
+          <path
+            d="M 2 -2 Q 16 -18 28 -16 Q 30 -15 30 -13 Q 17 -15 4 -1 Z"
+            fill={PURPLE} stroke={WING_EDGE} strokeWidth={0.8} strokeLinejoin="round" opacity={0.9}
+          />
+          <path d="M 8 -2 Q 18 -8 26 -8" stroke={WING_HI} strokeWidth={1.6} fill="none"
+                strokeLinecap="round" opacity={0.7} />
+        </g>
+      ))}
+
+      {/* EYESPOTS — one on each wing, the moth's false-eye trick */}
+      {[[-17, -6], [17, -6], [-15, 16], [15, 16]].map(([ex, ey], i) => (
+        <g key={i}>
+          <ellipse cx={ex} cy={ey} rx={3.6} ry={2.8} fill="#F4F0DC" stroke={WING_EDGE} strokeWidth={1} />
+          <ellipse cx={ex} cy={ey} rx={1.8} ry={1.3} fill={PURPLE} opacity={0.85} />
+          <ellipse cx={ex} cy={ey} rx={0.7} ry={0.5} fill="#3A2C40" />
+        </g>
+      ))}
+
+      {/* FURRY BODY */}
+      <ellipse cx={0} cy={4} rx={3.6} ry={13} fill={BODY} stroke={STROKE} strokeWidth={1.6} />
+      {[-6, -2, 2, 6, 10].map(sy => (
+        <line key={sy} x1={-3} y1={sy} x2={3} y2={sy} stroke="#D8D2BE" strokeWidth={0.9} />
+      ))}
+      <circle cx={0} cy={-11} r={3.4} fill={BODY} stroke={STROKE} strokeWidth={1.5} />
+      <circle cx={-1.2} cy={-11.6} r={0.8} fill="#3A2C40" />
+      <circle cx={1.2} cy={-11.6} r={0.8} fill="#3A2C40" />
+
+      {/* FEATHERY ANTENNAE — big and comb-like, how it finds a mate */}
+      {[-1, 1].map(side => (
+        <g key={side} transform={`scale(${side}, 1)`}>
+          <path d="M 1.5 -13 Q 7 -19 11 -22" stroke={STROKE} strokeWidth={1.2} fill="none" strokeLinecap="round" />
+          {[0.25, 0.45, 0.65, 0.85].map(t => {
+            const px = 1.5 + (11 - 1.5) * t;
+            const py = -13 + (-22 + 13) * t;
+            return (
+              <g key={t}>
+                <line x1={px} y1={py} x2={px - 1} y2={py - 3} stroke={STROKE} strokeWidth={0.8} strokeLinecap="round" />
+                <line x1={px} y1={py} x2={px + 2.4} y2={py + 1.4} stroke={STROKE} strokeWidth={0.8} strokeLinecap="round" />
+              </g>
+            );
+          })}
+        </g>
+      ))}
+    </Svg>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────
 // ROUTER
 // ─────────────────────────────────────────────────────────────────────────
 
@@ -844,6 +1061,10 @@ export function SpeciesIllustration({
     case 'tree_frog':       return <TreeFrog size={size} />;
     case 'spring_peeper':   return <SpringPeeper size={size} />;
     case 'cottontail_rabbit': return <CottontailRabbit size={size} />;
+    // rare visitors (researcher-badge gated)
+    case 'painted_turtle':     return <PaintedTurtle size={size} />;
+    case 'spotted_salamander': return <SpottedSalamander size={size} />;
+    case 'luna_moth':          return <LunaMoth size={size} />;
     default:                return null;
   }
 }
