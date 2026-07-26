@@ -106,5 +106,167 @@
     "licenseCode": "cc-by",
     "sourceUrl": "https://www.inaturalist.org/observations/260645204",
     "originalDownloadUrl": "https://inaturalist-open-data.s3.amazonaws.com/photos/468114295/large.jpg"
+  },
+  {
+    "source": "inat",
+    "role": "perched",
+    "filename": "perched_inat_15579273.jpg",
+    "photographer": "Katja Schulz",
+    "licenseCode": "cc-by",
+    "sourceUrl": "https://www.inaturalist.org/observations/11041261",
+    "originalDownloadUrl": "https://inaturalist-open-data.s3.amazonaws.com/photos/15579273/large.jpg"
+  },
+  {
+    "source": "inat",
+    "role": "perched",
+    "filename": "perched_inat_15579292.jpg",
+    "photographer": "Katja Schulz",
+    "licenseCode": "cc-by",
+    "sourceUrl": "https://www.inaturalist.org/observations/11041261",
+    "originalDownloadUrl": "https://inaturalist-open-data.s3.amazonaws.com/photos/15579292/large.jpg"
+  },
+  {
+    "source": "inat",
+    "role": "perched",
+    "filename": "perched_inat_15579303.jpg",
+    "photographer": "Katja Schulz",
+    "licenseCode": "cc-by",
+    "sourceUrl": "https://www.inaturalist.org/observations/11041261",
+    "originalDownloadUrl": "https://inaturalist-open-data.s3.amazonaws.com/photos/15579303/large.jpg"
+  },
+  {
+    "source": "inat",
+    "role": "perched",
+    "filename": "perched_inat_15579308.jpg",
+    "photographer": "Katja Schulz",
+    "licenseCode": "cc-by",
+    "sourceUrl": "https://www.inaturalist.org/observations/11041261",
+    "originalDownloadUrl": "https://inaturalist-open-data.s3.amazonaws.com/photos/15579308/large.jpg"
+  },
+  {
+    "source": "inat",
+    "role": "perched",
+    "filename": "perched_inat_15579313.jpg",
+    "photographer": "Katja Schulz",
+    "licenseCode": "cc-by",
+    "sourceUrl": "https://www.inaturalist.org/observations/11041261",
+    "originalDownloadUrl": "https://inaturalist-open-data.s3.amazonaws.com/photos/15579313/large.jpg"
+  },
+  {
+    "source": "inat",
+    "role": "perched",
+    "filename": "perched_inat_473266220.jpg",
+    "photographer": "Daughter Dad",
+    "licenseCode": "cc-by",
+    "sourceUrl": "https://www.inaturalist.org/observations/263441190",
+    "originalDownloadUrl": "https://inaturalist-open-data.s3.amazonaws.com/photos/473266220/large.jpg"
+  },
+  {
+    "source": "inat",
+    "role": "perched",
+    "filename": "perched_inat_603805377.jpg",
+    "photographer": "Texas Bird Family",
+    "licenseCode": "cc-by",
+    "sourceUrl": "https://www.inaturalist.org/observations/332678814",
+    "originalDownloadUrl": "https://inaturalist-open-data.s3.amazonaws.com/photos/603805377/large.jpg"
+  },
+  {
+    "source": "inat",
+    "role": "perched",
+    "filename": "perched_inat_612836012.jpg",
+    "photographer": "Michael",
+    "licenseCode": "cc-by",
+    "sourceUrl": "https://www.inaturalist.org/observations/337154025",
+    "originalDownloadUrl": "https://inaturalist-open-data.s3.amazonaws.com/photos/612836012/large.jpg"
+  },
+  {
+    "source": "inat",
+    "role": "perched",
+    "filename": "perched_inat_612835948.jpg",
+    "photographer": "Michael",
+    "licenseCode": "cc-by",
+    "sourceUrl": "https://www.inaturalist.org/observations/337154025",
+    "originalDownloadUrl": "https://inaturalist-open-data.s3.amazonaws.com/photos/612835948/large.jpg"
+  },
+  {
+    "source": "inat",
+    "role": "perched",
+    "filename": "perched_inat_442088062.jpg",
+    "photographer": "oksanaetal",
+    "licenseCode": "cc-by",
+    "sourceUrl": "https://www.inaturalist.org/observations/247521248",
+    "originalDownloadUrl": "https://inaturalist-open-data.s3.amazonaws.com/photos/442088062/large.jpeg"
+  },
+  {
+    "source": "inat",
+    "role": "perched",
+    "filename": "perched_inat_442088091.jpg",
+    "photographer": "oksanaetal",
+    "licenseCode": "cc-by",
+    "sourceUrl": "https://www.inaturalist.org/observations/247521248",
+    "originalDownloadUrl": "https://inaturalist-open-data.s3.amazonaws.com/photos/442088091/large.jpeg"
+  },
+  {
+    "source": "inat",
+    "role": "perched",
+    "filename": "perched_inat_442088140.jpg",
+    "photographer": "oksanaetal",
+    "licenseCode": "cc-by",
+    "sourceUrl": "https://www.inaturalist.org/observations/247521248",
+    "originalDownloadUrl": "https://inaturalist-open-data.s3.amazonaws.com/photos/442088140/large.jpeg"
+  },
+  {
+    "source": "inat",
+    "role": "perched",
+    "filename": "perched_inat_442088234.jpg",
+    "photographer": "oksanaetal",
+    "licenseCode": "cc-by",
+    "sourceUrl": "https://www.inaturalist.org/observations/247521248",
+    "originalDownloadUrl": "https://inaturalist-open-data.s3.amazonaws.com/photos/442088234/large.jpeg"
+  },
+  {
+    "source": "inat",
+    "role": "perched",
+    "filename": "perched_inat_442088303.jpg",
+    "photographer": "oksanaetal",
+    "licenseCode": "cc-by",
+    "sourceUrl": "https://www.inaturalist.org/observations/247521248",
+    "originalDownloadUrl": "https://inaturalist-open-data.s3.amazonaws.com/photos/442088303/large.jpeg"
+  },
+  {
+    "source": "inat",
+    "role": "perched",
+    "filename": "perched_inat_442088378.jpg",
+    "photographer": "oksanaetal",
+    "licenseCode": "cc-by",
+    "sourceUrl": "https://www.inaturalist.org/observations/247521248",
+    "originalDownloadUrl": "https://inaturalist-open-data.s3.amazonaws.com/photos/442088378/large.jpeg"
+  },
+  {
+    "source": "inat",
+    "role": "perched",
+    "filename": "perched_inat_442088361.jpg",
+    "photographer": "oksanaetal",
+    "licenseCode": "cc-by",
+    "sourceUrl": "https://www.inaturalist.org/observations/247521248",
+    "originalDownloadUrl": "https://inaturalist-open-data.s3.amazonaws.com/photos/442088361/large.jpeg"
+  },
+  {
+    "source": "inat",
+    "role": "perched",
+    "filename": "perched_inat_442088400.jpg",
+    "photographer": "oksanaetal",
+    "licenseCode": "cc-by",
+    "sourceUrl": "https://www.inaturalist.org/observations/247521248",
+    "originalDownloadUrl": "https://inaturalist-open-data.s3.amazonaws.com/photos/442088400/large.jpeg"
+  },
+  {
+    "source": "inat",
+    "role": "perched",
+    "filename": "perched_inat_442088531.jpg",
+    "photographer": "oksanaetal",
+    "licenseCode": "cc-by",
+    "sourceUrl": "https://www.inaturalist.org/observations/247521248",
+    "originalDownloadUrl": "https://inaturalist-open-data.s3.amazonaws.com/photos/442088531/large.jpeg"
   }
 ]

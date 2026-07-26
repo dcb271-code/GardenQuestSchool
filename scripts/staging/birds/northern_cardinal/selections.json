@@ -1,0 +1,26 @@
+[
+  {
+    "filename": "male_inat_637919105.jpg",
+    "role": "male",
+    "tier": 1,
+    "altText": "A male Northern Cardinal perched on a bare branch, scarlet all over with a pointed crest and a black mask around his thick orange bill."
+  },
+  {
+    "filename": "male_inat_613289267.jpg",
+    "role": "flight",
+    "tier": 2,
+    "altText": "A male Northern Cardinal landing on a branch with wings and tail spread, showing how red he is underneath."
+  },
+  {
+    "filename": "female_inat_488855006.jpg",
+    "role": "female",
+    "tier": 1,
+    "altText": "A female Northern Cardinal in falling snow, warm buff-brown with an orange bill and the same pointed crest as the male."
+  },
+  {
+    "filename": "female_inat_488855031.jpg",
+    "role": "female",
+    "tier": 2,
+    "altText": "A female Northern Cardinal standing on snow, showing her whole body, brown with reddish wings and tail."
+  }
+]

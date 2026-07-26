@@ -28,7 +28,13 @@ import {
 } from './naturalist/inatClient';
 
 const STAGING_ROOT = join(process.cwd(), 'scripts', 'staging', 'birds');
-const PER_ROLE = 12;
+/**
+ * Default depth. Raise it with --per-role for a species whose top
+ * candidates turn out to be unusable — iNat ranks by favourites, and
+ * favourites reward nestlings, feeder-cam sequences and pet portraits.
+ * The house finch needed 30 before a red male appeared at all.
+ */
+const DEFAULT_PER_ROLE = 12;
 /** iNat asks for <=60 req/min. One per 1.2s keeps us well inside it. */
 const THROTTLE_MS = 1200;
 const USER_AGENT = 'GardenQuestSchool/1.0 (homeschool education project)';
@@ -45,15 +51,17 @@ interface CandidateRecord {
   originalDownloadUrl: string;
 }
 
-function parseArgs(): { birds: string[]; all: boolean } {
+function parseArgs(): { birds: string[]; all: boolean; perRole: number } {
   const args = process.argv.slice(2);
   const birds: string[] = [];
   let all = false;
+  let perRole = DEFAULT_PER_ROLE;
   for (let i = 0; i < args.length; i++) {
     if (args[i] === '--all') { all = true; continue; }
-    if (args[i] === '--bird' && args[i + 1]) { birds.push(args[i + 1]); i++; }
+    if (args[i] === '--bird' && args[i + 1]) { birds.push(args[i + 1]); i++; continue; }
+    if (args[i] === '--per-role' && args[i + 1]) { perRole = Number(args[i + 1]); i++; }
   }
-  return { birds, all };
+  return { birds, all, perRole };
 }
 
 const sleep = (ms: number) => new Promise(r => setTimeout(r, ms));
@@ -70,7 +78,7 @@ function rolesFor(bird: BirdData): HarvestRole[] {
 }
 
 function queryFor(bird: BirdData, role: HarvestRole) {
-  const base = { taxonId: bird.inatTaxonId, perPage: 40 };
+  const base = { taxonId: bird.inatTaxonId, perPage: 100 };
   if (role === 'male') {
     return { ...base, termId: ANNOTATION.SEX, termValueId: ANNOTATION.MALE };
   }
@@ -80,7 +88,7 @@ function queryFor(bird: BirdData, role: HarvestRole) {
   return base;
 }
 
-async function harvestBird(bird: BirdData): Promise<void> {
+async function harvestBird(bird: BirdData, perRole: number): Promise<void> {
   const dir = join(STAGING_ROOT, bird.code);
   await mkdir(dir, { recursive: true });
   console.log(`\n→ ${bird.code} (${bird.commonName})`);
@@ -95,7 +103,7 @@ async function harvestBird(bird: BirdData): Promise<void> {
       const photos: InatPhoto[] = parseInatResponse(await res.json());
       console.log(`  • ${role}: ${photos.length} CC-licensed candidates`);
 
-      for (const p of photos.slice(0, PER_ROLE)) {
+      for (const p of photos.slice(0, perRole)) {
         const filename = `${role}_inat_${p.id}.jpg`;
         const out = join(dir, filename);
         if (!existsSync(out)) {
@@ -112,7 +120,7 @@ async function harvestBird(bird: BirdData): Promise<void> {
           originalDownloadUrl: p.largeUrl,
         });
       }
-      console.log(`    ↳ ${Math.min(photos.length, PER_ROLE)} staged`);
+      console.log(`    ↳ ${Math.min(photos.length, perRole)} staged`);
     } catch (e) {
       console.error(`  ! ${role} failed for ${bird.code}:`, (e as Error).message);
     }
@@ -134,7 +142,7 @@ async function harvestBird(bird: BirdData): Promise<void> {
 }
 
 async function main() {
-  const { birds, all } = parseArgs();
+  const { birds, all, perRole } = parseArgs();
   if (!all && birds.length === 0) {
     console.error('Usage:');
     console.error('  npm run birds:harvest -- --bird <code>');
@@ -152,7 +160,7 @@ async function main() {
   }
 
   console.log(`Harvesting ${targets.length} birds...`);
-  for (const b of targets) await harvestBird(b);
+  for (const b of targets) await harvestBird(b, perRole);
   console.log(`\n✓ Done. Choose selections BY EYE — see §4.1 of the design spec.`);
 }
 

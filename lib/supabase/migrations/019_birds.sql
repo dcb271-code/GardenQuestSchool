@@ -30,8 +30,13 @@ create table if not exists bird_photo (
   license_code text not null,
   alt_text text not null,
   created_at timestamptz not null default now(),
+  -- 'nonbreeding' earns its place: the American Goldfinch is lemon
+  -- yellow in summer and drab olive in winter, and a child shown only
+  -- the summer bird will not recognise the winter one at all. It is
+  -- the same bird in a different coat, and that IS the lesson.
   constraint bird_photo_role_valid check (
-    role in ('perched','flight','male','female','juvenile','head','back','silhouette')),
+    role in ('perched','flight','male','female','nonbreeding',
+             'juvenile','head','back','silhouette')),
   constraint bird_photo_tier_valid check (tier between 1 and 3),
   constraint bird_photo_license_valid check (license_code in ('cc0','cc-by','cc-by-sa'))
 );

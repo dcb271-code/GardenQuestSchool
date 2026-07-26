@@ -39,8 +39,8 @@ export const STAGE_EMOJI: Record<Stage, string> = {
 };
 
 export type BirdPhotoRole =
-  | 'perched' | 'flight' | 'male' | 'female' | 'juvenile'
-  | 'head' | 'back' | 'silhouette';
+  | 'perched' | 'flight' | 'male' | 'female' | 'nonbreeding'
+  | 'juvenile' | 'head' | 'back' | 'silhouette';
 
 /** Resolved server-side against the bird_photo table. */
 export interface BirdPhotoRef {
