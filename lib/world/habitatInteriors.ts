@@ -36,6 +36,16 @@ export const HABITAT_INTERIORS: Record<string, HabitatInteriorConfig> = {
     themedStructureLabel: 'Lily Pad Counting',
     themedStructureEmoji: '🪷',
   },
+  ant_hill: {
+    themedSkillCode: 'math.counting.to_50',
+    themedStructureLabel: 'Counting the Colony',
+    themedStructureEmoji: '🐜',
+  },
+  bee_hotel: {
+    themedSkillCode: 'math.number_bond.within_10',
+    themedStructureLabel: 'Cells and Bonds',
+    themedStructureEmoji: '🍯',
+  },
   butterfly_bush: {
     themedSkillCode: 'math.add.within_20.crossing_ten',
     themedStructureLabel: 'Nectar Counting',

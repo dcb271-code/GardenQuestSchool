@@ -17,6 +17,8 @@ import { MATH_SKILLS } from '@/lib/packs/math/skills';
 import { ZONE_COMPLETION_TARGET } from '@/lib/world/zoneProgress';
 import BunnyBurrowInterior from './BunnyBurrowInterior';
 import PondInterior from './PondInterior';
+import AntHillInterior from './AntHillInterior';
+import BeeHotelInterior from './BeeHotelInterior';
 import ButterflyBushInterior from './ButterflyBushInterior';
 import LogPileInterior from './LogPileInterior';
 import CaveInterior, { type CaveSkillStop } from './CaveInterior';
@@ -89,11 +91,19 @@ export default async function HabitatInteriorPage({
   // The pond and the log pile share a shape: one themed skill stop and
   // the residents who live there. No extra queries needed beyond the
   // species work already done above.
-  if (code === 'frog_pond' || code === 'log_pile' || code === 'butterfly_bush') {
-    const Interior =
-      code === 'frog_pond' ? PondInterior
-        : code === 'log_pile' ? LogPileInterior
-          : ButterflyBushInterior;
+  // Every habitat that is a HOME now has an interior; they all share
+  // the same shape (one themed skill stop plus the residents), so a
+  // lookup beats a chain of branches.
+  const SIMPLE_INTERIORS = {
+    frog_pond: PondInterior,
+    log_pile: LogPileInterior,
+    butterfly_bush: ButterflyBushInterior,
+    ant_hill: AntHillInterior,
+    bee_hotel: BeeHotelInterior,
+  } as const;
+
+  if (code in SIMPLE_INTERIORS) {
+    const Interior = SIMPLE_INTERIORS[code as keyof typeof SIMPLE_INTERIORS];
     return (
       <Interior
         learnerId={learnerId}

@@ -122,19 +122,22 @@ describe('habitat interiors', () => {
     }
   });
 
-  it('pins which habitats are visitable, so the gap stays visible', () => {
-    // Two homes still have no interior. That is a known gap, not an
-    // accident — and the ArrivalCard no longer offers to step into
-    // them, which used to be a 404.
-    const visitable = HABITAT_CATALOG
-      .filter(h => hasHabitatInterior(h.code))
-      .map(h => h.code)
-      .sort();
-    expect(visitable).toEqual(
-      ['bunny_burrow', 'butterfly_bush', 'frog_pond', 'log_pile', 'operations_cave'],
-    );
-    for (const code of ['ant_hill', 'bee_hotel']) {
-      expect(hasHabitatInterior(code), `${code} — still to build`).toBe(false);
+  it('every habitat that is a HOME can now be visited', () => {
+    // operations_cave is excluded on purpose — it's the maths cave at
+    // the foot of the mountain, not somewhere a creature lives.
+    const homes = HABITAT_CATALOG.filter(h => h.attractsSpeciesCodes.length > 0);
+    expect(homes.length).toBe(6);
+    for (const h of homes) {
+      expect(hasHabitatInterior(h.code), `${h.code} has no interior`).toBe(true);
+    }
+  });
+
+  it('"step inside" is never offered where there is nowhere to go', () => {
+    // The inverse of the above: anything without an interior must not
+    // be reachable, because the route calls notFound() for it.
+    for (const h of HABITAT_CATALOG) {
+      if (hasHabitatInterior(h.code)) continue;
+      expect(h.attractsSpeciesCodes.length, `${h.code} attracts species but can't be entered`).toBe(0);
     }
   });
 });
