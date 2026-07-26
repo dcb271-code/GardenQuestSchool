@@ -5,6 +5,7 @@ import { motion, AnimatePresence, type MotionProps } from 'framer-motion';
 import type { SpeciesData } from '@/lib/world/speciesCatalog';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
 import { SpeciesIllustration } from '@/components/child/garden/speciesIllustrations';
+import { hasHabitatInterior } from '@/lib/world/habitatInteriors';
 import { playArrival } from '@/lib/audio/sfx';
 
 // Different species arrive differently: winged things fly in from the side,
@@ -55,6 +56,14 @@ export default function ArrivalCard({
     // allow exit animation to play
     setTimeout(onDismiss, 400);
   };
+
+  // Only invite her inside a habitat that HAS an interior. Four of the
+  // six don't, and the habitat route calls notFound() for those — so
+  // the invitation used to be a one-way trip to a 404 whenever a
+  // first-for-habitat arrival landed at the pond, the bush, the ant
+  // hill or the log pile.
+  const canStepInside =
+    isFirstForHabitat && !!habitatCode && hasHabitatInterior(habitatCode);
 
   // Step-inside variant: log the journal entry (so the species shows
   // as discovered when the interior loads) THEN navigate to the
@@ -194,7 +203,7 @@ export default function ArrivalCard({
               {species.funFact}
             </motion.div>
 
-            {isFirstForHabitat && habitatCode && (
+            {canStepInside && (
               <motion.div
                 className="text-center pt-1"
                 initial={{ opacity: 0, y: 8 }}
@@ -223,7 +232,7 @@ export default function ArrivalCard({
               {busy ? 'welcoming…' : 'welcome them'}
             </motion.button>
 
-            {isFirstForHabitat && habitatCode && (
+            {canStepInside && (
               <motion.button
                 onClick={stepInside}
                 disabled={busy}

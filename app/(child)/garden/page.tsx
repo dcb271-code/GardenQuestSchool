@@ -19,6 +19,7 @@ import {
 } from '@/lib/world/characterRecommendation';
 import { hasHabitatInterior } from '@/lib/world/habitatInteriors';
 import { getCumulativeCorrect } from '@/lib/world/cumulativeProgress';
+import { placeResidents } from '@/lib/world/residents';
 import GardenScene from './GardenScene';
 
 export const dynamic = 'force-dynamic';
@@ -342,6 +343,13 @@ export default async function GardenPage({
     }
   }
 
+  // Creatures she has discovered now LIVE on the map, beside the
+  // habitat that attracted them — see lib/world/residents.ts.
+  const residents = placeResidents({
+    discoveredCodes: Array.from(journalCodes) as string[],
+    builtHabitatCodes: placedCodesList,
+  });
+
   const cumulativeCorrect = await getCumulativeCorrect(db, learnerId);
 
   return (
@@ -360,6 +368,7 @@ export default async function GardenPage({
       cumulativeCorrect={cumulativeCorrect}
       learnerLevel={learnerLevel}
       researcherBadges={researcherBadges}
+      residents={residents}
     />
   );
 }

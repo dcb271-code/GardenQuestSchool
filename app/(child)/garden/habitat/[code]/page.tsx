@@ -16,6 +16,9 @@ import { MATH_MOUNTAIN_STRUCTURES } from '@/lib/world/branchMaps';
 import { MATH_SKILLS } from '@/lib/packs/math/skills';
 import { ZONE_COMPLETION_TARGET } from '@/lib/world/zoneProgress';
 import BunnyBurrowInterior from './BunnyBurrowInterior';
+import PondInterior from './PondInterior';
+import ButterflyBushInterior from './ButterflyBushInterior';
+import LogPileInterior from './LogPileInterior';
 import CaveInterior, { type CaveSkillStop } from './CaveInterior';
 
 export const dynamic = 'force-dynamic';
@@ -79,6 +82,26 @@ export default async function HabitatInteriorPage({
         discoveredSpecies={discoveredSpecies}
         undiscoveredCount={undiscoveredCount}
         learnerLevel={learnerRow?.grade_level ?? 2}
+      />
+    );
+  }
+
+  // The pond and the log pile share a shape: one themed skill stop and
+  // the residents who live there. No extra queries needed beyond the
+  // species work already done above.
+  if (code === 'frog_pond' || code === 'log_pile' || code === 'butterfly_bush') {
+    const Interior =
+      code === 'frog_pond' ? PondInterior
+        : code === 'log_pile' ? LogPileInterior
+          : ButterflyBushInterior;
+    return (
+      <Interior
+        learnerId={learnerId}
+        themedSkillCode={cfg.themedSkillCode}
+        themedStructureLabel={cfg.themedStructureLabel}
+        themedStructureEmoji={cfg.themedStructureEmoji}
+        discoveredSpecies={discoveredSpecies}
+        undiscoveredCount={undiscoveredCount}
       />
     );
   }

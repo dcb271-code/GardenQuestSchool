@@ -27,6 +27,25 @@ export const HABITAT_INTERIORS: Record<string, HabitatInteriorConfig> = {
   // (Hundred's Hollow, Fast Facts, Regroup Ridge) plus a sleepy bear.
   // The "themed" skill below is just the primary one; CaveInterior
   // resolves all three from MATH_MOUNTAIN_STRUCTURES at render time.
+  // The pond and the log pile — added so the four "step inside"
+  // habitats aren't a dead end, and so the rare visitors gated behind
+  // researcher badges (painted turtle, spotted salamander) have
+  // somewhere to actually be.
+  frog_pond: {
+    themedSkillCode: 'math.add.within_20.no_crossing',
+    themedStructureLabel: 'Lily Pad Counting',
+    themedStructureEmoji: '🪷',
+  },
+  butterfly_bush: {
+    themedSkillCode: 'math.add.within_20.crossing_ten',
+    themedStructureLabel: 'Nectar Counting',
+    themedStructureEmoji: '🌸',
+  },
+  log_pile: {
+    themedSkillCode: 'math.counting.skip_2s',
+    themedStructureLabel: 'Beetle Pairs',
+    themedStructureEmoji: '🪲',
+  },
   operations_cave: {
     themedSkillCode: 'math.add.within_100.no_regrouping',
     themedStructureLabel: "Hundred's Hollow",

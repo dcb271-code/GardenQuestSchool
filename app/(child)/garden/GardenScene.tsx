@@ -19,6 +19,8 @@ import ResearcherQuestModal from '@/components/child/garden/ResearcherQuestModal
 import EstimationDuelModal from '@/components/child/garden/EstimationDuelModal';
 import { getResearcherQuest, RESEARCHER_MIN_LEVEL } from '@/lib/world/researcherQuests';
 import { ESTIMATION_MIN_LEVEL } from '@/lib/world/estimationDuel';
+import { residentGreeting, type Resident } from '@/lib/world/residents';
+import { SpeciesIllustration } from '@/components/child/garden/speciesIllustrations';
 import KitchenModal from '@/components/child/garden/KitchenModal';
 import IkebanaModal from '@/components/child/garden/IkebanaModal';
 import CompanionSpot from '@/components/child/garden/CompanionSpot';
@@ -357,6 +359,7 @@ export default function GardenScene({
   cumulativeCorrect = 0,
   learnerLevel = 2,
   researcherBadges = [],
+  residents = [],
 }: {
   learnerId: string;
   firstName?: string | null;
@@ -376,6 +379,8 @@ export default function GardenScene({
   cumulativeCorrect?: number;
   learnerLevel?: number;
   researcherBadges?: string[];
+  /** Discovered creatures, placed beside the habitat they live in. */
+  residents?: Resident[];
 }) {
   const router = useRouter();
   const { settings, update } = useAccessibilitySettings();
@@ -413,6 +418,7 @@ export default function GardenScene({
   // Researcher quest (Level 3+, built habitats) + Hodge's duel chooser
   const [researchHabitatCode, setResearchHabitatCode] = useState<string | null>(null);
   const [hodgeChoiceOpen, setHodgeChoiceOpen] = useState(false);
+  const [tappedResident, setTappedResident] = useState<Resident | null>(null);
   const [duelOpen, setDuelOpen] = useState(false);
   const [kitchenOpen, setKitchenOpen] = useState(false);
   // Ikebana with Bachan — offered once enough flowers have ever been
@@ -1551,6 +1557,58 @@ export default function GardenScene({
             reducedMotion={reducedMotion}
             onTap={() => setCompanionOpen(true)}
           />
+
+          {/* RESIDENTS — creatures she has discovered, living beside
+              the habitat that attracted them. Before this, finding a
+              species changed nothing about the world; the garden looked
+              identical whether she had found none or all of them. */}
+          {residents.map(r => (
+            <g
+              key={r.species.code}
+              transform={`translate(${r.x}, ${r.y})`}
+              style={{ cursor: 'pointer', touchAction: 'manipulation' }}
+              onClick={() => {
+                setTappedResident(r);
+                window.setTimeout(() => setTappedResident(null), 2600);
+              }}
+              aria-label={residentGreeting(r)}
+            >
+              <circle r={22} fill="transparent" />
+              <motion.g
+                animate={reducedMotion ? undefined : { y: [0, -2.5, 0] }}
+                transition={reducedMotion ? undefined : {
+                  duration: 3 + r.phase,
+                  repeat: Infinity,
+                  ease: 'easeInOut',
+                  delay: r.phase,
+                }}
+              >
+                <g transform={`scale(${r.scale})`}>
+                  <ellipse cx={0} cy={16} rx={13} ry={3} fill="#000" opacity={0.16} />
+                  <g transform="translate(-19, -19)">
+                    {SpeciesIllustration({ code: r.species.code, size: 38 })
+                      ?? <text x={19} y={24} textAnchor="middle" fontSize={24}>{r.species.emoji}</text>}
+                  </g>
+                </g>
+              </motion.g>
+            </g>
+          ))}
+
+          {/* name bubble for a tapped resident */}
+          {tappedResident && (
+            <motion.g
+              pointerEvents="none"
+              transform={`translate(${tappedResident.x}, ${tappedResident.y - 30})`}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <rect x={-74} y={-16} width={148} height={20} rx={10}
+                    fill="rgba(255,250,242,0.96)" stroke="#6b8e5a" strokeWidth={1} />
+              <text x={0} y={-2} textAnchor="middle" fontSize={9} fontWeight={700} fill="#3f2614">
+                {tappedResident.species.commonName}
+              </text>
+            </motion.g>
+          )}
 
           <SisterWalkers
             target={sistersTarget}
