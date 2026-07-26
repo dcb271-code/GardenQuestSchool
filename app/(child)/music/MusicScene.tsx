@@ -20,7 +20,7 @@ import {
 import { midiOf, BEATS, type Note } from '@/lib/music/theory';
 import {
   dueUnits, badgeFor, BADGE_MARK, todayKey, type ReviewMap,
-} from '@/lib/music/review';
+} from '@/lib/learning/review';
 import { PianoKeyboard, Staff, RhythmStrip, FingerMap, keyId } from '@/components/child/music/musicVisuals';
 import {
   playPitch, playSequence, playRhythm, playCountIn, playSuccessCadence,

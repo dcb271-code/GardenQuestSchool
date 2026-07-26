@@ -1,21 +1,27 @@
-// lib/music/review.ts
+// lib/learning/review.ts
 //
-// Spaced review for the music room.
+// Spaced review, shared by any subject whose lessons come in units.
 //
 // The gap this fills: a unit used to be one-and-done. Pass it once at
 // 70% and it was ticked forever, and the third of it she got WRONG
 // never came back. Retrieval practice is the best-evidenced idea in
 // learning, and the main engine already uses Leitner boxes for it —
-// music had none.
+// the unit-based subjects had none.
 //
 // So each unit carries a box. Do well and it climbs, and the next
 // review is further away; do badly and it drops to the bottom and
-// comes back tomorrow. The music room opens with whatever is due.
+// comes back tomorrow. A subject's home screen opens with whatever is
+// due.
 //
 // Deliberately at UNIT granularity rather than per-question, because
 // the exercises are generated fresh each time — there is no stable
 // "item" to schedule. A unit is the smallest thing that reliably means
 // the same skill twice.
+//
+// This lived in lib/music until the bird curriculum wanted the same
+// scheduling. Nothing in here was ever music-specific except the
+// comments, so it moved rather than being copied — a second copy would
+// have been the wrong precedent for the third subject.
 
 export interface ReviewState {
   /** 1 = shakiest, 5 = solid. */

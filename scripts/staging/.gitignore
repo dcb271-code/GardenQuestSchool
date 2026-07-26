@@ -1,9 +1,17 @@
 # Ignore everything in staging EXCEPT:
 #  - the .gitkeep that makes the dir exist
 #  - selections.json files (the hand-edited tagging output)
+#  - candidates.json files (attribution for every staged file — losing
+#    these means re-downloading everything to recover who took a photo)
 #  - the .gitignore itself
+#
+# Two depths, because flora stages at <code>/ and birds at birds/<code>/.
 *
 !.gitignore
 !.gitkeep
 !*/
+!*/*/
 !*/selections.json
+!*/candidates.json
+!*/*/selections.json
+!*/*/candidates.json

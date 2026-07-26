@@ -3,7 +3,7 @@ import { describe, it, expect } from 'vitest';
 import {
   recordResult, dueUnits, badgeFor, addDays, todayKey,
   BOX_DAYS, MAX_BOX, type ReviewMap,
-} from '@/lib/music/review';
+} from '@/lib/learning/review';
 import { UNITS, getUnit, buildExercises, unitsOfStrand } from '@/lib/music/curriculum';
 import { midiOf, C_POSITION } from '@/lib/music/theory';
 

@@ -20,9 +20,24 @@ export interface InatPhoto {
   height?: number;
 }
 
+/** iNat annotation vocabulary. Only the ones we actually filter on. */
+export const ANNOTATION = {
+  SEX: 9,
+  MALE: 10,
+  FEMALE: 11,
+} as const;
+
 export interface BuildOptions {
   taxonId: number;
   perPage?: number;             // default 100, max 200
+  /**
+   * Optional observation annotation filter, e.g. sex.
+   * Birds need this and plants don't: half the confusion a beginner
+   * hits is that a male and female cardinal look nothing alike, so the
+   * harvester has to be able to ask for each separately.
+   */
+  termId?: number;
+  termValueId?: number;
 }
 
 export function buildInatObservationsUrl(opts: BuildOptions): string {
@@ -34,6 +49,10 @@ export function buildInatObservationsUrl(opts: BuildOptions): string {
   u.searchParams.set('order_by', 'votes');
   u.searchParams.set('per_page', String(perPage));
   u.searchParams.set('license', ALLOWED_LICENSES.join(','));
+  if (opts.termId !== undefined && opts.termValueId !== undefined) {
+    u.searchParams.set('term_id', String(opts.termId));
+    u.searchParams.set('term_value_id', String(opts.termValueId));
+  }
   return u.toString();
 }
 

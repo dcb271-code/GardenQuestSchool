@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createServiceClient } from '@/lib/supabase/server';
-import { getUnit } from '@/lib/music/curriculum';
+import { getUnit } from '@/lib/birds/curriculum';
 import { recordResult, todayKey, type ReviewMap } from '@/lib/learning/review';
 import { grantVirtueGem } from '@/lib/engine/virtueGrants';
 
@@ -9,24 +9,19 @@ export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
 /**
- * Music practice, recorded so it counts.
+ * Bird practice, recorded so it counts.
  *
- * Every answered exercise becomes an `attempt` row with the learner's
- * id and an outcome — the same rows getCumulativeCorrect() counts. That
- * is the whole trick: practising music grows plants in the garden
- * exactly like answering a maths question does, with no special case
- * anywhere in the garden code.
- *
- * item_id and session_id are left null. Both are nullable, and the
- * places that walk attempt → item → skill (the garden's per-skill
- * counts, mastery) skip rows without an item, so music can't
- * accidentally mark a maths skill as practised.
+ * Same trick as music: every answered exercise becomes an `attempt`
+ * row with a learner id and an outcome, and null item_id/session_id.
+ * getCumulativeCorrect() counts exactly those, so learning birds grows
+ * plants in the garden with no special case in the garden code — while
+ * the queries that walk attempt → item → skill skip null-item rows, so
+ * birds can't mark a maths skill as practised.
  */
 
 const Body = z.object({
   learnerId: z.string().min(1),
   unitCode: z.string().min(1),
-  /** One entry per exercise answered in this sitting. */
   results: z.array(z.object({
     exerciseKind: z.string().min(1),
     correct: z.boolean(),
@@ -49,9 +44,9 @@ export async function POST(req: Request) {
     item_id: null,
     outcome: r.correct ? 'correct' : 'incorrect',
     response: {
-      source: 'music',
+      source: 'birds',
       unit: unit.code,
-      strand: unit.strand,
+      stage: unit.stage,
       exercise: r.exerciseKind,
     },
     time_ms: r.timeMs ?? null,
@@ -61,8 +56,6 @@ export async function POST(req: Request) {
   const { error } = await db.from('attempt').insert(rows);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
-  // FIRST-TRY correct is what counts for scheduling: getting there
-  // after three wrong guesses is not the same as knowing it.
   const correctCount = body.results.filter(r => r.correct).length;
   const accuracy = correctCount / body.results.length;
 
@@ -72,17 +65,14 @@ export async function POST(req: Request) {
     .eq('learner_id', body.learnerId)
     .maybeSingle();
   const garden = (stateRow?.garden as Record<string, any>) ?? {};
-  const done: string[] = Array.isArray(garden.music_units) ? garden.music_units : [];
+  const done: string[] = Array.isArray(garden.bird_units) ? garden.bird_units : [];
   const alreadyDone = done.includes(unit.code);
-  // Finishing means getting most of it right, not merely reaching the end.
   const passed = correctCount >= Math.ceil(body.results.length * 0.7);
 
-  // Schedule the unit's next review whatever happened — a shaky pass
-  // should come back tomorrow, a clean one in a month.
-  const review: ReviewMap = (garden.music_review as ReviewMap) ?? {};
+  const review: ReviewMap = (garden.bird_review as ReviewMap) ?? {};
   review[unit.code] = recordResult(review[unit.code], accuracy, todayKey());
-  garden.music_review = review;
-  if (passed && !alreadyDone) garden.music_units = [...done, unit.code];
+  garden.bird_review = review;
+  if (passed && !alreadyDone) garden.bird_units = [...done, unit.code];
 
   await db.from('world_state').upsert(
     { learner_id: body.learnerId, garden, last_updated_at: new Date().toISOString() },
@@ -92,9 +82,9 @@ export async function POST(req: Request) {
   let gemGranted = false;
   if (passed && !alreadyDone) {
     gemGranted = await grantVirtueGem(
-      db, body.learnerId, 'practice',
-      `You worked through ${unit.title} at the piano — ${correctCount} right.`,
-      { source: 'music', unitCode: unit.code, strand: unit.strand },
+      db, body.learnerId, 'curiosity',
+      `You learned ${unit.title} — ${correctCount} right. Now go and look out of a window.`,
+      { source: 'birds', unitCode: unit.code, stage: unit.stage },
     );
   }
 
@@ -105,12 +95,11 @@ export async function POST(req: Request) {
     passed,
     alreadyDone,
     gemGranted,
-    completed: garden.music_units ?? done,
+    completed: garden.bird_units ?? done,
     review,
   });
 }
 
-/** Which music units has this learner finished? */
 export async function GET(req: Request) {
   const learnerId = new URL(req.url).searchParams.get('learner');
   if (!learnerId) return NextResponse.json({ error: 'learner required' }, { status: 400 });
@@ -124,7 +113,8 @@ export async function GET(req: Request) {
   const garden = (row?.garden as Record<string, any>) ?? {};
 
   return NextResponse.json({
-    completed: Array.isArray(garden.music_units) ? garden.music_units : [],
-    review: (garden.music_review as ReviewMap) ?? {},
+    completed: Array.isArray(garden.bird_units) ? garden.bird_units : [],
+    review: (garden.bird_review as ReviewMap) ?? {},
+    lifelist: (garden.bird_lifelist as Record<string, unknown>) ?? {},
   });
 }

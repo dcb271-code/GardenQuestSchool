@@ -13,6 +13,7 @@
     "test:e2e": "playwright test",
     "db:migrate": "tsx scripts/migrate.ts",
     "db:seed": "tsx scripts/seed.ts",
+    "birds:harvest": "tsx scripts/seed-bird-photos.ts",
     "naturalist:harvest": "tsx scripts/seed-flora-photos.ts",
     "naturalist:auto-curate": "tsx scripts/auto-curate-flora-photos.ts",
     "naturalist:validate": "tsx scripts/validate-flora-selections.ts",

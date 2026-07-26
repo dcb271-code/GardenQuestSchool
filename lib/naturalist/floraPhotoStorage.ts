@@ -4,21 +4,20 @@
 // flora-photos bucket. Both the API route and the page rendering
 // code consume these — keeping it pure means no Supabase client
 // instantiation in hot paths.
+//
+// The URL shape moved to lib/storage/publicUrl when birds wanted the
+// same thing. This file's exports are unchanged, so no caller cares.
+
+import { publicStorageUrl, type PublicUrlOptions } from '@/lib/storage/publicUrl';
 
 export const BUCKET_NAME = 'flora-photos';
 
-export interface PublicUrlOptions {
-  widthPx?: number;   // appended as ?width=<N> for Supabase image transform
-}
+export type { PublicUrlOptions };
 
 export function publicUrlFor(
   baseUrl: string,
   storagePath: string,
   opts: PublicUrlOptions = {},
 ): string {
-  if (!storagePath) throw new Error('publicUrlFor: storagePath must be non-empty');
-  const base = baseUrl.replace(/\/+$/, '');
-  let u = `${base}/storage/v1/object/public/${BUCKET_NAME}/${storagePath}`;
-  if (opts.widthPx) u += `?width=${opts.widthPx}`;
-  return u;
+  return publicStorageUrl(baseUrl, BUCKET_NAME, storagePath, opts);
 }
