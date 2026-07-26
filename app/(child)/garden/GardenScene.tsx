@@ -597,6 +597,13 @@ export default function GardenScene({
             title="Music Room"
             style={{ minWidth: 40, minHeight: 40, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
           >🎹</Link>
+          <Link
+            href={`/birds?learner=${learnerId}`}
+            className="text-lg p-1.5 rounded-full bg-white border border-ochre"
+            aria-label="the bird hide"
+            title="Bird Hide"
+            style={{ minWidth: 40, minHeight: 40, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+          >🐦</Link>
           {cumulativeCorrect >= 25 && (
             <Link
               href={`/garden/grow?learner=${learnerId}`}

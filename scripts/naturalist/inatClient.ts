@@ -20,11 +20,19 @@ export interface InatPhoto {
   height?: number;
 }
 
-/** iNat annotation vocabulary. Only the ones we actually filter on. */
+/**
+ * iNat annotation vocabulary. Only the ones we actually filter on.
+ *
+ * These are NOT alphabetical and NOT guessable — Female is 10 and Male
+ * is 11. Getting them the wrong way round is silent: the API returns
+ * plenty of real, research-grade photographs, they are just all of the
+ * other sex. Verified against
+ * https://api.inaturalist.org/v1/controlled_terms on 2026-07-26.
+ */
 export const ANNOTATION = {
   SEX: 9,
-  MALE: 10,
-  FEMALE: 11,
+  FEMALE: 10,
+  MALE: 11,
 } as const;
 
 export interface BuildOptions {
@@ -93,6 +101,10 @@ export function parseInatResponse(raw: unknown): InatPhoto[] {
   };
 
   const out: InatPhoto[] = [];
+  // `raw` is whatever came back over the wire — a null body or an
+  // error object are both possible, and neither should take the
+  // harvester down mid-run.
+  if (!r || typeof r !== 'object') return out;
   if (!Array.isArray(r.results)) return out;
 
   for (const obs of r.results) {

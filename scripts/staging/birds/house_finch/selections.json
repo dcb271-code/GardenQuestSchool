@@ -1,0 +1,26 @@
+[
+  {
+    "filename": "perched_inat_77681554.jpg",
+    "role": "male",
+    "tier": 2,
+    "altText": "A male House Finch in a bare shrub: red on his forehead and throat, a plain brown back, and brown streaks running down his sides."
+  },
+  {
+    "filename": "perched_inat_77681504.jpg",
+    "role": "perched",
+    "tier": 3,
+    "altText": "A male House Finch perched among bare branches, red on the head and breast."
+  },
+  {
+    "filename": "female_inat_616563967.jpg",
+    "role": "female",
+    "tier": 1,
+    "altText": "A female House Finch, brown and streaky all over with a plain face and no stripe over the eye."
+  },
+  {
+    "filename": "female_inat_604322520.jpg",
+    "role": "female",
+    "tier": 2,
+    "altText": "A female House Finch among red berries, showing the brown streaks down her front."
+  }
+]

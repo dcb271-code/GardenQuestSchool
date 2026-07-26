@@ -17,6 +17,11 @@
  * spec). A photo where the diagnostic mark is hidden behind a branch
  * is worse than no photo at all, so this cannot be auto-curated the
  * way flora was.
+ *
+ * Watch the ANNOTATION constants. Female is 10 and Male is 11, which
+ * is not guessable, and inverting them fails SILENTLY — every photo
+ * comes back real, research-grade and correctly licensed, just of the
+ * wrong sex. The only thing that catches it is looking at the pictures.
  */
 
 import { mkdir, writeFile, readFile } from 'node:fs/promises';

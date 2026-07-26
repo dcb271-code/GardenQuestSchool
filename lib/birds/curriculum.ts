@@ -437,7 +437,7 @@ export const UNITS: BirdUnit[] = [
       {
         heading: 'The same bird, twice',
         body:
-          'In summer the American Goldfinch is brilliant lemon yellow with a black cap. In winter the very same bird is a drab olive-buff. People are sure they are two different birds. Look at the black wings with white bars — those stay the same all year.',
+          'In summer the male American Goldfinch is brilliant lemon yellow with a black cap. The female is a quiet olive-buff all year — and in WINTER the male changes to look very much like her. People are certain they are seeing two different birds. Look at the black wings with the white bars: those stay the same whatever else changes.',
         figure: { kind: 'photo', ref: { birdCode: 'american_goldfinch', role: 'male' } },
       },
     ],

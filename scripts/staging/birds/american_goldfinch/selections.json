@@ -1,26 +1,26 @@
 [
   {
-    "filename": "female_inat_410284583.jpg",
+    "filename": "male_inat_410284583.jpg",
     "role": "male",
     "tier": 1,
-    "altText": "An American Goldfinch in summer: brilliant lemon yellow with a black cap and black wings, perched on goldenrod."
+    "altText": "A male American Goldfinch in summer: brilliant lemon yellow with a black cap and black wings, perched on goldenrod."
   },
   {
-    "filename": "female_inat_4285878.jpg",
+    "filename": "male_inat_4285878.jpg",
     "role": "male",
     "tier": 2,
-    "altText": "A bright yellow American Goldfinch clinging sideways to a dried seed head."
+    "altText": "A bright yellow male American Goldfinch clinging sideways to a dried seed head."
   },
   {
-    "filename": "male_inat_208403313.jpg",
-    "role": "nonbreeding",
+    "filename": "female_inat_208403313.jpg",
+    "role": "female",
     "tier": 1,
-    "altText": "The same kind of bird in winter: a drab olive-buff American Goldfinch on grass seed heads, with the black wings and white wing bars it keeps all year."
+    "altText": "A female American Goldfinch, drab olive-buff rather than yellow, on grass seed heads — with the same black wings and white wing bars the male has."
   },
   {
-    "filename": "male_inat_284624622.jpg",
-    "role": "nonbreeding",
+    "filename": "female_inat_284624622.jpg",
+    "role": "female",
     "tier": 2,
-    "altText": "A dull olive American Goldfinch in winter plumage clinging to an upright stem."
+    "altText": "A dull olive female American Goldfinch clinging to an upright stem."
   }
 ]

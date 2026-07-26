@@ -1,0 +1,26 @@
+[
+  {
+    "filename": "perched_inat_442088234.jpg",
+    "role": "perched",
+    "tier": 1,
+    "altText": "A Blue Jay perched side-on with its crest raised, bright blue above and white below, with a black necklace across the throat."
+  },
+  {
+    "filename": "perched_inat_442088400.jpg",
+    "role": "perched",
+    "tier": 1,
+    "altText": "A Blue Jay standing at the edge of a bird bath, seen from the side against green ferns."
+  },
+  {
+    "filename": "perched_inat_442088531.jpg",
+    "role": "perched",
+    "tier": 2,
+    "altText": "A Blue Jay facing forward at a feeder, showing the black necklace and the pattern on its face."
+  },
+  {
+    "filename": "perched_inat_612835948.jpg",
+    "role": "flight",
+    "tier": 2,
+    "altText": "A Blue Jay flying with its wings spread, showing the black bars and white patches across the blue."
+  }
+]
