@@ -104,6 +104,19 @@ function validate(
   return problems;
 }
 
+/**
+ * DO NOT "TIDY" THIS.
+ *
+ * The result reads oddly — `perched_1_inat_perched_inat_442088234.jpg`
+ * — because the staged filename already carries its harvest role and
+ * this prefixes the chosen role on top. It is redundant but harmless;
+ * nobody ever sees a storage path.
+ *
+ * Changing the format would change every path, which means the
+ * already-uploaded rows would no longer match, which means the
+ * skip-if-exists check silently misses and a rerun uploads the whole
+ * catalog a second time as duplicate rows.
+ */
 function storagePathFor(code: string, s: Selection, cand: Candidate): string {
   const ext = (extname(s.filename) || '.jpg').replace('.', '');
   const stem = basename(s.filename, extname(s.filename));
