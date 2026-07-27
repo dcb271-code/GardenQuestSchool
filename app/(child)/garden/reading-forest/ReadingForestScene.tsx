@@ -60,6 +60,7 @@ import { pickBeaconSkill, type HintSkill } from '@/lib/world/unlockHints';
 import { MATH_SKILLS } from '@/lib/packs/math/skills';
 import { READING_SKILLS as ALL_READING_SKILLS } from '@/lib/packs/reading/skills';
 import type { ReadingForestStructureState } from './page';
+import { READING_STATIONS } from '@/lib/world/branchStations';
 
 // Local Sway helper — same shape as GardenScene's private Sway. Gentle
 // infinite rocking that brings static trees alive. Doesn't gate on
@@ -126,16 +127,14 @@ const ILLUSTRATION_ALIAS: Record<string, string> = {
 // they collapse to one bespoke trail-signpost marker, expanding when
 // tapped. Cuts the upper canopy from "8 structures + a path" down to
 // "one place sign + a path" until the kid wants to dive in.
+// Sourced from lib/world/branchStations.ts — see the note in the math
+// scene. Keeping these in the component is what let them drift out of
+// step with the structures they sit among.
 const HABITAT_GROUPS: Record<string, {
   codes: string[]; x: number; y: number; label: string;
-}> = {
-  phonics_band: {
-    codes: ['rf_digraphs', 'rf_initial_blends', 'rf_silent_e',
-            'rf_vowel_ee_ea', 'rf_vowel_ai_ay', 'rf_vowel_oa_ow',
-            'rf_r_controlled', 'rf_diphthongs'],
-    x: 840, y: 200, label: 'Phonics Path',
-  },
-};
+}> = Object.fromEntries(
+  READING_STATIONS.map(st => [st.key, { codes: st.codes, x: st.x, y: st.y, label: st.label }]),
+);
 const HABITAT_BY_SKILL: Record<string, string> = Object.entries(HABITAT_GROUPS)
   .reduce((acc, [k, g]) => { g.codes.forEach(c => { acc[c] = k; }); return acc; }, {} as Record<string, string>);
 

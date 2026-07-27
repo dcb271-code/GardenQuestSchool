@@ -65,6 +65,7 @@ import { pickBeaconSkill, type HintSkill } from '@/lib/world/unlockHints';
 import { MATH_SKILLS } from '@/lib/packs/math/skills';
 import { READING_SKILLS } from '@/lib/packs/reading/skills';
 import type { MathMountainStructureState } from './page';
+import { MATH_STATIONS, STATION_OPEN_BOX, STATION_CLOSE_BOX } from '@/lib/world/branchStations';
 
 // Local Sway helper — same shape as GardenScene's private Sway: a
 // gentle infinite rocking that brings static trees alive. Doesn't gate
@@ -133,56 +134,15 @@ const ILLUSTRATION_ALIAS: Record<string, string> = {
 // cave = the existing cave SVG). NO orb / glass-ball icons.
 // Tap the marker → skills fan out at their original positions; tap
 // again → collapses back.
+// Stations now come from lib/world/branchStations.ts so the scene and
+// the layout test cannot drift apart. They used to be hardcoded here,
+// which is how Mirror Tarns ended up underneath the close target with
+// nothing able to notice.
 const HABITAT_GROUPS: Record<string, {
   codes: string[]; x: number; y: number; label: string;
-}> = {
-  cottage: {
-    codes: ['mm_stories_plus', 'mm_stories_minus', 'mm_long_stories'],
-    // Lifted from y:480 to y:466 — clears more sky above and gives the
-    // cabin a more elevated "perched on the foothill" reading now that
-    // rocky foothills sit beneath it.
-    x: 110, y: 466, label: 'Stories Cabin',
-  },
-  cave: {
-    codes: ['mm_hundreds_hollow', 'mm_fast_facts', 'mm_regroup_ridge'],
-    x: 110, y: 760, label: 'Operations Cave', // label position only — cave SVG itself is the marker
-  },
-  orchard: {
-    codes: ['mm_equal_garden', 'mm_array_orchard', 'mm_times_to_5', 'mm_times_to_10'],
-    x: 1150, y: 580, label: 'Apple Orchard',
-  },
-  glen: {
-    codes: ['mm_sharing_squirrels', 'mm_division_facts', 'mm_missing_number'],
-    x: 1200, y: 390, label: 'Division Glen',
-  },
-  measurement: {
-    codes: ['mm_even_odd', 'mm_garden_clock', 'mm_sundial', 'mm_hourglass',
-            'mm_pebble_coins', 'mm_pie_slices', 'mm_bigger_slice'],
-    x: 820, y: 580, label: 'Measurement Meadow',
-  },
-  // Level 4/5 bands collapse into two trail landmarks so the upper
-  // mountain isn't 25 stops floating in the sky: a waystation shelter
-  // below the High Meadow, and a stone cairn at the peak. Tap to fan
-  // the stops out, tap again to pack up camp.
-  high_meadow: {
-    codes: ['mm4_valley_thousands', 'mm4_windy_tens', 'mm4_eagle_ledge',
-            'mm4_factor_firs', 'mm4_mirror_tarns', 'mm4_leftover_rocks',
-            'mm4_granite_sums', 'mm4_cloud_rounding', 'mm4_slice_share',
-            'mm4_long_shadows', 'mm4_dewdrop_decimals', 'mm4_double_eagle',
-            'mm4_frost_compare', 'mm4_terrace_gardens', 'mm4_tall_tales'],
-    // East of the tea-house pavilion (680,296) — the two used to sit
-    // on top of each other; the shelter now takes the old mid-pine
-    // spot and the pine moved beside the pavilion.
-    x: 860, y: 305, label: 'High Meadow Waystation',
-  },
-  summit: {
-    codes: ['mm5_summit_product', 'mm5_long_stair', 'mm5_meadow_portions',
-            'mm5_uneven_slices', 'mm5_half_of_half', 'mm5_snowmelt_sums',
-            'mm5_tenfold_falls', 'mm5_rule_stones', 'mm5_crystal_boxes',
-            'mm5_storytellers_peak'],
-    x: 760, y: 138, label: 'Summit Cairn',
-  },
-};
+}> = Object.fromEntries(
+  MATH_STATIONS.map(st => [st.key, { codes: st.codes, x: st.x, y: st.y, label: st.label }]),
+);
 const HABITAT_BY_SKILL: Record<string, string> = Object.entries(HABITAT_GROUPS)
   .reduce((acc, [k, g]) => { g.codes.forEach(c => { acc[c] = k; }); return acc; }, {} as Record<string, string>);
 
@@ -2423,8 +2383,38 @@ export default function MathMountainScene({
                 style={{ cursor: 'pointer', touchAction: 'manipulation' }}
                 onClick={handleHabitatTap}
               >
+                {/* The tap target depends on state, and getting that wrong
+                    made Mirror Tarns unreachable.
+
+                    COLLAPSED: the landmark is alone out there, so the whole
+                    thing is the target. Its height used to reach 22 units
+                    further down than the art, which stole taps from Mountain
+                    Heights and Round to 100 even with the station shut.
+
+                    EXPANDED: only the visible "tap to close" pill. The full
+                    box used to stay, sitting on top of the fifteen stops it
+                    had just revealed — about ten times the area of the thing
+                    that looks like the close button, and offset upward from
+                    it. Mirror Tarns' centre landed inside it by one unit, so
+                    a dead-centre tap collapsed the station instead of opening
+                    the lesson, and tapping its label always did.
+
+                    Geometry lives in lib/world/branchStations.ts so the
+                    layout test can check it. */}
                 {drawTapTarget && (
-                  <rect x={-60} y={-46} width={120} height={108} fill="transparent" />
+                  isExpanded ? (
+                    <rect
+                      x={STATION_CLOSE_BOX.dx} y={STATION_CLOSE_BOX.dy}
+                      width={STATION_CLOSE_BOX.w} height={STATION_CLOSE_BOX.h}
+                      fill="transparent"
+                    />
+                  ) : (
+                    <rect
+                      x={STATION_OPEN_BOX.dx} y={STATION_OPEN_BOX.dy}
+                      width={STATION_OPEN_BOX.w} height={STATION_OPEN_BOX.h}
+                      fill="transparent"
+                    />
+                  )
                 )}
                 {!isExpanded && drawTapTarget && anyUnlocked && (
                   <ellipse cx={0} cy={20} rx={50} ry={32} fill="#FFE89A" opacity={0.16} />

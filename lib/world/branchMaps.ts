@@ -42,7 +42,7 @@ export const MATH_MOUNTAIN_STRUCTURES: MapStructure[] = [
     x: 200, y: 540, size: 64, zone: 'math' },
   { code: 'mm_fast_facts', kind: 'skill', skillCode: 'math.add.fluency_within_20',
     label: 'Fast Facts', subLabel: 'quick recall', themeEmoji: '⚡',
-    x: 30, y: 715, size: 60, zone: 'math' },
+    x: 50, y: 715, size: 60, zone: 'math' },
   { code: 'mm_hundreds_hollow', kind: 'skill', skillCode: 'math.add.within_100.no_regrouping',
     label: "Hundred's Hollow", subLabel: '2-digit add', themeEmoji: '🌳',
     x: 90, y: 640, size: 64, zone: 'math' },
@@ -365,7 +365,7 @@ export const READING_FOREST_STRUCTURES: MapStructure[] = [
     x: 800, y: 660, size: 60, zone: 'reading' },
   { code: 'rf_paragraph', kind: 'skill', skillCode: 'reading.comprehension.paragraph',
     label: 'Paragraph Pavers', subLabel: 'longer reading', themeEmoji: '📰',
-    x: 740, y: 720, size: 60, zone: 'reading' },
+    x: 735, y: 640, size: 60, zone: 'reading' },
 
   // ─── Fern Hollow (Level 4 — SW understory) ──────────────────────
   // New-growth clearing below the Sight Word Glade. Renders via the
