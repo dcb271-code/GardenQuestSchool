@@ -40,6 +40,7 @@
 'use client';
 
 import { useState } from 'react';
+import WalkChooser from '@/components/child/naturalist/WalkChooser';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { MapStructure } from '@/lib/world/gardenMap';
@@ -147,6 +148,7 @@ export default function ReadingForestScene({
   // Calm mode: still the decorative layer on slow devices.
   const calm = useCalmMode();
   const calmAmbient = reducedMotion || calm;
+  const [walkChooserOpen, setWalkChooserOpen] = useState(false);
   const [tappedLocked, setTappedLocked] = useState<string | null>(null);
   const [lockedHint, setLockedHint] = useState<MapStructure | null>(null);
   const allHintSkills: HintSkill[] = [...MATH_SKILLS, ...ALL_READING_SKILLS];
@@ -658,9 +660,9 @@ export default function ReadingForestScene({
         <g
           transform="translate(720, 752)"
           style={{ cursor: 'pointer', touchAction: 'manipulation' }}
-          onClick={() => router.push(`/naturalist/walk?learner=${learnerId}`)}
+          onClick={() => setWalkChooserOpen(true)}
           role="button"
-          aria-label="to Naturalist Grove"
+          aria-label="go for a nature walk — choose what to look for"
           tabIndex={0}
         >
           {/* generous invisible hit target */}
@@ -678,14 +680,14 @@ export default function ReadingForestScene({
             fontSize={11} fontWeight={700} fill="#6b4423"
             style={{ userSelect: 'none' }}
           >
-            Naturalist
+            Nature
           </text>
           <text
             x={0} y={-18} textAnchor="middle"
             fontSize={11} fontWeight={700} fill="#6b4423"
             style={{ userSelect: 'none' }}
           >
-            Grove ↓
+            Walk ↓
           </text>
           {/* tiny dogwood-bloom hint beside the post — four white bracts + gold center */}
           <g transform="translate(20, 16)" pointerEvents="none">
@@ -1464,6 +1466,12 @@ export default function ReadingForestScene({
         open={bearOpen}
         learnerLevel={learnerLevel}
         onClose={() => setBearOpen(false)}
+      />
+
+      <WalkChooser
+        open={walkChooserOpen}
+        learnerId={learnerId}
+        onClose={() => setWalkChooserOpen(false)}
       />
 
       <AnimatePresence>

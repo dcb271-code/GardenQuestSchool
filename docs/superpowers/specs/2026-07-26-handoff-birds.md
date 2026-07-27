@@ -91,6 +91,46 @@ Three design points that are load-bearing rather than decorative:
   ever music-specific except the comments. Three call sites were repointed
   rather than leaving a re-export shim.
 
+### Two bugs Cecily hit on the device, and a navigation change
+`4a15370` `6a10d49` (+ the walk chooser)
+
+**The painted turtle arrived on every single garden visit.** Session-end picks
+arrivals with `pickArrivalForSession`, which is badge-aware and correctly
+offered her the turtle. The arrival route then re-validated that queued code
+with `computeEligibleSpecies` and did not pass the badges — so it rejected the
+species it had just been handed, 400'd, and never reached
+`clearPendingArrival`. Confirmed against her row: pending was `painted_turtle`,
+she holds the `frog_pond` badge, and the turtle was never journalled.
+
+Fixed three ways, in increasing order of usefulness: the route passes badges;
+`ArrivalCard` no longer treats a failed POST as success (it was
+fire-and-forget, which is why this was silent); and **`researcherBadgeCodes` is
+no longer optional** on `computeEligibleSpecies`. The `= []` default is what
+let the omission compile, and `[]` is a legitimate value meaning "she has
+earned nothing", so no runtime check could ever have caught it.
+
+**Cecily kept being demoted to Level 2.** `scripts/migrate.ts` has no tracking
+table and re-applies every migration on every run. Everyone remembered that
+means "make schema changes idempotent"; what was missed is that it also means
+**a migration must never write a learner's own state**. `008` carried an
+unguarded `update learner set grade_level = 2, default_challenge = 'harder'
+where id = '1111…'` — and that id is Cecily. Every migrate run reset her level
+and silently flipped her difficulty. An audit found it was the only unguarded
+write in all 19 migrations. `tests/world/migrationSafety.test.ts` now reads the
+`.sql` files and fails on unguarded writes to learner-state tables, hardcoded
+learner uuids, or any `grade_level` write that isn't a null backfill.
+
+**Birds moved out of the garden header into a Nature Walk chooser.** The
+signpost at the south edge of the Reading Forest now opens `WalkChooser`
+("what shall we look for?") instead of going straight to the plant walk, and
+the 🐦 header button is gone. `lib/world/walks.ts` is the extension point:
+mushrooms, insects, rocks are **one entry in `WALK_KINDS`**, no new button and
+no route plumbing. Seasonal notes live there too, and they are load-bearing
+rather than decorative — bird *song* is territorial and mostly March–July,
+while *calls* are year-round, so the winter note sends her out listening for
+the right thing. The Practice Nook lists the walks flat instead of nesting a
+second chooser inside a screen that already asks "what shall we do?".
+
 ---
 
 ## 2. The bug worth reading this document for
@@ -306,16 +346,30 @@ relying on it.
 Both were promised in the roadmap and in the last handoff. They are listed here
 again, which is itself the point.
 
-**6.1 — The device pass.** Now the most overdue item in the project. Since
-2026-07-19 there are **six new full-screen scenes** never opened on the Cozyla:
-four habitat interiors, the residents on the garden map, and the bird hide. The
-bird hide is the sharpest risk — its choice grids are two-across because of the
-kana lesson, but photo buttons are a different shape at portrait width and
-nobody has seen them there.
+**6.1 — The device pass.** Now the most overdue item in the project, and the
+list has grown: four habitat interiors, the residents on the garden map, the
+bird hide, and now the **Walk Chooser**. Two specific risks, both unverifiable
+from here:
 
-**6.2 — Cecily's actual progress numbers.** The beyond-trellis gates
-(1400/1600/1800/2000 lifetime-correct) and the Japanese pacing are still set
-from guesswork. One query, never run.
+- The bird hide's photo choice buttons. The grids are two-across because of the
+  kana lesson, but a photo is a different shape from a character and nobody has
+  seen them at real portrait width.
+- `WalkChooser` is an HTML modal, not SVG, so the render-a-still trick used for
+  every other new scene **does not work on it**. It has never been seen at all,
+  by anyone, in any form.
+
+**6.2 — ~~Cecily's actual progress numbers.~~ Done, 2026-07-26.**
+
+| learner | lifetime correct |
+|---|---:|
+| Cecily | **1,377** |
+| Esme | 242 |
+
+The beyond-trellis gates were set from guesswork at 1400 / 1600 / 1800 / 2000
+and turn out to be well placed: **the orchard is ~23 correct answers away** —
+about one session. Berry patch a few weeks, herb and moon gardens beyond that.
+Esme at 242 is nowhere near any of them, which is the concrete size of the
+"something for Esme" gap the roadmap keeps naming.
 
 ---
 

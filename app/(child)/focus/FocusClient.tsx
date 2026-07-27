@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
+import { WALK_KINDS, walkHref } from '@/lib/world/walks';
 
 export interface FocusSubjectCard {
   code: string;
@@ -114,35 +115,41 @@ export default function FocusClient({
           );
         })}
 
-        {/* Nature walk — not a DB subject (no items/skills), but it IS
-            focused practice: plant identification with spaced review. */}
-        <motion.button
-          type="button"
-          disabled={starting !== null}
-          onClick={() => router.push(`/naturalist/walk?learner=${learnerId}`)}
-          className="w-full text-left flex items-center gap-4 bg-white/80 border-2 border-ochre/60 hover:border-forest/60 rounded-2xl px-5 py-4 shadow-sm active:scale-[0.99]"
-          style={{ touchAction: 'manipulation', minHeight: 84 }}
-          initial={reducedMotion ? undefined : { opacity: 0, y: 14 }}
-          animate={reducedMotion ? undefined : { opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 + subjects.length * 0.08, duration: 0.45, ease: [0.22, 0.9, 0.34, 1] }}
-        >
-          <span className="text-[40px]" aria-hidden>🍃</span>
-          <span className="flex-1">
-            <span className="block font-display text-[22px] text-bark" style={{ fontWeight: 600 }}>
-              Nature
+        {/* The nature walks — not DB subjects (no items or skills), but
+            they ARE focused practice, with their own spaced review.
+            Listed flat rather than behind the chooser modal, because
+            this screen already exists to answer "what shall I do?" and
+            nesting a second question inside it would be silly. */}
+        {WALK_KINDS.map((walk, i) => (
+          <motion.button
+            key={walk.code}
+            type="button"
+            disabled={starting !== null}
+            onClick={() => router.push(walkHref(walk, learnerId))}
+            className="w-full text-left flex items-center gap-4 bg-white/80 border-2 border-ochre/60 hover:border-forest/60 rounded-2xl px-5 py-4 shadow-sm active:scale-[0.99]"
+            style={{ touchAction: 'manipulation', minHeight: 84 }}
+            initial={reducedMotion ? undefined : { opacity: 0, y: 14 }}
+            animate={reducedMotion ? undefined : { opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 + (subjects.length + i) * 0.08, duration: 0.45, ease: [0.22, 0.9, 0.34, 1] }}
+          >
+            <span className="text-[40px]" aria-hidden>{walk.emoji}</span>
+            <span className="flex-1">
+              <span className="block font-display text-[22px] text-bark" style={{ fontWeight: 600 }}>
+                {walk.title}
+              </span>
+              <span className="block font-display italic text-[14px] text-bark/60">
+                {walk.blurb}
+              </span>
             </span>
-            <span className="block font-display italic text-[14px] text-bark/60">
-              meet the plants on today&apos;s walk
-            </span>
-          </span>
-        </motion.button>
+          </motion.button>
+        ))}
 
         {/* Future subjects tease — kept honest: no tap target. */}
         <motion.div
           className="flex items-center gap-4 border-2 border-dashed border-ochre/40 rounded-2xl px-5 py-4 opacity-60"
           initial={reducedMotion ? undefined : { opacity: 0, y: 14 }}
           animate={reducedMotion ? undefined : { opacity: 0.6, y: 0 }}
-          transition={{ delay: 0.1 + (subjects.length + 1) * 0.08, duration: 0.45 }}
+          transition={{ delay: 0.1 + (subjects.length + WALK_KINDS.length) * 0.08, duration: 0.45 }}
         >
           <span className="text-[32px]" aria-hidden>🌱</span>
           <span className="font-display italic text-[15px] text-bark/60">
