@@ -1,8 +1,13 @@
 # Handoff — 2026-07-26 (second)
 
 Continues [`2026-07-26-handoff.md`](./2026-07-26-handoff.md), which covered
-`0262c2d`…`3e42760`. This one covers `e73b768`…`41101f8` — 7 commits, ~12,100
-lines across 77 files. All pushed to main; Vercel auto-deploys.
+`0262c2d`…`3e42760`. This one covers `e73b768`…`f421b30` — 15 commits, ~13,800
+lines across 94 files. All pushed to main; Vercel auto-deploys.
+
+The back half of it is **bugs found by Cecily on the actual tablet**, not by the
+test suite. That is the headline: 1,056 passing tests and rendered stills missed
+every single one, because they are database drift, migration side effects and
+hit-test geometry. See §1's last two sections and §9.
 
 **Migration 019 was applied to production**, and a public `bird-photos` bucket
 now exists with 33 images in it. That is the first migration in a while — the
@@ -150,6 +155,52 @@ rather than decorative — bird *song* is territorial and mostly March–July,
 while *calls* are year-round, so the winter note sends her out listening for
 the right thing. The Practice Nook lists the walks flat instead of nesting a
 second chooser inside a screen that already asks "what shall we do?".
+
+### Tap targets that stole each other's taps
+`f421b30`
+
+Reported after a session: Mirror Tarns "is hard to push without accidentally
+pushing tap to close", the Nature Walk sign "is covered by paragraph pavers",
+and High Meadow is crowded. All three were real, and one was worse than
+reported — **Mirror Tarns was unreachable**, not merely awkward.
+
+A station's *close* target stayed at the full 120×108 while the station was
+**open**, sitting on top of the fifteen stops it had just revealed — roughly
+ten times the area of the pill that looks like the close button, and offset
+upward from it. Mirror Tarns' centre landed inside it by **one unit in y**, so
+a dead-centre tap collapsed the station, and tapping its label always did. The
+box also reached 22 units below the art, so it stole from Mountain Heights and
+Round to 100 *even while collapsed*. The target is now state-dependent.
+
+The signpost lost its taps to `rf_paragraph`, 37 units away and drawn later in
+document order — which made the walk chooser, and therefore the whole bird
+curriculum, partly unreachable. The paver moved to (735, 640).
+
+**The cause underneath all of it: three position systems that never compared
+notes.** `MapStructure` x/y in `branchMaps.ts`; station boxes hardcoded inside
+each scene component; signposts written inline as `translate()` literals.
+`lib/world/branchStations.ts` is now the single source, both scenes read it via
+`Object.fromEntries(...)`, and `tests/world/branchLayout.test.ts` asserts none
+of it overlaps.
+
+**Writing that test found five more collisions nobody had reported** — Stories
+Cabin, Apple Orchard, Measurement Meadow, Summit Cairn and Phonics Path each
+sat on one of their own stops. Fixed by moving markers 5–36 units, with
+positions from a solver searching for the nearest clear spot rather than by
+eye. It also caught `mm_fast_facts` hanging 16 units off the left edge of the
+world.
+
+Two mistakes worth keeping, both caught before they shipped:
+
+- The test's first version compared a *collapsed* station against its own
+  members, which are not drawn — pure false positives. Overlap rules depend on
+  state, and a test that cries wolf gets its threshold lowered rather than its
+  logic fixed.
+- The hotspot check used `\s*\n\s*` to hop lines. `\s` already matches
+  `\n`, so that backtracks catastrophically and **hung the suite for five
+  minutes**. It is plain string scanning now.
+
+---
 
 ---
 
@@ -361,22 +412,23 @@ relying on it.
 
 ---
 
-## 6. Still undone, carried forward a third time
+## 6. The two long-running items
 
 Both were promised in the roadmap and in the last handoff. They are listed here
 again, which is itself the point.
 
-**6.1 — The device pass.** Now the most overdue item in the project, and the
-list has grown: four habitat interiors, the residents on the garden map, the
-bird hide, and now the **Walk Chooser**. Two specific risks, both unverifiable
-from here:
+**6.1 — The device pass is HAPPENING, and it is the most productive thing in
+this whole log.** One session on the Cozyla produced four real bugs; the test
+suite produced none of them. Three were invisible by construction — a species
+table out of step with its catalog, a migration writing learner state, and
+overlapping tap geometry. Keep going; it is worth more than anything I can add
+from here.
 
-- The bird hide's photo choice buttons. The grids are two-across because of the
-  kana lesson, but a photo is a different shape from a character and nobody has
-  seen them at real portrait width.
-- `WalkChooser` is an HTML modal, not SVG, so the render-a-still trick used for
-  every other new scene **does not work on it**. It has never been seen at all,
-  by anyone, in any form.
+Still unseen on the device: the Walk Chooser. It is an HTML modal, so the
+render-a-still trick used for every other new scene **does not work on it** —
+nothing can rasterise markup here. Also unverified: the bird hide's photo
+choice buttons at real portrait width. The grids are two-across because of the
+kana lesson, but a photograph is a different shape from a character.
 
 **6.2 — ~~Cecily's actual progress numbers.~~ Done, 2026-07-26.**
 
@@ -393,42 +445,124 @@ Esme at 242 is nowhere near any of them, which is the concrete size of the
 
 ---
 
-## 7. What comes next in the birds, if nobody says otherwise
+## 7. What comes next
 
-Ordered by value, from the spec's §8:
+Plan with coordinates and measurements:
+[`2026-07-27-layout-and-division-plan.md`](./2026-07-27-layout-and-division-plan.md).
 
-1. **Phase 2 — the song game she actually asked for.** No longer blocked on a
-   key; the remaining constraint is §5.2 (windows chosen by ear). Build order:
-   harvester → ffmpeg clip pipeline with auto-proposed windows → spectrograms →
-   audition page → `bird_audio` rows → Credits page → the Listen and Match
-   stages. Start `type:call`, not `type:song`, if it is autumn or winter when
-   this is picked up — calls are year-round, songs mostly March–July.
-2. **Phase 3 — the world.** A `bird_feeder` habitat, birds in `SPECIES_CATALOG`,
-   and they become residents on the garden map for free, because that shipped in
-   `6798540`. Tappable residents that play their call is the highest value per
-   line of code in the whole spec — it turns the garden into a passive review
-   surface. Then the **life list**, which is the actual point: logging birds she
-   has really seen out of the window.
-3. **Phase 4 — depth.** Crews 3–6, the masterclass units (The Three Copycats,
-   Boy and Girl, Tricky Twos), spectrograms, seasonal arrivals, and an Esme tier.
+**7.1 — High Meadow is still crowded (P1).** The centres are fine; minimum
+separation is 90 units. The footprints are not: label pills are **92 wide on a
+100-unit pitch**, about 9 px of gap on the tablet, so they read as one
+continuous beige band. Expanded, the station spans **792 world units against a
+~713-unit portrait window** — she cannot see it all without panning. Options:
+shorter labels, a wider pitch wrapped to three rows, or fewer stops (7.2 takes
+one away).
+
+**7.2 — Cliffside Point: the division station (P2).** Decided with the user:
+the name is **Cliffside Point**, and `divide.facts_to_10` **keeps** its
+`multiply.facts_to_10` mastered prerequisite — division stays gated behind the
+multiplication facts on purpose.
+
+Two structural facts to design around:
+
+- **There is no `division` strand.** All five `math.divide.*` skills sit inside
+  the `multiplication` strand ("Multiplication Foundations") in
+  `lib/packs/math/strands.ts`. Giving division its own strand is the change
+  that actually separates it everywhere — compass, planner, Hodge's
+  recommendations — not just on the map.
+- **A "station" is two unsynchronised things**: `BranchCluster` (a label drawn
+  at the members' centroid) and the station marker (now in
+  `branchStations.ts`). There is **no station-level gating at all** — a
+  structure unlocks iff every `prereqSkillCodes` entry is mastered. "Further up
+  the mountain" is a y-coordinate plus a prereq chain, nothing more.
+
+Content already exists: **158 authored division items**, 94 of them in the
+Grade-3 band. This is re-parenting and re-placing, not writing.
+
+Proposed contents: `divide.equal_share`, `divide.facts_to_10`,
+`divide.unknown_factor`, plus `mm4_leftover_rocks` moved out of High Meadow.
+Leave `divide.long_division` on the Summit — it is Level 5. Retire or shrink
+Division Glen so there aren't two division places.
+
+Anything new must satisfy `tests/components/branchArtCoverage.test.tsx` (art
+via `drawBespoke`, `ILLUSTRATION_ALIAS` or `markerIcons`) and the new
+`tests/world/branchLayout.test.ts`.
+
+**7.3 — The birds, phase 2.** No longer blocked on a key (§5.1). Build order:
+harvester → ffmpeg clip pipeline with auto-proposed windows → spectrograms →
+audition page → `bird_audio` rows → Credits page → Listen and Match stages.
+Start `type:call` rather than `type:song` if it is autumn or winter — calls are
+year-round, songs mostly March–July.
+
+**7.4 — Dropped.** The reported clustering of animal friends around the bunny
+burrow could not be reproduced against her real data or a worst case, and the
+user has set it aside. One real gap it exposed is still worth closing:
+`tests/world/residents.test.ts` skips cross-habitat comparisons entirely
+(`if (out[i].habitatCode !== out[j].habitatCode) continue;`), so residents of
+adjacent habitats are unguarded.
 
 ---
 
-## 8. Verification state
+## 8. What the tests could not see
+
+Four bugs reached a seven-year-old in one sitting. Worth naming the pattern,
+because it is not "write more tests" — the suite was at 1,000+ passing and none
+of these is a logic error.
+
+| bug | why every test and every rendered still missed it |
+|---|---|
+| Turtle arriving forever (part 1) | Two functions gating the same thing with different arguments. Both correct in isolation. |
+| Turtle arriving forever (part 2) | The `species` **table** had drifted from `SPECIES_CATALOG`. Tests read the catalog; only the app reads the table. |
+| Level reset to 2 | A migration wrote learner state. Correct SQL, correct schema, ran successfully every time. |
+| Mirror Tarns unreachable | Hit-test geometry. Not logic, and **not painting either** — a still image looks perfect. |
+
+Three defences added, in order of usefulness:
+
+1. **Make the mistake un-compilable.** `researcherBadgeCodes` is now a required
+   argument; the `= []` default is what let the omission through, and `[]` is a
+   legitimate value so nothing could have caught it at runtime.
+2. **Make the data self-heal.** `ensureSpeciesRow()` creates a missing row from
+   the catalog rather than 500-ing forever.
+3. **Turn geometry and SQL into data a test can read.**
+   `branchLayout.test.ts` and `migrationSafety.test.ts` read coordinates and
+   `.sql` files directly. The first found five unreported collisions on its
+   first run.
+
+The pattern in the misses is the same each time: **something outside the code's
+own model** — a table, a migration run, a pixel — and I twice diagnosed one of
+these confidently and wrongly before checking (blaming iNaturalist's data for
+my inverted constant; shipping the badge fix without walking the rest of the
+arrival path). A matching explanation is not a verified one.
+
+---
+
+## 9. Verification state
 
 | Verified how | What |
 |---|---|
-| Tests (1023 passing) + typecheck + production build | all logic, all catalogs, all gating, all interiors, the bird generator |
+| Tests (1056 passing) + typecheck + production build | all logic, all catalogs, all gating, all interiors, the bird generator |
 | Live data, not fixtures | all 10 birds resolve; across 40 seeds × 4 units, **0 exercises dropped** for a missing photo; both API routes and `/birds` answer off the production build; images publicly reachable with attribution |
 | Rendered SVG stills | every habitat interior, residents placement |
 | Contact sheets, by eye | all 192 harvested candidates |
-| **On the actual device** | **still nothing since the kana fix** |
+| Geometry, computed | every station box against every structure hit circle and label pill, both branches, both states |
+| Read-only simulation against production | all three gates of the arrival route for Cecily's stuck turtle |
+| **On the actual device** | **the four bugs in §8 — by Cecily, which is how they were found** |
+| **Never seen by anyone** | **the Walk Chooser** (HTML modal — cannot be rendered to a still here) |
 
 The 5 failures in `tests/settings/useAccessibilitySettings.test.ts` are
 pre-existing and fail on clean main too.
 
 Tests: `npx vitest run tests/ --no-file-parallelism`, and kill `next dev` first.
-Both hangs are real and unrelated to each other.
+Both hangs are real and unrelated to each other. A third hang is possible and
+is your own fault when it happens: a regex using `\s*\n\s*` backtracks
+catastrophically over a long source file, because `\s` already matches `\n`.
+That hung the suite for five minutes while writing the layout test.
+
+**Adding a species needs `npm run db:seed`.** `SPECIES_CATALOG` and
+`HABITAT_CATALOG` are the only two catalogs here that are not purely config —
+`journal_entry` has a foreign key to the `species` table. Everything else
+(plants, units, quests, plots, walks, birds) works the moment you append to an
+array, which is exactly why this one is easy to forget.
 
 **New dev dependency:** `sharp`, used only by `scripts/bird-contact-sheet.ts`.
 Note `sharp.OverlayOptions` is not importable as a namespace under this
