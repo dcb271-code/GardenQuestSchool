@@ -1,9 +1,10 @@
 // tests/world/birdCurriculum.test.ts
 import { describe, it, expect } from 'vitest';
 import {
-  UNITS, getUnit, buildExercises, isUnitUnlocked, nextUnit,
+  UNITS, getUnit, buildExercises, isUnitUnlocked, nextUnit, visibleUnits,
   birdsLearned, choiceCount, unitsOfCrew,
-  type BirdExercise,
+  PITCH_LABEL, TONE_LABEL,
+  type BirdExercise, type BirdClipRef,
 } from '@/lib/birds/curriculum';
 import { getBird, sizeComparison, BILL_HINT } from '@/lib/world/birdCatalog';
 
@@ -137,12 +138,16 @@ describe('buildExercises', () => {
     for (const u of UNITS) {
       for (const ex of allExercises(u.code)) {
         if (ex.kind === 'true_false') continue;
-        const options = ex.kind === 'name_photo' ? ex.photos : ex.choices;
+        const options: Array<string | { birdCode: string; role?: string; kind?: string }> =
+          ex.kind === 'name_photo' || ex.kind === 'song_to_photo' ? ex.photos
+          : ex.kind === 'which_did_you_hear' ? ex.clips
+          : ex.choices;
         expect(options.length, ex.kind).toBeGreaterThanOrEqual(2);
         expect(ex.correctIndex).toBeGreaterThanOrEqual(0);
         expect(ex.correctIndex).toBeLessThan(options.length);
         // No repeated option — a duplicate makes two answers correct.
-        const keys = options.map(o => typeof o === 'string' ? o : `${o.birdCode}/${o.role}`);
+        const keys = options.map(o =>
+          typeof o === 'string' ? o : `${o.birdCode}/${o.role ?? o.kind}`);
         expect(new Set(keys).size, `${ex.kind}: ${keys.join(' | ')}`).toBe(keys.length);
       }
     }
@@ -244,7 +249,11 @@ describe('buildExercises', () => {
     for (const u of UNITS) {
       const asked = new Set<string>();
       for (const ex of allExercises(u.code)) {
-        const code = 'birdCode' in ex ? ex.birdCode : ex.photo.birdCode;
+        const code =
+          'birdCode' in ex ? ex.birdCode
+          : 'photo' in ex ? ex.photo.birdCode
+          : 'clip' in ex ? ex.clip.birdCode
+          : ex.clips[ex.correctIndex].birdCode;
         asked.add(code);
       }
       for (const code of u.birdCodes) {
@@ -267,5 +276,165 @@ describe('buildExercises', () => {
     expect(kinds.has('behaviour') || kinds.has('habitat')).toBe(true);
     expect(kinds).not.toContain('size_anchor');
     expect(kinds).not.toContain('photo_name');
+  });
+});
+
+describe('listen and match stages', () => {
+  /** First voice of the clip's kind — the one the audition page pins
+   *  the stored clip to. Attribute questions must agree with it. */
+  function primaryVoice(clip: BirdClipRef) {
+    return getBird(clip.birdCode)!.voices.find(v => v.kind === clip.kind)!;
+  }
+
+  it('the course runs look → know → listen → match inside each crew', () => {
+    for (const crew of ['crew1', 'crew2']) {
+      const stages = unitsOfCrew(crew).map(u => u.stage);
+      expect(stages, crew).toEqual(['look', 'know', 'listen', 'match']);
+    }
+  });
+
+  it('listen units really exercise the ear, and never count repeats', () => {
+    for (const code of ['crew1_listen', 'crew2_listen']) {
+      const kinds = new Set(allExercises(code).map(e => e.kind));
+      expect(kinds).toContain('mnemonic');
+      expect(kinds).toContain('pitch_shape');
+      expect(kinds).not.toContain('photo_name');
+      // `repeats` describes the TYPICAL phrase count; any individual
+      // recording may differ, and a child must never be marked wrong
+      // for hearing the actual clip correctly.
+      expect(kinds).not.toContain('repetitions');
+    }
+  });
+
+  it('match units play the requested game', () => {
+    for (const code of ['crew1_match', 'crew2_match']) {
+      const kinds = new Set(allExercises(code).map(e => e.kind));
+      expect(kinds).toContain('song_to_photo');
+    }
+  });
+
+  it('every clip reference points at a voice the bird actually has', () => {
+    for (const u of UNITS) {
+      for (const ex of allExercises(u.code)) {
+        const refs: BirdClipRef[] =
+          'clip' in ex ? [ex.clip] : 'clips' in ex ? ex.clips : [];
+        for (const ref of refs) {
+          const bird = getBird(ref.birdCode);
+          expect(bird, ref.birdCode).toBeDefined();
+          expect(
+            bird!.voices.some(v => v.kind === ref.kind),
+            `${u.code}: ${ref.birdCode} has no ${ref.kind}`,
+          ).toBe(true);
+        }
+      }
+    }
+  });
+
+  it('mnemonic questions have the true mnemonic as the answer', () => {
+    for (const code of ['crew1_listen', 'crew2_listen']) {
+      for (const ex of allExercises(code)) {
+        if (ex.kind !== 'mnemonic') continue;
+        const voice = primaryVoice(ex.clip);
+        expect(ex.choices[ex.correctIndex]).toBe(voice.mnemonic);
+        // And no distractor may be another of this bird's own voices.
+        const own = getBird(ex.clip.birdCode)!.voices.map(v => v.mnemonic);
+        ex.choices.forEach((c, i) => {
+          if (i !== ex.correctIndex) expect(own).not.toContain(c);
+        });
+      }
+    }
+  });
+
+  it('pitch and tone questions agree with the auditioned voice', () => {
+    // The clip in storage is pinned to the FIRST voice of its kind —
+    // the Blue Jay's second call rises where its first falls, and an
+    // exercise built from the second would contradict the actual clip.
+    for (const code of ['crew1_listen', 'crew2_listen']) {
+      for (const ex of allExercises(code)) {
+        if (ex.kind === 'pitch_shape') {
+          expect(ex.choices[ex.correctIndex])
+            .toBe(PITCH_LABEL[primaryVoice(ex.clip).pitchShape]);
+        }
+        if (ex.kind === 'tone') {
+          expect(ex.choices[ex.correctIndex])
+            .toBe(TONE_LABEL[primaryVoice(ex.clip).tone]);
+        }
+      }
+    }
+  });
+
+  it('song_or_call answers state the clip\'s real kind', () => {
+    for (const code of ['crew1_listen', 'crew2_listen']) {
+      for (const ex of allExercises(code)) {
+        if (ex.kind !== 'song_or_call') continue;
+        expect(['song', 'call']).toContain(ex.clip.kind);
+        const correct = ex.choices[ex.correctIndex];
+        expect(correct.startsWith(ex.clip.kind === 'song' ? 'its song' : 'its call'))
+          .toBe(true);
+      }
+    }
+  });
+
+  it('song_to_photo shows the singing bird exactly once', () => {
+    for (const code of ['crew1_match', 'crew2_match']) {
+      for (const ex of allExercises(code)) {
+        if (ex.kind !== 'song_to_photo') continue;
+        const hits = ex.photos.filter(p => p.birdCode === ex.clip.birdCode);
+        expect(hits).toHaveLength(1);
+        expect(ex.photos[ex.correctIndex].birdCode).toBe(ex.clip.birdCode);
+      }
+    }
+  });
+
+  it('which_did_you_hear plays two different birds', () => {
+    for (const code of ['crew1_match', 'crew2_match']) {
+      for (const ex of allExercises(code)) {
+        if (ex.kind !== 'which_did_you_hear') continue;
+        expect(ex.clips).toHaveLength(2);
+        expect(ex.clips[0].birdCode).not.toBe(ex.clips[1].birdCode);
+      }
+    }
+  });
+
+  it('teach-page clip figures only play voices that exist', () => {
+    for (const u of UNITS) {
+      for (const p of u.teach) {
+        if (p.figure?.kind !== 'clip') continue;
+        const bird = getBird(p.figure.ref.birdCode);
+        expect(bird, u.code).toBeDefined();
+        expect(
+          bird!.voices.some(v => v.kind === (p.figure as { ref: BirdClipRef }).ref.kind),
+          `${u.code} figure: no such voice`,
+        ).toBe(true);
+      }
+    }
+  });
+
+  it('listen/match units hide until their crew has audio, without padlocking the rest', () => {
+    // No audio at all → the course looks exactly like Phase 1.
+    const none = visibleUnits([]);
+    expect(none.map(u => u.code)).toEqual(
+      ['crew1_look', 'crew1_know', 'crew2_look', 'crew2_know']);
+    // The Phase-1 chain still unlocks across the hidden gap.
+    expect(isUnitUnlocked('crew2_look', ['crew1_look', 'crew1_know'], none)).toBe(true);
+
+    // One crew1 bird with clips → crew1's listen/match appear.
+    const some = visibleUnits(['northern_cardinal']);
+    expect(some.map(u => u.code)).toContain('crew1_listen');
+    expect(some.map(u => u.code)).not.toContain('crew2_listen');
+
+    // And with audio everywhere, the full course in order.
+    const all = visibleUnits(undefined);
+    expect(all).toHaveLength(8);
+  });
+
+  it('a completed unit never re-locks when units are inserted before it', () => {
+    // Cecily finished crew2_look before crew1_listen existed. The new
+    // unit sits earlier in the chain; her finished unit must stay
+    // open for review.
+    expect(isUnitUnlocked('crew2_look', ['crew1_look', 'crew1_know', 'crew2_look'])).toBe(true);
+    // But it does gate her NEXT new unit: crew2_know is not next
+    // until listen/match are visible-and-passed or hidden.
+    expect(nextUnit(['crew1_look', 'crew1_know', 'crew2_look'])!.code).toBe('crew1_listen');
   });
 });

@@ -23,6 +23,7 @@ import {
   BIRD_CATALOG, birdsOfCrew, crewCodes, getBird, sizeComparison,
   BILL_HINT, ANCHOR_INCHES,
   type BirdData, type SizeAnchor, type BillShape,
+  type VoiceKind, type PitchShape, type ToneQuality, type BirdVoice,
 } from '@/lib/world/birdCatalog';
 
 export type Stage = 'look' | 'know' | 'listen' | 'match';
@@ -48,6 +49,39 @@ export interface BirdPhotoRef {
   role: BirdPhotoRole;
 }
 
+/**
+ * Resolved against the bird_audio table, exactly as photos are —
+ * and with the same consequence: a bird whose clips have not been
+ * auditioned yet produces fewer exercises, not a broken screen.
+ */
+export interface BirdClipRef {
+  birdCode: string;
+  kind: VoiceKind;
+}
+
+/**
+ * Kid-facing names for what the ear is being asked to notice. The
+ * pitch words deliberately mirror the music room's ear strand — she
+ * has already answered "does it go up or down?" about piano notes,
+ * and a chickadee is the identical skill wearing feathers.
+ */
+export const PITCH_LABEL: Record<PitchShape, string> = {
+  rising: 'it slides UP',
+  falling: 'it slides DOWN',
+  flat: 'it stays on one level',
+  wandering: 'it wanders up and down',
+};
+
+export const TONE_LABEL: Record<ToneQuality, string> = {
+  whistle: 'a clean whistle',
+  buzzy: 'a buzzy sound',
+  trill: 'a fast trill',
+  nasal: 'a pinched, nosey sound',
+  harsh: 'a harsh, scratchy sound',
+  flute: 'soft and smooth, like a little flute',
+  chatter: 'a fast jumbled chatter',
+};
+
 export interface TeachPage {
   heading: string;
   body: string;
@@ -56,7 +90,9 @@ export interface TeachPage {
     | { kind: 'bills'; highlight?: BillShape }
     | { kind: 'photo'; ref: BirdPhotoRef }
     | { kind: 'marks'; birdCode: string }
-    | { kind: 'four_keys' };
+    | { kind: 'four_keys' }
+    /** A playable clip with its spectrogram — sound made visible. */
+    | { kind: 'clip'; ref: BirdClipRef };
 }
 
 export interface BirdUnit {
@@ -91,7 +127,27 @@ export type BirdExercise =
   | { kind: 'field_mark'; prompt: string; photo: BirdPhotoRef;
       choices: string[]; correctIndex: number; hint: string }
   | { kind: 'true_false'; prompt: string; birdCode: string;
-      answer: boolean; hint: string };
+      answer: boolean; hint: string }
+  // ── LISTEN — Cornell's listening skills: words, then rhythm,
+  //    then pitch, then tone. All multiple choice over a played clip.
+  //    There is deliberately NO 'repetitions' exercise even though the
+  //    catalog carries `repeats`: that field describes the TYPICAL
+  //    phrase count, and any individual recording is free to differ.
+  //    An exercise must never mark a child wrong for hearing the clip
+  //    correctly.
+  | { kind: 'mnemonic'; prompt: string; clip: BirdClipRef;
+      choices: string[]; correctIndex: number; hint: string }
+  | { kind: 'song_or_call'; prompt: string; clip: BirdClipRef;
+      choices: string[]; correctIndex: number; hint: string }
+  | { kind: 'pitch_shape'; prompt: string; clip: BirdClipRef;
+      choices: string[]; correctIndex: number; hint: string }
+  | { kind: 'tone'; prompt: string; clip: BirdClipRef;
+      choices: string[]; correctIndex: number; hint: string }
+  // ── MATCH — the requested game: song → photo ─────────────────
+  | { kind: 'song_to_photo'; prompt: string; clip: BirdClipRef;
+      photos: BirdPhotoRef[]; correctIndex: number; hint: string }
+  | { kind: 'which_did_you_hear'; prompt: string; clips: BirdClipRef[];
+      correctIndex: number; hint: string };
 
 // ── seeded helpers (same private shape as the other subjects) ────
 
@@ -302,6 +358,138 @@ function knowExercise(
   };
 }
 
+/** The hint every clip exercise falls back on: the voice's own note. */
+function voiceHint(voice: BirdVoice): string {
+  return voice.mnemonic
+    ? `It sounds like “${voice.mnemonic}”. ${voice.note}`
+    : voice.note;
+}
+
+/**
+ * The FIRST voice of each kind, and only that.
+ *
+ * A clip reference is {birdCode, kind}, so one stored clip answers for
+ * a kind — and the audition page shows the first-of-kind mnemonic when
+ * a human chooses that clip. The Blue Jay is why this matters: it has
+ * two call voices (the scream falls, the pump-handle squeak RISES),
+ * and an exercise generated from the second would ask about a pitch
+ * the auditioned clip does not have. Second voices wait until clips
+ * can be pinned to a specific voice (a Phase 4 problem).
+ */
+function primaryVoices(bird: BirdData): BirdVoice[] {
+  const seen = new Set<VoiceKind>();
+  return bird.voices.filter(v =>
+    seen.has(v.kind) ? false : (seen.add(v.kind), true),
+  );
+}
+
+function listenExercise(
+  bird: BirdData, pool: BirdData[], rand: () => number, n: number,
+): BirdExercise | null {
+  const voice = pick(primaryVoices(bird), rand);
+  const clip: BirdClipRef = { birdCode: bird.code, kind: voice.kind };
+  const roll = rand();
+
+  // The words — the single best handle a child has on a song.
+  if (roll < 0.35 && voice.mnemonic) {
+    const wrong = pool.flatMap(b =>
+      b.code === bird.code
+        ? []
+        : b.voices.map(v => v.mnemonic).filter((m): m is string => !!m),
+    );
+    const { choices, correctIndex } = mc(voice.mnemonic, wrong, rand, n);
+    return {
+      kind: 'mnemonic',
+      prompt: `Listen. Which words fit what the ${bird.commonName} is saying?`,
+      clip, choices, correctIndex,
+      hint: voice.note,
+    };
+  }
+
+  // Song or call — the distinction that makes winter listening make
+  // sense. Only asked of kinds where the answer is one of the two.
+  if (roll < 0.55 && (voice.kind === 'song' || voice.kind === 'call')) {
+    const choices = [
+      'its song — the long fancy one',
+      'its call — the short everyday one',
+    ];
+    return {
+      kind: 'song_or_call',
+      prompt: `Is the ${bird.commonName} giving its song or its call?`,
+      clip, choices,
+      correctIndex: voice.kind === 'song' ? 0 : 1,
+      hint: voice.note,
+    };
+  }
+
+  // Pitch shape — the music room's ear strand, wearing feathers.
+  if (roll < 0.8) {
+    const correct = PITCH_LABEL[voice.pitchShape];
+    const wrong = Object.values(PITCH_LABEL).filter(l => l !== correct);
+    const { choices, correctIndex } = mc(correct, wrong, rand, n);
+    return {
+      kind: 'pitch_shape',
+      prompt: 'Listen to the shape of the sound. Which way does it go?',
+      clip, choices, correctIndex,
+      hint: voiceHint(voice),
+    };
+  }
+
+  // Tone — whistle, buzz, honk. Timbre is what the spectrogram makes
+  // visible: one clean line against fuzzy stacks.
+  const correct = TONE_LABEL[voice.tone];
+  const wrong = Object.values(TONE_LABEL).filter(l => l !== correct);
+  const { choices, correctIndex } = mc(correct, wrong, rand, n);
+  return {
+    kind: 'tone',
+    prompt: 'What KIND of sound is that?',
+    clip, choices, correctIndex,
+    hint: voiceHint(voice),
+  };
+}
+
+function matchExercise(
+  bird: BirdData, pool: BirdData[], rand: () => number, n: number,
+): BirdExercise | null {
+  const voice = pick(primaryVoices(bird), rand);
+  const clip: BirdClipRef = { birdCode: bird.code, kind: voice.kind };
+  const others = otherBirds(bird, pool);
+  if (others.length === 0) return null;
+
+  // The headline game: hear a sound, find the face.
+  if (rand() < 0.65) {
+    const wrongBirds = shuffle(others, rand).slice(0, Math.max(0, n - 1));
+    const photos: BirdPhotoRef[] = shuffle(
+      [bird, ...wrongBirds].map(b => ({
+        birdCode: b.code, role: 'perched' as BirdPhotoRole,
+      })),
+      rand,
+    );
+    return {
+      kind: 'song_to_photo',
+      prompt: 'Who is making this sound?',
+      clip, photos,
+      correctIndex: photos.findIndex(p => p.birdCode === bird.code),
+      hint: voiceHint(voice),
+    };
+  }
+
+  // The mirror image: know the bird, pick its sound from a rival's.
+  const rival = pick(others, rand);
+  const rivalVoice = pick(primaryVoices(rival), rand);
+  const clips: BirdClipRef[] = shuffle(
+    [clip, { birdCode: rival.code, kind: rivalVoice.kind }],
+    rand,
+  );
+  return {
+    kind: 'which_did_you_hear',
+    prompt: `One of these is the ${bird.commonName}. Which one?`,
+    clips,
+    correctIndex: clips.findIndex(c => c.birdCode === bird.code),
+    hint: voiceHint(voice),
+  };
+}
+
 export function buildExercises(unit: BirdUnit, seed: number): BirdExercise[] {
   const rand = rng(seed);
   const pool = unit.birdCodes
@@ -316,9 +504,11 @@ export function buildExercises(unit: BirdUnit, seed: number): BirdExercise[] {
   for (let i = 0; i < unit.exerciseCount; i++) {
     const bird = order[i % order.length];
     const n = Math.min(choiceCount(i, unit.exerciseCount), pool.length);
-    const ex = unit.stage === 'look'
-      ? lookExercise(bird, pool, rand, n)
-      : knowExercise(bird, pool, rand, n);
+    const ex =
+      unit.stage === 'look' ? lookExercise(bird, pool, rand, n)
+      : unit.stage === 'know' ? knowExercise(bird, pool, rand, n)
+      : unit.stage === 'listen' ? listenExercise(bird, pool, rand, n)
+      : matchExercise(bird, pool, rand, n);
     if (ex) out.push(ex);
   }
   return out;
@@ -411,6 +601,64 @@ export const UNITS: BirdUnit[] = [
     outro: 'Knowing what a bird does is knowing the bird.',
   },
   {
+    code: 'crew1_listen',
+    title: 'The Everyday Five Speak',
+    crew: 'crew1',
+    stage: 'listen',
+    blurb: 'Close your eyes. You can still name every one of them.',
+    teach: [
+      {
+        heading: 'Songs and calls are different things',
+        body:
+          'A bird’s SONG is the long fancy one — it is for saying "this is my garden" and "come and meet me", so it mostly happens in spring and summer. A CALL is the short everyday one — "watch out!", "where are you?", "I’m here" — and you can hear calls all year round. Most birds have both.',
+      },
+      {
+        heading: 'Put words to it',
+        body:
+          'Birders remember songs by putting silly words to them. The cardinal whistles birdie-birdie-birdie. The chickadee says its own name. The words are not what the bird means — they are a handle for YOUR memory, and they work astonishingly well.',
+        figure: { kind: 'clip', ref: { birdCode: 'northern_cardinal', kind: 'song' } },
+      },
+      {
+        heading: 'You already know how to do this',
+        body:
+          'In the music room you answered "does it go up or down?" about piano notes. A bird song is the same question. The cardinal’s whistle slides DOWN. The picture under each sound shows it too — a whistle draws one clean line, and you can watch it fall.',
+      },
+      {
+        heading: 'The dove is not an owl',
+        body:
+          'That soft sad coo-OO-oo from the wires? People hear it their whole lives and think it is an owl. It is the Mourning Dove — and the cooing IS its song. The second note is the highest; then it settles down, like a sigh.',
+        figure: { kind: 'clip', ref: { birdCode: 'mourning_dove', kind: 'song' } },
+      },
+      {
+        heading: 'The jay does not really sing',
+        body:
+          'The Blue Jay mostly shouts — a loud harsh JAY! JAY! that carries across the whole street. No sweet song, no fancy tune. If you hear a scream like that, you already know who it is.',
+        figure: { kind: 'clip', ref: { birdCode: 'blue_jay', kind: 'call' } },
+      },
+    ],
+    birdCodes: ['northern_cardinal', 'blue_jay', 'mourning_dove', 'carolina_chickadee', 'american_robin'],
+    exerciseCount: 9,
+    outro: 'Now open the window and just listen for a minute.',
+  },
+  {
+    code: 'crew1_match',
+    title: 'Name That Tune: the Everyday Five',
+    crew: 'crew1',
+    stage: 'match',
+    blurb: 'The game: hear a sound, find the bird.',
+    teach: [
+      {
+        heading: 'Hear it, then find the face',
+        body:
+          'This is what real birders do every day: a sound comes out of a bush, and before they see anything at all they already know who is in there. Listen first. Ask yourself — long and fancy, or short? Whistle or scream? Sliding down, or staying level? THEN look at the pictures.',
+        figure: { kind: 'clip', ref: { birdCode: 'american_robin', kind: 'song' } },
+      },
+    ],
+    birdCodes: ['northern_cardinal', 'blue_jay', 'mourning_dove', 'carolina_chickadee', 'american_robin'],
+    exerciseCount: 8,
+    outro: 'You can name a bird you cannot even see. That is a superpower.',
+  },
+  {
     code: 'crew2_look',
     title: 'Meet the Little Gang',
     crew: 'crew2',
@@ -474,6 +722,60 @@ export const UNITS: BirdUnit[] = [
     exerciseCount: 7,
     outro: 'Every one of these is out there today, doing exactly this.',
   },
+  {
+    code: 'crew2_listen',
+    title: 'The Little Gang Speaks',
+    crew: 'crew2',
+    stage: 'listen',
+    blurb: 'A teakettle, a toy trumpet, and a bird that sings while it bounces.',
+    teach: [
+      {
+        heading: 'The loudest voice sings all year',
+        body:
+          'The Carolina Wren sings teakettle-teakettle-teakettle — loud, rolling, three beats to a phrase — and it is the ONE bird here that sings in every month of the year. January snow, July heat, it does not care. If you learn a single song, learn this one: it is always out there to check yourself against.',
+        figure: { kind: 'clip', ref: { birdCode: 'carolina_wren', kind: 'song' } },
+      },
+      {
+        heading: 'One bird, two sounds',
+        body:
+          'The chickadee’s CALL is the buzzy chick-a-dee-dee-dee — its own name, all year round. But its SONG is completely different: four sweet clear whistles, each a little lower than the last — fee-bee-fee-bay. Same tiny bird. Hearing that one bird owns both sounds is the whole trick of listening.',
+        figure: { kind: 'clip', ref: { birdCode: 'carolina_chickadee', kind: 'song' } },
+      },
+      {
+        heading: 'The nuthatch honks',
+        body:
+          'The nuthatch does not whistle and does not sing much at all. It honks — yank-yank — like a tiny toy trumpet, and it sounds slightly cross about something. A pinched, nosey sound like that is called NASAL, and once you know it, nothing else in the yard is mistaken for it.',
+        figure: { kind: 'clip', ref: { birdCode: 'white_breasted_nuthatch', kind: 'call' } },
+      },
+      {
+        heading: 'Look up!',
+        body:
+          'The goldfinch calls while it FLIES — po-ta-to-chip! — one little burst on each bounce of its roller-coaster flight path. It is the only sound in this game given from the air. When you hear it, look up, and you will see the bounces match the words.',
+        figure: { kind: 'clip', ref: { birdCode: 'american_goldfinch', kind: 'flight_call' } },
+      },
+    ],
+    birdCodes: ['tufted_titmouse', 'white_breasted_nuthatch', 'carolina_wren', 'american_goldfinch', 'house_finch'],
+    exerciseCount: 9,
+    outro: 'Ten birds by ear. Most grown-ups cannot do that with three.',
+  },
+  {
+    code: 'crew2_match',
+    title: 'Name That Tune: the Little Gang',
+    crew: 'crew2',
+    stage: 'match',
+    blurb: 'The full game — every bird you know, by sound alone.',
+    teach: [
+      {
+        heading: 'The hard ones sound alike on purpose',
+        body:
+          'The goldfinch and the house finch both ramble — long twittering warbles without tidy words. Here is the secret: the house finch usually ends on a rough BUZZY note that slides upward, like a little question. If the ramble ends scratchy, it is the house finch. If it just keeps sweetly going, think goldfinch.',
+        figure: { kind: 'clip', ref: { birdCode: 'house_finch', kind: 'song' } },
+      },
+    ],
+    birdCodes: ['tufted_titmouse', 'white_breasted_nuthatch', 'carolina_wren', 'american_goldfinch', 'house_finch'],
+    exerciseCount: 8,
+    outro: 'You did it — the whole yard, eyes shut. Go and listen to the real thing.',
+  },
 ];
 
 export function getUnit(code: string): BirdUnit | undefined {
@@ -485,6 +787,24 @@ export function unitsOfCrew(crew: string): BirdUnit[] {
 }
 
 /**
+ * Which units can be offered at all. Listen and Match need confirmed
+ * clips, and clips arrive bird by bird through a human auditioning
+ * them by ear — so until a crew has ANY audio, its listen/match units
+ * are hidden rather than shown as a locked promise that taps into an
+ * empty screen. `birdsWithAudioCodes` comes from the audio index; pass
+ * undefined (e.g. in tests that only care about sequencing) to treat
+ * everything as available.
+ */
+export function visibleUnits(birdsWithAudioCodes?: string[]): BirdUnit[] {
+  if (!birdsWithAudioCodes) return UNITS;
+  const has = new Set(birdsWithAudioCodes);
+  return UNITS.filter(u =>
+    (u.stage !== 'listen' && u.stage !== 'match') ||
+    u.birdCodes.some(c => has.has(c)),
+  );
+}
+
+/**
  * Strictly sequential, unlike music.
  *
  * Music unlocks per strand so she can follow whatever her teacher set
@@ -492,15 +812,30 @@ export function unitsOfCrew(crew: string): BirdUnit[] {
  * them, then learn them, then hear them, then match — and the stages
  * genuinely depend on each other. You cannot match a song to a photo
  * of a bird you cannot yet recognise.
+ *
+ * Two subtleties, both born the day the listen units landed:
+ *
+ *  - The sequence is over the units currently VISIBLE, so a hidden
+ *    listen unit does not padlock everything after it while its
+ *    clips are still being auditioned.
+ *  - A completed unit is always unlocked. It was legitimately open
+ *    when it was passed; a unit inserted BEFORE it later (crew1_listen
+ *    arrived after crew2_look was done) must not retroactively lock
+ *    her out of reviewing it.
  */
-export function isUnitUnlocked(code: string, completed: string[]): boolean {
-  const idx = UNITS.findIndex(u => u.code === code);
+export function isUnitUnlocked(
+  code: string, completed: string[], units: BirdUnit[] = UNITS,
+): boolean {
+  if (completed.includes(code)) return true;
+  const idx = units.findIndex(u => u.code === code);
   if (idx <= 0) return idx === 0;
-  return completed.includes(UNITS[idx - 1].code);
+  return completed.includes(units[idx - 1].code);
 }
 
-export function nextUnit(completed: string[]): BirdUnit | undefined {
-  return UNITS.find(u => !completed.includes(u.code));
+export function nextUnit(
+  completed: string[], units: BirdUnit[] = UNITS,
+): BirdUnit | undefined {
+  return units.find(u => !completed.includes(u.code));
 }
 
 /** Birds she has been taught — drives the journal and, later, the garden. */
