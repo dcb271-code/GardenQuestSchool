@@ -35,6 +35,7 @@ export default function ArrivalCard({
   const reducedMotion = settings.reducedMotion;
   const [busy, setBusy] = useState(false);
   const [visible, setVisible] = useState(true);
+  const [failed, setFailed] = useState(false);
 
   const arrival = getArrivalStyle(species);
 
@@ -45,13 +46,32 @@ export default function ArrivalCard({
     return () => clearTimeout(t);
   }, []);
 
+  // Record the arrival. Returns true only if the server actually saved
+  // it — this used to be fire-and-forget, which is how a 400 from the
+  // arrival route stayed invisible for days: the card dismissed
+  // cheerfully, nothing was journalled, the pending code was never
+  // cleared, and the same creature "arrived" again on the next visit.
+  const recordArrival = async (): Promise<boolean> => {
+    try {
+      const res = await fetch('/api/garden/arrival', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ learnerId, speciesCode: species.code }),
+      });
+      return res.ok;
+    } catch {
+      return false;
+    }
+  };
+
   const welcome = async () => {
     setBusy(true);
-    await fetch('/api/garden/arrival', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ learnerId, speciesCode: species.code }),
-    });
+    setFailed(false);
+    if (!(await recordArrival())) {
+      setBusy(false);
+      setFailed(true);
+      return;
+    }
     setVisible(false);
     // allow exit animation to play
     setTimeout(onDismiss, 400);
@@ -73,11 +93,14 @@ export default function ArrivalCard({
   const stepInside = async () => {
     if (!habitatCode) return;
     setBusy(true);
-    await fetch('/api/garden/arrival', {
-      method: 'POST',
-      headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ learnerId, speciesCode: species.code }),
-    });
+    setFailed(false);
+    // Don't walk her into the habitat if the discovery wasn't saved —
+    // the interior would show her as not having found it.
+    if (!(await recordArrival())) {
+      setBusy(false);
+      setFailed(true);
+      return;
+    }
     window.location.href = `/garden/habitat/${habitatCode}?learner=${learnerId}`;
   };
 
@@ -229,8 +252,14 @@ export default function ArrivalCard({
               transition={{ delay: 1.5, duration: 0.5 }}
               whileTap={{ scale: 0.97 }}
             >
-              {busy ? 'welcoming…' : 'welcome them'}
+              {busy ? 'welcoming…' : failed ? 'try again' : 'welcome them'}
             </motion.button>
+
+            {failed && (
+              <p className="text-kid-sm text-bark/75 italic">
+                That didn&apos;t save — have another go in a moment.
+              </p>
+            )}
 
             {canStepInside && (
               <motion.button

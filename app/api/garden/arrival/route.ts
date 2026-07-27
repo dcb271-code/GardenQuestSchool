@@ -23,7 +23,26 @@ export async function POST(req: Request) {
     .eq('learner_id', body.learnerId);
   const placedCodes = (placed ?? []).map((h: any) => h.habitat_type?.code).filter(Boolean);
 
-  const eligible = computeEligibleSpecies(placedCodes, SPECIES_CATALOG);
+  // Researcher badges gate the rare visitors, and they live in
+  // world_state.garden. Leaving them out here was a real bug: the
+  // session-end route queues an arrival WITH badges, so it can queue a
+  // painted turtle — and then this route re-validated WITHOUT them,
+  // decided the turtle was ineligible, returned 400, and never reached
+  // clearPendingArrival. The pending code stayed in world_state and the
+  // arrival card fired again on every single visit to the garden.
+  //
+  // These two must agree. See the invariant in tests/world/arrivals.test.ts.
+  const { data: stateRow } = await db
+    .from('world_state')
+    .select('garden')
+    .eq('learner_id', body.learnerId)
+    .maybeSingle();
+  const garden = (stateRow?.garden as Record<string, any>) ?? {};
+  const researcherBadgeCodes: string[] = Array.isArray(garden.researcher_badges)
+    ? garden.researcher_badges
+    : [];
+
+  const eligible = computeEligibleSpecies(placedCodes, SPECIES_CATALOG, researcherBadgeCodes);
   const target = eligible.find(s => s.code === body.speciesCode);
   if (!target) return NextResponse.json({ error: 'species not eligible' }, { status: 400 });
 

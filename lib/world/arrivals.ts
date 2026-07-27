@@ -4,11 +4,22 @@ import type { SpeciesData } from './speciesCatalog';
 /**
  * Species become "eligible" once at least one of their required habitats
  * is placed in the learner's garden.
+ *
+ * `researcherBadgeCodes` is REQUIRED, deliberately, even though passing
+ * `[]` is common. It used to default to `[]`, and that default caused a
+ * real bug: the arrival route forgot to pass badges, silently gated out
+ * every rare visitor, rejected an arrival the session-end route had
+ * already queued, and left the arrival card firing on every visit to
+ * the garden. Nothing failed loudly, because `[]` is a perfectly valid
+ * value — it just means "she has earned nothing".
+ *
+ * Making it explicit turns that whole class of mistake into a compile
+ * error. Pass `[]` when you mean it.
  */
 export function computeEligibleSpecies(
   placedHabitatCodes: string[],
   catalog: SpeciesData[],
-  researcherBadgeCodes: string[] = []
+  researcherBadgeCodes: string[]
 ): SpeciesData[] {
   const placedSet = new Set(placedHabitatCodes);
   const badgeSet = new Set(researcherBadgeCodes);
@@ -30,7 +41,7 @@ export function computeNewArrivals(
   catalog: SpeciesData[]
 ): SpeciesData[] {
   const unlocked = new Set(alreadyUnlockedCodes);
-  return computeEligibleSpecies(placedHabitatCodes, catalog).filter(
+  return computeEligibleSpecies(placedHabitatCodes, catalog, []).filter(
     s => !unlocked.has(s.code)
   );
 }
