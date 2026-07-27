@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
 import { z } from 'zod';
-import { SPECIES_CATALOG } from '@/lib/world/speciesCatalog';
+import { SPECIES_CATALOG, type SpeciesData } from '@/lib/world/speciesCatalog';
 import { computeEligibleSpecies } from '@/lib/world/arrivals';
 
 export const dynamic = 'force-dynamic';
@@ -46,15 +46,15 @@ export async function POST(req: Request) {
   const target = eligible.find(s => s.code === body.speciesCode);
   if (!target) return NextResponse.json({ error: 'species not eligible' }, { status: 400 });
 
-  const { data: species } = await db.from('species').select('id').eq('code', body.speciesCode).single();
-  if (!species) return NextResponse.json({ error: 'species row missing' }, { status: 500 });
+  const speciesId = await ensureSpeciesRow(db, target);
+  if (!speciesId) return NextResponse.json({ error: 'species row missing' }, { status: 500 });
 
   // Already unlocked?
   const { data: existing } = await db
     .from('journal_entry')
     .select('id')
     .eq('learner_id', body.learnerId)
-    .eq('species_id', species.id)
+    .eq('species_id', speciesId)
     .maybeSingle();
   if (existing) {
     await clearPendingArrival(db, body.learnerId, body.speciesCode);
@@ -63,13 +63,55 @@ export async function POST(req: Request) {
 
   const { data: inserted, error } = await db.from('journal_entry').insert({
     learner_id: body.learnerId,
-    species_id: species.id,
+    species_id: speciesId,
   }).select('id').single();
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   await clearPendingArrival(db, body.learnerId, body.speciesCode);
 
   return NextResponse.json({ arrived: target, journalEntryId: inserted.id });
+}
+
+/**
+ * Get the species row id, creating the row from the catalog if it is
+ * missing.
+ *
+ * Almost every catalog in this codebase is pure config — add an entry
+ * and it works. `species` is one of the two exceptions, because
+ * journal_entry carries a foreign key to it, so a new species needs a
+ * real row before anyone can discover it.
+ *
+ * That exception cost Cecily a week of a turtle arriving over and over.
+ * The three rare visitors were added to SPECIES_CATALOG and nobody
+ * re-ran the world seed, so this route looked up a row that did not
+ * exist, 500'd, and never cleared the pending arrival.
+ *
+ * Healing it here rather than only fixing the data means adding a
+ * species to the catalog can never again strand a child in that loop.
+ * SPECIES_CATALOG is the source of truth; the table is a projection of
+ * it. Still run `npm run db:seed` — this is a safety net, not the
+ * mechanism.
+ */
+async function ensureSpeciesRow(db: any, species: SpeciesData): Promise<string | null> {
+  const { data: existing } = await db
+    .from('species').select('id').eq('code', species.code).maybeSingle();
+  if (existing?.id) return existing.id;
+
+  console.warn(`[arrival] species row missing for ${species.code} — creating from catalog`);
+  const { data: created, error } = await db.from('species').upsert({
+    code: species.code,
+    common_name: species.commonName,
+    scientific_name: species.scientificName,
+    description: species.description,
+    fun_fact: species.funFact,
+    illustration_key: species.illustrationKey,
+    habitat_req_codes: species.habitatReqCodes,
+  }, { onConflict: 'code' }).select('id').single();
+  if (error) {
+    console.error(`[arrival] could not create species ${species.code}: ${error.message}`);
+    return null;
+  }
+  return created?.id ?? null;
 }
 
 // Helper: remove the queued arrival species from world_state so the

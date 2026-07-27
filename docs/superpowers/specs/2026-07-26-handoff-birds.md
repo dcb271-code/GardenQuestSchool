@@ -109,6 +109,26 @@ no longer optional** on `computeEligibleSpecies`. The `= []` default is what
 let the omission compile, and `[]` is a legitimate value meaning "she has
 earned nothing", so no runtime check could ever have caught it.
 
+**Then it still failed, because there were TWO bugs in the same path and I
+stopped at the first.** The badge fix was necessary and not sufficient. With
+the modal now honestly reporting failure instead of dismissing, Cecily got an
+error and a "try again" — which is better than silence, but still broken.
+
+The second cause: **`SPECIES_CATALOG` is one of only two catalogs here that is
+not purely config.** `journal_entry` has a foreign key to the `species` table,
+so a species needs a real row before it can be discovered. The three rare
+visitors were added to the catalog in `b8de8f8` and the world seed was never
+re-run, so the route's `.single()` on `species` found nothing and 500'd — and
+again never cleared the pending flag. The rows are seeded now (17/17), and
+`ensureSpeciesRow()` heals a missing row from the catalog rather than failing
+forever, so a future catalog addition cannot strand a child in the same loop.
+
+The lesson is the diagnosis, not the code: the badge theory fit every observed
+symptom perfectly, so I shipped it without walking the rest of the path. A
+matching explanation is not a verified one. `tests/world/speciesSeedable.test.ts`
+now pins that every catalog entry has what the row needs, that the seed derives
+from the catalog, and that the self-heal exists.
+
 **Cecily kept being demoted to Level 2.** `scripts/migrate.ts` has no tracking
 table and re-applies every migration on every run. Everyone remembered that
 means "make schema changes idempotent"; what was missed is that it also means
