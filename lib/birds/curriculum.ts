@@ -92,7 +92,10 @@ export interface TeachPage {
     | { kind: 'marks'; birdCode: string }
     | { kind: 'four_keys' }
     /** A playable clip with its spectrogram — sound made visible. */
-    | { kind: 'clip'; ref: BirdClipRef };
+    | { kind: 'clip'; ref: BirdClipRef }
+    /** 2–4 representative photos of one bird, male AND female where
+     *  they differ — meeting the bird before being quizzed on it. */
+    | { kind: 'gallery'; birdCode: string };
 }
 
 export interface BirdUnit {
@@ -780,6 +783,30 @@ export const UNITS: BirdUnit[] = [
 
 export function getUnit(code: string): BirdUnit | undefined {
   return UNITS.find(u => u.code === code);
+}
+
+/**
+ * The full teach sequence for a unit: its authored pages, then — for
+ * a LOOK unit, where she is meeting these birds for the first time —
+ * one generated page per crew bird with a small photo gallery.
+ *
+ * Generated rather than authored because the page is pure catalog:
+ * the bird's name, its colour story, its size. Meeting every bird
+ * with real photographs BEFORE the first question is the difference
+ * between a quiz and an introduction — the first exercise should
+ * never be the first time she has seen the bird.
+ */
+export function teachSequence(unit: BirdUnit): TeachPage[] {
+  if (unit.stage !== 'look') return unit.teach;
+  const meets = unit.birdCodes
+    .map(getBird)
+    .filter((b): b is BirdData => !!b)
+    .map((b): TeachPage => ({
+      heading: `Meet the ${b.commonName}`,
+      body: `${b.colourHook} It is ${sizeComparison(b)}.`,
+      figure: { kind: 'gallery', birdCode: b.code },
+    }));
+  return [...unit.teach, ...meets];
 }
 
 export function unitsOfCrew(crew: string): BirdUnit[] {

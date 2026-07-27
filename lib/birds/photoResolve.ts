@@ -90,6 +90,57 @@ export function hasPhoto(
   return resolvePhoto(index, birdCode, role) !== null;
 }
 
+/**
+ * Roles in the order a gallery should show them: the sexes first,
+ * because "the male and female look nothing alike" is the single
+ * biggest surprise a beginner meets, then the plain portrait, then
+ * the seasonal and detail shots.
+ */
+const GALLERY_ROLE_ORDER: BirdPhotoRole[] = [
+  'male', 'female', 'perched', 'nonbreeding', 'juvenile', 'head', 'back', 'flight',
+];
+
+/** Roles worth captioning under a gallery photo. 'perched' says
+ *  nothing a child needs; 'female' is the lesson itself. */
+export const GALLERY_CAPTION: Partial<Record<BirdPhotoRole, string>> = {
+  male: 'the male', female: 'the female',
+  nonbreeding: 'in winter', juvenile: 'a youngster',
+};
+
+/**
+ * Up to `max` distinct photos of one bird for its meet-the-bird page:
+ * one of each role first (so a dimorphic bird always shows both
+ * sexes), then extra photos of already-shown roles to fill out the
+ * set. Never fewer than every photo the bird has, deduplicated by
+ * URL because one file can satisfy several roles via fallback.
+ */
+export function galleryPhotos(
+  index: PhotoIndex, birdCode: string, max = 4,
+): Array<{ photo: ResolvedPhoto; role: BirdPhotoRole }> {
+  const byRole = index[birdCode];
+  if (!byRole) return [];
+  const out: Array<{ photo: ResolvedPhoto; role: BirdPhotoRole }> = [];
+  const seen = new Set<string>();
+  const take = (photo: ResolvedPhoto, role: BirdPhotoRole) => {
+    if (out.length >= max || seen.has(photo.url)) return;
+    seen.add(photo.url);
+    out.push({ photo, role });
+  };
+  // Pass 1: the best photo of each role the bird actually has.
+  for (const role of GALLERY_ROLE_ORDER) {
+    const best = resolvePhoto(index, birdCode, role);
+    // Only when the role genuinely exists — resolvePhoto falls back
+    // across roles, and a fallback would double-show one photo while
+    // captioning it wrongly.
+    if (best && (byRole[role]?.length ?? 0) > 0) take(best, role);
+  }
+  // Pass 2: fill remaining slots with the rest, clearest tier first.
+  for (const role of GALLERY_ROLE_ORDER) {
+    for (const photo of byRole[role] ?? []) take(photo, role);
+  }
+  return out;
+}
+
 /** Which birds have any curated photo — drives what the journal can show. */
 export function birdsWithPhotos(index: PhotoIndex): string[] {
   return Object.keys(index).filter(code =>

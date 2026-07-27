@@ -1,0 +1,47 @@
+[
+  {
+    "filename": "song_XC807126.wav",
+    "kind": "song",
+    "sourceId": "XC807126",
+    "durationSec": 71.5,
+    "proposedStartSec": 42.8,
+    "previewFile": "_previews/song_XC807126_s428.m4a",
+    "spectrogramFile": "_previews/song_XC807126_s428.png"
+  },
+  {
+    "filename": "song_XC153645.mp3",
+    "kind": "song",
+    "sourceId": "XC153645",
+    "durationSec": 63.3,
+    "proposedStartSec": 17.3,
+    "previewFile": "_previews/song_XC153645_s173.m4a",
+    "spectrogramFile": "_previews/song_XC153645_s173.png"
+  },
+  {
+    "filename": "song_XC407859.mp3",
+    "kind": "song",
+    "sourceId": "XC407859",
+    "durationSec": 52.9,
+    "proposedStartSec": 34.8,
+    "previewFile": "_previews/song_XC407859_s348.m4a",
+    "spectrogramFile": "_previews/song_XC407859_s348.png"
+  },
+  {
+    "filename": "song_XC153652.mp3",
+    "kind": "song",
+    "sourceId": "XC153652",
+    "durationSec": 49.4,
+    "proposedStartSec": 27.5,
+    "previewFile": "_previews/song_XC153652_s275.m4a",
+    "spectrogramFile": "_previews/song_XC153652_s275.png"
+  },
+  {
+    "filename": "song_XC580701.mp3",
+    "kind": "song",
+    "sourceId": "XC580701",
+    "durationSec": 36.2,
+    "proposedStartSec": 20.3,
+    "previewFile": "_previews/song_XC580701_s203.m4a",
+    "spectrogramFile": "_previews/song_XC580701_s203.png"
+  }
+]

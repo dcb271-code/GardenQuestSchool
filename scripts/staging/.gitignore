@@ -1,8 +1,12 @@
 # Ignore everything in staging EXCEPT:
 #  - the .gitkeep that makes the dir exist
-#  - selections.json files (the hand-edited tagging output)
+#  - selections.json files (the hand-edited/auditioned tagging output)
 #  - candidates.json files (attribution for every staged file — losing
 #    these means re-downloading everything to recover who took a photo)
+#  - recordings.json (the audio pipeline's candidates.json: recordist,
+#    licence and XC id for every staged recording)
+#  - proposals.json (per-recording durations and confirmed clip
+#    windows — birds:audio-upload cannot validate without them)
 #  - the .gitignore itself
 #
 # Two depths, because flora stages at <code>/ and birds at birds/<code>/.
@@ -15,3 +19,5 @@
 !*/candidates.json
 !*/*/selections.json
 !*/*/candidates.json
+!*/*/recordings.json
+!*/*/proposals.json

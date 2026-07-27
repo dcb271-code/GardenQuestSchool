@@ -11,24 +11,29 @@
 
 import type { SizeAnchor, BillShape } from '@/lib/world/birdCatalog';
 
-/** A generic small-bird outline, drawn once and scaled. */
+/**
+ * A generic small-bird outline, drawn once and scaled.
+ *
+ * Built from overlapping solid shapes in one fill rather than a single
+ * clever path — the first version of this was one path, and its beak
+ * floated free of the head while its tail sprouted from the same side
+ * as its face. Separate shapes that visibly overlap cannot come apart.
+ * The bird faces RIGHT: beak rooted in the head, tail sweeping back
+ * down to the LEFT.
+ */
 function BirdShape({ size, fill }: { size: number; fill: string }) {
-  // Viewbox is 100 wide; the path is a plain perching passerine —
-  // round body, small head, tail down and back.
   return (
     <svg width={size} height={size * 0.8} viewBox="0 0 100 80" aria-hidden>
-      <path
-        d="M 62 20 a 12 12 0 1 0 -0.4 3
-           C 52 27, 38 30, 28 40
-           C 18 50, 16 60, 24 66
-           C 32 72, 50 70, 60 62
-           C 68 55, 72 44, 70 34
-           L 94 70 L 88 44 L 74 30 Z"
-        fill={fill}
-      />
-      <circle cx="66" cy="18" r="2" fill="#fffaf2" />
-      <path d="M 74 22 L 86 24 L 74 27 Z" fill={fill} />
-      <path d="M 34 66 L 32 76 M 44 66 L 44 76" stroke={fill} strokeWidth="3" strokeLinecap="round" />
+      {/* tail — back-left, rooted under the body */}
+      <path d="M 30 38 L 3 62 L 28 56 Z" fill={fill} />
+      {/* body */}
+      <ellipse cx="46" cy="46" rx="26" ry="20" fill={fill} />
+      {/* head, overlapping the body's shoulder */}
+      <circle cx="68" cy="26" r="13" fill={fill} />
+      {/* beak — base buried inside the head circle */}
+      <path d="M 78 21 L 93 26 L 78 31 Z" fill={fill} />
+      <circle cx="71" cy="22" r="2" fill="#fffaf2" />
+      <path d="M 40 64 L 38 76 M 52 64 L 52 76" stroke={fill} strokeWidth="3" strokeLinecap="round" />
     </svg>
   );
 }
@@ -66,13 +71,22 @@ export function SizeLadder({ highlight }: { highlight?: SizeAnchor }) {
   );
 }
 
+/**
+ * The head circle sits at cx=58 r=13, so its left edge is x=45. Every
+ * bill's base is at x=48 — INSIDE the circle, so it visibly grows out
+ * of the face — and no bill reaches past x=48, so nothing skewers
+ * through the head (the old needle ran to x=60, straight across the
+ * eye). The distinguishing character of each bill lives at the TIP,
+ * where it belongs: the first hook curled at its base, which is not a
+ * raptor bill, it is a moustache.
+ */
 const BILL_PATHS: Record<BillShape, { d: string; label: string }> = {
-  cone:        { d: 'M 10 20 L 44 12 L 44 28 Z', label: 'cone' },
-  chisel:      { d: 'M 10 17 L 52 16 L 52 24 L 10 23 Z', label: 'chisel' },
-  tweezers:    { d: 'M 10 19 L 50 19.5 L 50 21 L 10 22 Z', label: 'tweezers' },
-  hook:        { d: 'M 10 14 L 40 16 Q 50 18 46 30 Q 44 22 36 22 L 10 26 Z', label: 'hook' },
-  needle:      { d: 'M 10 19.5 L 60 20 L 60 21 L 10 22 Z', label: 'needle' },
-  all_purpose: { d: 'M 10 16 L 46 19 L 46 23 L 10 26 Z', label: 'middling' },
+  cone:        { d: 'M 14 20 L 48 12 L 48 28 Z', label: 'cone' },
+  chisel:      { d: 'M 12 17 L 48 15 L 48 25 L 12 23 Z', label: 'chisel' },
+  tweezers:    { d: 'M 12 19.2 L 48 17.5 L 48 22.5 L 12 21 Z', label: 'tweezers' },
+  hook:        { d: 'M 48 13 L 24 14 Q 12 15 14 27 Q 15 19 26 21 L 48 25 Z', label: 'hook' },
+  needle:      { d: 'M 2 19.6 L 48 18.4 L 48 21.6 L 2 20.8 Z', label: 'needle' },
+  all_purpose: { d: 'M 14 16.5 L 48 15 L 48 25 L 14 23 Z', label: 'middling' },
 };
 
 /** Bill shapes, which is the child's version of "what shape is it?". */

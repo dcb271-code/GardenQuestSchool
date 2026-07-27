@@ -1,7 +1,7 @@
 // tests/world/birdPhotoResolve.test.ts
 import { describe, it, expect } from 'vitest';
 import {
-  resolvePhoto, hasPhoto, birdsWithPhotos, ROLE_FALLBACK,
+  resolvePhoto, hasPhoto, birdsWithPhotos, galleryPhotos, ROLE_FALLBACK,
   type PhotoIndex, type ResolvedPhoto,
 } from '@/lib/birds/photoResolve';
 import type { BirdPhotoRole } from '@/lib/birds/curriculum';
@@ -108,5 +108,34 @@ describe('resolvePhoto', () => {
     expect(hasPhoto(INDEX, 'no_photos_yet', 'perched')).toBe(false);
     expect(birdsWithPhotos(INDEX).sort())
       .toEqual(['american_goldfinch', 'carolina_wren', 'northern_cardinal']);
+  });
+});
+
+describe('galleryPhotos', () => {
+  it('shows both sexes of a dimorphic bird before a second male', () => {
+    const got = galleryPhotos(INDEX, 'northern_cardinal');
+    expect(got.map(g => g.role).slice(0, 2)).toEqual(['male', 'female']);
+    // Then fills with the second male shot — 3 photos, no duplicates.
+    expect(got).toHaveLength(3);
+    expect(new Set(got.map(g => g.photo.url)).size).toBe(3);
+  });
+
+  it('shows summer AND winter goldfinch — the same bird in a different coat', () => {
+    const roles = galleryPhotos(INDEX, 'american_goldfinch').map(g => g.role);
+    expect(roles).toContain('male');
+    expect(roles).toContain('nonbreeding');
+  });
+
+  it('never captions a fallback as a role the bird has no photo of', () => {
+    // resolvePhoto would answer 'female' for the wren via fallback;
+    // the gallery must not label a perched wren "the female".
+    const roles = galleryPhotos(INDEX, 'carolina_wren').map(g => g.role);
+    expect(roles).toEqual(['perched', 'perched']);
+  });
+
+  it('caps at max and survives unknown birds', () => {
+    expect(galleryPhotos(INDEX, 'northern_cardinal', 2)).toHaveLength(2);
+    expect(galleryPhotos(INDEX, 'dodo')).toEqual([]);
+    expect(galleryPhotos(INDEX, 'no_photos_yet')).toEqual([]);
   });
 });

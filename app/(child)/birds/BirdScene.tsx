@@ -15,11 +15,12 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
   getUnit, buildExercises, isUnitUnlocked, visibleUnits, crewCodes,
-  STAGE_LABEL, STAGE_EMOJI, getBird,
+  teachSequence, STAGE_LABEL, STAGE_EMOJI, getBird,
   type BirdExercise, type TeachPage, type BirdClipRef,
 } from '@/lib/birds/curriculum';
 import {
-  resolvePhoto, type PhotoIndex, type ResolvedPhoto,
+  resolvePhoto, galleryPhotos, GALLERY_CAPTION,
+  type PhotoIndex, type ResolvedPhoto,
 } from '@/lib/birds/photoResolve';
 import {
   resolveClip, birdsWithAudio, type AudioIndex, type ResolvedClip,
@@ -277,8 +278,9 @@ export default function BirdScene({ learnerId }: { learnerId: string }) {
 
   // ── TEACH ───────────────────────────────────────────────────────
   if (phase === 'teach') {
-    const p = unit.teach[page];
-    const last = page + 1 >= unit.teach.length;
+    const pages = teachSequence(unit);
+    const p = pages[page];
+    const last = page + 1 >= pages.length;
     return (
       <Shell learnerId={learnerId}>
         <motion.div
@@ -421,6 +423,25 @@ function Figure({ page, photos, audio }: {
     const clip = resolveClip(audio, f.ref.birdCode, f.ref.kind);
     if (!clip) return null;
     return <div className="mt-2"><ClipPlayer clip={clip} /></div>;
+  }
+  if (f.kind === 'gallery') {
+    const shots = galleryPhotos(photos, f.birdCode);
+    if (shots.length === 0) return null;
+    return (
+      <div className="grid grid-cols-2 gap-2 mt-2">
+        {shots.map(({ photo, role }, i) => (
+          <figure key={i} className={shots.length === 1 ? 'col-span-2' : undefined}>
+            <PhotoCard photo={photo} />
+            {GALLERY_CAPTION[role] && (
+              <figcaption className="text-xs font-bold mt-0.5 text-center"
+                          style={{ color: '#6b6255' }}>
+                {GALLERY_CAPTION[role]}
+              </figcaption>
+            )}
+          </figure>
+        ))}
+      </div>
+    );
   }
 
   const code = f.kind === 'photo' ? f.ref.birdCode : f.birdCode;

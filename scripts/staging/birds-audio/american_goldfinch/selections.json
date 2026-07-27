@@ -1,0 +1,14 @@
+[
+  {
+    "kind": "flight_call",
+    "filename": "flight_call_XC1034898.mp3",
+    "sourceId": "XC1034898",
+    "startSec": 6.3
+  },
+  {
+    "kind": "song",
+    "filename": "song_XC1090054.wav",
+    "sourceId": "XC1090054",
+    "startSec": 0.8
+  }
+]

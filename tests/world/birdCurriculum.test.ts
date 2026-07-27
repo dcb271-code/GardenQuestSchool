@@ -2,7 +2,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   UNITS, getUnit, buildExercises, isUnitUnlocked, nextUnit, visibleUnits,
-  birdsLearned, choiceCount, unitsOfCrew,
+  teachSequence, birdsLearned, choiceCount, unitsOfCrew,
   PITCH_LABEL, TONE_LABEL,
   type BirdExercise, type BirdClipRef,
 } from '@/lib/birds/curriculum';
@@ -426,6 +426,26 @@ describe('listen and match stages', () => {
     // And with audio everywhere, the full course in order.
     const all = visibleUnits(undefined);
     expect(all).toHaveLength(8);
+  });
+
+  it('look units introduce every crew bird with a photo gallery before practice', () => {
+    // The first exercise must never be the first time she has seen
+    // the bird — each look unit ends its teach pages by meeting all
+    // five birds with representative photos.
+    for (const u of UNITS) {
+      const pages = teachSequence(u);
+      if (u.stage !== 'look') {
+        expect(pages).toEqual(u.teach);
+        continue;
+      }
+      const galleryBirds = pages
+        .map(p => p.figure)
+        .filter((f): f is { kind: 'gallery'; birdCode: string } => f?.kind === 'gallery')
+        .map(f => f.birdCode);
+      expect(galleryBirds, u.code).toEqual(u.birdCodes);
+      // Authored pages come first; the introductions follow them.
+      expect(pages.slice(0, u.teach.length)).toEqual(u.teach);
+    }
   });
 
   it('a completed unit never re-locks when units are inserted before it', () => {
