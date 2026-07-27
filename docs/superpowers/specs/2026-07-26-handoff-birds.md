@@ -164,7 +164,9 @@ saying so; this is the second place it is written down.
 
 Two agents spent ~30 minutes establishing the following, much of it verified
 against live services rather than documentation. **The audio phase is unbuilt,
-so all of this is still ahead of whoever picks it up.**
+so all of this is still ahead of whoever picks it up** — but the API key now
+exists (§5) and every prediction below has since been confirmed against the
+live v3 API with a real key. See §4.1.
 
 **Xeno-canto (the bird song source):**
 
@@ -225,16 +227,77 @@ so all of this is still ahead of whoever picks it up.**
   establishes an age for reliable *audio* ID. The Listen and Match stages are
   ahead of the literature — build them, then watch how she does.
 
+### 4.1 Confirmed against the live API, 2026-07-26
+
+A real key is now in `.env.local`. A probe run confirmed every field prediction
+above: `length` really is an `m:ss` **string** (`"0:29"`), `lic` really is a
+full versioned URL (`.../by-nc-sa/4.0/`), `file` really serves the **original**
+(a `.wav` in the sample), and `sono.small` really does carry the 10-character
+code the derived-mp3 shortcut needs.
+
+Coverage for the ten catalogued birds, filtered to the licence and quality the
+plan requires — `q:">C" lic:BY-NC-SA cnt:"United States"`:
+
+| bird | songs | calls |
+|---|---:|---:|
+| northern_cardinal | 387 | 137 |
+| carolina_wren | 290 | 149 |
+| american_robin | 244 | 197 |
+| house_finch | 142 | 99 |
+| tufted_titmouse | 136 | 150 |
+| mourning_dove | 90 | 11 |
+| white_breasted_nuthatch | 85 | 186 |
+| american_goldfinch | 75 | 59 |
+| carolina_chickadee | 70 | 118 |
+| blue_jay | **24** | **285** |
+
+Ample everywhere, and ~49 of every 50 on the first page are long enough to cut
+a 6-second window from.
+
+**The counts independently validated the catalog, which was not the point of
+running them.** The blue jay's 24 songs against 285 calls is not a gap — Blue
+Jays essentially do not sing; they scream *jay! jay!*, and `birdCatalog.ts`
+gives the jay two `call` voices and no song. The mourning dove is the mirror
+image (90 songs, 11 calls) because the cooing *is* the song, and the catalog
+lists exactly one `song`. Both were judgement calls when written; the archive
+agrees with both.
+
+**One gap not yet probed:** the goldfinch's `flight_call` (*po-ta-to-chip*) is a
+distinct XC type (`type:"flight call"`) and was not counted. Check it before
+relying on it.
+
 ---
 
 ## 5. Blocked on the user
 
-1. **A xeno-canto API key** for the audio phase. Free, but it needs an account
-   registered, which is the user's to do. Goes in `.env.local` as
-   `XENO_CANTO_KEY`, build-time only.
-2. **Clip windows must be chosen by ear** — roughly 60 clips. Cannot be
-   automated; field recordings have wind, voices, car doors and long silences.
-   Possibly a nice thing to do *with* Cecily.
+1. ~~A xeno-canto API key.~~ **Done** — in `.env.local` as `XENO_CANTO_KEY`,
+   verified working. Local only; production never calls xeno-canto, so it does
+   not belong in Vercel. `.env.local` is gitignored (`.gitignore:12`) and has
+   never been committed.
+
+2. **Clip windows must be chosen by ear, and Claude cannot hear audio.** This is
+   a hard constraint on the audio phase and it is not the same as the photo
+   phase. Photo curation worked because images can be read directly; a
+   recording cannot be. Nothing in the pipeline can judge whether the cardinal
+   is clear at 0:12 or buried under a lawnmower.
+
+   The agreed shape of the work-around, not yet built:
+
+   - **Auto-propose** each window by signal analysis — band-pass to the range
+     birds occupy, then take the loudest contiguous six seconds. In a grade-A
+     recording the bird is the loud foreground event, so this is a reasonable
+     proxy rather than a guess.
+   - **Generate a spectrogram per clip** (`ffmpeg -lavfi showspectrumpic`).
+     Readable as an image, so it is a check that *can* be made here — and it
+     doubles as a teaching asset, since Cornell's *Bird Song Hero* works by
+     matching sound to spectrogram (a whistle is one clean line, a nasal note
+     is stacked lines).
+   - **An audition page** — all ~60 clips with play buttons, spectrograms, and
+     a nudge control to shift a window earlier or later, for a human to confirm
+     or correct.
+
+   The audition step is a good thing to do *with* Cecily: deciding which
+   cardinal sounds most like a cardinal is most of the lesson.
 
 ---
 
@@ -260,7 +323,12 @@ from guesswork. One query, never run.
 
 Ordered by value, from the spec's §8:
 
-1. **Phase 2 — the song game she actually asked for.** Blocked on §5.1.
+1. **Phase 2 — the song game she actually asked for.** No longer blocked on a
+   key; the remaining constraint is §5.2 (windows chosen by ear). Build order:
+   harvester → ffmpeg clip pipeline with auto-proposed windows → spectrograms →
+   audition page → `bird_audio` rows → Credits page → the Listen and Match
+   stages. Start `type:call`, not `type:song`, if it is autumn or winter when
+   this is picked up — calls are year-round, songs mostly March–July.
 2. **Phase 3 — the world.** A `bird_feeder` habitat, birds in `SPECIES_CATALOG`,
    and they become residents on the garden map for free, because that shipped in
    `6798540`. Tappable residents that play their call is the highest value per
