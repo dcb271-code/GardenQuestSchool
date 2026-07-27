@@ -25,12 +25,21 @@ update learner
    set default_challenge = 'normal'
  where default_challenge is null;
 
--- Cecily was seeded as a Grade-2 stretch learner, mark her accordingly
--- so the UI shows the right grade badge.
-update learner
-   set grade_level = 2,
-       default_challenge = 'harder'
- where id = '11111111-1111-1111-1111-111111111111';
+-- REMOVED 2026-07-26, and it must not come back.
+--
+-- This used to stamp one hardcoded learner id to grade_level 2 and
+-- default_challenge 'harder', unconditionally. `npm run db:migrate`
+-- re-applies every file on every run, so that line reset Cecily to
+-- Level 2 — and silently changed her difficulty — every single time
+-- anyone migrated. She was promoted to Level 3 in July and kept
+-- reverting; this was why.
+--
+-- The backfills above already give a fresh database sane defaults, so
+-- nothing is lost. A learner's level and challenge are THEIR state,
+-- edited in the parent UI. Migrations own the schema, never the
+-- child's progress.
+--
+-- Guarded by tests/world/migrationSafety.test.ts.
 
 -- Keep value space tight; CHECK survives re-runs because the constraint
 -- name is fixed.

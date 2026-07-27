@@ -6,8 +6,21 @@
  *   Supabase dashboard → Settings → Database → Connection String → URI
  *   (the one that starts with postgresql://postgres:...)
  *
- * Each migration is idempotent (uses `if not exists`, `on conflict do nothing`),
- * so re-running is safe.
+ * THERE IS NO TRACKING TABLE. Every file is re-applied on every run, in
+ * alphabetical order, forever. That puts two obligations on a migration,
+ * and the second one is easy to forget:
+ *
+ *   1. It must be idempotent — `if not exists`, `on conflict do nothing`,
+ *      constraint guards. This one is obvious and was always honoured.
+ *
+ *   2. It must never write a learner's OWN state. A schema change is
+ *      safe to repeat; `update learner set grade_level = 2` is not. That
+ *      exact line sat in 008 for months and silently demoted Cecily from
+ *      Level 3 back to Level 2 on every single migrate run.
+ *
+ * Data backfills are fine when guarded (`where ... is null`), because
+ * once filled they stop matching. Unconditional writes to learner state
+ * are not. tests/world/migrationSafety.test.ts enforces this.
  */
 import { readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
