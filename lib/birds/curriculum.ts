@@ -241,7 +241,7 @@ function lookExercise(
       prompt: `How big is the ${bird.commonName}?`,
       birdCode: bird.code,
       choices, correctIndex,
-      hint: `A ${bird.commonName} is about ${bird.lengthInches} inches long, and a ${bird.sizeAnchor} is about ${ANCHOR_INCHES[bird.sizeAnchor]}.`,
+      hint: `A ${bird.commonName} is ${correct} — it is about ${bird.lengthInches} inches long, and a ${bird.sizeAnchor} is about ${ANCHOR_INCHES[bird.sizeAnchor]}.`,
     };
   }
 
@@ -257,7 +257,7 @@ function lookExercise(
       prompt: `What kind of bill does the ${bird.commonName} have?`,
       birdCode: bird.code,
       choices, correctIndex,
-      hint: `Look at what it eats. ${bird.colourHook}`,
+      hint: `The ${bird.commonName}'s bill is ${correct} — look at what it eats.`,
     };
   }
 
@@ -271,7 +271,7 @@ function lookExercise(
       prompt: 'Which bird is this?',
       photo: { birdCode: bird.code, role: bird.dimorphic ? pickSexRole(rand) : 'perched' },
       choices, correctIndex,
-      hint: bird.fieldMarks[0] ? `Look for ${bird.fieldMarks[0]}.` : bird.colourHook,
+      hint: `This is the ${bird.commonName}. ${bird.fieldMarks[0] ? `Look for ${bird.fieldMarks[0]}.` : bird.colourHook}`,
     };
   }
 
@@ -317,7 +317,7 @@ function knowExercise(
       prompt: `Which of these does the ${bird.commonName} do?`,
       birdCode: bird.code,
       choices, correctIndex,
-      hint: bird.facts[0] ?? bird.colourHook,
+      hint: `The ${bird.commonName}: ${correct}.`,
     };
   }
 
@@ -330,7 +330,7 @@ function knowExercise(
       prompt: `Where would you look for a ${bird.commonName}?`,
       birdCode: bird.code,
       choices, correctIndex,
-      hint: bird.colourHook,
+      hint: `Look for the ${bird.commonName} in ${correct}.`,
     };
   }
 
@@ -343,7 +343,7 @@ function knowExercise(
       prompt: `True or false — the ${bird.commonName} has ${bird.fieldMarks[0]}.`,
       birdCode: bird.code,
       answer: true,
-      hint: bird.colourHook,
+      hint: `True — the ${bird.commonName} really does have ${bird.fieldMarks[0]}.`,
     };
   }
   const other = pick(others, rand);
@@ -405,7 +405,7 @@ function listenExercise(
       kind: 'mnemonic',
       prompt: `Listen. Which words fit what the ${bird.commonName} is saying?`,
       clip, choices, correctIndex,
-      hint: voice.note,
+      hint: `It says “${voice.mnemonic}”. ${voice.note}`,
     };
   }
 
@@ -421,7 +421,7 @@ function listenExercise(
       prompt: `Is the ${bird.commonName} giving its song or its call?`,
       clip, choices,
       correctIndex: voice.kind === 'song' ? 0 : 1,
-      hint: voice.note,
+      hint: `That was its ${voice.kind === 'song' ? 'song — the long fancy one' : 'call — the short everyday one'}. ${voice.note}`,
     };
   }
 
@@ -434,7 +434,7 @@ function listenExercise(
       kind: 'pitch_shape',
       prompt: 'Listen to the shape of the sound. Which way does it go?',
       clip, choices, correctIndex,
-      hint: voiceHint(voice),
+      hint: `Listen again — ${correct}. ${voiceHint(voice)}`,
     };
   }
 
@@ -447,7 +447,7 @@ function listenExercise(
     kind: 'tone',
     prompt: 'What KIND of sound is that?',
     clip, choices, correctIndex,
-    hint: voiceHint(voice),
+    hint: `It is ${correct}. ${voiceHint(voice)}`,
   };
 }
 
@@ -473,7 +473,7 @@ function matchExercise(
       prompt: 'Who is making this sound?',
       clip, photos,
       correctIndex: photos.findIndex(p => p.birdCode === bird.code),
-      hint: voiceHint(voice),
+      hint: `That was the ${bird.commonName}. ${voiceHint(voice)}`,
     };
   }
 
@@ -484,12 +484,13 @@ function matchExercise(
     [clip, { birdCode: rival.code, kind: rivalVoice.kind }],
     rand,
   );
+  const correctIndex = clips.findIndex(c => c.birdCode === bird.code);
   return {
     kind: 'which_did_you_hear',
     prompt: `One of these is the ${bird.commonName}. Which one?`,
     clips,
-    correctIndex: clips.findIndex(c => c.birdCode === bird.code),
-    hint: voiceHint(voice),
+    correctIndex,
+    hint: `Sound ${correctIndex + 1} is the ${bird.commonName}. ${voiceHint(voice)}`,
   };
 }
 
@@ -803,7 +804,14 @@ export function teachSequence(unit: BirdUnit): TeachPage[] {
     .filter((b): b is BirdData => !!b)
     .map((b): TeachPage => ({
       heading: `Meet the ${b.commonName}`,
-      body: `${b.colourHook} It is ${sizeComparison(b)}.`,
+      // The robin IS the measuring stick — telling a child it is
+      // "about the size of a robin" is a sentence eating its own
+      // tail. An anchor bird gets its inches instead.
+      body: `${b.colourHook} ${
+        b.commonName.toLowerCase().includes(b.sizeAnchor)
+          ? `It is about ${b.lengthInches} inches long — one of the three birds everything else gets measured against.`
+          : `It is ${sizeComparison(b)}.`
+      }`,
       figure: { kind: 'gallery', birdCode: b.code },
     }));
   return [...unit.teach, ...meets];

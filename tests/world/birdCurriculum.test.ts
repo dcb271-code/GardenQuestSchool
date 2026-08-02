@@ -163,6 +163,50 @@ describe('buildExercises', () => {
     }
   });
 
+  it('the hint states the correct answer, not a change of subject', () => {
+    // The bug this pins: a wrong habitat answer used to be met with a
+    // description of the bird's COLOURS, so a child who guessed wrong
+    // could only brute-force the remaining choices. Accuracy already
+    // counts first tries only, so giving the answer away on a retry
+    // costs nothing and teaches the actual fact.
+    for (const u of UNITS) {
+      for (const ex of allExercises(u.code)) {
+        switch (ex.kind) {
+          // Text multiple-choice: the hint must contain the winning
+          // choice verbatim.
+          case 'size_anchor':
+          case 'bill_face':
+          case 'behaviour':
+          case 'habitat':
+          case 'mnemonic':
+          case 'pitch_shape':
+          case 'tone':
+            expect(ex.hint, `${ex.kind}: "${ex.hint}"`).toContain(ex.choices[ex.correctIndex]);
+            break;
+          // Identification: the hint must NAME the right bird.
+          case 'photo_name':
+            expect(ex.hint).toContain(getBird(ex.photo.birdCode)!.commonName);
+            break;
+          case 'song_to_photo':
+            expect(ex.hint).toContain(getBird(ex.clip.birdCode)!.commonName);
+            break;
+          case 'song_or_call':
+            expect(ex.hint).toContain(ex.clip.kind === 'song' ? 'its song' : 'its call');
+            break;
+          case 'which_did_you_hear':
+            expect(ex.hint).toContain(`Sound ${ex.correctIndex + 1}`);
+            expect(ex.hint).toContain(getBird(ex.clips[ex.correctIndex].birdCode)!.commonName);
+            break;
+          case 'true_false':
+            // Both branches explain: "really does have X" / "belongs
+            // to the Y".
+            expect(/really does have|belongs to the/.test(ex.hint), ex.hint).toBe(true);
+            break;
+        }
+      }
+    }
+  });
+
   it('size questions state the true size', () => {
     for (const ex of allExercises('crew1_look')) {
       if (ex.kind !== 'size_anchor') continue;

@@ -465,15 +465,26 @@ function Figure({ page, photos, audio }: {
   );
 }
 
+/**
+ * Every bird photo renders with object-fit CONTAIN, never cover.
+ *
+ * Cover looked tidier, and it decapitated the robin: a 3:2 landscape
+ * photo in a wide fixed-height box loses its top and bottom, and the
+ * head — where nearly every field mark lives — is what goes. A photo
+ * where the diagnostic mark is cropped out is the same failure as a
+ * photo where it is hidden behind a branch, which the curation rules
+ * already forbid. Letterbox bars in cream are the cheap price.
+ */
 function PhotoCard({ photo, tall = false }: { photo: ResolvedPhoto; tall?: boolean }) {
   return (
-    <div className="relative rounded-xl overflow-hidden" style={{ border: '1px solid #e3dccf' }}>
+    <div className="relative rounded-xl overflow-hidden"
+         style={{ border: '1px solid #e3dccf', background: '#efe9dc' }}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={photo.url}
         alt={photo.alt}
-        className="w-full object-cover"
-        style={{ height: tall ? 200 : 160 }}
+        className="w-full object-contain"
+        style={{ height: tall ? 220 : 160 }}
         loading="lazy"
       />
       <span
@@ -631,8 +642,8 @@ function ExerciseView({
                 className="rounded-xl overflow-hidden"
                 style={{ border: '1px solid #e3dccf', touchAction: 'manipulation' }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={pic.url} alt={pic.alt} className="w-full object-cover"
-                     style={{ height: 140 }} loading="lazy" />
+                <img src={pic.url} alt={pic.alt} className="w-full object-contain"
+                     style={{ height: 140, background: '#efe9dc' }} loading="lazy" />
               </button>
             );
           })}
@@ -696,8 +707,8 @@ function ExerciseView({
                 className="rounded-xl overflow-hidden"
                 style={{ border: '1px solid #e3dccf', touchAction: 'manipulation' }}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={pic.url} alt={pic.alt} className="w-full object-cover"
-                     style={{ height: 140 }} loading="lazy" />
+                <img src={pic.url} alt={pic.alt} className="w-full object-contain"
+                     style={{ height: 140, background: '#efe9dc' }} loading="lazy" />
               </button>
             );
           })}
