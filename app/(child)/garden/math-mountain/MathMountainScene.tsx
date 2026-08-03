@@ -16,12 +16,12 @@
 //        the path and structures layer on top of the bank.
 //     8. Stone terracing for Place-Value Heights (purely decorative; behind structures)
 //     9. Path system — spineD runs along Measurement Meadow at y≈700;
-//        branches climb left into the hollow, right into Division Glen.
+//        branches climb left into the hollow, right up to Cliffside Point.
 //        Path NEVER crosses the brook except at mm_big_bridge (the bridge
 //        crossing is the one deliberate water-path intersection).
 //    10. Word Stories Cottage (drawn before trees so foliage overlaps naturally)
 //    11. Apple orchard rows (Multiplication Orchard, right foreground)
-//    12. Division Glen boulders + pine framing (upper-right, y:350-500)
+//    12. Cliffside Point ledge + pine framing (right flank, y:280-470)
 //    13. Framing trees — edges and mid-distance only. Never overlapping
 //        path or structure positions. Rules:
 //          • No tree within 60px of any structure x,y
@@ -1994,19 +1994,19 @@ export default function MathMountainScene({
         })()}
 
         {/* ── HABITATS ── bespoke illustration markers (NOT orbs).
-             Cottage = a cottage. Orchard = apple trees. Glen = pines
-             with a small squirrel on a stump. Meadow = wildflowers
+             Cottage = a cottage. Orchard = apple trees. Cliffside =
+             a ledge over the drop with the squirrel out at the point. Meadow = wildflowers
              with a sundial. Cave is its own SVG (clickable directly,
              see ── 6c. CAVE ──), so the habitat block here just adds
              a label + progress for cave at its position.
              Tapping a marker → its skills fan out; tap again → close. */}
         {/* SUMMIT TRAIL — dotted switchback stitching the vertical
-            journey together: Division Glen → High Meadow Waystation →
+            journey together: Cliffside Point → High Meadow Waystation →
             Summit Cairn. Gives the upper landmarks a path to belong
             to instead of floating in sky. */}
         <path
-          d="M 1150 375
-             C 1000 345, 860 335, 745 305
+          d="M 1262 372
+             C 1120 360, 980 340, 745 305
              C 660 280, 640 230, 690 195
              C 730 168, 750 155, 758 148"
           fill="none" stroke="#E8DCC0" strokeWidth={5}
@@ -2213,48 +2213,49 @@ export default function MathMountainScene({
                 </g>
               );
             }
-            if (key === 'glen') {
+            if (key === 'cliffside') {
+              // A ledge jutting off the cliff face, with a rope handrail
+              // and the squirrel from the old Division Glen sitting on
+              // the end of it — she has met him before, and division
+              // moving up the mountain should feel like he moved house,
+              // not like he was deleted.
               return (
                 <g style={{ filter, opacity: tone }}>
-                  <ellipse cx={0} cy={30} rx={44} ry={5} fill="#000" opacity={0.16} />
-                  {/* left pine */}
-                  <g transform="translate(-26, 14)">
-                    <rect x={-2.5} y={4} width={5} height={12} fill="#8B5A2B" stroke="#5A3B1F" strokeWidth={1} />
-                    <path d="M -16 6 L 0 -20 L 16 6 Z" fill="#5C7E4F" stroke="#3F5A30" strokeWidth={1.5} strokeLinejoin="round" />
-                    <path d="M -12 -2 L 0 -16 L 12 -2 Z" fill="#7BA46F" />
-                    <path d="M -8 -10 L 0 -20 L 8 -10" stroke="#3F5A30" strokeWidth={0.8} fill="none" opacity={0.5} />
+                  <ellipse cx={0} cy={34} rx={46} ry={5} fill="#000" opacity={0.14} />
+
+                  {/* the cliff face the ledge grows out of */}
+                  <path d="M -46 34 L -40 -6 L -28 -18 L -12 -12 L -4 -22 L 8 -14 L 8 34 Z"
+                        fill="#9A8B79" stroke="#5A3B1F" strokeWidth={1.6} strokeLinejoin="round" />
+                  <path d="M -34 -4 L -30 12 M -20 -8 L -16 10 M -6 -14 L -2 8"
+                        stroke="#7A6C5C" strokeWidth={1.1} fill="none" opacity={0.7} />
+
+                  {/* the ledge itself, cantilevered out over the drop */}
+                  <path d="M -14 6 L 42 2 L 46 12 L -14 18 Z"
+                        fill="#B7A68F" stroke="#5A3B1F" strokeWidth={1.6} strokeLinejoin="round" />
+                  <path d="M -14 18 L 46 12 L 44 17 L -14 23 Z"
+                        fill="#8C7C68" stroke="#5A3B1F" strokeWidth={1.2} strokeLinejoin="round" />
+
+                  {/* rope handrail along the ledge — two posts and a sag */}
+                  <line x1={2} y1={4} x2={2} y2={-12} stroke="#7B4F2C" strokeWidth={2.2} strokeLinecap="round" />
+                  <line x1={38} y1={1} x2={38} y2={-13} stroke="#7B4F2C" strokeWidth={2.2} strokeLinecap="round" />
+                  <path d="M 2 -12 Q 20 -4 38 -13" stroke="#C9A270" strokeWidth={1.6} fill="none" strokeLinecap="round" />
+
+                  {/* a small pine rooted in the cliff, for scale */}
+                  <g transform="translate(-30, 2)">
+                    <rect x={-2} y={2} width={4} height={9} fill="#8B5A2B" stroke="#5A3B1F" strokeWidth={0.9} />
+                    <path d="M -12 4 L 0 -16 L 12 4 Z" fill="#5C7E4F" stroke="#3F5A30" strokeWidth={1.3} strokeLinejoin="round" />
+                    <path d="M -9 -2 L 0 -13 L 9 -2 Z" fill="#7BA46F" />
                   </g>
-                  {/* right pine */}
-                  <g transform="translate(26, 14)">
-                    <rect x={-2.5} y={4} width={5} height={12} fill="#8B5A2B" stroke="#5A3B1F" strokeWidth={1} />
-                    <path d="M -16 6 L 0 -20 L 16 6 Z" fill="#5C7E4F" stroke="#3F5A30" strokeWidth={1.5} strokeLinejoin="round" />
-                    <path d="M -12 -2 L 0 -16 L 12 -2 Z" fill="#7BA46F" />
-                    <path d="M -8 -10 L 0 -20 L 8 -10" stroke="#3F5A30" strokeWidth={0.8} fill="none" opacity={0.5} />
-                  </g>
-                  {/* small mossy stump in middle */}
-                  <g transform="translate(0, 22)">
-                    <ellipse cx={0} cy={4} rx={11} ry={3} fill="#000" opacity={0.16} />
-                    <ellipse cx={0} cy={2} rx={10} ry={4} fill="#A06B36" stroke="#5A3B1F" strokeWidth={1.1} />
-                    <ellipse cx={0} cy={-1} rx={9} ry={3.2} fill="#C9A270" stroke="#5A3B1F" strokeWidth={0.9} />
-                    <ellipse cx={0} cy={-1} rx={6} ry={2.1} fill="none" stroke="#8B5A2B" strokeWidth={0.5} />
-                    <ellipse cx={0} cy={-1} rx={3.4} ry={1.2} fill="none" stroke="#8B5A2B" strokeWidth={0.5} />
-                    <ellipse cx={1} cy={-3} rx={4.5} ry={1.2} fill="#7BA46F" opacity={0.85} />
-                  </g>
-                  {/* squirrel perched on the stump */}
-                  <g transform="translate(2, 11)">
-                    {/* tail */}
+
+                  {/* the squirrel, out at the point, looking over */}
+                  <g transform="translate(30, -1)">
                     <path d="M -6 -2 Q -12 -8 -10 -16 Q -3 -10 -4 -2 Z"
                           fill="#A06B36" stroke="#5A3B1F" strokeWidth={1.1} strokeLinejoin="round" />
                     <path d="M -10 -16 Q -8 -14 -6 -10" stroke="#C9A270" strokeWidth={1.5} fill="none" opacity={0.7} />
-                    {/* body */}
                     <ellipse cx={0} cy={-1} rx={5} ry={4} fill="#A06B36" stroke="#5A3B1F" strokeWidth={1.1} />
-                    {/* head */}
                     <circle cx={3.5} cy={-4} r={3.2} fill="#A06B36" stroke="#5A3B1F" strokeWidth={1.1} />
-                    {/* ear */}
                     <path d="M 2 -7 L 2.6 -8.6 L 4 -7" fill="#5A3B1F" />
-                    {/* eye */}
-                    <circle cx={4} cy={-4.4} r={0.6} fill="#1A0E08" />
-                    {/* tiny acorn in paws */}
+                    <circle cx={4.4} cy={-4.4} r={0.6} fill="#1A0E08" />
                     <ellipse cx={6.5} cy={-1} rx={1.4} ry={1.7} fill="#8B5A2B" stroke="#5A3B1F" strokeWidth={0.5} />
                     <rect x={6.1} y={-3.2} width={0.8} height={1.2} fill="#5A3B1F" />
                   </g>

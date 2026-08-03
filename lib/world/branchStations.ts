@@ -76,14 +76,19 @@ export const MATH_STATIONS: BranchStation[] = [
     codes: ['mm_hundreds_hollow', 'mm_fast_facts', 'mm_regroup_ridge'] },
   { key: 'orchard', branch: 'math_mountain', x: 1150, y: 595, label: 'Apple Orchard',
     codes: ['mm_equal_garden', 'mm_array_orchard', 'mm_times_to_5', 'mm_times_to_10'] },
-  { key: 'glen', branch: 'math_mountain', x: 1200, y: 390, label: 'Division Glen',
-    codes: ['mm_sharing_squirrels', 'mm_division_facts', 'mm_missing_number'] },
+  // Division's own station, replacing the old Division Glen. The marker
+  // sits in the middle of its 2x2 block so the close pill, when open,
+  // lands in the gap between the rows rather than on a stop — which is
+  // the Mirror Tarns failure, and the reason this file exists.
+  { key: 'cliffside', branch: 'math_mountain', x: 1305, y: 370, label: 'Cliffside Point',
+    codes: ['mm_sharing_squirrels', 'mm_division_facts',
+            'mm_missing_number', 'mm4_leftover_rocks'] },
   { key: 'measurement', branch: 'math_mountain', x: 845, y: 565, label: 'Measurement Meadow',
     codes: ['mm_even_odd', 'mm_garden_clock', 'mm_sundial', 'mm_hourglass',
             'mm_pebble_coins', 'mm_pie_slices', 'mm_bigger_slice'] },
   { key: 'high_meadow', branch: 'math_mountain', x: 860, y: 305, label: 'High Meadow Waystation',
     codes: ['mm4_valley_thousands', 'mm4_windy_tens', 'mm4_eagle_ledge',
-            'mm4_factor_firs', 'mm4_mirror_tarns', 'mm4_leftover_rocks',
+            'mm4_factor_firs', 'mm4_mirror_tarns',
             'mm4_granite_sums', 'mm4_cloud_rounding', 'mm4_slice_share',
             'mm4_long_shadows', 'mm4_dewdrop_decimals', 'mm4_double_eagle',
             'mm4_frost_compare', 'mm4_terrace_gardens', 'mm4_tall_tales'] },

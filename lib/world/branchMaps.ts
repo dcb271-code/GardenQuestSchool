@@ -120,19 +120,35 @@ export const MATH_MOUNTAIN_STRUCTURES: MapStructure[] = [
     label: 'Times Tables ×0–×10', subLabel: 'all the facts', themeEmoji: '✖️',
     x: 1230, y: 640, size: 60, zone: 'math' },
 
-  // ─── Division Glen (right, ON the hill silhouettes) ─────────────
-  // Sits in the upper hill band — pine-shaded clearing y:360-420.
-  // Below the painted Fuji peaks (which end at y:280) but on the
-  // rolling-hill silhouettes so the eye climbs up the right side.
+  // ─── Cliffside Point (the right flank, high on the cliff) ───────
+  //
+  // Division's own place, and the reason it has one: all five
+  // math.divide.* skills used to sit inside the MULTIPLICATION strand,
+  // scattered between a small "Division Glen" down the hill and two
+  // stops borrowed by other stations. Division read as an afterthought
+  // rather than a destination — which is exactly what a Level-3
+  // learner at 1,377 lifetime correct was doing with it.
+  //
+  // Four stops in two rows, harder HIGHER, because the mountain's
+  // whole metaphor is that altitude means difficulty:
+  //
+  //     y 310   missing number (0.82) · leftover rocks (0.89)
+  //     y 430   sharing squirrels (0.70) · division facts (0.80)
+  //
+  // Positions came from a solver searching the free right flank for
+  // maximum clearance (38 units at worst, against tap circles, label
+  // pills and every other station box), not from placing them by eye.
+  // Long division stays on the Summit: it is Level 5, and hauling it
+  // down here would misrepresent what it costs.
   { code: 'mm_sharing_squirrels', kind: 'skill', skillCode: 'math.divide.equal_share',
     label: 'Sharing Squirrels', subLabel: 'share equally', themeEmoji: '🐿️',
-    x: 1080, y: 420, size: 60, zone: 'math' },
+    x: 1240, y: 430, size: 60, zone: 'math' },
   { code: 'mm_division_facts', kind: 'skill', skillCode: 'math.divide.facts_to_10',
     label: 'Division Facts', subLabel: 'division facts', themeEmoji: '➗',
-    x: 1200, y: 360, size: 60, zone: 'math' },
+    x: 1370, y: 430, size: 60, zone: 'math' },
   { code: 'mm_missing_number', kind: 'skill', skillCode: 'math.divide.unknown_factor',
     label: 'Missing Number', subLabel: 'find the factor', themeEmoji: '🧩',
-    x: 1320, y: 380, size: 60, zone: 'math' },
+    x: 1240, y: 310, size: 60, zone: 'math' },
 
   // ─── Measurement Meadow (two staggered rows in center) ──────────
   // Time pieces upper row at y:540, fractions/money lower at y:620.
@@ -192,9 +208,12 @@ export const MATH_MOUNTAIN_STRUCTURES: MapStructure[] = [
   { code: 'mm4_mirror_tarns', kind: 'skill', skillCode: 'math.fractions.equivalent',
     label: 'Mirror Tarns', subLabel: 'equivalent fractions', themeEmoji: '🪞',
     x: 820, y: 260, size: 58, zone: 'math' },
+  // Moved OUT of High Meadow to Cliffside Point — it is a division
+  // skill, and High Meadow was 15 stops wide against a ~713-unit
+  // portrait window.
   { code: 'mm4_leftover_rocks', kind: 'skill', skillCode: 'math.divide.with_remainders',
     label: 'Leftover Rocks', subLabel: 'remainders', themeEmoji: '🪨',
-    x: 920, y: 260, size: 58, zone: 'math' },
+    x: 1370, y: 310, size: 58, zone: 'math' },
   { code: 'mm4_granite_sums', kind: 'skill', skillCode: 'math.operations.multi_digit_add_subtract',
     label: 'Granite Sums', subLabel: 'big + and −', themeEmoji: '⛰️',
     x: 1020, y: 260, size: 58, zone: 'math' },
@@ -273,8 +292,11 @@ export const MATH_MOUNTAIN_CLUSTERS: BranchCluster[] = [
       'mm_equal_garden', 'mm_array_orchard', 'mm_skip_bridge',
       'mm_times_to_5', 'mm_times_to_10',
     ] },
-  { code: 'division_glen', label: 'Division Glen',
-    structureCodes: ['mm_sharing_squirrels', 'mm_division_facts', 'mm_missing_number'] },
+  { code: 'cliffside_point', label: 'Cliffside Point',
+    structureCodes: [
+      'mm_sharing_squirrels', 'mm_division_facts',
+      'mm_missing_number', 'mm4_leftover_rocks',
+    ] },
   { code: 'measurement_meadow', label: 'Measurement Meadow',
     structureCodes: [
       'mm_even_odd', 'mm_garden_clock', 'mm_sundial', 'mm_hourglass',
@@ -285,7 +307,7 @@ export const MATH_MOUNTAIN_CLUSTERS: BranchCluster[] = [
   { code: 'high_meadow', label: 'High Meadow',
     structureCodes: [
       'mm4_valley_thousands', 'mm4_windy_tens', 'mm4_eagle_ledge',
-      'mm4_factor_firs', 'mm4_mirror_tarns', 'mm4_leftover_rocks',
+      'mm4_factor_firs', 'mm4_mirror_tarns',
       'mm4_granite_sums', 'mm4_cloud_rounding', 'mm4_slice_share',
       'mm4_long_shadows', 'mm4_dewdrop_decimals', 'mm4_double_eagle',
       'mm4_frost_compare', 'mm4_terrace_gardens', 'mm4_tall_tales',
