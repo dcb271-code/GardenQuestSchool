@@ -126,6 +126,62 @@ export const SPECIES_CATALOG: SpeciesData[] = [
     funFact: 'Cottontails can run up to 18 mph and zigzag to escape predators.',
     illustrationKey: 'cottontail', emoji: '🐰', habitatReqCodes: ['bunny_burrow'], conservationStatus: 'stable' },
 
+  // ── THE FEEDER BIRDS ───────────────────────────────────────────────
+  //
+  // The ten birds of the /birds curriculum, as garden creatures. They
+  // are ordinary arrivals, not rare visitors: the point is that a bird
+  // she has learned to recognise turns up at her feeder and then LIVES
+  // there, so the curriculum and the garden stop being separate games.
+  //
+  // Text is drawn from birdCatalog.ts rather than written afresh —
+  // same bird, same facts, one source of truth. Descriptions are the
+  // colour hook (what she was taught to look for) and the fun fact is
+  // the hook the bird curriculum leads with.
+  //
+  // Codes MATCH the bird catalog codes exactly. That is load-bearing:
+  // the residents' tap-to-sing feature looks up bird_audio by species
+  // code, and getBird() resolves the same string.
+  { code: 'northern_cardinal', commonName: 'Northern Cardinal', scientificName: 'Cardinalis cardinalis',
+    description: 'The male is scarlet all over with a black mask. The female is warm buff-brown — but she has the same crest and the same heavy orange bill.',
+    funFact: "Kentucky's state bird. Schoolchildren campaigned for it, and the state agreed in 1926.",
+    illustrationKey: 'northern_cardinal', emoji: '🐦', habitatReqCodes: ['bird_feeder'], conservationStatus: 'stable' },
+  { code: 'blue_jay', commonName: 'Blue Jay', scientificName: 'Cyanocitta cristata',
+    description: 'Bright blue above, clean white below, with a black necklace across the throat and a tall blue crest.',
+    funFact: 'The blue is not paint. There is no blue pigment in the feather at all — it is built to scatter light so only blue bounces back. Crush one and the blue vanishes.',
+    illustrationKey: 'blue_jay', emoji: '🐦', habitatReqCodes: ['bird_feeder'], conservationStatus: 'stable' },
+  { code: 'mourning_dove', commonName: 'Mourning Dove', scientificName: 'Zenaida macroura',
+    description: 'Soft fawn-grey all over, slim, with a very long pointed tail and a small round head.',
+    funFact: 'The whistling when a dove takes off is not its voice — it is the wings. Specially shaped feathers make the sound, and it warns the whole flock that something is wrong.',
+    illustrationKey: 'mourning_dove', emoji: '🕊️', habitatReqCodes: ['bird_feeder'], conservationStatus: 'stable' },
+  { code: 'carolina_chickadee', commonName: 'Carolina Chickadee', scientificName: 'Poecile carolinensis',
+    description: 'Tiny and round, grey above and pale below, with a black cap and a black bib — and a bright white cheek squeezed between them.',
+    funFact: 'It hides seeds one at a time in bark cracks and remembers thousands of hiding places. In autumn the memory part of its brain grows new cells to hold them all.',
+    illustrationKey: 'carolina_chickadee', emoji: '🐦', habitatReqCodes: ['bird_feeder'], conservationStatus: 'stable' },
+  { code: 'american_robin', commonName: 'American Robin', scientificName: 'Turdus migratorius',
+    description: 'Dark grey back, warm orange breast, yellow bill. Upright and long-legged on the grass.',
+    funFact: 'When a robin tilts its head on the lawn, it is aiming one eye at the ground. Its eyes are on the sides of its head, so it cannot look straight down with both at once.',
+    illustrationKey: 'american_robin', emoji: '🐦', habitatReqCodes: ['bird_feeder'], conservationStatus: 'stable' },
+  { code: 'tufted_titmouse', commonName: 'Tufted Titmouse', scientificName: 'Baeolophus bicolor',
+    description: 'Soft grey above, white below, with a peachy wash down the sides — a grey crest and a very big black eye.',
+    funFact: 'It lines its nest with fur, and it pulls the fur off live animals to get it — squirrels, dogs, even people.',
+    illustrationKey: 'tufted_titmouse', emoji: '🐦', habitatReqCodes: ['bird_feeder'], conservationStatus: 'stable' },
+  { code: 'white_breasted_nuthatch', commonName: 'White-breasted Nuthatch', scientificName: 'Sitta carolinensis',
+    description: 'Blue-grey back, clean white face and chest, black cap. Looks like it has no neck and almost no tail.',
+    funFact: 'It walks DOWN tree trunks head-first, which lets it spot insects hiding in bark that every upward-climbing bird walked straight past.',
+    illustrationKey: 'white_breasted_nuthatch', emoji: '🐦', habitatReqCodes: ['bird_feeder'], conservationStatus: 'stable' },
+  { code: 'carolina_wren', commonName: 'Carolina Wren', scientificName: 'Thryothorus ludovicianus',
+    description: 'Warm rusty brown above, buff below, with a bold white stripe over the eye — and the tail cocked straight up.',
+    funFact: 'It weighs about as much as four paperclips and has one of the loudest voices in the yard. The male may sing his teakettle song three thousand times in a day.',
+    illustrationKey: 'carolina_wren', emoji: '🐦', habitatReqCodes: ['bird_feeder'], conservationStatus: 'stable' },
+  { code: 'american_goldfinch', commonName: 'American Goldfinch', scientificName: 'Spinus tristis',
+    description: 'In summer the male is brilliant lemon yellow with a black cap and black wings. In winter the same bird is drab olive-buff.',
+    funFact: 'Summer gold and winter olive are the same bird in a different coat — the black wings with white bars stay the same whatever else changes.',
+    illustrationKey: 'american_goldfinch', emoji: '🐤', habitatReqCodes: ['bird_feeder'], conservationStatus: 'stable' },
+  { code: 'house_finch', commonName: 'House Finch', scientificName: 'Haemorhous mexicanus',
+    description: 'The male has red on his forehead, throat and rump over a plain brown back. The female is brown and streaky with a blank face.',
+    funFact: 'Not originally an eastern bird. New York pet shops sold them illegally as "Hollywood Finches", and in 1940 the sellers set them loose to avoid arrest. They reached Kentucky in the late 1970s.',
+    illustrationKey: 'house_finch', emoji: '🐦', habitatReqCodes: ['bird_feeder'], conservationStatus: 'stable' },
+
   // ── RARE VISITORS — researcher-badge gated (Level 3+ science) ──────
   { code: 'painted_turtle', commonName: 'Painted Turtle', scientificName: 'Chrysemys picta',
     description: 'A pond turtle with red and yellow stripes along its shell edge, famous for sunbathing in stacks.',

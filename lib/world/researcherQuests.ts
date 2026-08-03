@@ -262,6 +262,44 @@ export const RESEARCHER_QUESTS: Record<string, ResearcherQuest> = {
     outro: 'You saw the invisible city inside the wood. That\'s a naturalist\'s eye.',
     gemLine: 'You wondered what lives inside a dead log — and found a whole city. Decomposers salute you.',
   },
+  bird_feeder: {
+    habitatCode: 'bird_feeder',
+    intro: 'Time to study the feeder the way an ornithologist would.',
+    questions: [
+      {
+        prompt: 'A researcher counts the birds at a feeder every hour. Cardinals dominate the first count of the day and the last one, but barely appear at noon. What explains it?',
+        choices: [
+          'Cardinals feed hardest at dawn and dusk, when dim light hides them from hawks that hunt by sight',
+          'Cardinals sleep through the middle of the day like owls',
+          'The feeder is empty at noon and refills itself',
+          'Cardinals can only see the colour red at low light',
+        ],
+        correctIndex: 0,
+      },
+      {
+        prompt: 'A chickadee caches thousands of seeds each autumn in separate bark cracks — and its brain\'s memory centre physically grows new cells, then shrinks again in spring. What is the trade-off?',
+        choices: [
+          'Brain tissue is expensive to run, so it only grows the extra when the caching season needs it',
+          'The bird\'s head would be too heavy to fly with all year',
+          'The new cells are made of the seeds it eats',
+          'Its brain grows because it is colder, not because of caching',
+        ],
+        correctIndex: 0,
+      },
+      {
+        prompt: 'Sick house finches with crusted eyes appear at feeders some winters, and the disease spreads fastest where feeders are crowded. What does that tell a researcher to do?',
+        choices: [
+          'Clean feeders regularly and space them out — crowding at a shared surface is how it passes between birds',
+          'Take every feeder down forever, since feeding birds is always harmful',
+          'Feed only red seeds, because red birds are immune',
+          'Nothing — bird diseases cannot spread at feeders',
+        ],
+        correctIndex: 0,
+      },
+    ],
+    outro: 'You studied the feeder like a real ornithologist — counting, and asking why.',
+    gemLine: 'You wondered why the same birds come at the same hours, and what a crowded feeder costs them. That is field science.',
+  },
 };
 
 export function getResearcherQuest(code: string): ResearcherQuest | undefined {

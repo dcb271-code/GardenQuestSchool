@@ -67,6 +67,9 @@ describe('placeResidents', () => {
   });
 
   it('handles more creatures than there are slots without overlapping', () => {
+    // The worst case is the whole catalog discovered at once, which is
+    // also the case that broke: the bird feeder alone attracts TEN
+    // species, where nothing before it attracted more than four.
     const all = SPECIES_CATALOG.map(s => s.code);
     const out = placeResidents({
       discoveredCodes: all,
@@ -76,7 +79,54 @@ describe('placeResidents', () => {
       for (let j = i + 1; j < out.length; j++) {
         if (out[i].habitatCode !== out[j].habitatCode) continue;
         const d = Math.hypot(out[i].x - out[j].x, out[i].y - out[j].y);
-        expect(d).toBeGreaterThan(24);
+        expect(d, `${out[i].species.code} overlaps ${out[j].species.code}`).toBeGreaterThan(24);
+      }
+    }
+  });
+
+  it('creatures from ADJACENT habitats do not overlap either', () => {
+    // This comparison used to be skipped outright — the loop above
+    // `continue`d whenever two residents belonged to different
+    // habitats, so nothing checked the space BETWEEN habitats. That
+    // was harmless while rings were small and habitats far apart. The
+    // bird feeder sits 208 units from the log pile and its outer ring
+    // reaches 98, so two habitats' residents can now genuinely meet in
+    // the middle.
+    const out = placeResidents({
+      discoveredCodes: SPECIES_CATALOG.map(s => s.code),
+      builtHabitatCodes: HABITAT_CATALOG.map(h => h.code),
+    });
+    for (let i = 0; i < out.length; i++) {
+      for (let j = i + 1; j < out.length; j++) {
+        if (out[i].habitatCode === out[j].habitatCode) continue;
+        const d = Math.hypot(out[i].x - out[j].x, out[i].y - out[j].y);
+        expect(
+          d,
+          `${out[i].species.code} (${out[i].habitatCode}) overlaps ` +
+          `${out[j].species.code} (${out[j].habitatCode})`,
+        ).toBeGreaterThan(24);
+      }
+    }
+  });
+
+  it('a resident never sits on a structure that is not its own home', () => {
+    // Overlapping its OWN habitat is fine and often right — a frog on
+    // its pond reads correctly, and the pond marker is 140 wide. What
+    // must never happen is a resident covering a DIFFERENT structure:
+    // that steals the tap, which is exactly how Mirror Tarns became
+    // unreachable on the branch maps.
+    const out = placeResidents({
+      discoveredCodes: SPECIES_CATALOG.map(s => s.code),
+      builtHabitatCodes: HABITAT_CATALOG.map(h => h.code),
+    });
+    for (const r of out) {
+      for (const struct of GARDEN_STRUCTURES) {
+        if (struct.habitatCode === r.habitatCode) continue;
+        const d = Math.hypot(r.x - struct.x, r.y - struct.y);
+        expect(
+          d,
+          `${r.species.code} (${r.habitatCode}) sits on ${struct.code}`,
+        ).toBeGreaterThan(struct.size / 2);
       }
     }
   });
@@ -126,7 +176,10 @@ describe('habitat interiors', () => {
     // operations_cave is excluded on purpose — it's the maths cave at
     // the foot of the mountain, not somewhere a creature lives.
     const homes = HABITAT_CATALOG.filter(h => h.attractsSpeciesCodes.length > 0);
-    expect(homes.length).toBe(6);
+    // Not pinned to a number — adding a habitat that attracts species
+    // should make this test DEMAND an interior, not fail an arithmetic
+    // assertion and get the number bumped.
+    expect(homes.length).toBeGreaterThan(0);
     for (const h of homes) {
       expect(hasHabitatInterior(h.code), `${h.code} has no interior`).toBe(true);
     }

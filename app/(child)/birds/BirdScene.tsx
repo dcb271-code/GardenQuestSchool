@@ -25,11 +25,14 @@ import {
 import {
   resolveClip, birdsWithAudio, type AudioIndex, type ResolvedClip,
 } from '@/lib/birds/audioResolve';
+import {
+  lifeListRows, lifeListCount, rarityLabel, friendlyDate, type LifeList,
+} from '@/lib/birds/lifeList';
 import { dueUnits, badgeFor, BADGE_MARK, todayKey, type ReviewMap } from '@/lib/learning/review';
 import { SizeLadder, BillChart, FourKeys } from '@/components/child/birds/birdVisuals';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
 
-type Phase = 'menu' | 'teach' | 'practice' | 'done';
+type Phase = 'menu' | 'teach' | 'practice' | 'done' | 'lifelist';
 
 interface Result {
   exerciseKind: string;
@@ -50,6 +53,9 @@ export default function BirdScene({ learnerId }: { learnerId: string }) {
   const [review, setReview] = useState<ReviewMap>({});
   const [photos, setPhotos] = useState<PhotoIndex>({});
   const [audio, setAudio] = useState<AudioIndex>({});
+  const [lifelist, setLifelist] = useState<LifeList>({});
+  const [logging, setLogging] = useState<string | null>(null);
+  const [justLogged, setJustLogged] = useState<{ code: string; gem: boolean } | null>(null);
   const [loaded, setLoaded] = useState(false);
 
   const [phase, setPhase] = useState<Phase>('menu');
@@ -76,6 +82,7 @@ export default function BirdScene({ learnerId }: { learnerId: string }) {
       setReview(prog.review ?? {});
       setPhotos(pics.photos ?? {});
       setAudio(clips.audio ?? {});
+      setLifelist(prog.lifelist ?? {});
       setLoaded(true);
     });
     return () => { alive = false; };
@@ -190,6 +197,29 @@ export default function BirdScene({ learnerId }: { learnerId: string }) {
     else setExIdx(exIdx + 1);
   };
 
+  /** "I saw one!" — the entry that reaches outside the app. */
+  const logSighting = async (birdCode: string, note?: string) => {
+    if (logging) return;
+    setLogging(birdCode);
+    try {
+      const res = await fetch('/api/birds/lifelist', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ learnerId, birdCode, note }),
+      });
+      const d = await res.json();
+      if (d.lifelist) setLifelist(d.lifelist);
+      setJustLogged({ code: birdCode, gem: !!d.gemGranted });
+      window.setTimeout(() => setJustLogged(null), 3200);
+    } catch {
+      // Silent: the list is a record, not a transaction. She can tap
+      // again, and a lost tap must never become an error modal
+      // between a child and a bird she just saw.
+    } finally {
+      setLogging(null);
+    }
+  };
+
   if (!loaded) {
     return <Shell learnerId={learnerId}><p className="p-6 text-sm">Opening the hide…</p></Shell>;
   }
@@ -264,12 +294,136 @@ export default function BirdScene({ learnerId }: { learnerId: string }) {
           </div>
         ))}
 
+        <button
+          onClick={() => setPhase('lifelist')}
+          className="w-full text-left rounded-xl p-3 mt-1"
+          style={{
+            background: 'rgba(214,158,74,0.16)', border: '1px solid #d69e4a',
+            minHeight: 60,
+          }}
+        >
+          <div className="flex items-center gap-2">
+            <span aria-hidden className="text-lg">📓</span>
+            <span className="font-bold text-sm" style={{ color: '#3f2614' }}>
+              My Life List
+            </span>
+            <span className="ml-auto text-xs font-bold" style={{ color: '#6b6255' }}>
+              {lifeListCount(lifelist)} / {lifeListRows({}).length} seen
+            </span>
+          </div>
+          <div className="text-xs mt-1" style={{ color: '#6b6255' }}>
+            Birds you have really seen, with your own eyes.
+          </div>
+        </button>
+
         <p className="text-center mt-6">
           <Link href={`/birds/credits?learner=${learnerId}`}
             className="text-xs underline" style={{ color: '#6b6255' }}>
             the people who recorded these sounds and photos
           </Link>
         </p>
+      </Shell>
+    );
+  }
+
+  // ── LIFE LIST ───────────────────────────────────────────────────
+  //
+  // The point of the whole module: a record of birds she has really
+  // seen. Sorted rarest-first from the Louisville feeder guide's own
+  // frequency scores, so a genuinely uncommon bird sits at the top and
+  // FEELS like the event it was.
+  if (phase === 'lifelist') {
+    const rows = lifeListRows(lifelist);
+    const seen = rows.filter(r => r.entry);
+    return (
+      <Shell learnerId={learnerId}>
+        <p className="text-sm mb-3" style={{ color: '#6b6255' }}>
+          Look out of a window. When you really see one of these — not a
+          picture, the actual bird — tap “I saw one!”. This is your list,
+          and it is the part that counts.
+        </p>
+
+        {seen.length === 0 && (
+          <p className="text-sm italic mb-3" style={{ color: '#6b6255' }}>
+            Nothing on your list yet. The cardinal is out there right now.
+          </p>
+        )}
+
+        <div className="grid grid-cols-1 gap-2">
+          {rows.map(({ bird, entry }) => {
+            const pic = resolvePhoto(photos, bird.code, 'perched');
+            const isLogging = logging === bird.code;
+            const flash = justLogged?.code === bird.code;
+            return (
+              <div
+                key={bird.code}
+                className="rounded-xl p-2.5 flex items-center gap-3"
+                style={{
+                  background: entry ? 'rgba(107,142,90,0.14)' : 'rgba(255,250,242,0.9)',
+                  border: `1px solid ${entry ? '#6b8e5a' : '#e3dccf'}`,
+                }}
+              >
+                {pic ? (
+                  /* eslint-disable-next-line @next/next/no-img-element */
+                  <img
+                    src={pic.url} alt={pic.alt}
+                    className="rounded-lg object-contain"
+                    style={{ width: 62, height: 52, background: '#efe9dc', flexShrink: 0 }}
+                    loading="lazy"
+                  />
+                ) : (
+                  <span aria-hidden className="text-3xl" style={{ width: 62, textAlign: 'center' }}>
+                    {bird.emoji}
+                  </span>
+                )}
+
+                <div className="flex-1 min-w-0">
+                  <div className="font-bold text-sm truncate" style={{ color: '#3f2614' }}>
+                    {bird.commonName}
+                  </div>
+                  <div className="text-xs" style={{ color: '#6b6255' }}>
+                    {entry
+                      ? `first seen ${friendlyDate(entry.firstSeen)}${entry.count > 1 ? ` · ${entry.count} times` : ''}`
+                      : rarityLabel(bird)}
+                  </div>
+                  {entry?.note && (
+                    <div className="text-xs italic mt-0.5" style={{ color: '#4a4034' }}>
+                      “{entry.note}”
+                    </div>
+                  )}
+                  {flash && (
+                    <div className="text-xs font-bold mt-0.5" style={{ color: '#6b8e5a' }}>
+                      {justLogged?.gem ? '💎 a noticing gem!' : 'added to your list'}
+                    </div>
+                  )}
+                </div>
+
+                <button
+                  onClick={() => logSighting(bird.code)}
+                  disabled={isLogging}
+                  className="rounded-xl px-3 text-xs font-bold"
+                  style={{
+                    background: entry ? '#fffaf2' : '#6b8e5a',
+                    color: entry ? '#3f2614' : '#fffaf2',
+                    border: entry ? '1px solid #6b8e5a' : 'none',
+                    minHeight: 48, minWidth: 84, flexShrink: 0,
+                    touchAction: 'manipulation',
+                  }}
+                >
+                  {isLogging ? '…' : entry ? 'saw it again' : 'I saw one!'}
+                </button>
+              </div>
+            );
+          })}
+        </div>
+
+        <button
+          onClick={() => setPhase('menu')}
+          className="w-full mt-4 rounded-xl px-4 font-bold text-sm"
+          style={{ background: '#6b8e5a', color: '#fffaf2', minHeight: 48 }}
+        >
+          back to the list
+        </button>
       </Shell>
     );
   }

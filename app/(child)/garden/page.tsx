@@ -20,6 +20,9 @@ import {
 import { hasHabitatInterior } from '@/lib/world/habitatInteriors';
 import { getCumulativeCorrect } from '@/lib/world/cumulativeProgress';
 import { placeResidents } from '@/lib/world/residents';
+import { birdAudioUrl } from '@/lib/birds/photoStorage';
+import type { AudioIndex } from '@/lib/birds/audioResolve';
+import type { VoiceKind } from '@/lib/world/birdCatalog';
 import GardenScene from './GardenScene';
 
 export const dynamic = 'force-dynamic';
@@ -350,6 +353,36 @@ export default async function GardenPage({
     builtHabitatCodes: placedCodesList,
   });
 
+  // Clips for any bird that has moved in, so tapping it on the map
+  // plays its voice. Fetched only when a bird resident actually
+  // exists — this is a garden with no birds in it for most learners,
+  // and the query should not exist for them.
+  const birdAudio: AudioIndex = {};
+  const residentBirdCodes = residents
+    .filter(r => r.habitatCode === 'bird_feeder')
+    .map(r => r.species.code);
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (residentBirdCodes.length > 0 && supabaseUrl) {
+    const { data: clipRows } = await db
+      .from('bird_audio')
+      .select('bird_code, kind, storage_path, fallback_path, spectrogram_path, source_id, source_url, recordist, license_url')
+      .in('bird_code', residentBirdCodes);
+    for (const row of (clipRows ?? []) as Array<Record<string, string | null>>) {
+      const byKind = (birdAudio[row.bird_code as string] ??= {});
+      (byKind[row.kind as VoiceKind] ??= []).push({
+        url: birdAudioUrl(supabaseUrl, row.storage_path as string),
+        fallbackUrl: row.fallback_path ? birdAudioUrl(supabaseUrl, row.fallback_path) : null,
+        spectrogramUrl: row.spectrogram_path ? birdAudioUrl(supabaseUrl, row.spectrogram_path) : null,
+        attribution: {
+          recordist: row.recordist as string,
+          sourceId: row.source_id as string,
+          sourceUrl: row.source_url as string,
+          licenseUrl: row.license_url as string,
+        },
+      });
+    }
+  }
+
   const cumulativeCorrect = await getCumulativeCorrect(db, learnerId);
 
   return (
@@ -369,6 +402,7 @@ export default async function GardenPage({
       learnerLevel={learnerLevel}
       researcherBadges={researcherBadges}
       residents={residents}
+      birdAudio={birdAudio}
     />
   );
 }

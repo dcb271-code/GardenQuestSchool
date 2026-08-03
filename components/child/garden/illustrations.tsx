@@ -634,6 +634,70 @@ export function ButterflyBush({ x, y, size = 80 }: IllustrationProps) {
   );
 }
 
+/**
+ * A hopper feeder on a pole, with a cardinal on the perch.
+ *
+ * Drawn as separate overlapping shapes rather than one clever path —
+ * the bird figures in the bird hide taught that lesson the hard way
+ * (a beak that floated free of its head). Pole, hopper, roof and bird
+ * are each solid and visibly joined.
+ */
+export function BirdFeeder({ x, y, size = 80 }: IllustrationProps) {
+  const r = size / 2;
+  const w = r * 1.05;          // hopper width
+  const h = r * 0.78;          // hopper height
+  const topY = -r * 0.5;       // hopper top
+  return (
+    <g transform={`translate(${x},${y})`}>
+      {/* scattered seed + ground shadow */}
+      <ellipse cx={0} cy={r * 0.94} rx={r * 0.62} ry={r * 0.14} fill="#000" opacity={0.14} />
+      {[-0.42, -0.2, 0.16, 0.38, 0.54].map((o, i) => (
+        <ellipse key={i} cx={r * o} cy={r * (0.9 + (i % 2) * 0.06)} rx={2.2} ry={1.5}
+                 fill="#C9A227" stroke={STROKE} strokeWidth={0.5} />
+      ))}
+
+      {/* pole, sunk into the ground */}
+      <rect x={-r * 0.07} y={topY + h} width={r * 0.14} height={r * 0.92}
+            fill="#8B6938" stroke={STROKE} strokeWidth={2} rx={2} />
+
+      {/* seed tray under the hopper */}
+      <rect x={-w * 0.62} y={topY + h - 3} width={w * 1.24} height={r * 0.16}
+            rx={3} fill="#A87147" stroke={STROKE} strokeWidth={2} />
+
+      {/* hopper body — glass front, seed inside */}
+      <rect x={-w / 2} y={topY} width={w} height={h} rx={2}
+            fill="#F5EBDC" stroke={STROKE} strokeWidth={2} />
+      <rect x={-w / 2 + 3} y={topY + h * 0.42} width={w - 6} height={h * 0.5 - 2}
+            fill="#E8C493" stroke={STROKE_LIGHT} strokeWidth={1} />
+
+      {/* roof, overhanging both sides */}
+      <polygon
+        points={`${-w * 0.72},${topY + 1} ${w * 0.72},${topY + 1} ${w * 0.5},${topY - r * 0.3} ${-w * 0.5},${topY - r * 0.3}`}
+        fill="#7B4F2C" stroke={STROKE} strokeWidth={2} strokeLinejoin="round"
+      />
+
+      {/* perch, and a cardinal using it */}
+      <line x1={-w * 0.78} y1={topY + h * 0.72} x2={w * 0.78} y2={topY + h * 0.72}
+            stroke={STROKE} strokeWidth={2.4} strokeLinecap="round" />
+      <g transform={`translate(${w * 0.62}, ${topY + h * 0.72})`}>
+        {/* tail sweeping back, body, head, beak — all overlapping */}
+        <path d={`M ${-r * 0.05} ${-r * 0.2} L ${-r * 0.42} ${-r * 0.02} L ${-r * 0.1} ${-r * 0.06} Z`}
+              fill="#C0392B" stroke={STROKE} strokeWidth={1.2} strokeLinejoin="round" />
+        <ellipse cx={0} cy={-r * 0.19} rx={r * 0.17} ry={r * 0.13}
+                 fill="#C0392B" stroke={STROKE} strokeWidth={1.4} />
+        <circle cx={r * 0.13} cy={-r * 0.3} r={r * 0.1}
+                fill="#C0392B" stroke={STROKE} strokeWidth={1.4} />
+        {/* crest */}
+        <path d={`M ${r * 0.08} ${-r * 0.39} L ${r * 0.12} ${-r * 0.5} L ${r * 0.2} ${-r * 0.37} Z`}
+              fill="#C0392B" stroke={STROKE} strokeWidth={1} strokeLinejoin="round" />
+        <path d={`M ${r * 0.2} ${-r * 0.33} L ${r * 0.32} ${-r * 0.3} L ${r * 0.2} ${-r * 0.26} Z`}
+              fill="#E8A87C" stroke={STROKE} strokeWidth={1} strokeLinejoin="round" />
+        <circle cx={r * 0.16} cy={-r * 0.33} r={r * 0.02} fill={STROKE} />
+      </g>
+    </g>
+  );
+}
+
 export function LogPile({ x, y, size = 80 }: IllustrationProps) {
   const r = size / 2;
   // Pyramid stack: 3 logs on bottom (cross-sections facing camera),
@@ -2033,6 +2097,7 @@ export function StructureIllustration({
     case 'habitat_bee_hotel':        return <BeeHotel x={x} y={y} size={size * 1.05} />;
     case 'habitat_butterfly_bush':   return <ButterflyBush x={x} y={y} size={size * 1.1} />;
     case 'habitat_log_pile':         return <LogPile x={x} y={y} size={size * 1.05} />;
+    case 'habitat_bird_feeder':      return <BirdFeeder x={x} y={y} size={size * 1.1} />;
     case 'reading_readaloud_log':    return <StoryLog x={x} y={y} size={size * 1.1} />;
     case 'reading_book_stump':       return <WordStump x={x} y={y} size={size * 1.05} />;
     case 'reading_blending_beach':   return <BlendingBeach x={x} y={y} size={size * 1.1} />;

@@ -20,6 +20,7 @@ import EstimationDuelModal from '@/components/child/garden/EstimationDuelModal';
 import { getResearcherQuest, RESEARCHER_MIN_LEVEL } from '@/lib/world/researcherQuests';
 import { ESTIMATION_MIN_LEVEL } from '@/lib/world/estimationDuel';
 import { residentGreeting, type Resident } from '@/lib/world/residents';
+import { resolveClip, type AudioIndex } from '@/lib/birds/audioResolve';
 import { SpeciesIllustration } from '@/components/child/garden/speciesIllustrations';
 import KitchenModal from '@/components/child/garden/KitchenModal';
 import IkebanaModal from '@/components/child/garden/IkebanaModal';
@@ -360,6 +361,7 @@ export default function GardenScene({
   learnerLevel = 2,
   researcherBadges = [],
   residents = [],
+  birdAudio = {},
 }: {
   learnerId: string;
   firstName?: string | null;
@@ -381,6 +383,8 @@ export default function GardenScene({
   researcherBadges?: string[];
   /** Discovered creatures, placed beside the habitat they live in. */
   residents?: Resident[];
+  /** Clips for bird residents, so tapping one plays its voice. */
+  birdAudio?: AudioIndex;
 }) {
   const router = useRouter();
   const { settings, update } = useAccessibilitySettings();
@@ -419,6 +423,41 @@ export default function GardenScene({
   const [researchHabitatCode, setResearchHabitatCode] = useState<string | null>(null);
   const [hodgeChoiceOpen, setHodgeChoiceOpen] = useState(false);
   const [tappedResident, setTappedResident] = useState<Resident | null>(null);
+  const [singingCode, setSingingCode] = useState<string | null>(null);
+
+  /**
+   * Tap a bird, hear it.
+   *
+   * The cheapest big idea in the bird spec: it turns the garden into a
+   * review surface she passes through dozens of times without it ever
+   * feeling like practice. Call before song — a call is the short
+   * everyday sound, and it is what she would actually hear out of the
+   * window most of the year.
+   *
+   * Silent for every non-bird resident, and for a bird whose clip has
+   * not been auditioned: a tap that does nothing is better than a tap
+   * that plays the wrong creature.
+   */
+  const singResident = (r: Resident) => {
+    const clip = resolveClip(birdAudio, r.species.code, 'call')
+      ?? resolveClip(birdAudio, r.species.code, 'song')
+      ?? resolveClip(birdAudio, r.species.code, 'flight_call');
+    if (!clip) return;
+    const el = new Audio(clip.url);
+    el.addEventListener('error', () => {
+      // Opus is not universal; the m4a fallback exists for exactly this.
+      if (clip.fallbackUrl && el.src !== clip.fallbackUrl) {
+        el.src = clip.fallbackUrl;
+        el.play().catch(() => setSingingCode(null));
+      } else {
+        setSingingCode(null);
+      }
+    });
+    el.addEventListener('ended', () =>
+      setSingingCode(c => (c === r.species.code ? null : c)));
+    setSingingCode(r.species.code);
+    el.play().catch(() => setSingingCode(null));
+  };
   const [duelOpen, setDuelOpen] = useState(false);
   const [kitchenOpen, setKitchenOpen] = useState(false);
   // Ikebana with Bachan — offered once enough flowers have ever been
@@ -1575,6 +1614,7 @@ export default function GardenScene({
               onClick={() => {
                 setTappedResident(r);
                 window.setTimeout(() => setTappedResident(null), 2600);
+                singResident(r);
               }}
               aria-label={residentGreeting(r)}
             >
@@ -1590,6 +1630,19 @@ export default function GardenScene({
               >
                 <g transform={`scale(${r.scale})`}>
                   <ellipse cx={0} cy={16} rx={13} ry={3} fill="#000" opacity={0.16} />
+                  {/* it is singing — rings, so the cue survives a muted
+                      tablet or a sleeping sibling */}
+                  {singingCode === r.species.code && !reducedMotion && (
+                    <motion.circle
+                      cx={13} cy={-10} r={7} fill="none" stroke="#6b8e5a" strokeWidth={2}
+                      animate={{ r: [6, 20], opacity: [0.9, 0] }}
+                      transition={{ duration: 1.1, repeat: Infinity, ease: 'easeOut' }}
+                    />
+                  )}
+                  {singingCode === r.species.code && reducedMotion && (
+                    <circle cx={13} cy={-10} r={12} fill="none" stroke="#6b8e5a"
+                            strokeWidth={2} opacity={0.8} />
+                  )}
                   <g transform="translate(-19, -19)">
                     {SpeciesIllustration({ code: r.species.code, size: 38 })
                       ?? <text x={19} y={24} textAnchor="middle" fontSize={24}>{r.species.emoji}</text>}
@@ -1610,7 +1663,9 @@ export default function GardenScene({
               <rect x={-74} y={-16} width={148} height={20} rx={10}
                     fill="rgba(255,250,242,0.96)" stroke="#6b8e5a" strokeWidth={1} />
               <text x={0} y={-2} textAnchor="middle" fontSize={9} fontWeight={700} fill="#3f2614">
-                {tappedResident.species.commonName}
+                {singingCode === tappedResident.species.code
+                  ? `♪ ${tappedResident.species.commonName} ♪`
+                  : tappedResident.species.commonName}
               </text>
             </motion.g>
           )}

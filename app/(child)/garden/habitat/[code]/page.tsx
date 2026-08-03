@@ -12,6 +12,9 @@ import { resolveLearnerId } from '@/lib/learner/activeLearner';
 import { hasHabitatInterior, HABITAT_INTERIORS } from '@/lib/world/habitatInteriors';
 import { SPECIES_CATALOG } from '@/lib/world/speciesCatalog';
 import { HABITAT_CATALOG } from '@/lib/world/habitatCatalog';
+import { birdAudioUrl } from '@/lib/birds/photoStorage';
+import type { AudioIndex } from '@/lib/birds/audioResolve';
+import type { VoiceKind } from '@/lib/world/birdCatalog';
 import { MATH_MOUNTAIN_STRUCTURES } from '@/lib/world/branchMaps';
 import { MATH_SKILLS } from '@/lib/packs/math/skills';
 import { ZONE_COMPLETION_TARGET } from '@/lib/world/zoneProgress';
@@ -21,6 +24,7 @@ import AntHillInterior from './AntHillInterior';
 import BeeHotelInterior from './BeeHotelInterior';
 import ButterflyBushInterior from './ButterflyBushInterior';
 import LogPileInterior from './LogPileInterior';
+import BirdFeederInterior from './BirdFeederInterior';
 import CaveInterior, { type CaveSkillStop } from './CaveInterior';
 
 export const dynamic = 'force-dynamic';
@@ -94,6 +98,47 @@ export default async function HabitatInteriorPage({
   // Every habitat that is a HOME now has an interior; they all share
   // the same shape (one themed skill stop plus the residents), so a
   // lookup beats a chain of branches.
+  // The feeder is the one interior whose residents make a SOUND, so it
+  // needs the clip index the others don't. Fetched here rather than in
+  // the client so the birds can sing on the first tap, with no
+  // round-trip between tapping a bird and hearing it.
+  if (code === 'bird_feeder') {
+    const audio: AudioIndex = {};
+    const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    if (baseUrl) {
+      const { data: clips } = await db
+        .from('bird_audio')
+        .select('bird_code, kind, storage_path, fallback_path, spectrogram_path, source_id, source_url, recordist, license_url');
+      for (const row of (clips ?? []) as Array<Record<string, string | null>>) {
+        const birdCode = row.bird_code as string;
+        const kind = row.kind as VoiceKind;
+        const byKind = (audio[birdCode] ??= {});
+        (byKind[kind] ??= []).push({
+          url: birdAudioUrl(baseUrl, row.storage_path as string),
+          fallbackUrl: row.fallback_path ? birdAudioUrl(baseUrl, row.fallback_path) : null,
+          spectrogramUrl: row.spectrogram_path ? birdAudioUrl(baseUrl, row.spectrogram_path) : null,
+          attribution: {
+            recordist: row.recordist as string,
+            sourceId: row.source_id as string,
+            sourceUrl: row.source_url as string,
+            licenseUrl: row.license_url as string,
+          },
+        });
+      }
+    }
+    return (
+      <BirdFeederInterior
+        learnerId={learnerId}
+        themedSkillCode={cfg.themedSkillCode}
+        themedStructureLabel={cfg.themedStructureLabel}
+        themedStructureEmoji={cfg.themedStructureEmoji}
+        discoveredSpecies={discoveredSpecies}
+        undiscoveredCount={undiscoveredCount}
+        audio={audio}
+      />
+    );
+  }
+
   const SIMPLE_INTERIORS = {
     frog_pond: PondInterior,
     log_pile: LogPileInterior,

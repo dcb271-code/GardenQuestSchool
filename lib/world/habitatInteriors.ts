@@ -56,6 +56,13 @@ export const HABITAT_INTERIORS: Record<string, HabitatInteriorConfig> = {
     themedStructureLabel: 'Beetle Pairs',
     themedStructureEmoji: '🪲',
   },
+  bird_feeder: {
+    // Equal groups is the feeder's own maths: four perches with three
+    // birds each is a multiplication problem she can watch happen.
+    themedSkillCode: 'math.multiply.equal_groups',
+    themedStructureLabel: 'Counting the Queue',
+    themedStructureEmoji: '🌻',
+  },
   operations_cave: {
     themedSkillCode: 'math.add.within_100.no_regrouping',
     themedStructureLabel: "Hundred's Hollow",

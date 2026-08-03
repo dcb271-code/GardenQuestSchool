@@ -28,14 +28,29 @@ export interface Resident {
   scale: number;
 }
 
-/** Ring of offsets around a habitat marker, in draw order. */
+/**
+ * Rings of offsets around a habitat marker, in draw order.
+ *
+ * Two rings, not one repeated at a wider radius. The old scheme reused
+ * six hand-placed offsets and pushed each extra lap 45% further out,
+ * which put resident 7 only 23 units from resident 1 — under the 24
+ * the overlap test demands. Nobody noticed because no habitat had
+ * more than four species. The bird feeder has TEN, so the seventh
+ * bird sitting on the first was suddenly the normal case.
+ *
+ * Ring 1: 6 slots at r≈52 (chord ≈ 52). Ring 2: 8 slots at r≈92,
+ * rotated half a step so nothing lines up radially (chord ≈ 70,
+ * radial gap 40). Fourteen creatures fit before any lapping at all.
+ */
 const SLOTS: Array<{ dx: number; dy: number }> = [
-  { dx: -44, dy: 26 },
-  { dx: 46, dy: 22 },
-  { dx: -30, dy: -34 },
-  { dx: 38, dy: -30 },
-  { dx: 4, dy: 44 },
-  { dx: -56, dy: -6 },
+  ...Array.from({ length: 6 }, (_, i) => {
+    const a = (i / 6) * Math.PI * 2 + Math.PI * 0.16;
+    return { dx: Math.cos(a) * 56, dy: Math.sin(a) * 40 };
+  }),
+  ...Array.from({ length: 8 }, (_, i) => {
+    const a = (i / 8) * Math.PI * 2 + Math.PI / 8;
+    return { dx: Math.cos(a) * 98, dy: Math.sin(a) * 70 };
+  }),
 ];
 
 /**
@@ -76,8 +91,10 @@ export function placeResidents({
     const n = usedSlots[habitatCode] ?? 0;
     usedSlots[habitatCode] = n + 1;
     const slot = SLOTS[n % SLOTS.length];
-    // Beyond one full ring, push further out rather than overlapping.
-    const spread = 1 + Math.floor(n / SLOTS.length) * 0.45;
+    // Past both rings, push a further lap out rather than overlapping.
+    // 0.55 per lap keeps the radial gap wider than the jitter below can
+    // close (jitter is ±3 in x, ±2 in y).
+    const spread = 1 + Math.floor(n / SLOTS.length) * 0.55;
 
     // Deterministic per-species jitter, so the garden looks arranged by
     // nature rather than by a grid — but identically on every render.

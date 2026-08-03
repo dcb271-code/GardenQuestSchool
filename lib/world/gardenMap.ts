@@ -252,6 +252,19 @@ export const GARDEN_STRUCTURES: MapStructure[] = [
     x: 620, y: 620, size: 72,
     zone: 'meadow',
   },
+  {
+    // Open meadow, south-central — the most clearance available on the
+    // whole map (133 units to its nearest neighbour's edge), which is
+    // what a feeder wants: birds will not come down to a pole crowded
+    // against a bush, and neither do tap targets on a tablet.
+    code: 'habitat_bird_feeder',
+    kind: 'habitat',
+    habitatCode: 'bird_feeder',
+    label: 'Bird Feeder',
+    themeEmoji: '🐦',
+    x: 820, y: 680, size: 76,
+    zone: 'meadow',
+  },
 
   // --- Path-edge gates (NW = Reading Forest, NE = Math Mountain) ---
   {

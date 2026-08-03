@@ -253,6 +253,43 @@ export const HABITAT_QUESTS: Record<string, HabitatQuest> = {
     ],
     outro: 'Look closely — you might spot a ladybug.',
   },
+  bird_feeder: {
+    habitatCode: 'bird_feeder',
+    intro: "Let's put up a feeder and see who comes.",
+    questions: [
+      {
+        prompt: 'Why do birds come to a feeder in winter more than in summer?',
+        choices: [
+          'Seeds and insects are hard to find under snow',
+          'Birds get bored in winter',
+          'They like the cold weather',
+          'Feeders only work when it is cold',
+        ],
+        correctIndex: 0,
+      },
+      {
+        prompt: 'Where is the safest place to hang a feeder?',
+        choices: [
+          'Near a bush, so birds can dive into cover if a hawk comes',
+          'In the middle of an empty lawn, far from everything',
+          'Inside the house',
+          'High in a tree where nobody can see it',
+        ],
+        correctIndex: 0,
+      },
+      {
+        prompt: 'What should you do to a feeder every few weeks?',
+        choices: [
+          'Clean it, so mouldy seed does not make the birds sick',
+          'Paint it a new colour',
+          'Move it to a different country',
+          'Nothing at all, ever',
+        ],
+        correctIndex: 0,
+      },
+    ],
+    outro: 'Now watch the window. Somebody will find it within a day or two.',
+  },
 };
 
 // ─── Level 3+ question tier ────────────────────────────────────────────
@@ -453,6 +490,38 @@ export const HABITAT_QUESTIONS_L3: Record<string, QuestQuestion[]> = {
         'It is afraid of the dark',
         'Bark is warmer than sunlight',
         'It needs somewhere quiet to practice counting its legs',
+      ],
+      correctIndex: 0,
+    },
+  ],
+  bird_feeder: [
+    {
+      prompt: 'Chickadees, titmice and nuthatches move through the winter woods together in one flock. What does travelling as a mixed gang buy them?',
+      choices: [
+        'Many more eyes watching for hawks, so each bird can spend longer eating',
+        'They keep each other warm by holding wings',
+        'A bigger flock frightens the trees into dropping seeds',
+        'They take turns carrying the smallest bird',
+      ],
+      correctIndex: 0,
+    },
+    {
+      prompt: 'A chickadee takes ONE seed, flies off to eat it, and comes straight back — while a cardinal sits and eats where it lands. Why the difference?',
+      choices: [
+        'A tiny bird at an open feeder is easy prey, so it grabs and hides; a bigger cardinal can risk staying',
+        'Chickadees can only carry one seed because their beaks are broken',
+        'Cardinals are too lazy to fly',
+        'The chickadee is counting the seeds as it goes',
+      ],
+      correctIndex: 0,
+    },
+    {
+      prompt: 'A male house finch can be bright red or dull orange. The colour comes from what he ate while growing those feathers. Why do females prefer the reddest males?',
+      choices: [
+        'Red means he found the best food — so he is likely a good provider for chicks',
+        'Red is simply the prettiest colour to a bird',
+        'Redder males sing more quietly',
+        'The colour tells her how old he is exactly',
       ],
       correctIndex: 0,
     },

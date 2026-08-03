@@ -80,6 +80,25 @@ export const HABITAT_CATALOG: HabitatTypeData[] = [
     interestTags: ['insects', 'nature', 'patterns'],
   },
   {
+    // The eighth habitat, and the bird curriculum's door into the
+    // world: the ten Louisville birds she learns in the bird hide
+    // arrive HERE. Gated on equal groups because a feeder is one:
+    // four perches with three birds each is the first multiplication
+    // problem she can watch out of a window.
+    code: 'bird_feeder',
+    name: 'Bird Feeder',
+    description: 'A seed feeder on a tall pole, where the neighbourhood birds queue up.',
+    attractsSpeciesCodes: [
+      'northern_cardinal', 'blue_jay', 'mourning_dove', 'carolina_chickadee',
+      'american_robin', 'tufted_titmouse', 'white_breasted_nuthatch',
+      'carolina_wren', 'american_goldfinch', 'house_finch',
+    ],
+    prereqSkillCodes: ['math.multiply.equal_groups'],
+    illustrationKey: 'bird_feeder',
+    emoji: '🐦',
+    interestTags: ['multiply', 'groups', 'counting', 'nature'],
+  },
+  {
     // Math Mountain side-habitat — the cave at the foot of the
     // mountain. Hosts three regrouping/operations skills inside,
     // plus a friendly resident bear who sleeps near the lantern.

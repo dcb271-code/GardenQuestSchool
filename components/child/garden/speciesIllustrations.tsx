@@ -1040,6 +1040,155 @@ export function LunaMoth({ size = 60 }: SpeciesProps) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────
+// THE FEEDER BIRDS
+//
+// Ten species, one drawing.
+//
+// Drawing ten separate songbirds would be ten chances to get a beak
+// wrong, and they genuinely ARE the same shape: every one is a
+// perching passerine seen side-on. What differs is exactly what the
+// bird curriculum teaches her to look at — body colour, breast
+// colour, cap, crest, bill shape, tail length, wing bars, eyebrow.
+// So the traits below are the field marks, and each bird is a row of
+// them. Get the shared shape right once and all ten are right.
+//
+// Built from overlapping solid shapes for the reason the teaching
+// figures were rebuilt that way: a single clever path let the beak
+// float free of the head.
+// ─────────────────────────────────────────────────────────────────────────
+
+interface BirdLook {
+  body: string;          // back, wings, crown
+  belly: string;         // breast and underside
+  bill: string;
+  crest?: boolean;       // cardinal, jay, titmouse
+  cap?: string;          // chickadee, goldfinch, nuthatch — dark crown only
+  bib?: string;          // chickadee's black throat
+  cheek?: string;        // white cheek patch
+  eyebrow?: string;      // the wren's bold white stripe
+  wingBar?: string;      // goldfinch's white bars on black wings
+  wing?: string;         // wing colour if it differs from the body
+  streaks?: string;      // house finch's streaky flanks
+  longTail?: boolean;    // mourning dove
+  cockedTail?: boolean;  // carolina wren
+  stubby?: boolean;      // nuthatch — no neck, almost no tail
+  fatBill?: boolean;     // seed-crackers: cardinal, finches
+}
+
+const BIRD_LOOKS: Record<string, BirdLook> = {
+  northern_cardinal: { body: '#C0392B', belly: '#D4564A', bill: '#E8963C', crest: true, fatBill: true },
+  blue_jay: { body: '#4A7BB5', belly: '#F5EBDC', bill: '#3F3128', crest: true, cheek: '#DCE9F5' },
+  mourning_dove: { body: '#B7A489', belly: '#D8CBB4', bill: '#3F3128', longTail: true },
+  carolina_chickadee: { body: '#9AA0A6', belly: '#F5EBDC', bill: '#3F3128',
+                        cap: '#2E2A26', bib: '#2E2A26', cheek: '#FFFDF2' },
+  american_robin: { body: '#5E5A54', belly: '#D4703A', bill: '#E8C43C' },
+  tufted_titmouse: { body: '#9AA0A6', belly: '#F2E4D4', bill: '#3F3128', crest: true },
+  white_breasted_nuthatch: { body: '#7E93AE', belly: '#FFFDF2', bill: '#3F3128',
+                             cap: '#2E2A26', stubby: true },
+  carolina_wren: { body: '#A56A3C', belly: '#E0BE94', bill: '#5A4632',
+                   eyebrow: '#FFFDF2', cockedTail: true },
+  american_goldfinch: { body: '#E8C93C', belly: '#F2E27A', bill: '#E8963C',
+                        cap: '#2E2A26', wing: '#3A3630', wingBar: '#FFFDF2', fatBill: true },
+  house_finch: { body: '#8C7256', belly: '#E4D6BE', bill: '#8B6938',
+                 cap: '#C0392B', streaks: '#8C7256', fatBill: true },
+};
+
+/**
+ * One perching songbird, facing right, dressed in a species' marks.
+ * Order of drawing is back-to-front: tail, wing-behind, body, belly,
+ * head, marks, bill, eye — so nothing that should sit on top of the
+ * bird ends up behind it.
+ */
+export function FeederBird({ code, size = 60 }: { code: string; size?: number }) {
+  const L = BIRD_LOOKS[code];
+  if (!L) return null;
+  const wing = L.wing ?? L.body;
+  const tailLen = L.longTail ? 46 : L.stubby ? 16 : 30;
+
+  return (
+    <Svg size={size}>
+      <ellipse cx={0} cy={26} rx={19} ry={3} fill="#000" opacity={0.2} />
+
+      {/* TAIL — swept back-left, or cocked up for the wren */}
+      {L.cockedTail ? (
+        <path d="M -13 6 L -30 -22 L -21 -26 L -6 -3 Z"
+              fill={L.body} stroke={STROKE} strokeWidth={1.8} strokeLinejoin="round" />
+      ) : (
+        <path
+          d={`M -12 -2
+              L ${-10 - tailLen} ${10 + tailLen * 0.24}
+              L ${-6 - tailLen} ${16 + tailLen * 0.26}
+              L -10 12 Z`}
+          fill={L.body} stroke={STROKE} strokeWidth={1.8} strokeLinejoin="round"
+        />
+      )}
+
+      {/* BODY */}
+      <ellipse cx={0} cy={6} rx={20} ry={16} fill={L.body} stroke={STROKE} strokeWidth={2} />
+      <ellipse cx={5} cy={9} rx={15} ry={12} fill={L.belly} stroke="none" />
+      {L.streaks && [0, 1, 2].map(i => (
+        <line key={i} x1={-2 + i * 6} y1={4} x2={-3 + i * 6} y2={16}
+              stroke={L.streaks} strokeWidth={1.4} strokeLinecap="round" opacity={0.85} />
+      ))}
+
+      {/* WING, over the body */}
+      <path d="M -4 0 Q -16 4 -14 14 Q -4 16 4 8 Z"
+            fill={wing} stroke={STROKE} strokeWidth={1.6} strokeLinejoin="round" />
+      {L.wingBar && (
+        <>
+          <line x1={-13} y1={7} x2={-3} y2={4} stroke={L.wingBar} strokeWidth={2} strokeLinecap="round" />
+          <line x1={-12} y1={12} x2={-2} y2={9} stroke={L.wingBar} strokeWidth={1.6} strokeLinecap="round" />
+        </>
+      )}
+
+      {/* HEAD — overlapping the body's shoulder */}
+      <circle cx={14} cy={-11} r={L.stubby ? 12 : 11}
+              fill={L.body} stroke={STROKE} strokeWidth={2} />
+      {L.cap && (
+        <path d="M 3 -15 A 11 11 0 0 1 25 -15 A 30 30 0 0 0 3 -15 Z"
+              fill={L.cap} stroke={STROKE} strokeWidth={1.2} />
+      )}
+      {L.cheek && <ellipse cx={12} cy={-8} rx={6} ry={4.4} fill={L.cheek} />}
+      {L.bib && <path d="M 14 -2 q 5 6 10 1 q -4 -4 -10 -4 Z" fill={L.bib} />}
+      {L.eyebrow && (
+        <path d="M 6 -15 q 8 -3 15 -1" stroke={L.eyebrow} strokeWidth={2.4}
+              fill="none" strokeLinecap="round" />
+      )}
+      {/* cardinal's black mask */}
+      {code === 'northern_cardinal' && (
+        <path d="M 18 -12 q 6 -1 8 3 q -5 3 -9 1 Z" fill="#2E2A26" />
+      )}
+
+      {/* CREST — rooted inside the head circle */}
+      {L.crest && (
+        <path d="M 6 -17 Q 8 -32 16 -30 Q 22 -28 23 -17 Q 15 -22 6 -17 Z"
+              fill={L.cap ?? L.body} stroke={STROKE} strokeWidth={1.5} strokeLinejoin="round" />
+      )}
+
+      {/* BILL — base buried in the head, character at the tip */}
+      {L.fatBill ? (
+        <path d="M 23 -14 L 36 -10 L 23 -6 Z"
+              fill={L.bill} stroke={STROKE} strokeWidth={1.4} strokeLinejoin="round" />
+      ) : (
+        <path d="M 23 -13 L 37 -10.5 L 37 -8.5 L 23 -7 Z"
+              fill={L.bill} stroke={STROKE} strokeWidth={1.3} strokeLinejoin="round" />
+      )}
+
+      {/* EYE */}
+      <circle cx={17} cy={-13} r={2.4} fill="#2E2A26" />
+      <circle cx={17.8} cy={-13.8} r={0.8} fill="#FFFDF2" />
+
+      {/* LEGS */}
+      <line x1={2} y1={21} x2={2} y2={26} stroke={STROKE} strokeWidth={2} strokeLinecap="round" />
+      <line x1={10} y1={21} x2={10} y2={26} stroke={STROKE} strokeWidth={2} strokeLinecap="round" />
+    </Svg>
+  );
+}
+
+/** Which species the shared songbird drawing can dress. */
+export const FEEDER_BIRD_CODES = Object.keys(BIRD_LOOKS);
+
+// ─────────────────────────────────────────────────────────────────────────
 // ROUTER
 // ─────────────────────────────────────────────────────────────────────────
 
@@ -1065,6 +1214,13 @@ export function SpeciesIllustration({
     case 'painted_turtle':     return <PaintedTurtle size={size} />;
     case 'spotted_salamander': return <SpottedSalamander size={size} />;
     case 'luna_moth':          return <LunaMoth size={size} />;
-    default:                return null;
+    default:
+      // The ten feeder birds share one parameterised drawing — see
+      // FeederBird. Anything else must still resolve to NULL, not to
+      // an element that renders nothing: every caller does
+      // `SpeciesIllustration(...) ?? <emoji>`, and an empty element is
+      // truthy, so returning one would silently blank out the fallback
+      // for an uncatalogued species.
+      return code in BIRD_LOOKS ? <FeederBird code={code} size={size} /> : null;
   }
 }
