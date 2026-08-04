@@ -1,7 +1,7 @@
 // tests/world/birdLifeList.test.ts
 import { describe, it, expect } from 'vitest';
 import {
-  recordSighting, lifeListRows, lifeListCount, rarityLabel, friendlyDate,
+  recordSighting, lifeListRows, lifeListCount, rarityLabel, friendlyDate, sightingFact,
   type LifeList,
 } from '@/lib/birds/lifeList';
 import { BIRD_CATALOG, getBird } from '@/lib/world/birdCatalog';
@@ -113,6 +113,34 @@ describe('rarityLabel', () => {
   it('gives every catalogued bird a label', () => {
     for (const b of BIRD_CATALOG) {
       expect(rarityLabel(b).length, b.code).toBeGreaterThan(3);
+    }
+  });
+});
+
+describe('sightingFact', () => {
+  it('never hands back the fact the lesson already taught', () => {
+    // The teach pages lead with facts[0]. Seeing a real bird should
+    // reward her with something she does not already know.
+    for (const b of BIRD_CATALOG) {
+      if (b.facts.length < 2) continue;
+      expect(sightingFact(b, 1), b.code).not.toBe(b.facts[0]);
+    }
+  });
+
+  it('gives a different fact on a repeat sighting, then wraps', () => {
+    const cardinal = getBird('northern_cardinal')!;   // 3 facts
+    const first = sightingFact(cardinal, 1);
+    const second = sightingFact(cardinal, 2);
+    expect(second).not.toBe(first);
+    // Wraps back round rather than running out.
+    expect(sightingFact(cardinal, 3)).toBe(first);
+  });
+
+  it('always returns something, whatever the count', () => {
+    for (const b of BIRD_CATALOG) {
+      for (const n of [1, 2, 5, 40]) {
+        expect(sightingFact(b, n).length, `${b.code}/${n}`).toBeGreaterThan(10);
+      }
     }
   });
 });

@@ -26,8 +26,10 @@ import {
   resolveClip, birdsWithAudio, type AudioIndex, type ResolvedClip,
 } from '@/lib/birds/audioResolve';
 import {
-  lifeListRows, lifeListCount, rarityLabel, friendlyDate, type LifeList,
+  lifeListRows, lifeListCount, rarityLabel, friendlyDate, sightingFact,
+  type LifeList, type LifeListEntry,
 } from '@/lib/birds/lifeList';
+import { playArrival, playSparkle } from '@/lib/audio/sfx';
 import { dueUnits, badgeFor, BADGE_MARK, todayKey, type ReviewMap } from '@/lib/learning/review';
 import { SizeLadder, BillChart, FourKeys } from '@/components/child/birds/birdVisuals';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
@@ -55,7 +57,9 @@ export default function BirdScene({ learnerId }: { learnerId: string }) {
   const [audio, setAudio] = useState<AudioIndex>({});
   const [lifelist, setLifelist] = useState<LifeList>({});
   const [logging, setLogging] = useState<string | null>(null);
-  const [justLogged, setJustLogged] = useState<{ code: string; gem: boolean } | null>(null);
+  const [celebration, setCelebration] = useState<
+    { code: string; gem: boolean; entry: LifeListEntry } | null
+  >(null);
   const [loaded, setLoaded] = useState(false);
 
   const [phase, setPhase] = useState<Phase>('menu');
@@ -209,8 +213,12 @@ export default function BirdScene({ learnerId }: { learnerId: string }) {
       });
       const d = await res.json();
       if (d.lifelist) setLifelist(d.lifelist);
-      setJustLogged({ code: birdCode, gem: !!d.gemGranted });
-      window.setTimeout(() => setJustLogged(null), 3200);
+      // The moment worth making a fuss of: she saw a real bird.
+      if (d.entry) {
+        setCelebration({ code: birdCode, gem: !!d.gemGranted, entry: d.entry });
+        playArrival();
+        window.setTimeout(() => playSparkle(), 420);
+      }
     } catch {
       // Silent: the list is a record, not a transaction. She can tap
       // again, and a lost tap must never become an error modal
@@ -326,6 +334,96 @@ export default function BirdScene({ learnerId }: { learnerId: string }) {
     );
   }
 
+  // ── THE SIGHTING CELEBRATION ────────────────────────────────────
+  //
+  // She saw a real bird, outside, with her own eyes. That is the thing
+  // the whole module exists to cause, and it was being marked with a
+  // four-word line that faded after three seconds.
+  //
+  // So: her photograph of it back, full width; the bird's actual voice,
+  // played automatically — the sound she may have just heard through a
+  // window; a fact she has NOT been told before (the teach pages lead
+  // with facts[0], so a sighting hands back the next one); and the
+  // arrival chime the garden already uses when a creature moves in.
+  const CelebrationCard = () => {
+    if (!celebration) return null;
+    const bird = getBird(celebration.code);
+    if (!bird) return null;
+    const pic = resolvePhoto(photos, bird.code, 'perched');
+    const clip = resolveClip(audio, bird.code, 'call')
+      ?? resolveClip(audio, bird.code, 'song')
+      ?? resolveClip(audio, bird.code, 'flight_call');
+    const n = celebration.entry.count;
+
+    return (
+      <div
+        className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        style={{ background: 'rgba(63,38,20,0.55)' }}
+        onClick={() => setCelebration(null)}
+        role="dialog"
+        aria-label={`You saw a ${bird.commonName}`}
+      >
+        <motion.div
+          onClick={e => e.stopPropagation()}
+          initial={reduced ? undefined : { scale: 0.9, opacity: 0, y: 12 }}
+          animate={reduced ? undefined : { scale: 1, opacity: 1, y: 0 }}
+          transition={{ type: 'spring', stiffness: 240, damping: 20 }}
+          className="rounded-2xl overflow-hidden w-full"
+          style={{ background: '#fffaf2', border: '2px solid #6b8e5a', maxWidth: 420 }}
+        >
+          <div className="px-4 pt-4 pb-2 text-center">
+            <div className="text-3xl" aria-hidden>🎉</div>
+            <h2 className="font-bold text-lg mt-1" style={{ color: '#3f2614' }}>
+              {n === 1 ? `You found a ${bird.commonName}!` : `The ${bird.commonName} again!`}
+            </h2>
+            <p className="text-xs mt-0.5" style={{ color: '#6b6255' }}>
+              {n === 1
+                ? `Number ${lifeListCount(lifelist)} on your life list`
+                : `You have seen this one ${n} times now`}
+            </p>
+          </div>
+
+          {pic && (
+            <img
+              src={pic.url} alt={pic.alt}
+              className="w-full object-contain"
+              style={{ height: 190, background: '#efe9dc' }}
+            />
+          )}
+
+          <div className="px-4 py-3">
+            {clip && (
+              <div className="mb-3">
+                <ClipPlayer clip={clip} label={`hear it again`} autoPlay />
+              </div>
+            )}
+            <div className="rounded-xl p-3"
+                 style={{ background: 'rgba(214,158,74,0.16)', border: '1px solid #d69e4a' }}>
+              <div className="text-xs font-bold mb-0.5" style={{ color: '#6b6255' }}>
+                did you know?
+              </div>
+              <p className="text-sm leading-relaxed" style={{ color: '#3f2614' }}>
+                {sightingFact(bird, n)}
+              </p>
+            </div>
+            {celebration.gem && (
+              <p className="text-sm font-bold text-center mt-3" style={{ color: '#6b8e5a' }}>
+                💎 a noticing gem — for spotting it yourself
+              </p>
+            )}
+            <button
+              onClick={() => setCelebration(null)}
+              className="w-full mt-3 rounded-xl px-4 font-bold text-sm"
+              style={{ background: '#6b8e5a', color: '#fffaf2', minHeight: 48 }}
+            >
+              back to my list
+            </button>
+          </div>
+        </motion.div>
+      </div>
+    );
+  };
+
   // ── LIFE LIST ───────────────────────────────────────────────────
   //
   // The point of the whole module: a record of birds she has really
@@ -353,7 +451,6 @@ export default function BirdScene({ learnerId }: { learnerId: string }) {
           {rows.map(({ bird, entry }) => {
             const pic = resolvePhoto(photos, bird.code, 'perched');
             const isLogging = logging === bird.code;
-            const flash = justLogged?.code === bird.code;
             return (
               <div
                 key={bird.code}
@@ -391,11 +488,6 @@ export default function BirdScene({ learnerId }: { learnerId: string }) {
                       “{entry.note}”
                     </div>
                   )}
-                  {flash && (
-                    <div className="text-xs font-bold mt-0.5" style={{ color: '#6b8e5a' }}>
-                      {justLogged?.gem ? '💎 a noticing gem!' : 'added to your list'}
-                    </div>
-                  )}
                 </div>
 
                 <button
@@ -424,6 +516,8 @@ export default function BirdScene({ learnerId }: { learnerId: string }) {
         >
           back to the list
         </button>
+
+        <CelebrationCard />
       </Shell>
     );
   }
@@ -669,8 +763,12 @@ function PhotoCard({ photo, tall = false }: { photo: ResolvedPhoto; tall?: boole
 /** Exported for tests/components/BirdClipPlayer.test.tsx — the
  *  wrong-bird bug lives entirely in this component's DOM behaviour and
  *  cannot be reached through the scene. */
-export function ClipPlayer({ clip, label = 'play the sound' }: {
+export function ClipPlayer({ clip, label = 'play the sound', autoPlay = false }: {
   clip: ResolvedClip; label?: string;
+  /** Play as soon as it is ready — used by the sighting celebration,
+   *  where hearing the bird you just saw IS the reward. Safe under
+   *  iOS autoplay policy: it only ever mounts from a tap. */
+  autoPlay?: boolean;
 }) {
   const ref = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(false);
@@ -699,7 +797,12 @@ export function ClipPlayer({ clip, label = 'play the sound' }: {
     a.pause();
     setPlaying(false);
     a.load();
-  }, [clip.url, clip.fallbackUrl]);
+    if (autoPlay) {
+      // Let the arrival chime land first, then the bird.
+      const t = window.setTimeout(() => { a.play().catch(() => {}); }, 900);
+      return () => window.clearTimeout(t);
+    }
+  }, [clip.url, clip.fallbackUrl, autoPlay]);
 
   const play = () => {
     const a = ref.current;

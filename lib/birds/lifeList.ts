@@ -126,6 +126,22 @@ export function rarityLabel(bird: BirdData): string {
   return 'a rare one';
 }
 
+/**
+ * A fact she has not been given yet for this bird.
+ *
+ * Every bird carries three, and the curriculum's teach pages lead with
+ * the first — so a sighting hands back the SECOND on the first
+ * sighting, the third on the next, then wraps. The reward for seeing a
+ * real bird should be something she did not already know, not the line
+ * the lesson opened with.
+ */
+export function sightingFact(bird: BirdData, count: number): string {
+  if (bird.facts.length === 0) return bird.colourHook;
+  // count is 1 on the first sighting; skip facts[0], the taught one.
+  const idx = bird.facts.length === 1 ? 0 : 1 + ((count - 1) % (bird.facts.length - 1));
+  return bird.facts[idx] ?? bird.facts[0];
+}
+
 /** '2026-08-02' → '2 Aug'. A date a child reads, not a timestamp. */
 export function friendlyDate(iso: string): string {
   const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
