@@ -2969,12 +2969,34 @@ export async function seedMath(
     .filter(([c]) => c.startsWith('math.'))
     .map(([, id]) => id);
 
-  // SEED_ADDITIVE=1: only insert items for skills that currently have
-  // NO seed items (i.e. newly added skills). Skips the wipe entirely —
-  // the full wipe deletes learners' attempts on prior seed items,
-  // which resets attempt-derived progress (garden structure counts).
-  // Use additive mode when shipping new skills to a live database.
-  if (process.env.SEED_ADDITIVE === '1') {
+/**
+ * Replacing seed items WITHOUT destroying the learner's history.
+ *
+ * This function used to delete every attempt row that pointed at a
+ * prior seed item, and it was destructive BY DEFAULT — SEED_ADDITIVE=1
+ * was the opt-in to safety. Running `npm run db:seed` on the live
+ * database to pick up a new habitat wiped 1,623 of Cecily's correct
+ * answers and 338 of Esme's, closing every garden bed they had earned,
+ * because bed unlocks are derived from lifetime correct attempts.
+ *
+ * Two changes, and the second is the one that matters:
+ *
+ *   1. Safe is now the DEFAULT. The wipe requires SEED_WIPE_ITEMS=1.
+ *   2. Even then, attempts are never deleted — their item_id is set to
+ *      NULL instead. The row survives, so lifetime-correct (which
+ *      counts learner_id + outcome only) is untouched, while queries
+ *      that walk attempt → item → skill skip null-item rows exactly as
+ *      they already do for music, bird and Japanese practice.
+ *
+ * Per-skill attribution for those old attempts is lost either way when
+ * items are replaced — but mastery lives in skill_progress, which is
+ * not touched, and losing attribution is not remotely the same as
+ * losing a seven-year-old's year of work.
+ */
+  // Additive is the default: only insert items for skills that have NO
+  // seed items yet. SEED_WIPE_ITEMS=1 opts in to replacing existing
+  // ones, which is only needed when authored item CONTENT changed.
+  if (process.env.SEED_WIPE_ITEMS !== '1') {
     const seeded = new Set<string>();
     const PAGE = 1000;
     for (let from = 0; ; from += PAGE) {
@@ -2987,8 +3009,9 @@ export async function seedMath(
       if (data.length < PAGE) break;
     }
     rows = rows.filter(r => !seeded.has(r.skill_id));
-    console.log(`  → math (additive): ${rows.length} items for previously-unseeded skills`);
+    console.log(`  → math (additive, safe): ${rows.length} items for previously-unseeded skills`);
   } else if (mathSkillIds.length > 0) {
+    console.warn('  ! SEED_WIPE_ITEMS=1 — replacing math items; attempts will be detached, not deleted');
     // Paginate — Supabase caps SELECT at 1000 rows by default.
     const PAGE = 1000;
     const priorIds: string[] = [];
@@ -3009,7 +3032,11 @@ export async function seedMath(
       const DELETE_BATCH = 50;
       for (let i = 0; i < priorIds.length; i += DELETE_BATCH) {
         const batch = priorIds.slice(i, i + DELETE_BATCH);
-        const { error: aErr } = await sb.from('attempt').delete().in('item_id', batch);
+        // NEVER delete a learner's attempts. Detach them instead: the
+        // row (and therefore their lifetime-correct count, and every
+        // garden bed derived from it) survives.
+        const { error: aErr } = await sb.from('attempt')
+          .update({ item_id: null }).in('item_id', batch);
         if (aErr) throw aErr;
       }
       for (let i = 0; i < priorIds.length; i += DELETE_BATCH) {

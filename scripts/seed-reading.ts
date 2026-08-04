@@ -1275,11 +1275,14 @@ export async function seedReading(
     .map(s => skillIdByCode.get(s.code))
     .filter((x): x is string => !!x);
 
-  // SEED_ADDITIVE=1: only insert items for skills with NO existing
-  // seed items, and skip the wipe — the full wipe deletes learners'
-  // attempts on prior seed items, resetting attempt-derived garden
-  // progress. Use additive mode when shipping new skills to a live DB.
-  const additive = process.env.SEED_ADDITIVE === '1';
+  // Additive is the DEFAULT — see the long note in seed-math.ts. The
+  // wipe was destructive by default and cost two children their whole
+  // attempt history on a routine re-seed. SEED_WIPE_ITEMS=1 opts in,
+  // and even then attempts are detached rather than deleted.
+  const additive = process.env.SEED_WIPE_ITEMS !== '1';
+  if (!additive) {
+    console.warn('  ! SEED_WIPE_ITEMS=1 — replacing reading items; attempts will be detached, not deleted');
+  }
   const alreadySeeded = new Set<string>();
   if (additive && readingSkillIds.length > 0) {
     const PAGE = 1000;
@@ -1313,7 +1316,11 @@ export async function seedReading(
       const DELETE_BATCH = 50;
       for (let i = 0; i < priorIds.length; i += DELETE_BATCH) {
         const batch = priorIds.slice(i, i + DELETE_BATCH);
-        const { error: aErr } = await sb.from('attempt').delete().in('item_id', batch);
+        // NEVER delete a learner's attempts. Detach them instead: the
+        // row (and therefore their lifetime-correct count, and every
+        // garden bed derived from it) survives.
+        const { error: aErr } = await sb.from('attempt')
+          .update({ item_id: null }).in('item_id', batch);
         if (aErr) throw aErr;
       }
       for (let i = 0; i < priorIds.length; i += DELETE_BATCH) {
