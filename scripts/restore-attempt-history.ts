@@ -81,9 +81,126 @@ async function countCorrect(
   return count ?? 0;
 }
 
+/**
+ * Second pass: give the restored rows their SKILL back.
+ *
+ * Restoring the count reopened the gardens, but every restored row is
+ * item-less, and per-skill progress is read through attempt → item →
+ * skill. So the map's "7/10" badges, the ✓ at 20 correct and the ⭐ at
+ * 30 all read zero: her mastery was intact but the mountain looked
+ * untouched.
+ *
+ * `session.skill_planned` records which skill each session was for,
+ * and it covers every correct answer, so the attribution is evidence
+ * rather than guesswork. What CANNOT be recovered is which individual
+ * item she answered — those rows are gone and their items were
+ * replaced. Each restored row is therefore pointed at a real, current
+ * item of the right skill: truthful at the skill level, which is what
+ * is displayed, and approximate below it.
+ *
+ * Spreading across several items per skill is cosmetic rather than
+ * load-bearing — item selection orders by `usage_count` and excludes
+ * only items already served in the current session, so nothing reads
+ * per-item attempt history — but a run of identical rows would be a
+ * lie of a different kind.
+ */
+const ITEMS_PER_SKILL = 8;
+
+async function attribute(db: SupabaseClient, learner: Learner, write: boolean) {
+  // What each skill SHOULD have, from the sessions.
+  const target = new Map<string, number>();
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await db.from('session')
+      .select('skill_planned, items_correct')
+      .eq('learner_id', learner.id).range(from, from + 999);
+    if (error) throw new Error(error.message);
+    if (!data || data.length === 0) break;
+    for (const s of data) {
+      const code = s.skill_planned as string | null;
+      if (!code) continue;
+      target.set(code, (target.get(code) ?? 0) + (Number(s.items_correct) || 0));
+    }
+    if (data.length < 1000) break;
+  }
+
+  // What each skill HAS right now.
+  const current = new Map<string, number>();
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await db.from('attempt')
+      .select('item:item_id(skill:skill_id(code))')
+      .eq('learner_id', learner.id).eq('outcome', 'correct')
+      .not('item_id', 'is', null).range(from, from + 999);
+    if (error) throw new Error(error.message);
+    if (!data || data.length === 0) break;
+    for (const r of data as Array<{ item?: { skill?: { code?: string } } }>) {
+      const code = r.item?.skill?.code;
+      if (code) current.set(code, (current.get(code) ?? 0) + 1);
+    }
+    if (data.length < 1000) break;
+  }
+
+  // The restored rows still waiting for a skill.
+  const pool: string[] = [];
+  for (let from = 0; ; from += 1000) {
+    const { data, error } = await db.from('attempt')
+      .select('id').eq('learner_id', learner.id).is('item_id', null)
+      .contains('response', { source: MARKER }).range(from, from + 999);
+    if (error) throw new Error(error.message);
+    if (!data || data.length === 0) break;
+    pool.push(...data.map(r => String(r.id)));
+    if (data.length < 1000) break;
+  }
+
+  const needs = Array.from(target.entries())
+    .map(([code, want]) => ({ code, need: Math.max(0, want - (current.get(code) ?? 0)) }))
+    .filter(n => n.need > 0)
+    .sort((a, b) => b.need - a.need);
+  const totalNeed = needs.reduce((n, x) => n + x.need, 0);
+
+  console.log(`\n${learner.label} — attribution`);
+  console.log(`  skills named by sessions        : ${target.size}`);
+  console.log(`  skills with a count already     : ${current.size}`);
+  console.log(`  attributions missing            : ${totalNeed}`);
+  console.log(`  unattributed restored rows      : ${pool.length}`);
+  if (totalNeed === 0 || pool.length === 0) { console.log('  → nothing to do'); return; }
+  if (totalNeed > pool.length) {
+    console.log(`  ! only ${pool.length} rows available; the largest skills get them first`);
+  }
+  if (!write) { console.log('  → dry run; pass --write to apply'); return; }
+
+  let cursor = 0, updated = 0;
+  for (const { code, need } of needs) {
+    if (cursor >= pool.length) break;
+    const { data: skillRow } = await db.from('skill').select('id').eq('code', code).maybeSingle();
+    if (!skillRow) { console.warn(`  ! unknown skill ${code}, skipping`); continue; }
+    const { data: items } = await db.from('item')
+      .select('id').eq('skill_id', skillRow.id).limit(ITEMS_PER_SKILL);
+    if (!items?.length) { console.warn(`  ! no items for ${code}, skipping`); continue; }
+
+    const take = Math.min(need, pool.length - cursor);
+    const slice = pool.slice(cursor, cursor + take);
+    cursor += take;
+
+    // Round-robin the rows across this skill's items, then one update
+    // per item rather than one per row.
+    const byItem = new Map<string, string[]>();
+    slice.forEach((rowId, i) => {
+      const itemId = String(items[i % items.length].id);
+      (byItem.get(itemId) ?? byItem.set(itemId, []).get(itemId)!).push(rowId);
+    });
+    for (const [itemId, rowIds] of Array.from(byItem.entries())) {
+      const { error } = await db.from('attempt').update({ item_id: itemId }).in('id', rowIds);
+      if (error) { console.error(`  ! ${code}: ${error.message}`); continue; }
+      updated += rowIds.length;
+    }
+  }
+  console.log(`  ✓ attributed ${updated} row(s) across ${needs.length} skill(s)`);
+}
+
 async function main() {
   const write = process.argv.includes('--write');
   const undo = process.argv.includes('--undo');
+  const attributeOnly = process.argv.includes('--attribute');
 
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
@@ -94,6 +211,8 @@ async function main() {
   const db = createClient(url, key, { auth: { persistSession: false } });
 
   for (const learner of await learners(db)) {
+    if (attributeOnly && !undo) { await attribute(db, learner, write); continue; }
+
     const alreadyRestored = await countCorrect(db, learner.id, { restored: true });
 
     if (undo) {
