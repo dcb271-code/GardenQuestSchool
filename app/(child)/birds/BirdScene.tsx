@@ -666,11 +666,40 @@ function PhotoCard({ photo, tall = false }: { photo: ResolvedPhoto; tall?: boole
  * iOS autoplay is already handled by AudioUnlocker in the root layout;
  * do not add a second unlock mechanism here.
  */
-function ClipPlayer({ clip, label = 'play the sound' }: {
+/** Exported for tests/components/BirdClipPlayer.test.tsx — the
+ *  wrong-bird bug lives entirely in this component's DOM behaviour and
+ *  cannot be reached through the scene. */
+export function ClipPlayer({ clip, label = 'play the sound' }: {
   clip: ResolvedClip; label?: string;
 }) {
   const ref = useRef<HTMLAudioElement>(null);
   const [playing, setPlaying] = useState(false);
+
+  /**
+   * Re-run resource selection when the clip changes. This is not
+   * optional bookkeeping — without it the wrong bird plays.
+   *
+   * A <source> child is only consulted during the media element's
+   * resource selection algorithm, which runs ONCE. React reuses this
+   * same <audio> DOM node from one question to the next (same
+   * component, same position) and merely swaps the src attribute on
+   * the <source> children, which the already-loaded element ignores
+   * completely. So the first clip a unit loaded kept playing for
+   * every question after it: reported from the device as the mourning
+   * dove cooing again when the question asked about the robin.
+   *
+   * Setting src directly on <audio> would avoid this, but the m4a
+   * fallback needs the <source> list — older Safari cannot play the
+   * opus. So: load() explicitly, here, where every call site inherits
+   * it rather than having to remember a key prop.
+   */
+  useEffect(() => {
+    const a = ref.current;
+    if (!a) return;
+    a.pause();
+    setPlaying(false);
+    a.load();
+  }, [clip.url, clip.fallbackUrl]);
 
   const play = () => {
     const a = ref.current;
