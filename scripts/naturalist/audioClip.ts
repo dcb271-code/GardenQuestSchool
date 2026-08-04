@@ -140,14 +140,26 @@ export async function cutOpus(src: string, startSec: number, out: string): Promi
  * sound to spectrogram (a whistle is one clean line, a nasal note is
  * stacked lines).
  */
+/**
+ * The display settings, and why each one is there.
+ *
+ * `fscale=log` is the load-bearing one. On a linear scale the birds do
+ * not fit on one picture: a Mourning Dove coos near 500 Hz and a
+ * Carolina Chickadee whistles near 6 kHz, so any linear range that
+ * shows the chickadee squashes the dove into the bottom few pixels —
+ * which is exactly what the first version did, leaving the dove's
+ * spectrogram a blank purple rectangle. A log scale is also what
+ * Cornell uses, for the same reason.
+ *
+ * `drange=70` drops the noise floor to black instead of the red wash
+ * that made every clip look identical, and `gain=2` lifts what is
+ * left so a quiet chickadee still reads. `start=350` trims rumble
+ * below anything here sings; 12 kHz leaves headroom above the highest
+ * whistles so a note is never clipped at the top edge.
+ */
+const SPECTRUM =
+  'showspectrumpic=s=640x256:legend=0:fscale=log:start=350:stop=12000:drange=70:gain=2';
+
 export async function spectrogram(clip: string, outPng: string): Promise<void> {
-  await run('ffmpeg', [
-    '-y', '-v', 'error',
-    '-i', clip,
-    // stop=12000 crops the display to where birds actually vocalise —
-    // full-range wastes the top half of the image on empty ultrasound,
-    // and the whole point is that a whistle reads as one clean line.
-    '-lavfi', 'showspectrumpic=s=640x256:legend=0:stop=12000',
-    outPng,
-  ]);
+  await run('ffmpeg', ['-y', '-v', 'error', '-i', clip, '-lavfi', SPECTRUM, outPng]);
 }

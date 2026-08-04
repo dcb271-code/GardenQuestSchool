@@ -95,4 +95,19 @@ describe('ClipPlayer', () => {
     expect(container.querySelector('img')?.getAttribute('src')).toContain('.png');
     expect(getByTitle(/A Recordist/)).toBeTruthy();
   });
+
+  it('never crops the spectrogram — its vertical axis is frequency', () => {
+    // Reported from the device: "the sound visual image is cut off
+    // showing only the top portion, so often pretty useless." It was
+    // pinned to 84px with object-fit: cover against a 640x256 image,
+    // discarding ~46% of it. On a photo a crop loses scenery; on a
+    // spectrogram it loses NOTES, which is the entire content.
+    const { container } = render(<ClipPlayer clip={clip('carolina_wren')} />);
+    const img = container.querySelector('img') as HTMLImageElement;
+    expect(img.style.objectFit, 'cover crops the sound picture').not.toBe('cover');
+    expect(img.style.objectFit).toBe('contain');
+    // And no fixed height fighting the aspect ratio.
+    expect(img.style.height).toBe('');
+    expect(img.style.aspectRatio).toBeTruthy();
+  });
 });

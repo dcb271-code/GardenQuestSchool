@@ -22,6 +22,7 @@
     "birds:audition": "tsx scripts/audition-bird-audio.ts",
     "birds:audio-validate": "tsx scripts/upload-bird-audio.ts --validate-only",
     "birds:audio-upload": "tsx scripts/upload-bird-audio.ts",
+    "birds:respectrogram": "tsx scripts/regen-bird-spectrograms.ts",
     "naturalist:harvest": "tsx scripts/seed-flora-photos.ts",
     "naturalist:auto-curate": "tsx scripts/auto-curate-flora-photos.ts",
     "naturalist:validate": "tsx scripts/validate-flora-selections.ts",

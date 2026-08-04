@@ -732,11 +732,20 @@ export function ClipPlayer({ clip, label = 'play the sound' }: {
       {clip.spectrogramUrl && (
         <div className="relative">
           {/* eslint-disable-next-line @next/next/no-img-element */}
+          {/* NEVER crop a spectrogram.
+              Its vertical axis is FREQUENCY, so a crop does not trim
+              scenery the way it would on a photo — it deletes notes.
+              This was pinned to 84px with object-fit: cover, which threw
+              away nearly half the picture and left mostly the empty band
+              above the bird, making the one visual the sound has useless.
+              aspect-ratio reserves the space so the layout doesn't jump
+              while it loads; contain guarantees the whole thing shows
+              even if a future spectrogram is a different size. */}
           <img
             src={clip.spectrogramUrl}
-            alt="a picture of the sound — brighter shapes are louder notes"
+            alt="a picture of the sound — height is how high the note is, brighter is louder"
             className="w-full block"
-            style={{ height: 84, objectFit: 'cover' }}
+            style={{ aspectRatio: '640 / 256', objectFit: 'contain' }}
             loading="lazy"
           />
           <span
