@@ -140,11 +140,21 @@ function LunaAdventureInner() {
     }
   };
 
+  /**
+   * Close the book — and, if there is another chapter, open it.
+   *
+   * The server advances `episode` when a next one exists. It used to
+   * send her to the garden regardless, which meant a child who had
+   * just finished a chapter was returned to the map with no hint that
+   * the story had grown: she would have to guess to tap Luna again.
+   * When a new chapter is waiting we stay put and start it.
+   */
   const completeEpisode = async () => {
     try {
       const { state: s } = await post({ type: 'complete-episode' });
+      const movedOn = !!state && s.episode > state.episode;
       setState(s);
-      router.push(`/garden?learner=${learnerId}`);
+      if (!movedOn) router.push(`/garden?learner=${learnerId}`);
     } catch { setPhase('error'); }
   };
 
@@ -204,7 +214,11 @@ function LunaAdventureInner() {
                 <StoryScene
                   text={scene.text} art={scene.art}
                   onContinue={completeEpisode}
-                  continueLabel="close the book"
+                  continueLabel={
+                    state && getEpisode(state.episode + 1)
+                      ? 'the next chapter →'
+                      : 'close the book'
+                  }
                 />
               )}
               {scene.kind === 'choice' && (

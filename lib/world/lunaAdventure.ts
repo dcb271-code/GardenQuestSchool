@@ -169,4 +169,124 @@ export const LUNA_EPISODES: LunaEpisode[] = [
       },
     ],
   },
+
+  // ─────────────────────────────────────────────────────────────────
+  // Episode 2 — written for Esme.
+  //
+  // She finished episode 1 in full, made her choices, passed both
+  // gates, and then the story simply stopped, because there was only
+  // ever one chapter. This is the sequel, and it is built on the last
+  // image of the first: the moths that came to the moonflower.
+  //
+  // The natural history is real and is the point. A Luna Moth has no
+  // mouth — it lives about a week on what it stored as a caterpillar —
+  // so every hour it spends circling a porch lamp is an hour it does
+  // not spend finding another moth. Turning the light off genuinely
+  // helps. Both facts come straight from SPECIES_CATALOG's luna_moth
+  // entry, so the story cannot drift from what the field journal says.
+  //
+  // Which is also why the moth never feeds at the end. It would be the
+  // obvious warm ending and it would contradict the thing the episode
+  // just taught her.
+  //
+  // Gate order is reading-then-maths, the mirror of episode 1, so the
+  // shape does not feel copied.
+  {
+    episode: 2,
+    title: 'Luna and the Light That Told Lies',
+    scenes: [
+      {
+        kind: 'narration',
+        id: 'ep2_open',
+        text: 'The moonflower still opens every night, wide and white, exactly as it promised. Tonight there is something else in the garden. Something big and pale green, with long trailing tails like ribbons, going round and round the porch lantern. Bump. Bump. Bump.',
+        art: { type: 'emoji', emoji: '🏮' },
+      },
+      {
+        kind: 'narration',
+        id: 'ep2_moth',
+        text: 'It is a moth, and it is enormous — as big as your whole hand. Luna sits very still on the step with her tail wrapped round her paws, which is what she does when something matters. The moth bumps the hot glass again. It looks so tired.',
+        art: { type: 'species', code: 'luna_moth' },
+      },
+      {
+        kind: 'choice',
+        id: 'ep2_first_move',
+        prompt: 'The moth keeps circling. What do you do first?',
+        art: { type: 'luna' },
+        options: [
+          {
+            id: 'watch',
+            label: 'Sit still and watch it',
+            emoji: '👀',
+            responseText: 'You sit down on the cold step beside Luna and just watch. That is a real thing naturalists do, and it is harder than it sounds. You notice the tails on its wings curl like ribbon when it turns.',
+          },
+          {
+            id: 'bachan',
+            label: 'Fetch Bachan',
+            emoji: '👵',
+            responseText: 'Bachan comes out in her slippers without a single question, because she has known you a long time. She looks up at the moth for a while. "Ah," she says softly. "One of the green ones. Wait here."',
+          },
+        ],
+      },
+      {
+        kind: 'gate',
+        id: 'ep2_gate_reading',
+        inviteText: 'Bachan brings out her old field guide, the fat one with the cracked spine, and opens it across both your knees. There is a page with this exact moth on it — pale green, long tails, drawn by hand. But the words are long ones. "Read it to me," she says. "My eyes are tired." (They are not tired. She wants you to read it.)',
+        art: { type: 'emoji', emoji: '📖' },
+        focusSubject: 'reading',
+        afterText: 'You get to the end of the page, and it says something so strange you read it twice. A Luna Moth has NO MOUTH. Not a small one — none at all. It eats nothing its whole life as a moth. It lives about one week on food it saved up while it was a caterpillar, and it spends that week looking for another moth.',
+      },
+      {
+        kind: 'narration',
+        id: 'ep2_realise',
+        text: 'One week. And this one is spending it going round and round a lantern. Bachan says the thing you were already thinking: "It steers by the moon. That is the map it was born knowing. Our lamp is telling it lies."',
+        art: { type: 'emoji', emoji: '🌙' },
+      },
+      {
+        kind: 'choice',
+        id: 'ep2_light',
+        prompt: 'The lantern is telling the moth lies. What do you do about it?',
+        art: { type: 'emoji', emoji: '🏮' },
+        options: [
+          {
+            id: 'switch',
+            label: 'Turn the lantern off',
+            emoji: '🔌',
+            responseText: 'You reach up and click the switch. The porch goes dark, and for a moment you cannot see anything at all — then your eyes catch up, and the whole garden is there in silver.',
+          },
+          {
+            id: 'cover',
+            label: 'Cover it with Bachan’s cloth',
+            emoji: '🧣',
+            responseText: 'Bachan hands you the indigo cloth from the back of her chair and you drape it over the lantern. The light goes soft and low and blue, like a lamp under deep water, and the garden fills up with dark.',
+          },
+        ],
+      },
+      {
+        kind: 'gate',
+        id: 'ep2_gate_math',
+        inviteText: 'One lamp is not enough. Bachan looks along the row of houses. "Every light out here is another lie," she says. "Come. We count them, and we knock on doors, and we ask." Counting in the dark, house by house — that is a job for good, careful numbers.',
+        art: { type: 'emoji', emoji: '🔢' },
+        focusSubject: 'math',
+        afterText: 'Six lamps. Four neighbours who say yes straight away, one who is out, and Mr. Pell next door who says "for a moth?" and then turns his off anyway. The street goes quiet and dim, one window at a time.',
+      },
+      {
+        kind: 'narration',
+        id: 'ep2_dark',
+        text: 'With the lights gone the moon comes out properly, the way it can only do in the dark. The moonflower glows like something switched on. And the green moth stops circling. It hangs in the air, completely still, as if it is listening.',
+        art: { type: 'emoji', emoji: '🌸' },
+      },
+      {
+        kind: 'narration',
+        id: 'ep2_rise',
+        text: 'Then it climbs. Straight up and away over the fence, sure as an arrow, going somewhere it has always known how to find. And out of the dark trees on the other side, another pale green shape rises to meet it.',
+        art: { type: 'species', code: 'luna_moth' },
+      },
+      {
+        kind: 'narration',
+        id: 'ep2_end',
+        text: 'Two moths, in the dark, who found each other because somebody turned off a light. Luna washes one paw as if none of this was remarkable. Bachan says only: "Good. Now bed." The end — of chapter two.',
+        art: { type: 'luna' },
+      },
+    ],
+  },
 ];
