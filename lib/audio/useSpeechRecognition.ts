@@ -29,6 +29,22 @@ export interface SpeechRecognitionState {
   interim: string;          // in-flight hypothesis (often garbled — display with care)
   alternatives: string[];   // up to N alternative transcripts (for fuzzy match)
   error: string | null;
+  /**
+   * Can the microphone actually be used right now?
+   *
+   * `supported` alone is not enough, and the gap was a real dead end:
+   * a browser that SUPPORTS speech but whose mic permission is blocked
+   * left ReadAloudSimple telling a child "microphone permission was
+   * blocked — use the buttons below" while the self-report button
+   * rendered only when speech was UNSUPPORTED. The buttons it pointed
+   * at did not exist, so her only ways out were a hint or "skip",
+   * which submits a wrong answer. PhonemeBlend had the same shape.
+   *
+   * Only fatal errors reach `error` — 'no-speech' and 'aborted' are
+   * filtered out as routine — so any error means the mic is done for
+   * this attempt and the manual path must be offered.
+   */
+  usable: boolean;
   start: () => void;
   stop: () => void;
   reset: () => void;
@@ -164,7 +180,11 @@ export function useSpeechRecognition(): SpeechRecognitionState {
     setError(null);
   }, []);
 
-  return { supported, listening, transcript, interim, alternatives, error, start, stop, reset };
+  return {
+    supported, listening, transcript, interim, alternatives, error,
+    usable: supported && error === null,
+    start, stop, reset,
+  };
 }
 
 /**

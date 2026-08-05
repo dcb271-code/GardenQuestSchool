@@ -170,7 +170,7 @@ export default function ReadAloudSimple({
       )}
 
       <div className="flex gap-3 justify-center flex-wrap">
-        {!speech.supported && (
+        {!speech.usable && (
           <motion.button
             onClick={() => onSubmit({ claimed: true })}
             disabled={matched}

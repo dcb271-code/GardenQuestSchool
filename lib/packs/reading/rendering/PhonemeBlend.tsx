@@ -195,7 +195,10 @@ export default function PhonemeBlend({
   // Tiles visible when speech can't help us OR the child is struggling
   // OR they've explicitly asked for the tiles.
   const showChoices =
-    !speech.supported ||
+    // `!usable` rather than `!supported`: a blocked mic never hears
+    // anything, so failedSpeechAttempts can never reach 2, and the
+    // tiles the error message promises would never appear.
+    !speech.usable ||
     failedSpeechAttempts >= 2 ||
     revealChoicesManually;
 
