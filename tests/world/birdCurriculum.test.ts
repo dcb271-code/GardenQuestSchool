@@ -2,7 +2,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   UNITS, getUnit, buildExercises, isUnitUnlocked, nextUnit, visibleUnits,
-  teachSequence, birdsLearned, choiceCount, unitsOfCrew,
+  teachSequence, birdsLearned, choiceCount, unitsOfCrew, birdTierForLevel,
   PITCH_LABEL, TONE_LABEL,
   type BirdExercise, type BirdClipRef,
 } from '@/lib/birds/curriculum';
@@ -500,5 +500,117 @@ describe('listen and match stages', () => {
     // But it does gate her NEXT new unit: crew2_know is not next
     // until listen/match are visible-and-passed or hidden.
     expect(nextUnit(['crew1_look', 'crew1_know', 'crew2_look'])!.code).toBe('crew1_listen');
+  });
+});
+
+describe('the simple tier (built for a Level-1 learner)', () => {
+  const CREW1 = ['crew1_look', 'crew1_know'];
+
+  it('level picks the tier, with the boundary between the two sisters', () => {
+    // Esme is 1, Cecily is 3. The gap is deliberate.
+    expect(birdTierForLevel(1)).toBe('simple');
+    expect(birdTierForLevel(2)).toBe('full');
+    expect(birdTierForLevel(3)).toBe('full');
+  });
+
+  it('offers crew 1 only, and never asks her to tell songs apart', () => {
+    const units = visibleUnits(undefined, 'simple');
+    expect(units.map(u => u.code)).toEqual(CREW1);
+    for (const u of units) {
+      expect(['look', 'know']).toContain(u.stage);
+    }
+    // The full tier is untouched by any of this.
+    expect(visibleUnits(undefined, 'full')).toHaveLength(8);
+  });
+
+  it('always offers exactly two choices — never a ramp', () => {
+    // The ramp to four is what lost her the first time.
+    for (let i = 0; i < 12; i++) {
+      expect(choiceCount(i, 9, 'simple')).toBe(2);
+    }
+    // …while the full tier still ramps.
+    expect(choiceCount(8, 9, 'full')).toBe(4);
+  });
+
+  it('asks only about colour and name, never the birder abstractions', () => {
+    for (const code of CREW1) {
+      const unit = getUnit(code)!;
+      for (const seed of SEEDS) {
+        for (const ex of buildExercises(unit, seed, 'simple')) {
+          expect(['photo_name', 'name_photo'], `${code} produced ${ex.kind}`)
+            .toContain(ex.kind);
+          if (ex.kind === 'name_photo') expect(ex.photos).toHaveLength(2);
+          else if (ex.kind === 'photo_name') expect(ex.choices).toHaveLength(2);
+        }
+      }
+    }
+  });
+
+  it('runs shorter units, because attention is the budget', () => {
+    for (const code of CREW1) {
+      const unit = getUnit(code)!;
+      const simple = buildExercises(unit, 42, 'simple');
+      const full = buildExercises(unit, 42, 'full');
+      expect(simple.length).toBeLessThan(full.length);
+      expect(simple.length).toBe(6);
+    }
+  });
+
+  it('still names the right bird in every hint', () => {
+    for (const code of CREW1) {
+      for (const seed of SEEDS) {
+        for (const ex of buildExercises(getUnit(code)!, seed, 'simple')) {
+          const target = ex.kind === 'name_photo' ? ex.birdCode
+            : ex.kind === 'photo_name' ? ex.photo.birdCode : null;
+          if (!target) continue;
+          expect(ex.hint).toContain(getBird(target)!.commonName);
+        }
+      }
+    }
+  });
+
+  it('drops the theory pages but keeps every page that shows a bird', () => {
+    const pages = teachSequence(getUnit('crew1_look')!, 'simple');
+    const kinds = pages.map(p => p.figure?.kind).filter(Boolean);
+    expect(kinds).not.toContain('four_keys');
+    expect(kinds).not.toContain('size_ladder');
+    expect(kinds).not.toContain('bills');
+    // …and she still meets all five birds with photographs.
+    expect(kinds.filter(k => k === 'gallery')).toHaveLength(5);
+  });
+
+  it('leaves the full tier exactly as it was', () => {
+    for (const u of UNITS) {
+      expect(buildExercises(u, 42, 'full')).toEqual(buildExercises(u, 42));
+      expect(teachSequence(u, 'full')).toEqual(teachSequence(u));
+    }
+  });
+});
+
+describe('the simple tier never shows a bird she has not met', () => {
+  it('every choice and photo comes from the unit she is in', () => {
+    // otherBirds() leads with `confusableWith`, which crosses crews on
+    // purpose so the full tier can offer hard neighbours. At Level 1
+    // that means being asked to choose between a chickadee and a bird
+    // from a crew she cannot see yet.
+    for (const code of ['crew1_look', 'crew1_know']) {
+      const unit = getUnit(code)!;
+      const allowed = new Set(unit.birdCodes);
+      const names = new Set(unit.birdCodes.map(c => getBird(c)!.commonName));
+      for (const seed of SEEDS) {
+        for (const ex of buildExercises(unit, seed, 'simple')) {
+          if (ex.kind === 'photo_name') {
+            for (const c of ex.choices) {
+              expect(names.has(c), `${code} offered "${c}", not in this unit`).toBe(true);
+            }
+          }
+          if (ex.kind === 'name_photo') {
+            for (const p of ex.photos) {
+              expect(allowed.has(p.birdCode), `${code} showed ${p.birdCode}`).toBe(true);
+            }
+          }
+        }
+      }
+    }
   });
 });

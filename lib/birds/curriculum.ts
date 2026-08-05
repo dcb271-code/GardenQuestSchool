@@ -39,6 +39,51 @@ export const STAGE_EMOJI: Record<Stage, string> = {
   look: '👀', know: '📖', listen: '👂', match: '🎯',
 };
 
+// ─── Tiers ────────────────────────────────────────────────────────
+//
+// The bird hide was built for a Level-3 seven-year-old and it shows.
+// Esme, at Level 1, opened the first unit, tried it, and did not pass
+// — her bird_review carries a crew1_look entry while bird_units stays
+// empty. That is not a child who is uninterested; it is a child who
+// was handed four-way recall over ten species.
+//
+// The SIMPLE tier is the same curriculum with the abstractions taken
+// out. What is left is what a five-year-old can actually do with a
+// bird: look at it, and say which one it is.
+//
+//   * Crew 1 only — five birds, the ones outside the window daily.
+//   * Always two choices. Never three, never four.
+//   * Colour and name only. No size-against-an-anchor, no bill shape:
+//     those are the birder's abstractions, and they are the reason
+//     Cornell's order puts them before colour for ADULTS learning to
+//     see. A small child needs the bird first and the theory later.
+//   * No listening discrimination. She can hear every bird — the
+//     clips are on the meet-the-bird pages — but she is never asked
+//     to tell two songs apart, which is a genuinely hard skill that
+//     no study has established an age for.
+//   * Shorter units, because attention is the real budget.
+export type BirdTier = 'simple' | 'full';
+
+/**
+ * Learners at or below this level get the simple tier. Esme is 1 and
+ * Cecily is 3; the boundary sits between them deliberately, and it is
+ * a named constant because the right place for it is a question about
+ * a child rather than about code.
+ */
+export const BIRD_SIMPLE_MAX_LEVEL = 1;
+
+/** Six questions, not nine. */
+export const SIMPLE_EXERCISE_COUNT = 6;
+
+export function birdTierForLevel(learnerLevel: number): BirdTier {
+  return learnerLevel <= BIRD_SIMPLE_MAX_LEVEL ? 'simple' : 'full';
+}
+
+/** The crews a tier is allowed to meet. */
+export function crewsForTier(tier: BirdTier): string[] {
+  return tier === 'simple' ? ['crew1'] : crewCodes();
+}
+
 export type BirdPhotoRole =
   | 'perched' | 'flight' | 'male' | 'female' | 'nonbreeding'
   | 'juvenile' | 'head' | 'back' | 'silhouette';
@@ -201,7 +246,10 @@ function mc(
  * first meeting it's the difference between a guess she can reason
  * about and a wall of four unfamiliar names.
  */
-export function choiceCount(index: number, total: number): number {
+export function choiceCount(index: number, total: number, tier: BirdTier = 'full'): number {
+  // Two, always, for the simple tier. A ramp to four is exactly the
+  // thing that lost her.
+  if (tier === 'simple') return 2;
   if (total <= 2) return 2;
   const third = total / 3;
   if (index < third) return 2;
@@ -494,7 +542,64 @@ function matchExercise(
   };
 }
 
-export function buildExercises(unit: BirdUnit, seed: number): BirdExercise[] {
+/**
+ * The simple tier's whole exercise vocabulary: which bird is this, and
+ * which one is the X.
+ *
+ * Deliberately two kinds and no more. Size-against-an-anchor and bill
+ * shape are the birder's abstractions — powerful for an adult learning
+ * to SEE, and meaningless to a child who does not yet reliably know a
+ * cardinal from a jay. Behaviour and habitat questions are long
+ * sentences to read, which is its own barrier at Level 1.
+ *
+ * She meets the birds on the teach pages with real photographs, then
+ * is asked only to recognise them.
+ */
+function simpleExercise(
+  bird: BirdData, pool: BirdData[], rand: () => number,
+): BirdExercise | null {
+  // Distractors come from THIS UNIT'S birds only — never from
+  // `confusableWith`, which reaches across crews. The full tier wants
+  // those hard neighbours; the simple tier must not offer a name she
+  // has never been shown. The first build of this asked "which bird is
+  // this?" over a chickadee photo and offered White-breasted Nuthatch,
+  // a bird from a crew she cannot even see yet.
+  const others = pool.filter(b => b.code !== bird.code);
+  if (others.length === 0) return null;
+
+  // Name the photo — recognition, the easier direction.
+  if (rand() < 0.6) {
+    const { choices, correctIndex } = mc(
+      bird.commonName, others.map(b => b.commonName), rand, 2,
+    );
+    return {
+      kind: 'photo_name',
+      prompt: 'Which bird is this?',
+      photo: { birdCode: bird.code, role: 'perched' },
+      choices, correctIndex,
+      hint: `This is the ${bird.commonName}. ${bird.colourHook}`,
+    };
+  }
+
+  // Find the bird by name — two photos, side by side.
+  const rival = pick(others, rand);
+  const photos: BirdPhotoRef[] = shuffle(
+    [bird, rival].map(b => ({ birdCode: b.code, role: 'perched' as BirdPhotoRole })),
+    rand,
+  );
+  return {
+    kind: 'name_photo',
+    prompt: `Which one is the ${bird.commonName}?`,
+    birdCode: bird.code,
+    photos,
+    correctIndex: photos.findIndex(p => p.birdCode === bird.code),
+    hint: `The ${bird.commonName}: ${bird.colourHook}`,
+  };
+}
+
+export function buildExercises(
+  unit: BirdUnit, seed: number, tier: BirdTier = 'full',
+): BirdExercise[] {
   const rand = rng(seed);
   const pool = unit.birdCodes
     .map(getBird)
@@ -502,14 +607,20 @@ export function buildExercises(unit: BirdUnit, seed: number): BirdExercise[] {
   if (pool.length === 0) return [];
 
   const out: BirdExercise[] = [];
+  // Shorter for the simple tier: attention is the real budget at
+  // Level 1, and a unit she finishes beats a unit she abandons.
+  const count = tier === 'simple'
+    ? Math.min(unit.exerciseCount, SIMPLE_EXERCISE_COUNT)
+    : unit.exerciseCount;
   // Walk the birds in rotation so every bird in the crew gets asked
   // about before any bird is asked about twice.
   const order = shuffle(pool, rand);
-  for (let i = 0; i < unit.exerciseCount; i++) {
+  for (let i = 0; i < count; i++) {
     const bird = order[i % order.length];
-    const n = Math.min(choiceCount(i, unit.exerciseCount), pool.length);
-    const ex =
-      unit.stage === 'look' ? lookExercise(bird, pool, rand, n)
+    const n = Math.min(choiceCount(i, count, tier), pool.length);
+    const ex = tier === 'simple'
+      ? simpleExercise(bird, pool, rand)
+      : unit.stage === 'look' ? lookExercise(bird, pool, rand, n)
       : unit.stage === 'know' ? knowExercise(bird, pool, rand, n)
       : unit.stage === 'listen' ? listenExercise(bird, pool, rand, n)
       : matchExercise(bird, pool, rand, n);
@@ -797,8 +908,22 @@ export function getUnit(code: string): BirdUnit | undefined {
  * between a quiz and an introduction — the first exercise should
  * never be the first time she has seen the bird.
  */
-export function teachSequence(unit: BirdUnit): TeachPage[] {
-  if (unit.stage !== 'look') return unit.teach;
+export function teachSequence(unit: BirdUnit, tier: BirdTier = 'full'): TeachPage[] {
+  if (unit.stage !== 'look') {
+    // The Four Keys / size ladder / bill chart pages are the theory,
+    // and the simple tier does not teach theory. Keep only pages that
+    // show an actual bird.
+    return tier === 'simple'
+      ? unit.teach.filter(p => !p.figure
+          || p.figure.kind === 'photo' || p.figure.kind === 'marks'
+          || p.figure.kind === 'gallery' || p.figure.kind === 'clip')
+      : unit.teach;
+  }
+  const authored = tier === 'simple'
+    ? unit.teach.filter(p => !p.figure
+        || p.figure.kind === 'photo' || p.figure.kind === 'marks'
+        || p.figure.kind === 'gallery' || p.figure.kind === 'clip')
+    : unit.teach;
   const meets = unit.birdCodes
     .map(getBird)
     .filter((b): b is BirdData => !!b)
@@ -814,7 +939,7 @@ export function teachSequence(unit: BirdUnit): TeachPage[] {
       }`,
       figure: { kind: 'gallery', birdCode: b.code },
     }));
-  return [...unit.teach, ...meets];
+  return [...authored, ...meets];
 }
 
 export function unitsOfCrew(crew: string): BirdUnit[] {
@@ -830,10 +955,21 @@ export function unitsOfCrew(crew: string): BirdUnit[] {
  * undefined (e.g. in tests that only care about sequencing) to treat
  * everything as available.
  */
-export function visibleUnits(birdsWithAudioCodes?: string[]): BirdUnit[] {
-  if (!birdsWithAudioCodes) return UNITS;
+export function visibleUnits(
+  birdsWithAudioCodes?: string[], tier: BirdTier = 'full',
+): BirdUnit[] {
+  const crews = new Set(crewsForTier(tier));
+  // The simple tier meets five birds and never has to tell two songs
+  // apart — audio discrimination is a genuinely hard skill and no
+  // study establishes an age for it. She still HEARS every bird, on
+  // the meet-the-bird pages.
+  const forTier = UNITS.filter(u =>
+    crews.has(u.crew) &&
+    (tier !== 'simple' || (u.stage !== 'listen' && u.stage !== 'match')),
+  );
+  if (!birdsWithAudioCodes) return forTier;
   const has = new Set(birdsWithAudioCodes);
-  return UNITS.filter(u =>
+  return forTier.filter(u =>
     (u.stage !== 'listen' && u.stage !== 'match') ||
     u.birdCodes.some(c => has.has(c)),
   );

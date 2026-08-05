@@ -20,5 +20,14 @@ export default async function BirdsPage({
   if (!learnerId) {
     return <div className="p-6">No learner found.</div>;
   }
-  return <BirdScene learnerId={learnerId} />;
+
+  // Level picks the tier. The hide was built for a Level-3 seven-year
+  // old; a Level-1 learner gets the same birds with the abstractions
+  // taken out (see BirdTier in lib/birds/curriculum.ts). DB column is
+  // still called grade_level.
+  const { data: learner } = await db
+    .from('learner').select('grade_level').eq('id', learnerId).maybeSingle();
+  const learnerLevel = learner?.grade_level ?? 2;
+
+  return <BirdScene learnerId={learnerId} learnerLevel={learnerLevel} />;
 }

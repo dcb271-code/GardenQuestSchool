@@ -15,7 +15,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import {
   getUnit, buildExercises, isUnitUnlocked, visibleUnits, crewCodes,
-  teachSequence, STAGE_LABEL, STAGE_EMOJI, getBird,
+  teachSequence, birdTierForLevel, STAGE_LABEL, STAGE_EMOJI, getBird,
   type BirdExercise, type TeachPage, type BirdClipRef,
 } from '@/lib/birds/curriculum';
 import {
@@ -47,9 +47,14 @@ const CREW_TITLE: Record<string, string> = {
   crew2: 'The Little Gang',
 };
 
-export default function BirdScene({ learnerId }: { learnerId: string }) {
+export default function BirdScene({
+  learnerId, learnerLevel = 2,
+}: { learnerId: string; learnerLevel?: number }) {
   const { settings } = useAccessibilitySettings();
   const reduced = settings.reducedMotion;
+  // Level 1 gets the simple tier: crew 1 only, two choices, colour and
+  // name, nothing to tell apart by ear.
+  const tier = birdTierForLevel(learnerLevel);
 
   const [completed, setCompleted] = useState<string[]>([]);
   const [review, setReview] = useState<ReviewMap>({});
@@ -101,7 +106,7 @@ export default function BirdScene({ learnerId }: { learnerId: string }) {
    */
   const exercises = useMemo(() => {
     if (!unit) return [];
-    return buildExercises(unit, seed).filter(ex => {
+    return buildExercises(unit, seed, tier).filter(ex => {
       if (ex.kind === 'photo_name' || ex.kind === 'field_mark') {
         return !!resolvePhoto(photos, ex.photo.birdCode, ex.photo.role);
       }
@@ -121,7 +126,7 @@ export default function BirdScene({ learnerId }: { learnerId: string }) {
       }
       return true;
     });
-  }, [unit?.code, seed, photos, audio]);
+  }, [unit?.code, seed, photos, audio, tier]);
 
   /**
    * Warm the NEXT exercise's clip while this one is on screen. A
@@ -234,7 +239,7 @@ export default function BirdScene({ learnerId }: { learnerId: string }) {
 
   // Listen/match units only appear once their crew has confirmed
   // clips, and the unlock chain runs over what is actually shown.
-  const units = visibleUnits(birdsWithAudio(audio));
+  const units = visibleUnits(birdsWithAudio(audio), tier);
 
   // ── MENU ────────────────────────────────────────────────────────
   if (phase === 'menu') {
@@ -267,13 +272,19 @@ export default function BirdScene({ learnerId }: { learnerId: string }) {
           </div>
         )}
 
-        {crewCodes().map(crew => (
+        {crewCodes().map(crew => {
+          const crewUnits = units.filter(u => u.crew === crew);
+          // A crew with nothing in it must not leave a heading behind.
+          // The simple tier only meets crew 1, and an empty "The Little
+          // Gang" below her two units reads as something broken.
+          if (crewUnits.length === 0) return null;
+          return (
           <div key={crew} className="mb-5">
             <h2 className="text-sm font-bold mb-2" style={{ color: '#3f2614' }}>
               {CREW_TITLE[crew] ?? crew}
             </h2>
             <div className="grid grid-cols-1 gap-2">
-              {units.filter(u => u.crew === crew).map(u => {
+              {crewUnits.map(u => {
                 const unlocked = isUnitUnlocked(u.code, completed, units);
                 const done = completed.includes(u.code);
                 return (
@@ -300,7 +311,8 @@ export default function BirdScene({ learnerId }: { learnerId: string }) {
               })}
             </div>
           </div>
-        ))}
+          );
+        })}
 
         <button
           onClick={() => setPhase('lifelist')}
@@ -526,7 +538,7 @@ export default function BirdScene({ learnerId }: { learnerId: string }) {
 
   // ── TEACH ───────────────────────────────────────────────────────
   if (phase === 'teach') {
-    const pages = teachSequence(unit);
+    const pages = teachSequence(unit, tier);
     const p = pages[page];
     const last = page + 1 >= pages.length;
     return (
