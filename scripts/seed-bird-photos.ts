@@ -83,7 +83,10 @@ function rolesFor(bird: BirdData): HarvestRole[] {
 }
 
 function queryFor(bird: BirdData, role: HarvestRole) {
-  const base = { taxonId: bird.inatTaxonId, perPage: 100 };
+  // A bird may narrow its photo search to a regional subspecies — see
+  // inatPhotoTaxonId in the catalog. Names and teaching stay at the
+  // species level; only the pictures are narrowed.
+  const base = { taxonId: bird.inatPhotoTaxonId ?? bird.inatTaxonId, perPage: 100 };
   if (role === 'male') {
     return { ...base, termId: ANNOTATION.SEX, termValueId: ANNOTATION.MALE };
   }

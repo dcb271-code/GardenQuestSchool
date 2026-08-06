@@ -45,11 +45,18 @@ interface Result {
 const CREW_TITLE: Record<string, string> = {
   crew1: 'The Everyday Five',
   crew2: 'The Little Gang',
+  crew3: 'The Winter Visitors',
+};
+
+/** Said under a seasonal crew's heading, so its arrival is explained
+ *  rather than just happening. */
+const CREW_NOTE: Record<string, string> = {
+  crew3: 'here only from October to March — they fly north to nest',
 };
 
 export default function BirdScene({
-  learnerId, learnerLevel = 2,
-}: { learnerId: string; learnerLevel?: number }) {
+  learnerId, learnerLevel = 2, month,
+}: { learnerId: string; learnerLevel?: number; month?: number }) {
   const { settings } = useAccessibilitySettings();
   const reduced = settings.reducedMotion;
   // Level 1 gets the simple tier: crew 1 only, two choices, colour and
@@ -239,7 +246,7 @@ export default function BirdScene({
 
   // Listen/match units only appear once their crew has confirmed
   // clips, and the unlock chain runs over what is actually shown.
-  const units = visibleUnits(birdsWithAudio(audio), tier);
+  const units = visibleUnits(birdsWithAudio(audio), tier, month);
 
   // ── MENU ────────────────────────────────────────────────────────
   if (phase === 'menu') {
@@ -283,6 +290,11 @@ export default function BirdScene({
             <h2 className="text-sm font-bold mb-2" style={{ color: '#3f2614' }}>
               {CREW_TITLE[crew] ?? crew}
             </h2>
+            {CREW_NOTE[crew] && (
+              <p className="text-xs italic mb-2 -mt-1" style={{ color: '#6b6255' }}>
+                {CREW_NOTE[crew]}
+              </p>
+            )}
             <div className="grid grid-cols-1 gap-2">
               {crewUnits.map(u => {
                 const unlocked = isUnitUnlocked(u.code, completed, units);

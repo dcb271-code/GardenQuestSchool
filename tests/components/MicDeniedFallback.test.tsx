@@ -90,6 +90,7 @@ describe('PhonemeBlend with the mic blocked', () => {
   const content = {
     type: 'PhonemeBlend' as const,
     word: 'cat', phonemes: ['c', 'a', 't'], distractors: ['cot', 'cap'],
+    promptText: 'Blend the sounds and say the word.',
   };
 
   it('reveals the word tiles, which the error message promises', () => {

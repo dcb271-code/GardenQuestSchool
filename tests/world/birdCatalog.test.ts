@@ -110,9 +110,21 @@ describe('BIRD_CATALOG', () => {
   });
 
   it('groups into crews of five, in frequency order', () => {
+    // Not pinned to a list: adding a crew should make this test CHECK
+    // the new crew, not fail an equality and get the list edited.
     const crews = crewCodes();
-    expect(crews).toEqual(['crew1', 'crew2']);
+    expect(crews.length).toBeGreaterThanOrEqual(2);
+    expect(crews).toEqual(crews.slice().sort());   // crew1, crew2, crew3…
     for (const c of crews) expect(birdsOfCrew(c).length, c).toBe(5);
+  });
+
+  it('a crew is all one season — a winter crew must not hide a resident', () => {
+    // Crew 3 exists to ARRIVE. If a year-round bird were mixed in, the
+    // crew could not be season-gated honestly.
+    for (const c of crewCodes()) {
+      const seasons = new Set(birdsOfCrew(c).map(b => b.season));
+      expect(seasons.size, `${c} mixes seasons: ${Array.from(seasons).join(', ')}`).toBe(1);
+    }
   });
 
   it('crew 1 is all commonest-tier or the robin', () => {

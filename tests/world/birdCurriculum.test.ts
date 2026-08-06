@@ -2,7 +2,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   UNITS, getUnit, buildExercises, isUnitUnlocked, nextUnit, visibleUnits,
-  teachSequence, birdsLearned, choiceCount, unitsOfCrew, birdTierForLevel,
+  teachSequence, birdsLearned, choiceCount, unitsOfCrew, birdTierForLevel, unitInSeason,
   PITCH_LABEL, TONE_LABEL,
   type BirdExercise, type BirdClipRef,
 } from '@/lib/birds/curriculum';
@@ -457,8 +457,10 @@ describe('listen and match stages', () => {
   it('listen/match units hide until their crew has audio, without padlocking the rest', () => {
     // No audio at all → the course looks exactly like Phase 1.
     const none = visibleUnits([]);
+    // Derived, not listed: adding a crew should not edit this test.
     expect(none.map(u => u.code)).toEqual(
-      ['crew1_look', 'crew1_know', 'crew2_look', 'crew2_know']);
+      UNITS.filter(u => u.stage === 'look' || u.stage === 'know').map(u => u.code));
+    expect(none.every(u => u.stage !== 'listen' && u.stage !== 'match')).toBe(true);
     // The Phase-1 chain still unlocks across the hidden gap.
     expect(isUnitUnlocked('crew2_look', ['crew1_look', 'crew1_know'], none)).toBe(true);
 
@@ -468,8 +470,7 @@ describe('listen and match stages', () => {
     expect(some.map(u => u.code)).not.toContain('crew2_listen');
 
     // And with audio everywhere, the full course in order.
-    const all = visibleUnits(undefined);
-    expect(all).toHaveLength(8);
+    expect(visibleUnits(undefined)).toEqual(UNITS);
   });
 
   it('look units introduce every crew bird with a photo gallery before practice', () => {
@@ -520,7 +521,7 @@ describe('the simple tier (built for a Level-1 learner)', () => {
       expect(['look', 'know']).toContain(u.stage);
     }
     // The full tier is untouched by any of this.
-    expect(visibleUnits(undefined, 'full')).toHaveLength(8);
+    expect(visibleUnits(undefined, 'full')).toEqual(UNITS);
   });
 
   it('always offers exactly two choices — never a ramp', () => {
@@ -612,5 +613,67 @@ describe('the simple tier never shows a bird she has not met', () => {
         }
       }
     }
+  });
+});
+
+describe('the winter crew arrives and leaves', () => {
+  const WINTER = 12, SUMMER = 7, ARRIVAL = 10;
+
+  it('is invisible in summer — not locked, absent', () => {
+    // A padlock says "practise and this opens". These birds are simply
+    // not in Kentucky in July, and no amount of practice changes that.
+    const july = visibleUnits(undefined, 'full', SUMMER).map(u => u.code);
+    expect(july.some(c => c.startsWith('crew3'))).toBe(false);
+    // …and the year-round crews are untouched by the season.
+    expect(july).toContain('crew1_look');
+    expect(july).toContain('crew2_look');
+  });
+
+  it('appears in OCTOBER, when the juncos actually arrive', () => {
+    // The whole reason units carry months rather than a Season: the
+    // meteorological winter starts in December, six weeks after the
+    // birds are already under the feeder.
+    const october = visibleUnits(undefined, 'full', ARRIVAL).map(u => u.code);
+    expect(october).toContain('crew3_look');
+    expect(visibleUnits(undefined, 'full', WINTER).map(u => u.code)).toContain('crew3_look');
+  });
+
+  it('every winter unit is gated, and no year-round unit is', () => {
+    for (const u of UNITS) {
+      const winterBirds = u.birdCodes.every(c => getBird(c)!.season === 'winter');
+      if (winterBirds) {
+        expect(u.availableMonths, `${u.code} is a winter unit but always available`).toBeDefined();
+      } else {
+        expect(u.availableMonths, `${u.code} is gated but its birds are residents`).toBeUndefined();
+      }
+    }
+  });
+
+  it('the gate matches when the birds are really here', () => {
+    // Juncos: mid-October to mid-April in Louisville. The window is
+    // deliberately generous at the front and stops before they leave.
+    expect(unitInSeason(getUnit('crew3_look')!, 10)).toBe(true);
+    expect(unitInSeason(getUnit('crew3_look')!, 1)).toBe(true);
+    expect(unitInSeason(getUnit('crew3_look')!, 3)).toBe(true);
+    expect(unitInSeason(getUnit('crew3_look')!, 5)).toBe(false);
+    expect(unitInSeason(getUnit('crew3_look')!, 7)).toBe(false);
+    // A unit with no window is always in season.
+    expect(unitInSeason(getUnit('crew1_look')!, 7)).toBe(true);
+  });
+
+  it('no month is passed means no gating — callers opt in', () => {
+    expect(visibleUnits(undefined, 'full').map(u => u.code)).toContain('crew3_look');
+  });
+
+  it('teaches the two confusion pairs the seasons actually resolve', () => {
+    // The design's whole argument for a winter crew: House vs Purple
+    // Finch and Chipping vs American Tree Sparrow separate on the
+    // CALENDAR before any field mark.
+    const text = UNITS.filter(u => u.crew === 'crew3')
+      .flatMap(u => u.teach).map(p => p.body).join(' ');
+    expect(text).toMatch(/House Finch/);
+    expect(text).toMatch(/Chipping Sparrow/);
+    expect(getBird('purple_finch')!.confusableWith).toContain('house_finch');
+    expect(getBird('house_finch')!.confusableWith).toContain('purple_finch');
   });
 });

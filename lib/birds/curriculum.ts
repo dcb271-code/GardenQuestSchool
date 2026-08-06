@@ -153,6 +153,30 @@ export interface BirdUnit {
   birdCodes: string[];
   exerciseCount: number;
   outro: string;
+  /**
+   * Months (1–12) when this unit is offered at all. Absent = always.
+   *
+   * MONTHS, not the flora `Season` enum, and the difference is the
+   * whole feature: juncos reach Louisville in mid-OCTOBER, which
+   * meteorological season-splitting calls autumn. Gating the winter
+   * crew on `currentSeason() === 'winter'` would hide it until
+   * December, by which time the child has been watching them under
+   * the feeder for six weeks and the app has failed to notice.
+   */
+  availableMonths?: number[];
+}
+
+/**
+ * October to March. Dark-eyed Juncos arrive in Louisville in
+ * mid-October and are gone by mid-April; the other four overlap that
+ * window closely enough to share it. Deliberately generous at the
+ * front: better she meets them the week they turn up.
+ */
+export const WINTER_MONTHS = [10, 11, 12, 1, 2, 3];
+
+/** Is this unit in season in the given month (1–12)? */
+export function unitInSeason(unit: BirdUnit, month: number): boolean {
+  return !unit.availableMonths || unit.availableMonths.includes(month);
 }
 
 export type BirdExercise =
@@ -891,6 +915,90 @@ export const UNITS: BirdUnit[] = [
     exerciseCount: 8,
     outro: 'You did it — the whole yard, eyes shut. Go and listen to the real thing.',
   },
+  {
+    code: 'crew3_look',
+    title: 'Meet the Winter Visitors',
+    crew: 'crew3',
+    stage: 'look',
+    blurb: 'Five birds that are only here when it is cold.',
+    availableMonths: WINTER_MONTHS,
+    teach: [
+      {
+        heading: 'These ones arrive',
+        body:
+          'The birds you have learned so far live here all the time. These five do not. They spend the summer far to the north — some of them up on the Arctic tundra — and they come DOWN to Kentucky for the winter, the way you might go somewhere warm. Around the middle of October they simply turn up. By April they are gone again.',
+        figure: { kind: 'photo', ref: { birdCode: 'dark_eyed_junco', role: 'perched' } },
+      },
+      {
+        heading: 'The snowbird',
+        body:
+          'The Dark-eyed Junco is the easiest of the five: slate grey on top, clean white underneath, as though somebody dipped it halfway. Look on the GROUND under the feeder, not on it — juncos almost never perch on a feeder. When one flies, watch for white tail feathers flashing open.',
+        figure: { kind: 'marks', birdCode: 'dark_eyed_junco' },
+      },
+      {
+        heading: 'The one that already lives in your book',
+        body:
+          'You know the House Finch. Now meet its winter cousin, the Purple Finch. Both males are red — but House Finch red sits mostly on the front, like a bib, while a Purple Finch looks as if it was dipped head-first in raspberry juice, colour running right over its back and wings.',
+        figure: { kind: 'marks', birdCode: 'purple_finch' },
+      },
+      {
+        heading: 'The calendar is a field mark',
+        body:
+          'The American Tree Sparrow looks very like the Chipping Sparrow — same rusty cap, same small size. Real birders often do not need to squint at either of them, because a Chipping Sparrow is a SUMMER bird here and a Tree Sparrow is a WINTER one. If there is frost on the grass, you already know which it is. That is a real trick, and it is free.',
+        figure: { kind: 'marks', birdCode: 'american_tree_sparrow' },
+      },
+      {
+        heading: 'The one that will never come to your feeder',
+        body:
+          'The Cedar Waxwing eats berries, not seed. You can fill a feeder all winter and never see one. But plant a holly, and a whole flock may drop in, strip it in an afternoon, and vanish. They are silky fawn-brown with a black mask and a tail dipped in yellow — and they pass berries to each other, beak to beak, along the branch.',
+        figure: { kind: 'marks', birdCode: 'cedar_waxwing' },
+      },
+    ],
+    birdCodes: [
+      'dark_eyed_junco', 'white_throated_sparrow', 'american_tree_sparrow',
+      'purple_finch', 'cedar_waxwing',
+    ],
+    exerciseCount: 9,
+    outro: 'Fifteen birds now — and five of them are only here for a few months. Go and look while they are.',
+  },
+  {
+    code: 'crew3_know',
+    title: 'How the Winter Visitors Live',
+    crew: 'crew3',
+    stage: 'know',
+    blurb: 'Surviving a night that could kill you, and where they go in April.',
+    availableMonths: WINTER_MONTHS,
+    teach: [
+      {
+        heading: 'Eating your own weight',
+        body:
+          'A small bird on a January night is only a few hours from freezing to death. An American Tree Sparrow has to eat about its OWN WEIGHT in seeds every single day just to have enough fuel to shiver through the dark. This is why a winter feeder matters, and why an empty one in a cold snap is worse than none at all.',
+        figure: { kind: 'gallery', birdCode: 'american_tree_sparrow' },
+      },
+      {
+        heading: 'Kicking with both feet',
+        body:
+          'Watch a junco or a White-throated Sparrow on the ground and you will see it hop backwards with both feet at once, throwing leaves behind it. It is not playing. Under the leaves are the seeds and insects nothing else has found, and that double-footed kick is how they get at them.',
+      },
+      {
+        heading: 'Some winters they come, some winters they do not',
+        body:
+          'Purple Finches do not arrive every year. When the seed crop fails in the northern forests, they pour south and everyone sees them; when the crop is good, they stay put and you may not see a single one all winter. Birders call that an irruption. It means an empty winter is not your fault.',
+        figure: { kind: 'gallery', birdCode: 'purple_finch' },
+      },
+      {
+        heading: 'And then, in April, gone',
+        body:
+          'One week the juncos are under the feeder and the next week they are not. They are flying north to nest — some to Canada, some to the tops of mountains. The same bird may come back to your same garden next October. Nobody told it how. It simply knows.',
+      },
+    ],
+    birdCodes: [
+      'dark_eyed_junco', 'white_throated_sparrow', 'american_tree_sparrow',
+      'purple_finch', 'cedar_waxwing',
+    ],
+    exerciseCount: 7,
+    outro: 'They are borrowing your garden for the winter. Be a good host.',
+  },
 ];
 
 export function getUnit(code: string): BirdUnit | undefined {
@@ -956,7 +1064,7 @@ export function unitsOfCrew(crew: string): BirdUnit[] {
  * everything as available.
  */
 export function visibleUnits(
-  birdsWithAudioCodes?: string[], tier: BirdTier = 'full',
+  birdsWithAudioCodes?: string[], tier: BirdTier = 'full', month?: number,
 ): BirdUnit[] {
   const crews = new Set(crewsForTier(tier));
   // The simple tier meets five birds and never has to tell two songs
@@ -965,6 +1073,11 @@ export function visibleUnits(
   // the meet-the-bird pages.
   const forTier = UNITS.filter(u =>
     crews.has(u.crew) &&
+    // Out of season, the unit is not shown at all — not locked, not
+    // greyed out. A padlock says "do the work and this opens"; these
+    // birds are simply not in Kentucky yet, and no amount of practice
+    // will change that.
+    (month === undefined || unitInSeason(u, month)) &&
     (tier !== 'simple' || (u.stage !== 'listen' && u.stage !== 'match')),
   );
   if (!birdsWithAudioCodes) return forTier;

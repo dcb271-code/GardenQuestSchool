@@ -1,0 +1,26 @@
+[
+  {
+    "filename": "male_inat_583407691.jpg",
+    "role": "male",
+    "tier": 1,
+    "altText": "A male Purple Finch on a branch, raspberry colour washing over his head, back and wings rather than only his front."
+  },
+  {
+    "filename": "male_inat_114301812.jpg",
+    "role": "male",
+    "tier": 1,
+    "altText": "A male Purple Finch facing the camera, deep raspberry over the head and breast fading to pale below."
+  },
+  {
+    "filename": "female_inat_462438167.jpg",
+    "role": "female",
+    "tier": 1,
+    "altText": "A female Purple Finch, brown and heavily streaked, with a bold white stripe over the eye and a dark cheek patch."
+  },
+  {
+    "filename": "female_inat_179501523.jpg",
+    "role": "female",
+    "tier": 1,
+    "altText": "A female Purple Finch perched among twigs, showing the strong pale eyebrow that separates her from a House Finch."
+  }
+]

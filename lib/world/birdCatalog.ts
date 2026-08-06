@@ -74,6 +74,22 @@ export interface BirdData {
   scientificName: string;
   /** For the iNat photo harvester. Verified against the live API. */
   inatTaxonId: number;
+  /**
+   * Harvest photos from THIS taxon instead, when the species-level id
+   * would teach the wrong-looking bird.
+   *
+   * The Dark-eyed Junco is the case: it has several regional forms
+   * that look genuinely different, and a species-level search returns
+   * mostly western Oregon Juncos — dark hood, brown back — while
+   * Kentucky gets the Slate-colored form, which is uniform grey. A
+   * child taught from the wrong subspecies would be looking for a bird
+   * that is not outside her window, which is the same failure as
+   * teaching the Black-capped Chickadee's mnemonic to a Carolina.
+   *
+   * The catalog still names and teaches the SPECIES; only the
+   * photographs are narrowed.
+   */
+  inatPhotoTaxonId?: number;
   /** For the xeno-canto audio harvester (Phase 2). v3 syntax. */
   xcQuery: string;
   emoji: string;
@@ -594,7 +610,7 @@ export const BIRD_CATALOG: BirdData[] = [
       'The streaky flanks are the giveaway. Its cousin the Purple Finch has a clean white belly.',
     ],
     dimorphic: true,
-    confusableWith: ['american_goldfinch'],
+    confusableWith: ['american_goldfinch', 'purple_finch'],
     voices: [
       {
         kind: 'song',
@@ -603,6 +619,257 @@ export const BIRD_CATALOG: BirdData[] = [
         pitchShape: 'wandering',
         repeats: null,
         note: 'A long tumbling jumble of warbled notes, usually ending on a rough buzzy note that slides upward.',
+      },
+    ],
+  },
+
+  // ─────────────────────────────────────────────────────────────
+  // CREW 3 — The Winter Visitors. NOT here in summer.
+  //
+  // The whole point of this crew is that it ARRIVES. Juncos reach
+  // Louisville in mid-October and are gone by April, so a child who
+  // opens the bird hide in July cannot see these units at all, and one
+  // who opens it in November finds five birds that were not there
+  // before. That is a real thing happening outside the window, and the
+  // app should behave as though it noticed.
+  //
+  // Two of the five are the confusion pairs the design named:
+  // Purple Finch against the House Finch she already knows from Crew
+  // 2, and American Tree Sparrow against the summer Chipping Sparrow.
+  // Both separate on the CALENDAR before they separate on any field
+  // mark, which is the lesson.
+  //
+  // The Cedar Waxwing earns its place differently: it does not come to
+  // feeders at all. It eats berries. Having one bird in the crew that
+  // will never appear at the seed tray is how a child learns that a
+  // feeder is not the whole world.
+  // ─────────────────────────────────────────────────────────────
+  {
+    code: 'dark_eyed_junco',
+    commonName: 'Dark-eyed Junco',
+    scientificName: 'Junco hyemalis',
+    inatTaxonId: 10094,
+    // Junco hyemalis hyemalis — the Slate-colored form, the one that
+    // winters in Kentucky. See inatPhotoTaxonId above.
+    inatPhotoTaxonId: 132764,
+    xcQuery: 'gen:junco sp:hyemalis',
+    emoji: '🐦',
+    crew: 'crew3',
+    season: 'winter',
+    localPoints: 20,
+    sizeAnchor: 'sparrow',
+    lengthInches: 6.3,
+    bill: 'cone',
+    colourHook:
+      'Slate grey above and clean white below, as if it had been dipped halfway. A small pale pink bill, and white tail feathers that flash when it flies.',
+    fieldMarks: [
+      'a crisp line where the grey stops and the white starts',
+      'a small pale pink bill',
+      'white outer tail feathers that flash open in flight',
+    ],
+    behaviour: [
+      'feeds on the GROUND under the feeder, almost never on it',
+      'hops backwards with both feet to kick leaves aside',
+      'travels in loose flocks all winter',
+    ],
+    habitat: ['under feeders', 'brushy edges', 'leaf litter beneath trees'],
+    facts: [
+      'People call it the snowbird, because it turns up about when the cold does and leaves about when the cold goes.',
+      'It spends the summer nesting far to the north, in Canada and the high mountains. Your winter is its holiday.',
+      'The flash of white in its tail is a signal to other juncos, not camouflage — it opens as it flies away.',
+    ],
+    dimorphic: false,
+    voices: [
+      {
+        kind: 'song',
+        mnemonic: null,
+        tone: 'trill',
+        pitchShape: 'flat',
+        repeats: null,
+        note: 'An even, musical trill on one pitch, like a tiny bicycle bell that keeps ringing.',
+      },
+      {
+        kind: 'call',
+        mnemonic: null,
+        tone: 'whistle',
+        pitchShape: 'flat',
+        repeats: null,
+        note: 'A sharp little "tick", often several at once from a flock in a hedge.',
+      },
+    ],
+  },
+  {
+    code: 'white_throated_sparrow',
+    commonName: 'White-throated Sparrow',
+    scientificName: 'Zonotrichia albicollis',
+    inatTaxonId: 9184,
+    xcQuery: 'gen:zonotrichia sp:albicollis',
+    emoji: '🐦',
+    crew: 'crew3',
+    season: 'winter',
+    localPoints: 40,
+    sizeAnchor: 'sparrow',
+    lengthInches: 6.7,
+    bill: 'cone',
+    colourHook:
+      'A streaky brown sparrow with a boldly striped head — and a clean white bib at the throat, with a small yellow spot just in front of each eye.',
+    fieldMarks: [
+      'a bright white throat patch, sharply edged',
+      'a yellow spot between the eye and the bill',
+      'black and white (or brown and tan) stripes over the crown',
+    ],
+    behaviour: [
+      'scratches in leaf litter with both feet at once',
+      'stays low in brush and hops out to feed',
+      'sings even in winter, which most birds do not',
+    ],
+    habitat: ['brush piles', 'hedgerows', 'the ground under feeders'],
+    facts: [
+      'Its song sounds like it is whistling "Oh sweet Canada Canada Canada" — and Canada really is where it goes to nest.',
+      'The yellow spot in front of the eye is called the lore. Once you have seen it you cannot unsee it.',
+      'Some have black and white head stripes and some have brown and tan, and they are not male and female — they are two kinds that almost always pair with the other kind.',
+    ],
+    dimorphic: false,
+    voices: [
+      {
+        kind: 'song',
+        mnemonic: 'oh sweet Canada Canada',
+        tone: 'whistle',
+        pitchShape: 'falling',
+        repeats: 3,
+        note: 'Two long clear whistles, then a shaky three-note phrase repeated. Thin, pure and a little sad.',
+      },
+    ],
+    confusableWith: ['american_tree_sparrow'],
+  },
+  {
+    code: 'american_tree_sparrow',
+    commonName: 'American Tree Sparrow',
+    scientificName: 'Spizelloides arborea',
+    inatTaxonId: 474210,
+    xcQuery: 'gen:spizelloides sp:arborea',
+    emoji: '🐦',
+    crew: 'crew3',
+    season: 'winter',
+    localPoints: 60,
+    sizeAnchor: 'sparrow',
+    lengthInches: 6.3,
+    bill: 'cone',
+    colourHook:
+      'A neat grey-faced sparrow with a rusty cap and a rusty line behind the eye — and one dark smudge in the middle of a plain grey chest.',
+    fieldMarks: [
+      'a single dark spot in the centre of the chest, like a button',
+      'a rusty cap and a rusty stripe behind the eye',
+      'a bill that is dark on top and yellow underneath',
+    ],
+    behaviour: [
+      'feeds on the ground in small winter flocks',
+      'often mixes in with juncos',
+      'perches on weed stalks and rides them down to the seeds',
+    ],
+    habitat: ['weedy fields', 'brushy edges', 'under feeders'],
+    facts: [
+      'It is badly named: it does not much like trees, and it nests on the ground on the Arctic tundra.',
+      'It looks very like the Chipping Sparrow — but a Chipping Sparrow is a SUMMER bird here. If it is January, it is this one.',
+      'It has to eat about its own weight in seeds every single day to stay warm enough through a winter night.',
+    ],
+    dimorphic: false,
+    voices: [
+      {
+        kind: 'call',
+        mnemonic: null,
+        tone: 'whistle',
+        pitchShape: 'wandering',
+        repeats: null,
+        note: 'A soft musical "teel-wit", and a thin high "seet" from a flock.',
+      },
+    ],
+    confusableWith: ['white_throated_sparrow'],
+  },
+  {
+    code: 'purple_finch',
+    commonName: 'Purple Finch',
+    scientificName: 'Haemorhous purpureus',
+    inatTaxonId: 199841,
+    xcQuery: 'gen:haemorhous sp:purpureus',
+    emoji: '🐦',
+    crew: 'crew3',
+    season: 'winter',
+    localPoints: 80,
+    sizeAnchor: 'sparrow',
+    lengthInches: 6,
+    bill: 'cone',
+    colourHook:
+      'The male looks as though he was dipped head-first in raspberry juice — the colour runs right down over his back and wings. The female is brown with a bold white stripe over the eye.',
+    fieldMarks: [
+      'raspberry colour spread over the head, back AND wings, not just the front',
+      'a heavier, blunter bill than a House Finch',
+      'on the female, a strong white eyebrow and a dark cheek patch',
+    ],
+    behaviour: [
+      'comes to sunflower seed in winter, often in small groups',
+      'sits higher in trees than a House Finch does',
+      'some winters there are many and some winters almost none',
+    ],
+    habitat: ['woodland edges', 'conifers', 'feeders in winter'],
+    facts: [
+      'A famous bird book describes the male as a sparrow dipped in raspberry juice, which is the best description anyone has managed.',
+      'It is the one to compare with the House Finch you already know. House Finch red sits mostly on the front; Purple Finch colour goes over the back and wings too.',
+      'It does not come every winter. In some years the northern seed crop fails and they pour south; in others you may not see one at all.',
+    ],
+    dimorphic: true,
+    voices: [
+      {
+        kind: 'song',
+        mnemonic: null,
+        tone: 'chatter',
+        pitchShape: 'wandering',
+        repeats: null,
+        note: 'A fast rich warble that tumbles along without a rough note at the end.',
+      },
+    ],
+    confusableWith: ['house_finch'],
+  },
+  {
+    code: 'cedar_waxwing',
+    commonName: 'Cedar Waxwing',
+    scientificName: 'Bombycilla cedrorum',
+    inatTaxonId: 7428,
+    xcQuery: 'gen:bombycilla sp:cedrorum',
+    emoji: '🐦',
+    crew: 'crew3',
+    season: 'winter',
+    localPoints: 60,
+    sizeAnchor: 'sparrow',
+    lengthInches: 7.1,
+    bill: 'all_purpose',
+    colourHook:
+      'Silky fawn-brown, smooth as velvet, with a swept-back crest, a narrow black mask, and a tail that looks as if it has been dipped in bright yellow paint.',
+    fieldMarks: [
+      'a black mask edged in white, like a tiny bandit',
+      'a yellow band across the very tip of the tail',
+      'red waxy spots on the wingtips of older birds',
+    ],
+    behaviour: [
+      'arrives as a whole flock, strips a berry bush, and leaves',
+      'passes berries beak to beak along a branch to each other',
+      'almost never comes to a seed feeder',
+    ],
+    habitat: ['berry bushes', 'holly and juniper', 'fruiting trees in streets'],
+    facts: [
+      'It is named for the red waxy tips on its wing feathers. Nobody is quite sure what they are for, but older birds have more of them.',
+      'A row of waxwings on a branch will pass a single berry from beak to beak down the line and back again before somebody eats it.',
+      'It will not come to your seed feeder however long you wait. If you want waxwings, plant berries.',
+    ],
+    dimorphic: false,
+    voices: [
+      {
+        kind: 'call',
+        mnemonic: null,
+        tone: 'whistle',
+        pitchShape: 'flat',
+        repeats: null,
+        note: 'A very high, thin, trembling whistle — so high that some grown-ups genuinely cannot hear it.',
       },
     ],
   },

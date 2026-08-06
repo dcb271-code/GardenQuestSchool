@@ -29,5 +29,12 @@ export default async function BirdsPage({
     .from('learner').select('grade_level').eq('id', learnerId).maybeSingle();
   const learnerLevel = learner?.grade_level ?? 2;
 
-  return <BirdScene learnerId={learnerId} learnerLevel={learnerLevel} />;
+  // The month gates the seasonal crews. Computed on the SERVER so the
+  // answer does not depend on a tablet's clock, and passed in rather
+  // than read in the client so a test can pin the behaviour.
+  const month = new Date().getMonth() + 1;
+
+  return (
+    <BirdScene learnerId={learnerId} learnerLevel={learnerLevel} month={month} />
+  );
 }
