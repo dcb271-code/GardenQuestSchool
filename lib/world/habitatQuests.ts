@@ -290,6 +290,43 @@ export const HABITAT_QUESTS: Record<string, HabitatQuest> = {
     ],
     outro: 'Now watch the window. Somebody will find it within a day or two.',
   },
+  crystal_cavern: {
+    habitatCode: 'crystal_cavern',
+    intro: "There is an old mine in the mountain. Let's see if it is safe to open.",
+    questions: [
+      {
+        prompt: 'What is the first thing you take into a dark mine?',
+        choices: [
+          'A light',
+          'A sandwich',
+          'A swimming costume',
+          'Nothing — your eyes will get used to it',
+        ],
+        correctIndex: 0,
+      },
+      {
+        prompt: 'Miners in Kentucky dug up a mineral called fluorite in the 1830s and threw it away as rubbish. Why was that a mistake?',
+        choices: [
+          'It turned out to be valuable — they just had not looked at it properly',
+          'It was actually food',
+          'It was the only rock holding the mine up',
+          'It was not a mistake, fluorite is worthless',
+        ],
+        correctIndex: 0,
+      },
+      {
+        prompt: 'A geode looks like a boring grey lump from the outside. What is the point of that?',
+        choices: [
+          'You cannot tell what is inside until you open it',
+          'It is trying to look like a potato',
+          'Grey is the strongest colour',
+          'There is never anything inside',
+        ],
+        correctIndex: 0,
+      },
+    ],
+    outro: 'The props are sound and the air is good. The cavern is open.',
+  },
 };
 
 // ─── Level 3+ question tier ────────────────────────────────────────────
@@ -522,6 +559,38 @@ export const HABITAT_QUESTIONS_L3: Record<string, QuestQuestion[]> = {
         'Red is simply the prettiest colour to a bird',
         'Redder males sing more quietly',
         'The colour tells her how old he is exactly',
+      ],
+      correctIndex: 0,
+    },
+  ],
+  crystal_cavern: [
+    {
+      prompt: 'Kentucky agate is the state MINERAL and coal is the state ROCK — but for twenty-four years the state had those two labels swapped over. What is the actual difference between a rock and a mineral?',
+      choices: [
+        'A mineral is one pure substance with its own recipe; a rock is a mixture of them stuck together',
+        'A mineral is shiny and a rock is dull',
+        'A mineral is small and a rock is big',
+        'There is no difference, the words mean the same thing',
+      ],
+      correctIndex: 0,
+    },
+    {
+      prompt: 'Fluorite grows in perfect cubes with nobody cutting it, and quartz always grows six-sided. Why does a mineral come out in the same shape every time?',
+      choices: [
+        'Its atoms stack in a repeating pattern, and the outside shape follows the stacking',
+        'The mine workers file them into shape underground',
+        'They copy the shape of the hole they grow in',
+        'It is random — it only looks the same',
+      ],
+      correctIndex: 0,
+    },
+    {
+      prompt: 'A ruby is a 9 on the hardness scale and a garnet is about 7 and a half. How does that let you tell two red stones apart?',
+      choices: [
+        'The ruby will scratch the garnet, and the garnet cannot scratch back',
+        'The garnet will scratch the ruby',
+        'They will scratch each other equally',
+        'Hardness has nothing to do with scratching',
       ],
       correctIndex: 0,
     },

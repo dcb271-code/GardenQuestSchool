@@ -182,6 +182,40 @@ export const SPECIES_CATALOG: SpeciesData[] = [
     funFact: 'Not originally an eastern bird. New York pet shops sold them illegally as "Hollywood Finches", and in 1940 the sellers set them loose to avoid arrest. They reached Kentucky in the late 1970s.',
     illustrationKey: 'house_finch', emoji: '🐦', habitatReqCodes: ['bird_feeder'], conservationStatus: 'stable' },
 
+  // ── THE CAVE CREATURES ─────────────────────────────────────────────
+  //
+  // Cecily picked the salamander and asked about cave crickets and
+  // bats. These four are here because between them they answer one
+  // question four different ways: how do you live where there is no
+  // light?
+  //
+  //   salamander — big eyes, and stays near the entrance where a
+  //                little light still reaches
+  //   cricket    — has eyes, and LEAVES at night to eat, carrying the
+  //                food back in. Everything else down there depends on
+  //                it, which makes it a keystone species
+  //   bat        — sleeps in, feeds out
+  //   shrimp     — never leaves, and has no eyes at all
+  //
+  // All four are real Mammoth Cave animals, which is in Kentucky and
+  // is the longest cave system in the world.
+  { code: 'cave_salamander', commonName: 'Cave Salamander', scientificName: 'Eurycea lucifuga',
+    description: 'A bright orange salamander with black spots and surprisingly large eyes, living where the cave still catches a little light.',
+    funFact: 'It has BIG eyes — the opposite of what you would guess. It lives near the entrance where a little light reaches, so good eyes are still worth having.',
+    illustrationKey: 'cave_salamander', emoji: '🦎', habitatReqCodes: ['crystal_cavern'], conservationStatus: 'stable' },
+  { code: 'cave_cricket', commonName: 'Cave Cricket', scientificName: 'Hadenoecus subterraneus',
+    description: 'A long-legged, humpbacked cricket with antennae far longer than its body, clinging to cave ceilings in crowds.',
+    funFact: 'It is not blind. It leaves the cave at night to feed and carries the food back in — and almost everything else in the cave depends on what it brings.',
+    illustrationKey: 'cave_cricket', emoji: '🦗', habitatReqCodes: ['crystal_cavern'], conservationStatus: 'stable' },
+  { code: 'little_brown_bat', commonName: 'Little Brown Bat', scientificName: 'Myotis lucifugus',
+    description: 'A small brown bat that roosts in the cave by day and hunts insects over the fields at night.',
+    funFact: 'Mammoth Cave in Kentucky has thirteen kinds of bat. A single little brown bat can eat a thousand insects in one night.',
+    illustrationKey: 'little_brown_bat', emoji: '🦇', habitatReqCodes: ['crystal_cavern'], conservationStatus: 'needs_help' },
+  { code: 'cave_shrimp', commonName: 'Kentucky Cave Shrimp', scientificName: 'Palaemonias ganteri',
+    description: 'A ghost-pale shrimp, almost see-through, living in the streams that run through the dark of Mammoth Cave.',
+    funFact: 'It has no eyes at all — not small ones, none. It tastes, touches and smells with two pairs of feelers, and it lives nowhere else on Earth but Kentucky.',
+    illustrationKey: 'cave_shrimp', emoji: '🦐', habitatReqCodes: ['crystal_cavern'], conservationStatus: 'in_danger' },
+
   // ── RARE VISITORS — researcher-badge gated (Level 3+ science) ──────
   { code: 'painted_turtle', commonName: 'Painted Turtle', scientificName: 'Chrysemys picta',
     description: 'A pond turtle with red and yellow stripes along its shell edge, famous for sunbathing in stacks.',

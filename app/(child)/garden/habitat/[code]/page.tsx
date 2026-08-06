@@ -15,6 +15,8 @@ import { HABITAT_CATALOG } from '@/lib/world/habitatCatalog';
 import { birdAudioUrl } from '@/lib/birds/photoStorage';
 import type { AudioIndex } from '@/lib/birds/audioResolve';
 import type { VoiceKind } from '@/lib/world/birdCatalog';
+import { emptyCavern, canDig, type CavernState } from '@/lib/world/cavern';
+import { todayKey } from '@/lib/learning/review';
 import { MATH_MOUNTAIN_STRUCTURES } from '@/lib/world/branchMaps';
 import { MATH_SKILLS } from '@/lib/packs/math/skills';
 import { ZONE_COMPLETION_TARGET } from '@/lib/world/zoneProgress';
@@ -25,6 +27,7 @@ import BeeHotelInterior from './BeeHotelInterior';
 import ButterflyBushInterior from './ButterflyBushInterior';
 import LogPileInterior from './LogPileInterior';
 import BirdFeederInterior from './BirdFeederInterior';
+import CrystalCavernInterior from './CrystalCavernInterior';
 import CaveInterior, { type CaveSkillStop } from './CaveInterior';
 
 export const dynamic = 'force-dynamic';
@@ -98,6 +101,25 @@ export default async function HabitatInteriorPage({
   // Every habitat that is a HOME now has an interior; they all share
   // the same shape (one themed skill stop plus the residents), so a
   // lookup beats a chain of branches.
+  if (code === 'crystal_cavern') {
+    const { data: stateRow } = await db
+      .from('world_state').select('garden').eq('learner_id', learnerId).maybeSingle();
+    const cavernGarden = (stateRow?.garden ?? {}) as Record<string, unknown>;
+    const stored = (cavernGarden.cavern ?? {}) as Partial<CavernState>;
+    const cavern: CavernState = { ...emptyCavern(), ...stored };
+    return (
+      <CrystalCavernInterior
+        learnerId={learnerId}
+        themedSkillCode={cfg.themedSkillCode}
+        themedStructureLabel={cfg.themedStructureLabel}
+        themedStructureEmoji={cfg.themedStructureEmoji}
+        discoveredSpecies={discoveredSpecies}
+        undiscoveredCount={undiscoveredCount}
+        cavern={{ ...cavern, canDigToday: canDig(cavern, todayKey()) }}
+      />
+    );
+  }
+
   // The feeder is the one interior whose residents make a SOUND, so it
   // needs the clip index the others don't. Fetched here rather than in
   // the client so the birds can sing on the first tap, with no

@@ -300,6 +300,44 @@ export const RESEARCHER_QUESTS: Record<string, ResearcherQuest> = {
     outro: 'You studied the feeder like a real ornithologist — counting, and asking why.',
     gemLine: 'You wondered why the same birds come at the same hours, and what a crowded feeder costs them. That is field science.',
   },
+  crystal_cavern: {
+    habitatCode: 'crystal_cavern',
+    intro: 'Time to study the cavern the way a cave biologist would — not the rocks this time, the animals.',
+    questions: [
+      {
+        prompt: 'The cave salamander lives in a cave and has LARGE eyes, while the Kentucky cave shrimp lives in the same darkness and has no eyes at all. How can both be right?',
+        choices: [
+          'The salamander stays near the entrance where some light still reaches; the shrimp lives deep where there is none, so eyes would cost energy for nothing',
+          'The shrimp is younger and its eyes have not grown yet',
+          'The salamander is not really a cave animal',
+          'Eyes work fine in total darkness if you practise',
+        ],
+        correctIndex: 0,
+      },
+      {
+        prompt: 'Nothing grows in a cave — no plants, no sunlight, no leaves. So where does ALL the food in a cave come from?',
+        choices: [
+          'Animals like cave crickets go out at night, eat, and carry it back in — everything else lives off what they bring',
+          'The rocks slowly turn into food',
+          'It floats in on the wind',
+          'Cave animals do not need to eat',
+        ],
+        correctIndex: 0,
+      },
+      {
+        prompt: 'The Kentucky cave shrimp lives in Mammoth Cave and nowhere else on Earth. Why does that make it so easy to endanger?',
+        choices: [
+          'If something spoils the water in that one cave system, there is no other population anywhere to replace it',
+          'Because it is small',
+          'Because shrimps are always endangered',
+          'It is not really at risk',
+        ],
+        correctIndex: 0,
+      },
+    ],
+    outro: 'You studied the dark like a cave biologist — and found out that it is not empty at all.',
+    gemLine: 'You asked how anything survives where there is no light, and followed the food all the way back out of the cave. That is ecology.',
+  },
 };
 
 export function getResearcherQuest(code: string): ResearcherQuest | undefined {

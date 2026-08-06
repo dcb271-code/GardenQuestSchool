@@ -99,6 +99,30 @@ export const HABITAT_CATALOG: HabitatTypeData[] = [
     interestTags: ['multiply', 'groups', 'counting', 'nature'],
   },
   {
+    // Crystal Cavern — Cecily's, by request and by name.
+    //
+    // The second cut into Math Mountain, higher than Operations Cave
+    // and opened later. Gated on multiplication facts because that is
+    // squarely Level 3, which is the level she asked for, and because
+    // the maths inside is money: a price times a count.
+    //
+    // Its residents are the point rather than an afterthought. A mine
+    // sounds like the one habitat with nothing living in it, and the
+    // truth is the opposite — see the cave species in SPECIES_CATALOG,
+    // which between them give four different answers to "how do you
+    // live where there is no light".
+    code: 'crystal_cavern',
+    name: 'Crystal Cavern',
+    description: 'A worked-out mine in the mountainside, where the walls still glitter.',
+    attractsSpeciesCodes: [
+      'cave_salamander', 'cave_cricket', 'little_brown_bat', 'cave_shrimp',
+    ],
+    prereqSkillCodes: ['math.multiply.facts_to_10'],
+    illustrationKey: 'crystal_cavern',
+    emoji: '💎',
+    interestTags: ['multiply', 'facts', 'patterns', 'nature'],
+  },
+  {
     // Math Mountain side-habitat — the cave at the foot of the
     // mountain. Hosts three regrouping/operations skills inside,
     // plus a friendly resident bear who sleeps near the lantern.

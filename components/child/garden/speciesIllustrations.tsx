@@ -1189,6 +1189,130 @@ export function FeederBird({ code, size = 60 }: { code: string; size?: number })
 export const FEEDER_BIRD_CODES = Object.keys(BIRD_LOOKS);
 
 // ─────────────────────────────────────────────────────────────────────────
+// THE CAVE CREATURES
+//
+// Four animals, four different answers to "how do you live where there
+// is no light" — and the drawings have to carry that difference, so
+// the eyes are the thing to get right. The salamander's are large and
+// bright because it lives where a little light still reaches; the
+// shrimp has none at all, and its blank head is the whole point.
+// ─────────────────────────────────────────────────────────────────────────
+
+export function CaveSalamander({ size = 60 }: SpeciesProps) {
+  const SKIN = '#E8842C';
+  const SPOT = '#2E2A26';
+  return (
+    <Svg size={size}>
+      <ellipse cx={0} cy={20} rx={26} ry={3} fill="#000" opacity={0.25} />
+      {/* tail, curling back */}
+      <path d="M -14 8 Q -34 10 -30 -6 Q -26 2 -12 0 Z"
+            fill={SKIN} stroke={STROKE} strokeWidth={1.6} strokeLinejoin="round" />
+      {/* body */}
+      <ellipse cx={2} cy={6} rx={20} ry={9} fill={SKIN} stroke={STROKE} strokeWidth={2} />
+      {/* legs */}
+      {[-10, 12].map(lx => (
+        <g key={lx}>
+          <path d={`M ${lx} 13 l -5 7`} stroke={STROKE} strokeWidth={2.4} strokeLinecap="round" fill="none" />
+          <path d={`M ${lx + 5} 13 l 5 7`} stroke={STROKE} strokeWidth={2.4} strokeLinecap="round" fill="none" />
+        </g>
+      ))}
+      {/* head */}
+      <ellipse cx={22} cy={1} rx={12} ry={8} fill={SKIN} stroke={STROKE} strokeWidth={2} />
+      {/* THE EYES — big, because it lives where light still reaches */}
+      <circle cx={26} cy={-3} r={4.2} fill="#FFFDF2" stroke={STROKE} strokeWidth={1.2} />
+      <circle cx={27} cy={-3} r={2.4} fill="#1A0E08" />
+      <circle cx={17} cy={-4} r={3.6} fill="#FFFDF2" stroke={STROKE} strokeWidth={1.1} />
+      <circle cx={17.6} cy={-4} r={2} fill="#1A0E08" />
+      {/* the black spots */}
+      {[[-6, 1], [3, 3], [10, 0], [-14, 4], [0, 10]].map(([x, y], i) => (
+        <circle key={i} cx={x} cy={y} r={2.1} fill={SPOT} />
+      ))}
+    </Svg>
+  );
+}
+
+export function CaveCricket({ size = 60 }: SpeciesProps) {
+  const BODY = '#B08C5E';
+  return (
+    <Svg size={size}>
+      <ellipse cx={0} cy={22} rx={18} ry={3} fill="#000" opacity={0.22} />
+      {/* the famously long antennae — longer than the whole animal */}
+      <path d="M 8 -6 Q 28 -26 44 -40" stroke={STROKE} strokeWidth={1.6} fill="none" strokeLinecap="round" />
+      <path d="M 8 -6 Q 26 -14 46 -16" stroke={STROKE} strokeWidth={1.6} fill="none" strokeLinecap="round" />
+      {/* humpbacked body */}
+      <path d="M -16 10 Q -18 -12 0 -12 Q 16 -12 14 10 Z"
+            fill={BODY} stroke={STROKE} strokeWidth={2} strokeLinejoin="round" />
+      {/* big jumping back leg */}
+      <path d="M -10 4 L -24 -6 L -20 12 Z"
+            fill={BODY} stroke={STROKE} strokeWidth={1.6} strokeLinejoin="round" />
+      <path d="M -20 12 l -6 10" stroke={STROKE} strokeWidth={2.2} strokeLinecap="round" fill="none" />
+      {/* front legs */}
+      <path d="M 4 10 l 3 12 M 10 8 l 7 13" stroke={STROKE} strokeWidth={2} strokeLinecap="round" fill="none" />
+      {/* head — it HAS eyes; it is not the blind one */}
+      <circle cx={11} cy={-6} r={7} fill={BODY} stroke={STROKE} strokeWidth={1.8} />
+      <circle cx={14} cy={-8} r={1.8} fill="#1A0E08" />
+    </Svg>
+  );
+}
+
+export function LittleBrownBat({ size = 60 }: SpeciesProps) {
+  const FUR = '#7B5A3A';
+  const WING = '#4A3A2E';
+  return (
+    <Svg size={size}>
+      {/* hanging from the roof, which is how you would actually see it */}
+      <path d="M -30 -30 L 30 -30" stroke="#5A4A3A" strokeWidth={3} strokeLinecap="round" />
+      {/* wings, folded like a cloak */}
+      <path d="M -3 -24 Q -22 -14 -16 8 Q -8 -2 -2 -4 Z"
+            fill={WING} stroke={STROKE} strokeWidth={1.6} strokeLinejoin="round" />
+      <path d="M 3 -24 Q 22 -14 16 8 Q 8 -2 2 -4 Z"
+            fill={WING} stroke={STROKE} strokeWidth={1.6} strokeLinejoin="round" />
+      {/* body, upside down */}
+      <ellipse cx={0} cy={-8} rx={8} ry={14} fill={FUR} stroke={STROKE} strokeWidth={2} />
+      {/* feet gripping */}
+      <path d="M -4 -24 l -2 -6 M 4 -24 l 2 -6" stroke={STROKE} strokeWidth={2} strokeLinecap="round" />
+      {/* head at the bottom, ears down */}
+      <circle cx={0} cy={7} r={7} fill={FUR} stroke={STROKE} strokeWidth={2} />
+      <path d="M -6 12 L -9 19 L -3 15 Z" fill={FUR} stroke={STROKE} strokeWidth={1.3} strokeLinejoin="round" />
+      <path d="M 6 12 L 9 19 L 3 15 Z" fill={FUR} stroke={STROKE} strokeWidth={1.3} strokeLinejoin="round" />
+      <circle cx={-2.6} cy={7} r={1.4} fill="#1A0E08" />
+      <circle cx={2.6} cy={7} r={1.4} fill="#1A0E08" />
+    </Svg>
+  );
+}
+
+export function CaveShrimp({ size = 60 }: SpeciesProps) {
+  // Ghost-pale and see-through, and NO EYES. The blank head is the
+  // entire lesson: it lives too deep for them to be worth growing.
+  const BODY = '#F0EAE0';
+  return (
+    <Svg size={size}>
+      <ellipse cx={0} cy={20} rx={22} ry={3} fill="#000" opacity={0.12} />
+      {/* feelers, doing the job eyes would */}
+      <path d="M 16 -2 Q 34 -14 46 -10" stroke={STROKE} strokeWidth={1.4} fill="none" strokeLinecap="round" />
+      <path d="M 16 0 Q 36 4 46 16" stroke={STROKE} strokeWidth={1.4} fill="none" strokeLinecap="round" />
+      <path d="M 16 -1 Q 32 -4 44 2" stroke={STROKE} strokeWidth={1.1} fill="none" strokeLinecap="round" opacity={0.8} />
+      {/* curved body in segments */}
+      <path d="M 14 0 Q 6 -14 -10 -10 Q -24 -6 -20 8 Q -12 16 -2 12 Q 10 8 14 0 Z"
+            fill={BODY} stroke={STROKE} strokeWidth={1.8} strokeLinejoin="round" opacity={0.95} />
+      {[-12, -5, 2].map((sx, i) => (
+        <path key={i} d={`M ${sx} -11 Q ${sx + 2} 0 ${sx - 1} 12`}
+              stroke={STROKE} strokeWidth={0.9} fill="none" opacity={0.5} />
+      ))}
+      {/* tail fan */}
+      <path d="M -20 8 L -32 2 L -30 12 L -34 18 L -19 14 Z"
+            fill={BODY} stroke={STROKE} strokeWidth={1.5} strokeLinejoin="round" opacity={0.95} />
+      {/* legs */}
+      {[-10, -4, 2, 8].map(lx => (
+        <path key={lx} d={`M ${lx} 12 l -2 7`} stroke={STROKE} strokeWidth={1.2} strokeLinecap="round" fill="none" />
+      ))}
+      {/* head — deliberately blank. No eye, anywhere. */}
+      <path d="M 14 0 Q 18 -6 16 -2" fill={BODY} stroke={STROKE} strokeWidth={1.4} />
+    </Svg>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────
 // ROUTER
 // ─────────────────────────────────────────────────────────────────────────
 
@@ -1214,6 +1338,11 @@ export function SpeciesIllustration({
     case 'painted_turtle':     return <PaintedTurtle size={size} />;
     case 'spotted_salamander': return <SpottedSalamander size={size} />;
     case 'luna_moth':          return <LunaMoth size={size} />;
+    // cave creatures — Crystal Cavern
+    case 'cave_salamander':    return <CaveSalamander size={size} />;
+    case 'cave_cricket':       return <CaveCricket size={size} />;
+    case 'little_brown_bat':   return <LittleBrownBat size={size} />;
+    case 'cave_shrimp':        return <CaveShrimp size={size} />;
     default:
       // The ten feeder birds share one parameterised drawing — see
       // FeederBird. Anything else must still resolve to NULL, not to

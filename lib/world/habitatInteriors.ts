@@ -63,6 +63,14 @@ export const HABITAT_INTERIORS: Record<string, HabitatInteriorConfig> = {
     themedStructureLabel: 'Counting the Queue',
     themedStructureEmoji: '🌻',
   },
+  crystal_cavern: {
+    // The money maths Cecily asked for: a price times a count is
+    // exactly multiplication facts, which is also what opens the
+    // cavern in the first place.
+    themedSkillCode: 'math.multiply.facts_to_10',
+    themedStructureLabel: 'The Price Board',
+    themedStructureEmoji: '🪙',
+  },
   operations_cave: {
     themedSkillCode: 'math.add.within_100.no_regrouping',
     themedStructureLabel: "Hundred's Hollow",

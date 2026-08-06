@@ -847,6 +847,83 @@ export default function MathMountainScene({
               river so the seam is clean.) */}
         </g>
 
+        {/* ── 6b-ii. CRYSTAL CAVERN ─────────────────────────────
+             Cecily's, by request and by her name. The second cut into
+             this mountain, higher than Operations Cave and opened
+             later — gated on multiplication facts, which is Level 3,
+             which is the level she asked for.
+
+             Sealed rather than hidden when it is not yet earned. A
+             boarded-up mine you can see from the path is an invitation;
+             a mine that is not drawn at all is nothing. Tapping it
+             while sealed says what will open it. */}
+        {(() => {
+          const cavernOpen = masteredCodes.includes('math.multiply.facts_to_10');
+          return (
+            <g
+              transform="translate(1300, 190)"
+              style={{ cursor: 'pointer', touchAction: 'manipulation' }}
+              onClick={() => cavernOpen
+                ? router.push(`/garden/habitat/crystal_cavern?learner=${learnerId}`)
+                : setLockedHint({
+                    code: 'crystal_cavern', kind: 'habitat', label: 'Crystal Cavern',
+                    themeEmoji: '💎', x: 1300, y: 190, size: 70, zone: 'math',
+                    skillCode: 'math.multiply.facts_to_10',
+                  } as MapStructure)}
+              role="button"
+              aria-label={cavernOpen
+                ? 'Crystal Cavern — go inside'
+                : 'Crystal Cavern (sealed)'}
+              tabIndex={0}
+            >
+              <rect x={-46} y={-46} width={92} height={96} fill="transparent" />
+              {/* the cut in the rock */}
+              <path d="M -34 44 L -30 -14 Q 0 -40 30 -14 L 34 44 Z"
+                    fill="#4A4038" stroke="#2A2420" strokeWidth={2} strokeLinejoin="round" />
+              <path d="M -24 44 L -21 -8 Q 0 -28 21 -8 L 24 44 Z" fill="#15110E" />
+              {/* pit props */}
+              <rect x={-30} y={-16} width={6} height={60} fill="#7B4F2C" stroke="#3F2614" strokeWidth={1.2} />
+              <rect x={24} y={-16} width={6} height={60} fill="#7B4F2C" stroke="#3F2614" strokeWidth={1.2} />
+              <rect x={-32} y={-22} width={64} height={8} rx={2} fill="#8B5A2B" stroke="#3F2614" strokeWidth={1.2} />
+
+              {cavernOpen ? (
+                <>
+                  {/* crystals catching the lantern light inside */}
+                  {[{ x: -12, y: 22, c: '#B589D6' }, { x: 6, y: 30, c: '#8FD1E8' },
+                    { x: 14, y: 16, c: '#E88F9C' }].map((g, i) => (
+                    <motion.path key={i}
+                      d={`M ${g.x} ${g.y - 9} L ${g.x + 5} ${g.y} L ${g.x} ${g.y + 9} L ${g.x - 5} ${g.y} Z`}
+                      fill={g.c} stroke="#1A1410" strokeWidth={1}
+                      animate={reducedMotion ? undefined : { opacity: [0.6, 1, 0.6] }}
+                      transition={reducedMotion ? undefined : {
+                        duration: 2.4 + i * 0.6, repeat: Infinity, ease: 'easeInOut',
+                      }}
+                    />
+                  ))}
+                  {/* a rail and a cart, because it is a mine */}
+                  <rect x={-16} y={44} width={32} height={3} fill="#5A4A3A" />
+                  <rect x={-9} y={34} width={18} height={11} rx={2}
+                        fill="#8B5A2B" stroke="#3F2614" strokeWidth={1.2} />
+                </>
+              ) : (
+                /* boarded over */
+                <>
+                  <rect x={-26} y={2} width={52} height={7} rx={2}
+                        fill="#8B5A2B" stroke="#3F2614" strokeWidth={1.2} transform="rotate(-8)" />
+                  <rect x={-26} y={20} width={52} height={7} rx={2}
+                        fill="#8B5A2B" stroke="#3F2614" strokeWidth={1.2} transform="rotate(6)" />
+                  <text y={-30} textAnchor="middle" fontSize={14}>🔒</text>
+                </>
+              )}
+              <rect x={-46} y={50} width={92} height={17} rx={8}
+                    fill="rgba(255,250,242,0.94)" stroke="#6b8e5a" strokeWidth={1} />
+              <text y={62} textAnchor="middle" fontSize={9} fontWeight={700} fill="#3f2614">
+                Crystal Cavern
+              </text>
+            </g>
+          );
+        })()}
+
         {/* ── 6c. CAVE CLICK-TARGET ─────────────────────────────
              The cave VISUAL is rendered above (section 6b — the cave
              mouth carved into the mossy hillside). This is just an
