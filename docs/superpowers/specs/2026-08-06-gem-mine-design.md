@@ -1,4 +1,4 @@
-# Design — the Gem Mine
+# Design — Crystal Cavern
 
 **Requested by Cecily**, in her own words: one of the mountains should have a gem
 mine; inside it a "habitat" to learn about gems — *how they are created, how they
@@ -184,18 +184,93 @@ good as the bird module.
 
 ---
 
-## 7. Questions for Cecily
+## 7. Her answers, and what they decided
 
-She asked for this, so she should decide it. Now that the letterbox exists, these
-can go to her as a reply and come back in her own words:
+All four questions went to her through the letterbox and came back.
 
-- **What is the mine called?** Not "Gem Mine" — the mountain has Cliffside Point
-  and Mirror Tarns and the Summit Cairn.
-- **Which gem is her favourite?** It becomes the first one taught.
-- **Does she want to sell gems, or keep them?** The money maths works either way,
-  but a collection and a shop are different games.
-- **Should the mine have animals in it?** §5 — and her answer decides whether
-  that is a stretch or the best part.
+**It is called CRYSTAL CAVERN.** Her name, used everywhere.
+
+**Ruby is her favourite** — which produced the two-shelf structure in §3, because
+there are no rubies in Kentucky and the honest answer turned out to be better
+than a fudge.
+
+**Creatures: the salamander, plus cave crickets and bats.** So §5 resolves the
+good way — the cavern gets residents and they become content rather than an
+exemption. Four different answers to "how do you live where there is no light":
+the salamander has BIG eyes for the dark, the crickets have eyes and leave at
+night to feed (which is what keeps everything else alive down there), the bats
+sleep in and feed out, and the Kentucky cave shrimp has no eyes at all.
+
+**Sell or keep? She said BOTH, and better than I asked it.** Her words: gems
+should "carry a worth, maybe in money terms, that can be traded for garden goods
+(maybe can eventually build garden things?)".
+
+That is an economy, and §8 is what it has to be.
+
+---
+
+## 8. The economy, and the trap it must not fall into
+
+This is the riskiest thing in the whole design, and the risk is already
+documented in this project: **the failure mode of this garden is a child
+grinding easy content for rewards.** That is why the trellis gate is
+mastery-gated rather than count-gated, and why bird units are one-pass. A
+currency that buys things is exactly the shape that goes wrong.
+
+### Naming, first — there is a collision
+
+**"Gem" already means something here.** `virtue_gem` is an established reward:
+seven virtues, one a day, narrative. Cecily's gems are minerals. Two different
+things called gems, in the same garden, would confuse the code and the child.
+
+So: the cavern yields **specimens**, and they sell for **coins**. Virtue gems stay
+what they are. Coins also point straight at `math.money.coin_count` and the money
+maths she asked for.
+
+### Keep or sell — the decision IS the feature
+
+Every specimen she finds offers a genuine choice:
+
+- **Keep it** — it goes in the display case, and a complete case of Kentucky
+  minerals is its own goal.
+- **Sell it** — it becomes coins, and coins buy garden things.
+
+She cannot do both with the same stone. That is opportunity cost, it is real
+maths, and it is a far better mechanic than either option I offered her.
+
+### Where coins come from, and the ceiling on them
+
+Coins must be bounded by CONTENT and TIME, never by repetition:
+
+- Completing a Crystal Cavern lesson yields a specimen. Lessons are
+  one-pass, exactly like bird units, so this is a finite seam.
+- A **daily dig** yields one or two specimens, capped per day the way virtue
+  gems already are. A day's mining is a small event, not a tap-farm.
+- Selling is the only source of coins. There is no coin-per-correct-answer,
+  because that is precisely the farmable shape.
+
+Consequence worth stating: **a child who grinds subtract-within-10 all afternoon
+earns nothing here.** The cavern pays for going deeper, not for going again.
+
+### What coins buy
+
+Not seeds — those already come from `SEED_EARN_SCHEDULE` on lifetime correct, and
+a second route to the same reward would undercut it.
+
+**Garden ornaments**, placed on the map: a bench, a stone lantern, a birdbath, a
+sundial, a little bridge. This is the "build garden things" she asked for, it is a
+surface that does not exist yet, and it makes the map change in a way that is
+hers rather than earned from a skill tree.
+
+It also revives something dormant. Both girls have **zero** decorations placed —
+the tiny-garden decor state is empty for both. Giving ornaments a price and a
+source may be what that feature was always missing.
+
+### The thing to watch
+
+If specimen value ever becomes the reason she does maths, this has failed. The
+mine should be somewhere she wants to go because it is interesting, and the coins
+should be a souvenir of having gone.
 
 ---
 
