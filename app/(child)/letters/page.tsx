@@ -1,0 +1,27 @@
+// app/(child)/letters/page.tsx
+//
+// The letterbox — a child writing directly to whoever builds this.
+
+import { createServiceClient } from '@/lib/supabase/server';
+import { resolveLearnerId } from '@/lib/learner/activeLearner';
+import LetterScene from './LetterScene';
+
+export const dynamic = 'force-dynamic';
+
+export default async function LettersPage({
+  searchParams,
+}: {
+  searchParams: { learner?: string };
+}) {
+  const db = createServiceClient();
+  const learnerId = await resolveLearnerId(db, searchParams.learner);
+  if (!learnerId) {
+    return <div className="p-6">No learner found.</div>;
+  }
+  const { data: learner } = await db
+    .from('learner').select('first_name').eq('id', learnerId).maybeSingle();
+
+  return (
+    <LetterScene learnerId={learnerId} firstName={learner?.first_name ?? 'me'} />
+  );
+}

@@ -362,6 +362,7 @@ export default function GardenScene({
   researcherBadges = [],
   residents = [],
   birdAudio = {},
+  unreadLetterReplies = 0,
 }: {
   learnerId: string;
   firstName?: string | null;
@@ -385,6 +386,8 @@ export default function GardenScene({
   residents?: Resident[];
   /** Clips for bird residents, so tapping one plays its voice. */
   birdAudio?: AudioIndex;
+  /** Replies she has not opened — puts a flag up on the letterbox. */
+  unreadLetterReplies?: number;
 }) {
   const router = useRouter();
   const { settings, update } = useAccessibilitySettings();
@@ -1669,6 +1672,64 @@ export default function GardenScene({
               </text>
             </motion.g>
           )}
+
+          {/* ── THE LETTERBOX ──────────────────────────────────
+              A child writing to whoever builds this. Cecily asked for
+              it: somewhere she could post an idea and have it actually
+              turn up in the garden later.
+
+              Deliberately NOT another header icon — the header carries
+              a comment saying a row of icons does not scale, and it is
+              right. A letterbox belongs beside the path, and going to
+              it is part of the act.
+
+              Position from the same clearance solver used for the bird
+              feeder: 90 units to the nearest structure edge. */}
+          <g
+            transform="translate(460, 580)"
+            style={{ cursor: 'pointer', touchAction: 'manipulation' }}
+            onClick={() => router.push(`/letters?learner=${learnerId}`)}
+            role="button"
+            aria-label={
+              unreadLetterReplies > 0
+                ? 'the letterbox — a reply is waiting'
+                : 'the letterbox — write to whoever builds your garden'
+            }
+            tabIndex={0}
+          >
+            <rect x={-40} y={-52} width={80} height={92} fill="transparent" />
+            <ellipse cx={0} cy={34} rx={16} ry={4} fill="#000" opacity={0.18} />
+            {/* post */}
+            <rect x={-4} y={-6} width={8} height={40} rx={2}
+                  fill="#8B5A2B" stroke="#5A3B1F" strokeWidth={1.6} />
+            {/* box */}
+            <rect x={-19} y={-32} width={38} height={28} rx={4}
+                  fill="#6b8e5a" stroke="#3F2614" strokeWidth={2} />
+            <path d="M -19 -22 L 0 -12 L 19 -22" fill="none"
+                  stroke="#3F2614" strokeWidth={1.4} opacity={0.55} />
+            <rect x={-13} y={-38} width={26} height={7} rx={3}
+                  fill="#5C7E4F" stroke="#3F2614" strokeWidth={1.4} />
+            {/* the flag — up when a reply is waiting */}
+            <g transform={`translate(19, ${unreadLetterReplies > 0 ? -38 : -18})`}>
+              <rect x={-1.5} y={-10} width={3} height={16} rx={1}
+                    fill="#8B5A2B" stroke="#5A3B1F" strokeWidth={1} />
+              <path d="M 1.5 -10 L 13 -6.5 L 1.5 -3 Z"
+                    fill={unreadLetterReplies > 0 ? '#C94C3E' : '#B9B0A1'}
+                    stroke="#3F2614" strokeWidth={1.2} strokeLinejoin="round" />
+            </g>
+            {unreadLetterReplies > 0 && !reducedMotion && (
+              <motion.circle
+                cx={0} cy={-18} r={26} fill="none" stroke="#C94C3E" strokeWidth={2}
+                animate={{ r: [24, 38], opacity: [0.7, 0] }}
+                transition={{ duration: 1.8, repeat: Infinity, ease: 'easeOut' }}
+              />
+            )}
+            <rect x={-34} y={40} width={68} height={17} rx={8}
+                  fill="rgba(255,250,242,0.94)" stroke="#6b8e5a" strokeWidth={1} />
+            <text y={52} textAnchor="middle" fontSize={9} fontWeight={700} fill="#3f2614">
+              letterbox
+            </text>
+          </g>
 
           <SisterWalkers
             target={sistersTarget}

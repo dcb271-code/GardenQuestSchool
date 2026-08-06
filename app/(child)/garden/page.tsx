@@ -20,6 +20,7 @@ import {
 import { hasHabitatInterior } from '@/lib/world/habitatInteriors';
 import { getCumulativeCorrect } from '@/lib/world/cumulativeProgress';
 import { placeResidents } from '@/lib/world/residents';
+import { unreadReplies, type Letterbox } from '@/lib/world/letters';
 import { birdAudioUrl } from '@/lib/birds/photoStorage';
 import type { AudioIndex } from '@/lib/birds/audioResolve';
 import type { VoiceKind } from '@/lib/world/birdCatalog';
@@ -383,6 +384,12 @@ export default async function GardenPage({
     }
   }
 
+  // Unopened replies put a badge on the letterbox. Read from the same
+  // garden blob everything else lives in.
+  const unreadLetterReplies = unreadReplies(
+    ((worldStateRow?.garden as Record<string, unknown> | null)?.letters as Letterbox) ?? [],
+  ).length;
+
   const cumulativeCorrect = await getCumulativeCorrect(db, learnerId);
 
   return (
@@ -403,6 +410,7 @@ export default async function GardenPage({
       researcherBadges={researcherBadges}
       residents={residents}
       birdAudio={birdAudio}
+      unreadLetterReplies={unreadLetterReplies}
     />
   );
 }
