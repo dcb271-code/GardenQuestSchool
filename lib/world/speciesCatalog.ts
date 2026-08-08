@@ -17,6 +17,19 @@ export interface SpeciesData {
   illustrationKey: string;
   emoji: string;
   habitatReqCodes: string[];
+  /**
+   * Set when a species does NOT arrive by having a habitat built.
+   *
+   * Almost everything here comes to a habitat: build the log pile, the
+   * salamander turns up. The night moths do not. They are drawn by a
+   * moon-quadrant flower being in BLOOM, which is a garden state rather
+   * than a structure, so they carry no habitatReqCodes at all — and
+   * arrivals.ts already refuses to place anything with an empty list,
+   * which is exactly the behaviour wanted. This field records that the
+   * empty list is deliberate rather than a typo that would silently
+   * make a species undiscoverable.
+   */
+  arrivesVia?: 'night_garden';
   /** Real-world-ish conservation status. Absent is treated as 'stable'. */
   conservationStatus?: ConservationStatus;
   /**
@@ -232,6 +245,35 @@ export const SPECIES_CATALOG: SpeciesData[] = [
     funFact: 'Adult luna moths have no mouth at all — they live about a week on energy saved up as a caterpillar. Turning off porch lights helps them find each other.',
     illustrationKey: 'luna_moth', emoji: '🦋', habitatReqCodes: ['butterfly_bush'],
     conservationStatus: 'needs_help', requiresResearcherBadge: true },
+
+  // ── NIGHT GARDEN — the moths a moonflower is advertising to ──────
+  // A moonflower is white, deep-throated and heavily scented because
+  // it is selling to these, and to nothing else. They arrive in the
+  // Night Garden once a moon-quadrant plant is in bloom.
+  { code: 'pink_spotted_hawkmoth', commonName: 'Pink-spotted Hawkmoth',
+    scientificName: 'Agrius cingulata',
+    description: 'A fast grey moth with hot-pink bands hidden along its body, hovering at flowers in the dark like a small hummingbird.',
+    funFact: 'Its tongue is longer than its whole body — it can be four inches — and it stays curled up like a watch spring until it feeds. That tongue is the reason a moonflower has such a deep throat: the flower is built to fit this moth and almost nothing else.',
+    illustrationKey: 'pink_spotted_hawkmoth', emoji: '🌸', habitatReqCodes: [], arrivesVia: 'night_garden',
+    conservationStatus: 'stable' },
+  { code: 'white_lined_sphinx', commonName: 'White-lined Sphinx',
+    scientificName: 'Hyles lineata',
+    description: 'A stout moth with a white stripe down each brown wing and a flash of rose underneath, working flowers at dusk.',
+    funFact: 'People mistake it for a hummingbird so often that it is nicknamed the hummingbird moth. It can hover perfectly still in the air and beat its wings too fast for you to see them.',
+    illustrationKey: 'white_lined_sphinx', emoji: '🌺', habitatReqCodes: [], arrivesVia: 'night_garden',
+    conservationStatus: 'stable' },
+  { code: 'rosy_maple_moth', commonName: 'Rosy Maple Moth',
+    scientificName: 'Dryocampa rubicunda',
+    description: 'A small, extremely fuzzy moth coloured pink and yellow, like a sweet somebody dropped in the garden.',
+    funFact: 'It really is those colours — nobody has touched it up. The fluff is genuine fur-like scales, and it is thought the pink and yellow make it look like a maple seed rather than a meal.',
+    illustrationKey: 'rosy_maple_moth', emoji: '🌷', habitatReqCodes: [], arrivesVia: 'night_garden',
+    conservationStatus: 'stable' },
+  { code: 'polyphemus_moth', commonName: 'Polyphemus Moth',
+    scientificName: 'Antheraea polyphemus',
+    description: 'A huge tan moth, nearly as wide as your hand, with a see-through eyespot on each back wing.',
+    funFact: 'It is named after the one-eyed giant in the Odyssey, for those two enormous eyespots. It flashes them open when something startles it, so a bird that expected a moth suddenly meets a face staring back.',
+    illustrationKey: 'polyphemus_moth', emoji: '👁️', habitatReqCodes: [], arrivesVia: 'night_garden',
+    conservationStatus: 'needs_help' },
 ];
 
 export function getSpeciesByCode(code: string): SpeciesData | undefined {

@@ -957,6 +957,233 @@ export function SpottedSalamander({ size = 60 }: SpeciesProps) {
   );
 }
 
+/* ─── NIGHT GARDEN MOTHS ──────────────────────────────────────────────
+ * Two families, and the difference is visible at a glance, which is the
+ * whole reason to draw them rather than reuse an emoji.
+ *
+ * SPHINX MOTHS (hawkmoths) are built like fighter jets: narrow wings
+ * swept hard back, a streamlined torpedo body, and the muscle to hover.
+ * SILKMOTHS (rosy maple, polyphemus, and the luna already here) are the
+ * opposite — enormous soft rounded wings, fat furry bodies, and no
+ * mouth at all in some of them.
+ *
+ * The moonflower feeds the first group. That is why its throat is deep.
+ */
+
+export function PinkSpottedHawkmoth({ size = 60 }: SpeciesProps) {
+  // The moonflower's own pollinator. Drawn mid-hover with the tongue
+  // UNCOILED, because the tongue longer than its body is the fact that
+  // explains the flower.
+  const WING = '#8C8272';
+  const WING_HI = '#B3A895';
+  const EDGE = '#5A5348';
+  const BODY = '#6E6558';
+  const PINK = '#E8548C';
+  return (
+    <Svg size={size}>
+      <ellipse cx={0} cy={32} rx={15} ry={2.5} fill="#000" opacity={0.16} />
+
+      {/* HINDWINGS — small, tucked under, with the pink flash */}
+      {[-1, 1].map(side => (
+        <g key={side} transform={`scale(${side}, 1)`}>
+          <path d="M 3 4 Q 17 8 21 18 Q 16 24 8 20 Q 4 14 3 4 Z"
+                fill={PINK} stroke={EDGE} strokeWidth={1.3} strokeLinejoin="round" opacity={0.8} />
+        </g>
+      ))}
+
+      {/* FOREWINGS — long, narrow, swept back. The sphinx signature. */}
+      {[-1, 1].map(side => (
+        <g key={side} transform={`scale(${side}, 1)`}>
+          <path d="M 3 -6 Q 26 -12 40 0 Q 42 8 34 14 Q 18 16 6 6 Z"
+                fill={WING} stroke={EDGE} strokeWidth={1.6} strokeLinejoin="round" />
+          <path d="M 6 -4 Q 24 -8 36 1" fill="none" stroke={WING_HI} strokeWidth={1.6} />
+          <path d="M 8 3 Q 24 2 34 8" fill="none" stroke={EDGE} strokeWidth={1} opacity={0.5} />
+        </g>
+      ))}
+
+      {/* BODY — torpedo, banded pink down the abdomen */}
+      <path d="M 0 -14 Q 5 -12 5 0 Q 5 18 0 26 Q -5 18 -5 0 Q -5 -12 0 -14 Z"
+            fill={BODY} stroke={EDGE} strokeWidth={1.4} strokeLinejoin="round" />
+      {[4, 10, 16].map(y => (
+        <rect key={y} x={-4.6} y={y} width={9.2} height={2.6} rx={1.2} fill={PINK} />
+      ))}
+
+      {/* HEAD, eye, antennae */}
+      <circle cx={0} cy={-16} r={4.4} fill={BODY} stroke={EDGE} strokeWidth={1.3} />
+      <circle cx={-1.8} cy={-17} r={1.2} fill="#1A1510" />
+      <path d="M -2 -19 Q -8 -27 -13 -29" fill="none" stroke={EDGE} strokeWidth={1.5} strokeLinecap="round" />
+      <path d="M 2 -19 Q 8 -27 13 -29" fill="none" stroke={EDGE} strokeWidth={1.5} strokeLinecap="round" />
+
+      {/* THE TONGUE, uncoiled — the fact that explains the moonflower.
+          It projects FORWARD from the head, which from directly above
+          means up the page, clear of the body it was invisible against
+          in the first draft. */}
+      <path d="M 0 -20 Q -5 -30 -2 -38 Q 0 -43 6 -42"
+            fill="none" stroke="#E8C89A" strokeWidth={2} strokeLinecap="round" />
+      <path d="M 0 -20 Q -5 -30 -2 -38 Q 0 -43 6 -42"
+            fill="none" stroke="#5A5348" strokeWidth={0.8} strokeLinecap="round" opacity={0.55} />
+    </Svg>
+  );
+}
+
+export function WhiteLinedSphinx({ size = 60 }: SpeciesProps) {
+  // Same jet-shaped build as the hawkmoth, told apart by the white
+  // stripe running the length of the forewing and the rose hindwing.
+  const WING = '#7A6A56';
+  const EDGE = '#4C4234';
+  const CREAM = '#F2E9D8';
+  const ROSE = '#D9738C';
+  const BODY = '#6B5C4A';
+  return (
+    <Svg size={size}>
+      <ellipse cx={0} cy={32} rx={15} ry={2.5} fill="#000" opacity={0.16} />
+
+      {[-1, 1].map(side => (
+        <g key={side} transform={`scale(${side}, 1)`}>
+          <path d="M 3 4 Q 18 8 22 17 Q 16 23 8 20 Q 4 13 3 4 Z"
+                fill={ROSE} stroke={EDGE} strokeWidth={1.3} strokeLinejoin="round" />
+        </g>
+      ))}
+
+      {[-1, 1].map(side => (
+        <g key={side} transform={`scale(${side}, 1)`}>
+          <path d="M 3 -6 Q 25 -11 38 0 Q 40 8 32 14 Q 17 16 6 6 Z"
+                fill={WING} stroke={EDGE} strokeWidth={1.6} strokeLinejoin="round" />
+          {/* the white line it is named for, corner to corner */}
+          <path d="M 5 5 Q 20 -1 36 -1" fill="none" stroke={CREAM} strokeWidth={2.4} strokeLinecap="round" />
+          {/* pale ribs crossing it */}
+          {[12, 20, 28].map(x => (
+            <path key={x} d={`M ${x} ${2 - x * 0.12} L ${x + 3} ${11 - x * 0.1}`}
+                  fill="none" stroke={CREAM} strokeWidth={1} opacity={0.75} />
+          ))}
+        </g>
+      ))}
+
+      <path d="M 0 -14 Q 5 -12 5 0 Q 5 17 0 25 Q -5 17 -5 0 Q -5 -12 0 -14 Z"
+            fill={BODY} stroke={EDGE} strokeWidth={1.4} strokeLinejoin="round" />
+      {[2, 8, 14].map(y => (
+        <rect key={y} x={-4.6} y={y} width={9.2} height={2} rx={1} fill={CREAM} opacity={0.85} />
+      ))}
+      <circle cx={0} cy={-16} r={4.4} fill={BODY} stroke={EDGE} strokeWidth={1.3} />
+      <circle cx={-1.8} cy={-17} r={1.2} fill="#1A1510" />
+      <path d="M -2 -19 Q -8 -26 -12 -28" fill="none" stroke={EDGE} strokeWidth={1.5} strokeLinecap="round" />
+      <path d="M 2 -19 Q 8 -26 12 -28" fill="none" stroke={EDGE} strokeWidth={1.5} strokeLinecap="round" />
+    </Svg>
+  );
+}
+
+export function RosyMapleMoth({ size = 60 }: SpeciesProps) {
+  // Small, round, and genuinely these colours. The fluff is the point —
+  // every edge here is deliberately soft, and the body is drawn furry.
+  const PINK = '#EE8FB8';
+  const PINK_HI = '#F8BBD4';
+  const YELLOW = '#F5DE7A';
+  const EDGE = '#C2648E';
+  return (
+    <Svg size={size}>
+      <ellipse cx={0} cy={26} rx={13} ry={2.2} fill="#000" opacity={0.14} />
+
+      {/* HINDWINGS — yellow with a pink border */}
+      {[-1, 1].map(side => (
+        <g key={side} transform={`scale(${side}, 1)`}>
+          <path d="M 2 2 Q 20 6 24 16 Q 22 25 12 25 Q 4 22 2 2 Z"
+                fill={YELLOW} stroke={EDGE} strokeWidth={1.4} strokeLinejoin="round" />
+          <path d="M 12 24 Q 22 24 24 15" fill="none" stroke={PINK} strokeWidth={3} strokeLinecap="round" />
+        </g>
+      ))}
+
+      {/* FOREWINGS — pink, with the broad yellow band across the middle */}
+      {[-1, 1].map(side => (
+        <g key={side} transform={`scale(${side}, 1)`}>
+          <path d="M 2 -8 Q 22 -14 32 -4 Q 34 6 24 11 Q 10 12 3 4 Z"
+                fill={PINK} stroke={EDGE} strokeWidth={1.6} strokeLinejoin="round" />
+          <path d="M 5 -3 Q 18 -6 30 -1 Q 30 3 26 5 Q 14 6 5 2 Z" fill={YELLOW} opacity={0.95} />
+          <path d="M 6 -9 Q 20 -12 30 -5" fill="none" stroke={PINK_HI} strokeWidth={1.8} />
+        </g>
+      ))}
+
+      {/* BODY — deliberately fat and fuzzy */}
+      <ellipse cx={0} cy={2} rx={5.6} ry={13} fill={YELLOW} stroke={EDGE} strokeWidth={1.4} />
+      <ellipse cx={0} cy={-11} r={5} rx={5.6} ry={5} fill={PINK} stroke={EDGE} strokeWidth={1.3} />
+      {[-4, 0, 4, 8, 12].map(y => (
+        <path key={y} d={`M -5.6 ${y} Q 0 ${y + 1.5} 5.6 ${y}`}
+              fill="none" stroke={EDGE} strokeWidth={0.8} opacity={0.4} />
+      ))}
+      <circle cx={-1.8} cy={-12} r={1.1} fill="#4A2338" />
+      {/* feathery antennae — the silkmoth giveaway */}
+      {[-1, 1].map(side => (
+        <g key={side} transform={`scale(${side}, 1)`}>
+          <path d="M 2 -15 Q 7 -21 11 -24" fill="none" stroke={EDGE} strokeWidth={1.4} strokeLinecap="round" />
+          {[0, 1, 2, 3].map(i => (
+            <path key={i} d={`M ${3 + i * 2.2} ${-16.5 - i * 2} l 2.4 -1.6`}
+                  fill="none" stroke={EDGE} strokeWidth={0.9} strokeLinecap="round" />
+          ))}
+        </g>
+      ))}
+    </Svg>
+  );
+}
+
+export function PolyphemusMoth({ size = 60 }: SpeciesProps) {
+  // The giant. Broad soft wings and the two see-through eyespots it is
+  // named for — drawn as actual windows, because on the real moth they
+  // are scale-free and you can see light through them.
+  const WING = '#C39A63';
+  const WING_HI = '#DCBC8C';
+  const EDGE = '#8A6836';
+  const BAND = '#7C5A38';
+  const EYE_RING = '#3A2C1C';
+  const EYE_BLUE = '#5A7FA8';
+  return (
+    <Svg size={size}>
+      <ellipse cx={0} cy={34} rx={19} ry={2.8} fill="#000" opacity={0.18} />
+
+      {/* HINDWINGS — the big eyespots live here */}
+      {[-1, 1].map(side => (
+        <g key={side} transform={`scale(${side}, 1)`}>
+          <path d="M 3 3 Q 26 6 32 20 Q 33 32 20 34 Q 7 32 3 16 Z"
+                fill={WING} stroke={EDGE} strokeWidth={1.6} strokeLinejoin="round" />
+          <ellipse cx={18} cy={20} rx={7.5} ry={8.5} fill={EYE_RING} />
+          <ellipse cx={18} cy={20} rx={5.2} ry={6} fill={EYE_BLUE} opacity={0.55} />
+          <ellipse cx={18} cy={20} rx={2.6} ry={3.2} fill="#F2ECE0" opacity={0.9} />
+          <path d="M 7 31 Q 20 34 30 28" fill="none" stroke={BAND} strokeWidth={1.6} opacity={0.6} />
+        </g>
+      ))}
+
+      {/* FOREWINGS — broad and rounded, silkmoth-style */}
+      {[-1, 1].map(side => (
+        <g key={side} transform={`scale(${side}, 1)`}>
+          <path d="M 3 -8 Q 26 -20 40 -8 Q 44 2 34 8 Q 16 10 5 3 Z"
+                fill={WING} stroke={EDGE} strokeWidth={1.6} strokeLinejoin="round" />
+          <path d="M 6 -8 Q 26 -17 38 -7" fill="none" stroke={WING_HI} strokeWidth={2} />
+          <path d="M 8 1 Q 24 -1 37 2" fill="none" stroke={BAND} strokeWidth={1.4} opacity={0.7} />
+          <ellipse cx={22} cy={-4} rx={3.4} ry={4} fill={EYE_RING} opacity={0.85} />
+          <ellipse cx={22} cy={-4} rx={1.6} ry={2} fill="#F2ECE0" opacity={0.8} />
+        </g>
+      ))}
+
+      {/* BODY — thick and furry */}
+      <ellipse cx={0} cy={4} rx={5.8} ry={15} fill="#B08A56" stroke={EDGE} strokeWidth={1.4} />
+      <circle cx={0} cy={-14} r={5.2} fill="#B08A56" stroke={EDGE} strokeWidth={1.3} />
+      {[-4, 1, 6, 11].map(y => (
+        <path key={y} d={`M -5.8 ${y} Q 0 ${y + 1.6} 5.8 ${y}`}
+              fill="none" stroke={EDGE} strokeWidth={0.8} opacity={0.45} />
+      ))}
+      <circle cx={-2} cy={-15} r={1.2} fill="#2A1E12" />
+      {/* the huge feathered antennae of a male silkmoth */}
+      {[-1, 1].map(side => (
+        <g key={side} transform={`scale(${side}, 1)`}>
+          <path d="M 2 -18 Q 9 -25 15 -28" fill="none" stroke={EDGE} strokeWidth={1.5} strokeLinecap="round" />
+          {[0, 1, 2, 3, 4].map(i => (
+            <path key={i} d={`M ${3 + i * 2.6} ${-19.5 - i * 1.9} l 3 -2.2`}
+                  fill="none" stroke={EDGE} strokeWidth={1} strokeLinecap="round" />
+          ))}
+        </g>
+      ))}
+    </Svg>
+  );
+}
+
 export function LunaMoth({ size = 60 }: SpeciesProps) {
   // Pale green, with the long twisted TAILS that make it unmistakable
   // and unlike the butterflies already in the journal.
@@ -1338,6 +1565,11 @@ export function SpeciesIllustration({
     case 'painted_turtle':     return <PaintedTurtle size={size} />;
     case 'spotted_salamander': return <SpottedSalamander size={size} />;
     case 'luna_moth':          return <LunaMoth size={size} />;
+    // night garden — the moths a moonflower advertises to
+    case 'pink_spotted_hawkmoth': return <PinkSpottedHawkmoth size={size} />;
+    case 'white_lined_sphinx':    return <WhiteLinedSphinx size={size} />;
+    case 'rosy_maple_moth':       return <RosyMapleMoth size={size} />;
+    case 'polyphemus_moth':       return <PolyphemusMoth size={size} />;
     // cave creatures — Crystal Cavern
     case 'cave_salamander':    return <CaveSalamander size={size} />;
     case 'cave_cricket':       return <CaveCricket size={size} />;

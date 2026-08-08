@@ -55,6 +55,15 @@ describe('every species can be written to the species table', () => {
     // undiscoverable rather than erroring.
     const known = new Set(HABITAT_CATALOG.map(h => h.code));
     for (const s of SPECIES_CATALOG) {
+      // A species with no habitat is normally a typo that makes it
+      // silently undiscoverable — arrivals.ts skips an empty list. The
+      // exception is one that arrives by another route entirely, which
+      // has to say so out loud.
+      if (s.arrivesVia) {
+        expect(s.habitatReqCodes.length,
+          `${s.code} arrives via ${s.arrivesVia} but also lists habitats`).toBe(0);
+        continue;
+      }
       expect(s.habitatReqCodes.length, `${s.code} requires no habitat`).toBeGreaterThan(0);
       for (const h of s.habitatReqCodes) {
         expect(known.has(h), `${s.code} requires unknown habitat "${h}"`).toBe(true);

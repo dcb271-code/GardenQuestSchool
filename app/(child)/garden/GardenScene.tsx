@@ -363,6 +363,7 @@ export default function GardenScene({
   residents = [],
   birdAudio = {},
   unreadLetterReplies = 0,
+  moonGardenOpen = false,
 }: {
   learnerId: string;
   firstName?: string | null;
@@ -388,6 +389,8 @@ export default function GardenScene({
   birdAudio?: AudioIndex;
   /** Replies she has not opened — puts a flag up on the letterbox. */
   unreadLetterReplies?: number;
+  /** A moon-quadrant flower is actually in bloom tonight. */
+  moonGardenOpen?: boolean;
 }) {
   const router = useRouter();
   const { settings, update } = useAccessibilitySettings();
@@ -644,6 +647,20 @@ export default function GardenScene({
               plants — and, later, mushrooms and insects. A header of
               icons doesn't scale, and it framed birds as a separate app
               rather than a thing you go outside and look for. */}
+          {/* The night garden only exists while something is open out
+              there. A moonflower lasts ONE night, so this button is
+              genuinely transient — which is the point of it. */}
+          {moonGardenOpen && (
+            <Link
+              href={`/garden/night?learner=${learnerId}`}
+              className="text-lg p-1.5 rounded-full border"
+              style={{ minWidth: 40, minHeight: 40, display: 'inline-flex',
+                       alignItems: 'center', justifyContent: 'center',
+                       background: '#1A2140', borderColor: '#4A5A8C' }}
+              aria-label="the garden at night"
+              title="The Night Garden — something is open out there"
+            >🌙</Link>
+          )}
           {cumulativeCorrect >= 25 && (
             <Link
               href={`/garden/grow?learner=${learnerId}`}

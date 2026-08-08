@@ -1,4 +1,5 @@
 import { createServiceClient } from '@/lib/supabase/server';
+import { getPlant } from '@/lib/world/plantCatalog';
 import { GARDEN_STRUCTURES } from '@/lib/world/gardenMap';
 import { HABITAT_CATALOG } from '@/lib/world/habitatCatalog';
 import { SPECIES_CATALOG } from '@/lib/world/speciesCatalog';
@@ -376,6 +377,17 @@ export default async function GardenPage({
 
   // Unopened replies put a badge on the letterbox. Read from the same
   // garden blob everything else lives in.
+  // The night garden opens only while a moon-quadrant flower is
+  // actually in bloom — the same sum the garden uses to draw it.
+  const { data: moonPlots } = await db.from('garden_plot')
+    .select('plant_code, planted_at_correct')
+    .eq('learner_id', learnerId).is('harvested_at', null);
+  const moonGardenOpen = (moonPlots ?? []).some(p => {
+    const plant = getPlant(p.plant_code as string);
+    if (!plant || plant.garden !== 'moon') return false;
+    return (cumulativeCorrect - (p.planted_at_correct as number)) >= plant.growthCost;
+  });
+
   const unreadLetterReplies = unreadReplies(
     ((worldStateRow?.garden as Record<string, unknown> | null)?.letters as Letterbox) ?? [],
   ).length;
@@ -401,6 +413,7 @@ export default async function GardenPage({
       residents={residents}
       birdAudio={birdAudio}
       unreadLetterReplies={unreadLetterReplies}
+      moonGardenOpen={moonGardenOpen}
     />
   );
 }
