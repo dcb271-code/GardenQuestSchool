@@ -2319,44 +2319,44 @@ export default function MathMountainScene({
               );
             }
             if (key === 'cliffside') {
-              // A cliff, drawn SIDE-ON and flat.
+              // A triangular buttress lying along the mountain's own
+              // slope. Flat on top, its lower-left edge parallel to the
+              // flank, its right edge dropping to meet it.
               //
-              // The version before this was a rhombus, and deservedly
-              // called one: I drew it in fake three-quarter
-              // perspective, which turns any slab into a lozenge. The
-              // peaks on this map are flat side-on silhouettes, so
-              // this is too — a profile with a sloping back, a level
-              // top and one sheer face. No perspective, no depth
-              // tricks, three flat shapes.
+              // The slope is measured, not guessed: Peak 2's right
+              // flank at x=1255 runs at dy/dx = 1.04 (46.2 degrees), so
+              // the long edge here is 28 across by 29 down. That is why
+              // it sits along the mountain instead of on it.
               //
-              // It borrows the PEAK'S palette when locked so it greys
-              // into the mountain rather than sitting on it as a faded
-              // brown object, and warms to sunlit stone when open. The
-              // drop shadow is dropped too: a shadow is what was
-              // lifting it off the slope.
-              const face  = anyUnlocked ? '#B9A488' : '#93A0BC';
-              const top   = anyUnlocked ? '#DFCDAE' : '#B5BED4';
-              const sheer = anyUnlocked ? '#8E7B63' : '#7F8BA8';
+              // Earlier versions were a timber ledge in a meadow, then
+              // the same ledge on a peak, then a slab drawn in fake
+              // three-quarter perspective — which is what made it a
+              // rhombus. Perspective turns every slab into a lozenge.
+              // The peaks here are flat side-on silhouettes and so is
+              // this: one triangle, one lit top edge, one shaded face.
+              //
+              // Peak palette when locked so it greys into the mountain,
+              // sunlit stone when open. No drop shadow and no ground
+              // glow — both were lifting it off the slope.
+              const face  = anyUnlocked ? '#BFAA8C' : '#93A0BC';
+              const lit   = anyUnlocked ? '#E4D4B6' : '#BAC3D8';
+              const shade = anyUnlocked ? '#8E7B63' : '#7F8BA8';
               const cairn = anyUnlocked ? '#7B5E3F' : '#98A3BD';
               return (
                 <g style={{ opacity: tone }}>
-                  {/* the headland: slopes up out of the mountain on the
-                      left, level on top, and stops dead on the right */}
-                  <path d="M -26 18 L -22 4 L -4 -10 L 15 -10 L 15 18 Z"
-                        fill={face} stroke={sheer} strokeWidth={1.3} strokeLinejoin="round" />
-                  {/* the level top, lit */}
-                  <path d="M -4 -10 L 15 -10 L 15 -5 L -6 -5 Z" fill={top} />
-                  {/* the sheer face — the drop that gives it the name */}
-                  <path d="M 15 -10 L 15 18 L 8 18 L 9 -9 Z" fill={sheer} />
-                  {/* vertical joints in the face, because that is what
-                      makes rock read as a drop rather than a wall */}
-                  <path d="M 11 -6 L 11 15 M 13 -4 L 13 16"
-                        stroke={face} strokeWidth={0.8} opacity={0.55} />
-                  {/* a small cairn on the top — somebody climbed here */}
-                  <g transform="translate(4, -11)">
-                    <ellipse cx={0} cy={0} rx={4} ry={1.8} fill={cairn} />
-                    <ellipse cx={0.3} cy={-3} rx={2.9} ry={1.6} fill={cairn} />
-                    <ellipse cx={0} cy={-5.6} rx={1.9} ry={1.3} fill={cairn} />
+                  {/* the buttress: flat top, lower-left edge on the
+                      mountain's slope, right edge closing the triangle */}
+                  <path d="M -22 -10 L 16 -10 L 6 19 Z"
+                        fill={face} stroke={shade} strokeWidth={1.3} strokeLinejoin="round" />
+                  {/* the top, catching the light */}
+                  <path d="M -22 -10 L 16 -10 L 14 -5.5 L -18 -5.5 Z" fill={lit} />
+                  {/* the right face, turned away from the sun */}
+                  <path d="M 16 -10 L 6 19 L 11 -9 Z" fill={shade} opacity={0.75} />
+                  {/* a cairn on the top — somebody climbed up here */}
+                  <g transform="translate(-2, -11)">
+                    <ellipse cx={0} cy={0} rx={3.8} ry={1.7} fill={cairn} />
+                    <ellipse cx={0.3} cy={-2.8} rx={2.8} ry={1.5} fill={cairn} />
+                    <ellipse cx={0} cy={-5.2} rx={1.8} ry={1.2} fill={cairn} />
                   </g>
                 </g>
               );

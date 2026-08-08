@@ -90,9 +90,12 @@ export const MATH_STATIONS: BranchStation[] = [
   // it looks like it is on sky. Peak 2 is drawn at 70% and has a snow
   // cap, so a marker on its flank reads as being on a mountain.
   //
-  // y=215 puts it just inside the surface line at that x, so the peak
-  // body sits behind it rather than the sky.
-  { key: 'cliffside', branch: 'math_mountain', x: 1255, y: 215, label: 'Cliffside Point',
+  // Placed so the buttress's long edge runs DOWN THE FLANK: its
+  // top-left vertex lands on the mountain's edge at (1228, 186) and
+  // the edge below it follows the same 46-degree slope, so the marker
+  // reads as jutting from the mountainside rather than hovering
+  // beside it.
+  { key: 'cliffside', branch: 'math_mountain', x: 1250, y: 196, label: 'Cliffside Point',
     codes: ['mm_sharing_squirrels', 'mm_division_facts',
             'mm_missing_number', 'mm4_leftover_rocks'] },
   { key: 'measurement', branch: 'math_mountain', x: 845, y: 565, label: 'Measurement Meadow',
