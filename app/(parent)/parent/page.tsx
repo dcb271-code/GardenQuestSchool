@@ -104,6 +104,12 @@ export default async function ParentDashboardPage() {
       });
     }
 
+    // Letters live in world_state.garden, not a table of their own.
+    const { data: wsRow } = await db
+      .from('world_state').select('garden').eq('learner_id', l.id).maybeSingle();
+    const lettersWritten =
+      ((wsRow?.garden as any)?.letters as unknown[] | undefined)?.length ?? 0;
+
     summaries.push({
       id: l.id,
       firstName: l.first_name,
@@ -120,6 +126,7 @@ export default async function ParentDashboardPage() {
       speciesFound: speciesFound ?? 0,
       totalSpecies: TOTAL_SPECIES,
       gemsTotal: (gems ?? []).length,
+      lettersWritten: lettersWritten,
       gemsRecent: (gems ?? []).slice(0, 3).map(g => ({
         virtue: g.virtue,
         narrativeText: (g.evidence as any)?.narrativeText ?? '',
@@ -162,7 +169,7 @@ export default async function ParentDashboardPage() {
         )}
 
         {summaries.map(s => (
-          <LearnerCard key={s.id} summary={s} />
+          <LearnerCard key={s.id} summary={s} learnerCount={summaries.length} />
         ))}
       </div>
     </AuthGate>

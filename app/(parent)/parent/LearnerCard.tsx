@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ResetConfirmModal from './ResetConfirmModal';
+import DeleteProfileModal from './DeleteProfileModal';
 
 const AVATAR_EMOJI: Record<string, string> = {
   fox: '🦊', bunny: '🐰', cat: '🐈', butterfly: '🦋', frog: '🐸', bee: '🐝',
@@ -30,6 +31,9 @@ export interface LearnerSummary {
   speciesFound: number;
   totalSpecies: number;
   gemsTotal: number;
+  /** Letters written from the letterbox. Small, but often the only
+      thing distinguishing two profiles with the same name. */
+  lettersWritten: number;
   gemsRecent: Array<{ virtue: string; narrativeText: string; grantedAt: string | null }>;
   recentSessions: Array<{
     id: string;
@@ -47,9 +51,16 @@ const CHALLENGE_LABEL: Record<string, { emoji: string; label: string }> = {
   harder: { emoji: '🔥', label: 'harder' },
 };
 
-export default function LearnerCard({ summary }: { summary: LearnerSummary }) {
+export default function LearnerCard({
+  summary, learnerCount = 1,
+}: {
+  summary: LearnerSummary;
+  /** Total profiles — the last one can't be removed. */
+  learnerCount?: number;
+}) {
   const router = useRouter();
   const [resetOpen, setResetOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const [editingGrade, setEditingGrade] = useState(false);
   const [editingChallenge, setEditingChallenge] = useState(false);
   const [savingField, setSavingField] = useState<'grade' | 'challenge' | null>(null);
@@ -346,6 +357,14 @@ export default function LearnerCard({ summary }: { summary: LearnerSummary }) {
           >
             Reset progress…
           </button>
+          <button
+            type="button"
+            onClick={() => setDeleteOpen(true)}
+            className="text-xs text-gray-500 hover:text-red-800 hover:underline"
+            title="Delete this profile and everything in it"
+          >
+            Remove profile…
+          </button>
         </div>
       </div>
 
@@ -354,6 +373,14 @@ export default function LearnerCard({ summary }: { summary: LearnerSummary }) {
         learnerName={summary.firstName}
         onClose={() => setResetOpen(false)}
         onConfirm={onReset}
+      />
+
+      <DeleteProfileModal
+        open={deleteOpen}
+        summary={summary}
+        canDelete={learnerCount > 1}
+        onClose={() => setDeleteOpen(false)}
+        onDeleted={() => router.refresh()}
       />
     </div>
   );
