@@ -18,7 +18,7 @@ import {
   type RecommendedCandidate,
 } from '@/lib/world/characterRecommendation';
 import { hasHabitatInterior } from '@/lib/world/habitatInteriors';
-import { getCumulativeCorrect } from '@/lib/world/cumulativeProgress';
+import { getCumulativeCorrect, correctCountsBySkill } from '@/lib/world/cumulativeProgress';
 import { placeResidents } from '@/lib/world/residents';
 import { unreadReplies, type Letterbox } from '@/lib/world/letters';
 import { birdAudioUrl } from '@/lib/birds/photoStorage';
@@ -97,17 +97,7 @@ export default async function GardenPage({
   );
 
   // Cumulative correct attempts per skill, joined via item → skill.
-  const { data: attemptRows } = await db
-    .from('attempt')
-    .select('outcome, item:item_id(skill:skill_id(code))')
-    .eq('learner_id', learnerId)
-    .eq('outcome', 'correct');
-  const correctByCode = new Map<string, number>();
-  for (const row of attemptRows ?? []) {
-    const code = (row as any).item?.skill?.code;
-    if (!code) continue;
-    correctByCode.set(code, (correctByCode.get(code) ?? 0) + 1);
-  }
+  const correctByCode = await correctCountsBySkill(db, learnerId);
 
   const allSkills = [...MATH_SKILLS, ...READING_SKILLS];
   const skillNameByCode = new Map(allSkills.map(s => [s.code, s.name]));

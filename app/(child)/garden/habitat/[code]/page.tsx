@@ -17,6 +17,7 @@ import type { AudioIndex } from '@/lib/birds/audioResolve';
 import type { VoiceKind } from '@/lib/world/birdCatalog';
 import { emptyCavern, canDig, type CavernState } from '@/lib/world/cavern';
 import { todayKey } from '@/lib/learning/review';
+import { correctCountsBySkill } from '@/lib/world/cumulativeProgress';
 import { MATH_MOUNTAIN_STRUCTURES } from '@/lib/world/branchMaps';
 import { MATH_SKILLS } from '@/lib/packs/math/skills';
 import { ZONE_COMPLETION_TARGET } from '@/lib/world/zoneProgress';
@@ -198,17 +199,7 @@ export default async function HabitatInteriorPage({
         .map((p: any) => p.skill.code),
     );
 
-    const { data: attemptRows } = await db
-      .from('attempt')
-      .select('outcome, item:item_id(skill:skill_id(code))')
-      .eq('learner_id', learnerId)
-      .eq('outcome', 'correct');
-    const correctByCode = new Map<string, number>();
-    for (const row of attemptRows ?? []) {
-      const c = (row as any).item?.skill?.code;
-      if (!c) continue;
-      correctByCode.set(c, (correctByCode.get(c) ?? 0) + 1);
-    }
+    const correctByCode = await correctCountsBySkill(db, learnerId);
 
     const skillNameByCode = new Map(MATH_SKILLS.map(s => [s.code, s.name]));
 

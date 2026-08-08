@@ -4,6 +4,7 @@
 // fetching pattern. Computes per-structure unlock state for every
 // math-mountain structure, then hands off to MathMountainScene.
 
+import { correctCountsBySkill } from '@/lib/world/cumulativeProgress';
 import { createServiceClient } from '@/lib/supabase/server';
 import { resolveLearnerId } from '@/lib/learner/activeLearner';
 import { MATH_SKILLS } from '@/lib/packs/math/skills';
@@ -44,17 +45,20 @@ export default async function MathMountainPage({
       .map((p: any) => p.skill.code),
   );
 
-  const { data: attemptRows } = await db
-    .from('attempt')
-    .select('outcome, item:item_id(skill:skill_id(code))')
-    .eq('learner_id', learnerId)
-    .eq('outcome', 'correct');
-  const correctByCode = new Map<string, number>();
-  for (const row of attemptRows ?? []) {
-    const code = (row as any).item?.skill?.code;
-    if (!code) continue;
-    correctByCode.set(code, (correctByCode.get(code) ?? 0) + 1);
-  }
+  const correctByCode = await correctCountsBySkill(db, learnerId);
+
+/**
+ * Crystal Cavern's gate, using the SAME rule as every other habitat:
+ * the prereq is met if it is mastered OR she has 20+ lifetime correct
+ * answers at it.
+ *
+ * It used to check mastery alone, and that was a real bug she reported
+ * herself: "I wont to know way crystal cavern is locked". Mastery
+ * DECAYS — `math.multiply.facts_to_10` slipped from mastered back to
+ * learning two days after she first walked in, and the mountain shut a
+ * door she had already been through. A correct-count is monotonic, so
+ * a place she has earned stays earned.
+ */
 
   const skillNameByCode = new Map(MATH_SKILLS.map(s => [s.code, s.name]));
 
@@ -81,6 +85,12 @@ export default async function MathMountainPage({
     };
   }
 
+  const CAVERN_PREREQ = 'math.multiply.facts_to_10';
+  const CAVERN_UNLOCK_CORRECT = 20;
+  const cavernUnlocked =
+    mastered.has(CAVERN_PREREQ) ||
+    (correctByCode.get(CAVERN_PREREQ) ?? 0) >= CAVERN_UNLOCK_CORRECT;
+
   return (
     <MathMountainScene
       learnerId={learnerId}
@@ -88,6 +98,7 @@ export default async function MathMountainPage({
       clusters={MATH_MOUNTAIN_CLUSTERS}
       structureStates={structureStates}
       masteredCodes={Array.from(mastered)}
+      cavernUnlocked={cavernUnlocked}
     />
   );
 }

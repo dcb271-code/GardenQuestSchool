@@ -96,6 +96,9 @@ interface MathMountainSceneProps {
   clusters: BranchCluster[];
   structureStates: Record<string, MathMountainStructureState>;
   masteredCodes?: string[];
+  /** Crystal Cavern's gate, computed server-side. Monotonic — a place
+   *  she has earned must never lock itself again. */
+  cavernUnlocked?: boolean;
 }
 
 const W = BRANCH_MAP_WIDTH;   // 1440
@@ -148,6 +151,7 @@ const HABITAT_BY_SKILL: Record<string, string> = Object.entries(HABITAT_GROUPS)
 
 export default function MathMountainScene({
   learnerId, structures, clusters, structureStates, masteredCodes = [],
+  cavernUnlocked = false,
 }: MathMountainSceneProps) {
   const router = useRouter();
   const { settings } = useAccessibilitySettings();
@@ -858,7 +862,9 @@ export default function MathMountainScene({
              a mine that is not drawn at all is nothing. Tapping it
              while sealed says what will open it. */}
         {(() => {
-          const cavernOpen = masteredCodes.includes('math.multiply.facts_to_10');
+          // Computed on the server with the same rule every other
+          // habitat uses — mastered OR 20+ correct. Never re-locks.
+          const cavernOpen = cavernUnlocked;
           return (
             <g
               transform="translate(1300, 190)"

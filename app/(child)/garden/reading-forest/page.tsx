@@ -3,6 +3,7 @@
 // Reading Forest server component — mirrors Math Mountain. Same data-
 // fetch pattern, different skill catalog and structure list.
 
+import { correctCountsBySkill } from '@/lib/world/cumulativeProgress';
 import { createServiceClient } from '@/lib/supabase/server';
 import { resolveLearnerId } from '@/lib/learner/activeLearner';
 import { READING_SKILLS } from '@/lib/packs/reading/skills';
@@ -43,17 +44,7 @@ export default async function ReadingForestPage({
       .map((p: any) => p.skill.code),
   );
 
-  const { data: attemptRows } = await db
-    .from('attempt')
-    .select('outcome, item:item_id(skill:skill_id(code))')
-    .eq('learner_id', learnerId)
-    .eq('outcome', 'correct');
-  const correctByCode = new Map<string, number>();
-  for (const row of attemptRows ?? []) {
-    const code = (row as any).item?.skill?.code;
-    if (!code) continue;
-    correctByCode.set(code, (correctByCode.get(code) ?? 0) + 1);
-  }
+  const correctByCode = await correctCountsBySkill(db, learnerId);
 
   // Old Bramble offers reading lessons banded by level (see
   // lib/world/forestLessons.ts — floored at 3, so a younger reader

@@ -38,3 +38,48 @@ export async function getCumulativeCorrectAt(
   if (error) throw new Error(error.message);
   return count ?? 0;
 }
+
+
+/**
+ * Lifetime correct answers PER SKILL.
+ *
+ * Paginated, and that is the whole point. Three pages used to do this
+ * inline with a single unbounded select — and PostgREST silently caps
+ * a select at 1000 rows. Under 1000 lifetime attempts nobody notices;
+ * past it, every per-skill count is computed from an arbitrary
+ * truncated sample and starts drifting DOWNWARD as the child plays
+ * more.
+ *
+ * That is not cosmetic. These counts unlock habitats (20+ correct at a
+ * prereq) and drive every progress badge on every map. Cecily crossed
+ * 1000 attempts, and the first symptom was a seven-year-old writing to
+ * ask why Crystal Cavern had locked itself: her 28 correct answers at
+ * the gate skill were sitting outside the window.
+ *
+ * Counting rows in the app is not ideal either — a GROUP BY belongs in
+ * the database — but it is correct, it needs no migration, and a few
+ * thousand rows is a few hundred kilobytes. Correct first.
+ */
+export async function correctCountsBySkill(
+  db: SupabaseClient,
+  learnerId: string,
+): Promise<Map<string, number>> {
+  const counts = new Map<string, number>();
+  const PAGE = 1000;
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await db
+      .from('attempt')
+      .select('item:item_id(skill:skill_id(code))')
+      .eq('learner_id', learnerId)
+      .eq('outcome', 'correct')
+      .range(from, from + PAGE - 1);
+    if (error) throw new Error(error.message);
+    if (!data || data.length === 0) break;
+    for (const row of data as Array<{ item?: { skill?: { code?: string } } }>) {
+      const code = row.item?.skill?.code;
+      if (code) counts.set(code, (counts.get(code) ?? 0) + 1);
+    }
+    if (data.length < PAGE) break;
+  }
+  return counts;
+}
