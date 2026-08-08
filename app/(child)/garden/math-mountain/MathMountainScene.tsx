@@ -852,28 +852,33 @@ export default function MathMountainScene({
         </g>
 
         {/* ── 6b-ii. CRYSTAL CAVERN ─────────────────────────────
-             Cecily's, by request and by her name. The second cut into
-             this mountain, higher than Operations Cave and opened
-             later — gated on multiplication facts, which is Level 3,
-             which is the level she asked for.
+             Cecily's, by request and by her name.
 
-             Sealed rather than hidden when it is not yet earned. A
-             boarded-up mine you can see from the path is an invitation;
-             a mine that is not drawn at all is nothing. Tapping it
-             while sealed says what will open it. */}
+             Cut INTO a hillside, the way Operations Cave is, and for
+             the same reason. The first version stood a tall timbered
+             doorway at y=190 — which is the SKY band on this map — so
+             it read as a wardrobe hanging in mid-air, darker and
+             bigger than the Summit Cairn. A mine is a hole in
+             something. It needs ground around it and a hill on top of
+             it, and it should be smaller than the mountain it is in.
+
+             Position from the clearance solver: 95 units to the
+             nearest structure edge, on the green band below the far
+             peaks. */}
         {(() => {
-          // Computed on the server with the same rule every other
-          // habitat uses — mastered OR 20+ correct. Never re-locks.
+          // Same monotonic rule as every other habitat — see the
+          // math-mountain page. A door she has walked through stays
+          // open even if the skill behind it goes stale.
           const cavernOpen = cavernUnlocked;
           return (
             <g
-              transform="translate(1300, 190)"
+              transform="translate(1080, 400)"
               style={{ cursor: 'pointer', touchAction: 'manipulation' }}
               onClick={() => cavernOpen
                 ? router.push(`/garden/habitat/crystal_cavern?learner=${learnerId}`)
                 : setLockedHint({
                     code: 'crystal_cavern', kind: 'habitat', label: 'Crystal Cavern',
-                    themeEmoji: '💎', x: 1300, y: 190, size: 70, zone: 'math',
+                    themeEmoji: '💎', x: 1080, y: 400, size: 56, zone: 'math',
                     skillCode: 'math.multiply.facts_to_10',
                   } as MapStructure)}
               role="button"
@@ -882,48 +887,65 @@ export default function MathMountainScene({
                 : 'Crystal Cavern (sealed)'}
               tabIndex={0}
             >
-              <rect x={-46} y={-46} width={92} height={96} fill="transparent" />
-              {/* the cut in the rock */}
-              <path d="M -34 44 L -30 -14 Q 0 -40 30 -14 L 34 44 Z"
-                    fill="#4A4038" stroke="#2A2420" strokeWidth={2} strokeLinejoin="round" />
-              <path d="M -24 44 L -21 -8 Q 0 -28 21 -8 L 24 44 Z" fill="#15110E" />
-              {/* pit props */}
-              <rect x={-30} y={-16} width={6} height={60} fill="#7B4F2C" stroke="#3F2614" strokeWidth={1.2} />
-              <rect x={24} y={-16} width={6} height={60} fill="#7B4F2C" stroke="#3F2614" strokeWidth={1.2} />
-              <rect x={-32} y={-22} width={64} height={8} rx={2} fill="#8B5A2B" stroke="#3F2614" strokeWidth={1.2} />
+              <rect x={-38} y={-34} width={76} height={78} fill="transparent" />
+
+              {/* the hillock the mine is dug into — drawn FIRST so the
+                  opening sits inside it rather than on top of it */}
+              <path d="M -46 26 Q -34 -18 0 -22 Q 34 -18 46 26 Z"
+                    fill="#7C9A6B" stroke="#5C7E4F" strokeWidth={1.6} strokeLinejoin="round" />
+              <path d="M -46 26 Q -20 16 0 18 Q 20 16 46 26 Z" fill="#6B8A5B" opacity={0.55} />
+
+              {/* the cut: a dark arch, low in the slope */}
+              <path d="M -15 26 L -15 2 Q 0 -11 15 2 L 15 26 Z"
+                    fill="#1A1512" stroke="#3F3128" strokeWidth={1.4} strokeLinejoin="round" />
+
+              {/* pit props framing the mouth */}
+              <rect x={-18} y={0} width={4} height={26} fill="#8B5A2B" stroke="#3F2614" strokeWidth={1} />
+              <rect x={14} y={0} width={4} height={26} fill="#8B5A2B" stroke="#3F2614" strokeWidth={1} />
+              <rect x={-20} y={-4} width={40} height={5} rx={1.5}
+                    fill="#9B6A3B" stroke="#3F2614" strokeWidth={1} />
 
               {cavernOpen ? (
                 <>
-                  {/* crystals catching the lantern light inside */}
-                  {[{ x: -12, y: 22, c: '#B589D6' }, { x: 6, y: 30, c: '#8FD1E8' },
-                    { x: 14, y: 16, c: '#E88F9C' }].map((g, i) => (
+                  {/* crystals catching light just inside the mouth */}
+                  {[{ x: -7, y: 16, c: '#B589D6' }, { x: 2, y: 20, c: '#8FD1E8' },
+                    { x: 8, y: 13, c: '#E88F9C' }].map((g, i) => (
                     <motion.path key={i}
-                      d={`M ${g.x} ${g.y - 9} L ${g.x + 5} ${g.y} L ${g.x} ${g.y + 9} L ${g.x - 5} ${g.y} Z`}
-                      fill={g.c} stroke="#1A1410" strokeWidth={1}
-                      animate={reducedMotion ? undefined : { opacity: [0.6, 1, 0.6] }}
+                      d={`M ${g.x} ${g.y - 5} L ${g.x + 3} ${g.y} L ${g.x} ${g.y + 5} L ${g.x - 3} ${g.y} Z`}
+                      fill={g.c} stroke="#1A1410" strokeWidth={0.7}
+                      animate={reducedMotion ? undefined : { opacity: [0.55, 1, 0.55] }}
                       transition={reducedMotion ? undefined : {
-                        duration: 2.4 + i * 0.6, repeat: Infinity, ease: 'easeInOut',
+                        duration: 2.4 + i * 0.7, repeat: Infinity, ease: 'easeInOut',
                       }}
                     />
                   ))}
-                  {/* a rail and a cart, because it is a mine */}
-                  <rect x={-16} y={44} width={32} height={3} fill="#5A4A3A" />
-                  <rect x={-9} y={34} width={18} height={11} rx={2}
-                        fill="#8B5A2B" stroke="#3F2614" strokeWidth={1.2} />
+                  {/* a spoil heap and a rail running out — the signs
+                      that somebody worked here */}
+                  <ellipse cx={26} cy={25} rx={11} ry={4} fill="#8C7C68"
+                           stroke="#5C4F3E" strokeWidth={1} />
+                  <line x1={-2} y1={27} x2={22} y2={27} stroke="#6B5A44" strokeWidth={1.6} />
                 </>
               ) : (
-                /* boarded over */
                 <>
-                  <rect x={-26} y={2} width={52} height={7} rx={2}
-                        fill="#8B5A2B" stroke="#3F2614" strokeWidth={1.2} transform="rotate(-8)" />
-                  <rect x={-26} y={20} width={52} height={7} rx={2}
-                        fill="#8B5A2B" stroke="#3F2614" strokeWidth={1.2} transform="rotate(6)" />
-                  <text y={-30} textAnchor="middle" fontSize={14}>🔒</text>
+                  {/* boarded across the mouth */}
+                  <rect x={-17} y={6} width={34} height={4.5} rx={1.5}
+                        fill="#9B6A3B" stroke="#3F2614" strokeWidth={1} transform="rotate(-7)" />
+                  <rect x={-17} y={16} width={34} height={4.5} rx={1.5}
+                        fill="#9B6A3B" stroke="#3F2614" strokeWidth={1} transform="rotate(5)" />
+                  <text y={-26} textAnchor="middle" fontSize={11}>🔒</text>
                 </>
               )}
-              <rect x={-46} y={50} width={92} height={17} rx={8}
+
+              {/* a little grass fringe over the top edge, so the hill
+                  reads as growing rather than pasted on */}
+              {[-30, -18, 20, 32].map(gx => (
+                <path key={gx} d={`M ${gx} 24 q ${gx < 0 ? -3 : 3} -8 ${gx < 0 ? -5 : 5} -12`}
+                      stroke="#5C7E4F" strokeWidth={1.6} fill="none" strokeLinecap="round" />
+              ))}
+
+              <rect x={-44} y={30} width={88} height={16} rx={8}
                     fill="rgba(255,250,242,0.94)" stroke="#6b8e5a" strokeWidth={1} />
-              <text y={62} textAnchor="middle" fontSize={9} fontWeight={700} fill="#3f2614">
+              <text y={41.5} textAnchor="middle" fontSize={8.5} fontWeight={700} fill="#3f2614">
                 Crystal Cavern
               </text>
             </g>
