@@ -43,24 +43,54 @@ export async function getCumulativeCorrectAt(
 /**
  * Lifetime correct answers PER SKILL.
  *
- * Paginated, and that is the whole point. Three pages used to do this
- * inline with a single unbounded select — and PostgREST silently caps
- * a select at 1000 rows. Under 1000 lifetime attempts nobody notices;
- * past it, every per-skill count is computed from an arbitrary
- * truncated sample and starts drifting DOWNWARD as the child plays
- * more.
+ * Asks the DATABASE to count, via the `skill_correct_counts` function
+ * in migration 020. That returns one row per skill — about 66 today,
+ * and still 66 at ten thousand attempts.
  *
- * That is not cosmetic. These counts unlock habitats (20+ correct at a
- * prereq) and drive every progress badge on every map. Cecily crossed
- * 1000 attempts, and the first symptom was a seven-year-old writing to
- * ask why Crystal Cavern had locked itself: her 28 correct answers at
- * the gate skill were sitting outside the window.
+ * The history here is worth keeping. Four pages used to fetch a
+ * learner's entire correct-attempt history in a single select and
+ * count it in JavaScript. PostgREST silently caps a select at 1000
+ * rows, so past 1000 lifetime attempts every count was computed from
+ * an arbitrary truncated window — and these counts unlock habitats
+ * (20+ correct at a prereq) and drive every progress badge on every
+ * map. They got wronger the more the child played. The first symptom
+ * was a seven-year-old asking why Crystal Cavern had locked itself.
  *
- * Counting rows in the app is not ideal either — a GROUP BY belongs in
- * the database — but it is correct, it needs no migration, and a few
- * thousand rows is a few hundred kilobytes. Correct first.
+ * Paginating fixed the correctness and left the shape wrong: three
+ * round trips and 2,400 rows on every render, growing forever.
+ *
+ * FALLBACK, and it is deliberate. Migrations here are applied by hand
+ * and can lag a deploy, so if the function is missing this falls back
+ * to the paginated count rather than returning nothing. A map that
+ * renders slowly is recoverable; a map that silently reports zero
+ * progress locks doors on a child.
  */
 export async function correctCountsBySkill(
+  db: SupabaseClient,
+  learnerId: string,
+): Promise<Map<string, number>> {
+  const { data, error } = await db.rpc('skill_correct_counts', { p_learner_id: learnerId });
+  if (!error && Array.isArray(data)) {
+    const counts = new Map<string, number>();
+    for (const row of data as Array<{ skill_code: string; correct_count: number }>) {
+      counts.set(row.skill_code, Number(row.correct_count));
+    }
+    return counts;
+  }
+  console.warn(
+    'skill_correct_counts RPC unavailable — falling back to a paginated count. ' +
+    'Has migration 020 been applied to this database?',
+    error?.message,
+  );
+  return countBySkillPaginated(db, learnerId);
+}
+
+/**
+ * The fallback. Correct but O(history): pages through every correct
+ * attempt 1000 at a time, because a single unbounded select would be
+ * silently truncated.
+ */
+export async function countBySkillPaginated(
   db: SupabaseClient,
   learnerId: string,
 ): Promise<Map<string, number>> {

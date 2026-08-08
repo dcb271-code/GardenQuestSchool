@@ -80,7 +80,13 @@ export const MATH_STATIONS: BranchStation[] = [
   // sits in the middle of its 2x2 block so the close pill, when open,
   // lands in the gap between the rows rather than on a stop — which is
   // the Mirror Tarns failure, and the reason this file exists.
-  { key: 'cliffside', branch: 'math_mountain', x: 1305, y: 370, label: 'Cliffside Point',
+  // ON the far-right Fuji peak (x 1290-1460, apex ~1393,152), which
+  // was the only painted mountain with nothing on it. It was down at
+  // (1305, 370) on rolling meadow before — a ledge with a rope
+  // handrail standing on a lawn, which is not a cliffside. Its stops
+  // stay on the slope below, so the station reads as high up and the
+  // division ladder spills down the mountainside from it.
+  { key: 'cliffside', branch: 'math_mountain', x: 1370, y: 205, label: 'Cliffside Point',
     codes: ['mm_sharing_squirrels', 'mm_division_facts',
             'mm_missing_number', 'mm4_leftover_rocks'] },
   { key: 'measurement', branch: 'math_mountain', x: 845, y: 565, label: 'Measurement Meadow',
