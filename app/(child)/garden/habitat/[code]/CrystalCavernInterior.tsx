@@ -31,6 +31,7 @@ import {
   getGem, gemsOnShelf, scratchTestFor, type GemData,
 } from '@/lib/world/gemCatalog';
 import { coinsToPrice, type CavernState } from '@/lib/world/cavern';
+import DisplayCase from './DisplayCase';
 
 const VB_W = 900;
 const VB_H = 620;
@@ -122,6 +123,7 @@ export default function CrystalCavernInterior({
   };
 
   const kept = Object.keys(cavern.kept ?? {}).length;
+  const [caseOpen, setCaseOpen] = useState(false);
   const slot = (i: number) => ({ x: 140 + (i % 4) * 200, y: 430 + Math.floor(i / 4) * 96 });
 
   return (
@@ -248,7 +250,15 @@ export default function CrystalCavernInterior({
             </button>
             <div className="flex-1 text-xs" style={{ color: '#D8C9A8' }}>
               <div><strong style={{ color: '#F5D98F' }}>{coinsToPrice(cavern.coins)}</strong> in coins</div>
-              <div>{kept} stone{kept === 1 ? '' : 's'} in the case</div>
+              {/* The count was a dead end — she wrote to ask where the
+                  stones actually were. It opens the case now. */}
+              <button
+                onClick={() => setCaseOpen(true)}
+                className="underline underline-offset-2 text-left"
+                style={{ color: '#D8C9A8', minHeight: 32, touchAction: 'manipulation' }}
+              >
+                {kept} stone{kept === 1 ? '' : 's'} in the case →
+              </button>
             </div>
             {!cavern.canDigToday && (
               <span className="text-[11px] italic text-right" style={{ color: '#9A8C76', maxWidth: 150 }}>
@@ -261,6 +271,16 @@ export default function CrystalCavernInterior({
           )}
         </div>
       </div>
+
+      <AnimatePresence>
+        {caseOpen && (
+          <DisplayCase
+            kept={cavern.kept ?? {}}
+            open={caseOpen}
+            onClose={() => setCaseOpen(false)}
+          />
+        )}
+      </AnimatePresence>
 
       {/* ── keep or sell ──────────────────────────────────────────── */}
       <AnimatePresence>
