@@ -2319,50 +2319,44 @@ export default function MathMountainScene({
               );
             }
             if (key === 'cliffside') {
-              // A ledge jutting off the cliff face, with a rope handrail
-              // and the squirrel from the old Division Glen sitting on
-              // the end of it — she has met him before, and division
-              // moving up the mountain should feel like he moved house,
-              // not like he was deleted.
+              // A cliff, drawn SIDE-ON and flat.
+              //
+              // The version before this was a rhombus, and deservedly
+              // called one: I drew it in fake three-quarter
+              // perspective, which turns any slab into a lozenge. The
+              // peaks on this map are flat side-on silhouettes, so
+              // this is too — a profile with a sloping back, a level
+              // top and one sheer face. No perspective, no depth
+              // tricks, three flat shapes.
+              //
+              // It borrows the PEAK'S palette when locked so it greys
+              // into the mountain rather than sitting on it as a faded
+              // brown object, and warms to sunlit stone when open. The
+              // drop shadow is dropped too: a shadow is what was
+              // lifting it off the slope.
+              const face  = anyUnlocked ? '#B9A488' : '#93A0BC';
+              const top   = anyUnlocked ? '#DFCDAE' : '#B5BED4';
+              const sheer = anyUnlocked ? '#8E7B63' : '#7F8BA8';
+              const cairn = anyUnlocked ? '#7B5E3F' : '#98A3BD';
               return (
-                <g style={{ filter, opacity: tone }}>
-                  <ellipse cx={0} cy={34} rx={46} ry={5} fill="#000" opacity={0.14} />
-
-                  {/* the cliff face the ledge grows out of */}
-                  <path d="M -46 34 L -40 -6 L -28 -18 L -12 -12 L -4 -22 L 8 -14 L 8 34 Z"
-                        fill="#9A8B79" stroke="#5A3B1F" strokeWidth={1.6} strokeLinejoin="round" />
-                  <path d="M -34 -4 L -30 12 M -20 -8 L -16 10 M -6 -14 L -2 8"
-                        stroke="#7A6C5C" strokeWidth={1.1} fill="none" opacity={0.7} />
-
-                  {/* the ledge itself, cantilevered out over the drop */}
-                  <path d="M -14 6 L 42 2 L 46 12 L -14 18 Z"
-                        fill="#B7A68F" stroke="#5A3B1F" strokeWidth={1.6} strokeLinejoin="round" />
-                  <path d="M -14 18 L 46 12 L 44 17 L -14 23 Z"
-                        fill="#8C7C68" stroke="#5A3B1F" strokeWidth={1.2} strokeLinejoin="round" />
-
-                  {/* rope handrail along the ledge — two posts and a sag */}
-                  <line x1={2} y1={4} x2={2} y2={-12} stroke="#7B4F2C" strokeWidth={2.2} strokeLinecap="round" />
-                  <line x1={38} y1={1} x2={38} y2={-13} stroke="#7B4F2C" strokeWidth={2.2} strokeLinecap="round" />
-                  <path d="M 2 -12 Q 20 -4 38 -13" stroke="#C9A270" strokeWidth={1.6} fill="none" strokeLinecap="round" />
-
-                  {/* a small pine rooted in the cliff, for scale */}
-                  <g transform="translate(-30, 2)">
-                    <rect x={-2} y={2} width={4} height={9} fill="#8B5A2B" stroke="#5A3B1F" strokeWidth={0.9} />
-                    <path d="M -12 4 L 0 -16 L 12 4 Z" fill="#5C7E4F" stroke="#3F5A30" strokeWidth={1.3} strokeLinejoin="round" />
-                    <path d="M -9 -2 L 0 -13 L 9 -2 Z" fill="#7BA46F" />
-                  </g>
-
-                  {/* the squirrel, out at the point, looking over */}
-                  <g transform="translate(30, -1)">
-                    <path d="M -6 -2 Q -12 -8 -10 -16 Q -3 -10 -4 -2 Z"
-                          fill="#A06B36" stroke="#5A3B1F" strokeWidth={1.1} strokeLinejoin="round" />
-                    <path d="M -10 -16 Q -8 -14 -6 -10" stroke="#C9A270" strokeWidth={1.5} fill="none" opacity={0.7} />
-                    <ellipse cx={0} cy={-1} rx={5} ry={4} fill="#A06B36" stroke="#5A3B1F" strokeWidth={1.1} />
-                    <circle cx={3.5} cy={-4} r={3.2} fill="#A06B36" stroke="#5A3B1F" strokeWidth={1.1} />
-                    <path d="M 2 -7 L 2.6 -8.6 L 4 -7" fill="#5A3B1F" />
-                    <circle cx={4.4} cy={-4.4} r={0.6} fill="#1A0E08" />
-                    <ellipse cx={6.5} cy={-1} rx={1.4} ry={1.7} fill="#8B5A2B" stroke="#5A3B1F" strokeWidth={0.5} />
-                    <rect x={6.1} y={-3.2} width={0.8} height={1.2} fill="#5A3B1F" />
+                <g style={{ opacity: tone }}>
+                  {/* the headland: slopes up out of the mountain on the
+                      left, level on top, and stops dead on the right */}
+                  <path d="M -26 18 L -22 4 L -4 -10 L 15 -10 L 15 18 Z"
+                        fill={face} stroke={sheer} strokeWidth={1.3} strokeLinejoin="round" />
+                  {/* the level top, lit */}
+                  <path d="M -4 -10 L 15 -10 L 15 -5 L -6 -5 Z" fill={top} />
+                  {/* the sheer face — the drop that gives it the name */}
+                  <path d="M 15 -10 L 15 18 L 8 18 L 9 -9 Z" fill={sheer} />
+                  {/* vertical joints in the face, because that is what
+                      makes rock read as a drop rather than a wall */}
+                  <path d="M 11 -6 L 11 15 M 13 -4 L 13 16"
+                        stroke={face} strokeWidth={0.8} opacity={0.55} />
+                  {/* a small cairn on the top — somebody climbed here */}
+                  <g transform="translate(4, -11)">
+                    <ellipse cx={0} cy={0} rx={4} ry={1.8} fill={cairn} />
+                    <ellipse cx={0.3} cy={-3} rx={2.9} ry={1.6} fill={cairn} />
+                    <ellipse cx={0} cy={-5.6} rx={1.9} ry={1.3} fill={cairn} />
                   </g>
                 </g>
               );
@@ -2522,7 +2516,11 @@ export default function MathMountainScene({
                     />
                   )
                 )}
-                {!isExpanded && drawTapTarget && anyUnlocked && (
+                {/* Warm ground-glow. Suppressed for cliffside, which
+                    sits on a blue-grey PEAK rather than on grass — a
+                    cream halo up there reads as the marker floating in
+                    front of the mountain instead of resting on it. */}
+                {!isExpanded && drawTapTarget && anyUnlocked && key !== 'cliffside' && (
                   <ellipse cx={0} cy={20} rx={50} ry={32} fill="#FFE89A" opacity={0.16} />
                 )}
                 {!isExpanded && illustration}

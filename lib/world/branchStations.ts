@@ -80,13 +80,19 @@ export const MATH_STATIONS: BranchStation[] = [
   // sits in the middle of its 2x2 block so the close pill, when open,
   // lands in the gap between the rows rather than on a stop — which is
   // the Mirror Tarns failure, and the reason this file exists.
-  // ON the far-right Fuji peak (x 1290-1460, apex ~1393,152), which
-  // was the only painted mountain with nothing on it. It was down at
-  // (1305, 370) on rolling meadow before — a ledge with a rope
-  // handrail standing on a lawn, which is not a cliffside. Its stops
-  // stay on the slope below, so the station reads as high up and the
-  // division ladder spills down the mountainside from it.
-  { key: 'cliffside', branch: 'math_mountain', x: 1370, y: 205, label: 'Cliffside Point',
+  // Tucked into the RIGHT FLANK OF PEAK 2 — the solid right
+  // mid-distance mountain with the snow cap (x 1020-1310, apex ~1180).
+  //
+  // Three placements to get here. Down at (1305, 370) it sat on rolling
+  // meadow, which is not a cliffside. Moved to the far-right peak it
+  // still read as floating, and the reason turned out to be that that
+  // peak is the FAINTEST one on the map — 46% opacity — so anything on
+  // it looks like it is on sky. Peak 2 is drawn at 70% and has a snow
+  // cap, so a marker on its flank reads as being on a mountain.
+  //
+  // y=215 puts it just inside the surface line at that x, so the peak
+  // body sits behind it rather than the sky.
+  { key: 'cliffside', branch: 'math_mountain', x: 1255, y: 215, label: 'Cliffside Point',
     codes: ['mm_sharing_squirrels', 'mm_division_facts',
             'mm_missing_number', 'mm4_leftover_rocks'] },
   { key: 'measurement', branch: 'math_mountain', x: 845, y: 565, label: 'Measurement Meadow',
