@@ -259,7 +259,10 @@ export default function CrystalCavernInterior({
               style={{ background: '#C9A227', color: '#2A2420', minHeight: 48,
                        touchAction: 'manipulation' }}
             >
-              {digging ? 'digging…' : cavern.canDigToday ? '⛏ dig' : 'dug for today'}
+              {digging ? 'digging…'
+                : cavern.canDigToday
+                  ? `⛏ dig${(cavern.digsLeftToday ?? 0) > 1 ? ` (${cavern.digsLeftToday} left)` : ''}`
+                  : 'dug for today'}
             </button>
             <div className="flex-1 text-xs" style={{ color: '#D8C9A8' }}>
               <div><strong style={{ color: '#F5D98F' }}>{coinsToPrice(cavern.coins)}</strong> in coins</div>
@@ -278,7 +281,9 @@ export default function CrystalCavernInterior({
                  she wrote to ask why the cavern would not let her dig.
                  Say WHEN instead. */
               <span className="text-[11px] italic text-right" style={{ color: '#9A8C76', maxWidth: 160 }}>
-                you dug today — the seam opens again tomorrow morning
+                {(cavern.digsLeftToday ?? 0) > 0
+                  ? 'the dust is still settling — a few minutes'
+                  : "that is both of today's digs — back tomorrow morning"}
               </span>
             )}
           </div>

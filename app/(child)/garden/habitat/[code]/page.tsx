@@ -15,7 +15,9 @@ import { HABITAT_CATALOG } from '@/lib/world/habitatCatalog';
 import { birdAudioUrl } from '@/lib/birds/photoStorage';
 import type { AudioIndex } from '@/lib/birds/audioResolve';
 import type { VoiceKind } from '@/lib/world/birdCatalog';
-import { emptyCavern, canDig, type CavernState } from '@/lib/world/cavern';
+import {
+  emptyCavern, canDig, digsLeftToday, digCooldownMs, type CavernState,
+} from '@/lib/world/cavern';
 import { todayKey } from '@/lib/learning/review';
 import { correctCountsBySkill } from '@/lib/world/cumulativeProgress';
 import { MATH_MOUNTAIN_STRUCTURES } from '@/lib/world/branchMaps';
@@ -116,7 +118,9 @@ export default async function HabitatInteriorPage({
         themedStructureEmoji={cfg.themedStructureEmoji}
         discoveredSpecies={discoveredSpecies}
         undiscoveredCount={undiscoveredCount}
-        cavern={{ ...cavern, canDigToday: canDig(cavern, todayKey()) }}
+        cavern={{ ...cavern, canDigToday: canDig(cavern, todayKey()),
+                  digsLeftToday: digsLeftToday(cavern, todayKey()),
+                  cooldownMs: digCooldownMs(cavern, Date.now()) }}
       />
     );
   }

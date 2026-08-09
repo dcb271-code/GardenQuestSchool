@@ -12,7 +12,16 @@
 //
 // So coins are bounded by CONTENT and TIME, never by repetition:
 //
-//   * ONE dig per day. Not per session, not per lesson — per day.
+//   * TWO digs per day, AT LEAST FIVE MINUTES APART. It was one; Cecily
+//     asked for more and the answer is fine, because the cap is still
+//     TIME. Doubling a time cap does not make a thing farmable, it just
+//     makes it twice as often.
+//
+//     The five minutes matter as much as the two. Two digs she can take
+//     back to back is one dig that gives two stones, and it turns the
+//     cavern into a button. Made to wait, she has to go and do
+//     something else and come back — which is the difference between
+//     visiting a mine and operating a vending machine.
 //   * No coin is ever paid per correct answer. Doing a hundred easy
 //     sums earns nothing here.
 //   * Coins come only from SELLING a specimen, and specimens come from
@@ -46,8 +55,18 @@ export interface CavernState {
   kept: Record<string, number>;
   /** ISO date (YYYY-MM-DD) of her most recent dig. */
   lastDig?: string;
+  /** The day `digsToday` counts for. */
+  digDate?: string;
+  /** Digs used on `digDate`. */
+  digsToday?: number;
+  /** ISO timestamp of the most recent dig, for the spacing rule. */
+  lastDigAt?: string;
   /** Derived for the client; never trusted from it. */
   canDigToday: boolean;
+  /** Also derived. Lets the screen say how many are left. */
+  digsLeftToday?: number;
+  /** Also derived. Milliseconds until the seam settles. */
+  cooldownMs?: number;
   /** Codes of cave creatures already found by digging. */
   creaturesFound: string[];
   /**
@@ -70,9 +89,76 @@ export function emptyCavern(): CavernState {
   };
 }
 
-/** One dig a day. The single most important rule in this file. */
-export function canDig(state: { lastDig?: string }, today: string): boolean {
-  return state.lastDig !== today;
+/** How many digs a day the seam gives up. */
+export const DIGS_PER_DAY = 2;
+
+/**
+ * Digs already used today.
+ *
+ * Reads the legacy shape as well as the current one. Before this there
+ * was only `lastDig`, a single date meaning "dug today" — so a stored
+ * lastDig equal to today counts as one dig used. Without that, everyone
+ * who had already dug would silently gain a dig the day this shipped.
+ */
+export function digsUsedToday(
+  state: { lastDig?: string; digDate?: string; digsToday?: number },
+  today: string,
+): number {
+  if (state.digDate === today) return state.digsToday ?? 0;
+  if (state.lastDig === today) return 1;
+  return 0;
+}
+
+/** How long the seam takes to settle between digs. */
+export const MIN_DIG_GAP_MS = 5 * 60 * 1000;
+
+interface DigClock {
+  lastDig?: string; digDate?: string; digsToday?: number; lastDigAt?: string;
+}
+
+/**
+ * Milliseconds still to wait before the next dig, or 0 if it is ready.
+ *
+ * Separate from the daily count on purpose: a child who has digs left
+ * but has just taken one needs to be told to come back in four minutes,
+ * not told she is finished for the day.
+ */
+export function digCooldownMs(state: DigClock, now: number): number {
+  if (!state.lastDigAt) return 0;
+  const since = now - new Date(state.lastDigAt).getTime();
+  // A clock that jumped backwards must not lock her out.
+  if (!Number.isFinite(since) || since < 0) return 0;
+  return Math.max(0, MIN_DIG_GAP_MS - since);
+}
+
+/** Two digs a day, five minutes apart. The most important rule here. */
+export function canDig(state: DigClock, today: string, now = Date.now()): boolean {
+  return digsUsedToday(state, today) < DIGS_PER_DAY
+    && digCooldownMs(state, now) === 0;
+}
+
+/** How many are left, so the screen can say so instead of just "no". */
+export function digsLeftToday(state: DigClock, today: string): number {
+  return Math.max(0, DIGS_PER_DAY - digsUsedToday(state, today));
+}
+
+/** Record a dig. Returns the new counters. */
+export function recordDig<T extends CavernState>(
+  state: T, today: string, now = Date.now(),
+): T {
+  return {
+    ...state,
+    lastDig: today,
+    digDate: today,
+    digsToday: digsUsedToday(state, today) + 1,
+    lastDigAt: new Date(now).toISOString(),
+  };
+}
+
+/** "back in 4 minutes" — rounded up, because 0 minutes reads as ready. */
+export function cooldownLabel(ms: number): string {
+  const mins = Math.ceil(ms / 60000);
+  return mins <= 1 ? 'about a minute' : `${mins} minutes`;
 }
 
 /**
@@ -100,12 +186,21 @@ export function coinsToPrice(pennies: number): string {
 export function rollDig(roll: number): GemData {
   const seam = GEM_CATALOG.filter(g => g.shelf === 'seam');
   const display = GEM_CATALOG.filter(g => g.shelf === 'case');
-  // 88% of digs are local stone. The famous ones are the other 12%.
-  if (roll < 0.88) {
-    const i = Math.floor((roll / 0.88) * seam.length);
+  // 94% of digs are local stone. The famous ones are the other 6%.
+  //
+  // It was 12% when there was one dig a day. Going to two digs would
+  // have doubled the treasure as well as the digging, and the Great
+  // Works in the shop are priced at one case gem each — at twice the
+  // rate she would own every one of them inside three weeks, which is
+  // not what "once ever" is supposed to feel like. Halving the odds
+  // keeps treasure exactly as rare per WEEK as it was, while she gets
+  // to dig twice as often. The digging is the fun; the rarity is the
+  // point.
+  if (roll < 0.94) {
+    const i = Math.floor((roll / 0.94) * seam.length);
     return seam[Math.min(i, seam.length - 1)];
   }
-  const j = Math.floor(((roll - 0.88) / 0.12) * display.length);
+  const j = Math.floor(((roll - 0.94) / 0.06) * display.length);
   return display[Math.min(j, display.length - 1)];
 }
 

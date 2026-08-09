@@ -5,7 +5,8 @@ import { getSpeciesByCode } from '@/lib/world/speciesCatalog';
 import { todayKey } from '@/lib/learning/review';
 import {
   emptyCavern, canDig, rollDig, creatureForDig, sellGem, keepGem,
-  resolvePending, type CavernState,
+  resolvePending, recordDig, digsLeftToday, digCooldownMs, cooldownLabel,
+  type CavernState,
 } from '@/lib/world/cavern';
 
 /**
@@ -65,13 +66,26 @@ export async function POST(req: Request) {
 
   if (body.action === 'dig') {
     // THE CAP. Owned by the server, checked before anything else.
-    if (!canDig(state, today)) {
+    // Two separate refusals, because they mean different things and a
+    // child told "come back tomorrow" when she actually has a dig
+    // waiting in four minutes has been told something false.
+    const cooldown = digCooldownMs(state, Date.now());
+    if (digsLeftToday(state, today) > 0 && cooldown > 0) {
       return NextResponse.json({
-        error: 'You already dug today. The seam opens again tomorrow morning.',
-        cavern: { ...state, canDigToday: false },
+        error: `The dust is still settling. Come back in ${cooldownLabel(cooldown)}.`,
+        cavern: {
+          ...state, canDigToday: false,
+          digsLeftToday: digsLeftToday(state, today), cooldownMs: cooldown,
+        },
       });
     }
-    state.lastDig = today;
+    if (!canDig(state, today)) {
+      return NextResponse.json({
+        error: 'That is both of today\'s digs. The seam opens again tomorrow morning.',
+        cavern: { ...state, canDigToday: false, digsLeftToday: 0 },
+      });
+    }
+    Object.assign(state, recordDig(state, today));
 
     const roll = Math.random();
     const creature = creatureForDig(state.creaturesFound, roll);
@@ -115,6 +129,9 @@ export async function POST(req: Request) {
     creaturesFound: state.creaturesFound,
     pending: state.pending,
     masteryPaid: state.masteryPaid,
+    digDate: state.digDate,
+    digsToday: state.digsToday,
+    lastDigAt: state.lastDigAt,
   };
 
   const { error } = await db.from('world_state').upsert(
@@ -124,7 +141,12 @@ export async function POST(req: Request) {
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
 
   return NextResponse.json({
-    cavern: { ...state, canDigToday: canDig(state, today) },
+    cavern: {
+      ...state,
+      canDigToday: canDig(state, today),
+      digsLeftToday: digsLeftToday(state, today),
+      cooldownMs: digCooldownMs(state, Date.now()),
+    },
     gemCode, creatureCode, paid,
   });
 }
@@ -139,6 +161,11 @@ export async function GET(req: Request) {
   const garden = (row?.garden as Record<string, unknown>) ?? {};
   const state: CavernState = { ...emptyCavern(), ...((garden.cavern as CavernState) ?? {}) };
   return NextResponse.json({
-    cavern: { ...state, canDigToday: canDig(state, todayKey()) },
+    cavern: {
+      ...state,
+      canDigToday: canDig(state, todayKey()),
+      digsLeftToday: digsLeftToday(state, todayKey()),
+      cooldownMs: digCooldownMs(state, Date.now()),
+    },
   });
 }

@@ -12,15 +12,18 @@ import {
 } from '@/lib/world/cavern';
 import { GEM_CATALOG, getGem } from '@/lib/world/gemCatalog';
 
-describe('the dig cap — one a day, and the server owns it', () => {
-  it('allows a first dig and refuses a second on the same day', () => {
-    const fresh = emptyCavern();
-    expect(canDig(fresh, '2026-08-06')).toBe(true);
-    expect(canDig({ lastDig: '2026-08-06' }, '2026-08-06')).toBe(false);
+// The cap was one a day and is now two, at least five minutes apart.
+// The detailed rules live in cavernDigs.test.ts; these are the two
+// facts that must never stop being true.
+describe('the dig cap — the server owns it', () => {
+  it('lets a fresh cavern dig', () => {
+    expect(canDig(emptyCavern(), '2026-08-06')).toBe(true);
   });
 
-  it('opens again the next day', () => {
-    expect(canDig({ lastDig: '2026-08-06' }, '2026-08-07')).toBe(true);
+  it('stops her once the day is spent', () => {
+    const spent = { digDate: '2026-08-06', digsToday: 2 };
+    expect(canDig(spent, '2026-08-06')).toBe(false);
+    expect(canDig(spent, '2026-08-07')).toBe(true);
   });
 });
 
@@ -41,7 +44,7 @@ describe('what a dig turns up', () => {
   });
 
   it('always returns a real gem, at every roll including the edges', () => {
-    for (const roll of [0, 0.5, 0.87, 0.88, 0.99, 0.999999]) {
+    for (const roll of [0, 0.5, 0.93, 0.94, 0.99, 0.999999]) {
       expect(getGem(rollDig(roll).code), `roll ${roll}`).toBeDefined();
     }
   });
