@@ -27,14 +27,26 @@ export default function ProfileTile({
   name, avatarEmoji, href,
   gradeLevel = null,
   defaultChallenge = null,
+  locked = false,
+  onLockedClick,
 }: {
   name: string;
   avatarEmoji: string;
   href: string;
   gradeLevel?: number | null;
   defaultChallenge?: 'easier' | 'normal' | 'harder' | null;
+  /** Profile has a PIN this device has not answered yet. */
+  locked?: boolean;
+  onLockedClick?: () => void;
 }) {
-  const onTap = () => {
+  const onTap = (e: React.MouseEvent) => {
+    if (locked) {
+      // Ask before going anywhere. The href stays real so the tile is
+      // still a proper link for a keyboard or a screen reader.
+      e.preventDefault();
+      onLockedClick?.();
+      return;
+    }
     const id = extractLearnerId(href);
     if (id && typeof document !== 'undefined') {
       // 1 year — pure UX preference, no auth implication.
@@ -65,6 +77,13 @@ export default function ProfileTile({
       >
         {avatarEmoji}
       </motion.div>
+      {locked && (
+        <span
+          className="absolute top-2 right-2 text-base z-10"
+          aria-label="needs a PIN"
+          title="needs a PIN"
+        >🔒</span>
+      )}
       <div
         className="mt-2 font-display text-[22px] text-bark relative z-10 leading-none"
         style={{ fontWeight: 600, letterSpacing: '-0.01em' }}

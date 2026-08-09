@@ -20,7 +20,7 @@ export default async function ParentDashboardPage() {
 
   const { data: learners } = await db
     .from('learner')
-    .select('id, first_name, avatar_key, grade_level, default_challenge, created_at')
+    .select('id, first_name, avatar_key, grade_level, default_challenge, created_at, pin_hash')
     .order('created_at', { ascending: true });
 
   const summaries: LearnerSummary[] = [];
@@ -127,6 +127,7 @@ export default async function ParentDashboardPage() {
       totalSpecies: TOTAL_SPECIES,
       gemsTotal: (gems ?? []).length,
       lettersWritten: lettersWritten,
+      hasPin: Boolean((l as any).pin_hash),
       gemsRecent: (gems ?? []).slice(0, 3).map(g => ({
         virtue: g.virtue,
         narrativeText: (g.evidence as any)?.narrativeText ?? '',

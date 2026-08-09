@@ -34,6 +34,8 @@ export interface LearnerSummary {
   /** Letters written from the letterbox. Small, but often the only
       thing distinguishing two profiles with the same name. */
   lettersWritten: number;
+  /** Whether a profile PIN is set. Never the hash itself. */
+  hasPin: boolean;
   gemsRecent: Array<{ virtue: string; narrativeText: string; grantedAt: string | null }>;
   recentSessions: Array<{
     id: string;
@@ -61,6 +63,7 @@ export default function LearnerCard({
   const router = useRouter();
   const [resetOpen, setResetOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [pinBusy, setPinBusy] = useState(false);
   const [editingGrade, setEditingGrade] = useState(false);
   const [editingChallenge, setEditingChallenge] = useState(false);
   const [savingField, setSavingField] = useState<'grade' | 'challenge' | null>(null);
@@ -356,6 +359,38 @@ export default function LearnerCard({
             className="text-xs text-red-700 hover:text-red-900 hover:underline font-semibold"
           >
             Reset progress…
+          </button>
+          {/* A PIN is the lock on a bedroom door, not a vault — see
+              lib/learner/pin.ts. Four digits so a five-year-old can
+              actually get into her own profile. */}
+          <button
+            type="button"
+            disabled={pinBusy}
+            onClick={async () => {
+              if (summary.hasPin) {
+                if (!window.confirm(`Remove ${summary.firstName}'s PIN? Anyone can open the profile after that.`)) return;
+                setPinBusy(true);
+                await fetch(`/api/learner/${summary.id}/pin`, { method: 'DELETE' });
+                setPinBusy(false);
+                router.refresh();
+                return;
+              }
+              const pin = window.prompt(`Choose a 4-digit PIN for ${summary.firstName}. Tell it to her — it is not recoverable from here.`);
+              if (!pin) return;
+              if (!/^\d{4}$/.test(pin.trim())) { alert('A PIN is exactly 4 digits.'); return; }
+              setPinBusy(true);
+              const res = await fetch(`/api/learner/${summary.id}/pin`, {
+                method: 'PUT', headers: { 'content-type': 'application/json' },
+                body: JSON.stringify({ pin: pin.trim() }),
+              });
+              setPinBusy(false);
+              if (!res.ok) { alert('Could not set the PIN.'); return; }
+              router.refresh();
+            }}
+            className="text-xs text-gray-600 hover:text-gray-900 hover:underline font-semibold"
+            title={summary.hasPin ? 'Remove the profile PIN' : 'Set a 4-digit PIN on this profile'}
+          >
+            {summary.hasPin ? '🔒 PIN set — remove' : 'Set a PIN…'}
           </button>
           <button
             type="button"

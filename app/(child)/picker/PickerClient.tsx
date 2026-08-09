@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import PinPad from './PinPad';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import ProfileTile from '@/components/child/ProfileTile';
@@ -17,6 +18,8 @@ interface Learner {
   avatar_key: string | null;
   grade_level?: number | null;
   default_challenge?: 'easier' | 'normal' | 'harder' | null;
+  /** Has a PIN set and this device has not answered for her yet. */
+  locked?: boolean;
 }
 
 export default function PickerClient({ learners: initial }: { learners: Learner[] }) {
@@ -24,6 +27,8 @@ export default function PickerClient({ learners: initial }: { learners: Learner[
   const reducedMotion = settings.reducedMotion;
   const [learners, setLearners] = useState<Learner[]>(initial);
   const [addOpen, setAddOpen] = useState(false);
+  // The profile whose PIN we are currently asking for.
+  const [asking, setAsking] = useState<Learner | null>(null);
 
   return (
     <main className="min-h-screen flex items-center justify-center p-8 relative overflow-hidden bg-cream">
@@ -84,7 +89,12 @@ export default function PickerClient({ learners: initial }: { learners: Learner[
                 avatarEmoji={avatarMap[l.avatar_key ?? 'fox'] ?? '🦊'}
                 gradeLevel={l.grade_level ?? null}
                 defaultChallenge={l.default_challenge ?? null}
+                // A locked tile asks first and navigates after. The href
+                // stays real so the tile is still a link for anyone
+                // using a keyboard or a screen reader.
                 href={`/garden?learner=${l.id}`}
+                locked={l.locked}
+                onLockedClick={() => setAsking(l)}
               />
             </motion.div>
           ))}
@@ -130,6 +140,16 @@ export default function PickerClient({ learners: initial }: { learners: Learner[
           <FooterLink href="/auth" emoji="👤" label="parent" />
         </motion.div>
       </div>
+      {asking && (
+        <PinPad
+          learnerId={asking.id}
+          name={asking.first_name}
+          avatarEmoji={avatarMap[asking.avatar_key ?? 'fox'] ?? '🦊'}
+          onCancel={() => setAsking(null)}
+          onUnlocked={() => { window.location.href = `/garden?learner=${asking.id}`; }}
+        />
+      )}
+
     </main>
   );
 }
