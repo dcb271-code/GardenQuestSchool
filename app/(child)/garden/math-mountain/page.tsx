@@ -5,6 +5,7 @@
 // math-mountain structure, then hands off to MathMountainScene.
 
 import { correctCountsBySkill } from '@/lib/world/cumulativeProgress';
+import { pipAppears } from '@/lib/world/pip';
 import { createServiceClient } from '@/lib/supabase/server';
 import { resolveLearnerId } from '@/lib/learner/activeLearner';
 import { MATH_SKILLS } from '@/lib/packs/math/skills';
@@ -91,9 +92,23 @@ export default async function MathMountainPage({
     mastered.has(CAVERN_PREREQ) ||
     (correctByCode.get(CAVERN_PREREQ) ?? 0) >= CAVERN_UNLOCK_CORRECT;
 
+  // Pip only comes out for a Level-3 climber who already owns equal
+  // groups, arrays and the small facts — he teaches ×6–×10 by splitting
+  // them into fives and doubles, which is no use to somebody who does
+  // not have the fives yet.
+  const { data: learnerRow } = await db
+    .from('learner').select('grade_level').eq('id', learnerId).maybeSingle();
+  const pipOut = pipAppears({
+    level: (learnerRow?.grade_level as number) ?? 1,
+    mathMountainUnlocked: true,
+    masteredCodes: Array.from(mastered),
+    correctBySkill: correctByCode,
+  });
+
   return (
     <MathMountainScene
       learnerId={learnerId}
+      pipOut={pipOut}
       structures={MATH_MOUNTAIN_STRUCTURES}
       clusters={MATH_MOUNTAIN_CLUSTERS}
       structureStates={structureStates}

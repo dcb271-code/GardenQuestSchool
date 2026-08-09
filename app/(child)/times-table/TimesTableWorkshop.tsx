@@ -32,11 +32,13 @@ import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { playSparkle } from '@/lib/audio/sfx';
+import PipChipmunk from '@/components/child/garden/PipChipmunk';
+import { LearnTable, Practice, Flashcards } from './PipTools';
 import {
   factKey, strategyFor, weakestFacts, type Fact,
 } from '@/lib/packs/math/timesTable';
 
-type Tool = 'chart' | 'split';
+type Tool = 'learn' | 'split' | 'practice' | 'cards' | 'chart';
 
 export default function TimesTableWorkshop({
   learnerId, accuracy,
@@ -45,7 +47,9 @@ export default function TimesTableWorkshop({
   /** factKey → [correct, total], already merged across mirrors. */
   accuracy: Record<string, [number, number]>;
 }) {
-  const [tool, setTool] = useState<Tool>('split');
+  const [tool, setTool] = useState<Tool>('learn');
+  // One mute switch for all of Pip's tools, not one per screen.
+  const [muted, setMuted] = useState(false);
 
   const accMap = useMemo(() => {
     const m = new Map<string, { correct: number; total: number }>();
@@ -66,10 +70,10 @@ export default function TimesTableWorkshop({
         <div className="flex items-center justify-between gap-2 mb-3">
           <div>
             <h1 className="text-xl font-bold" style={{ color: '#3A2E1E' }}>
-              The Times Table Workshop
+              Pip's Larder
             </h1>
             <p className="text-xs" style={{ color: '#8A7A5E' }}>
-              Not for going faster. For seeing why the answers are what they are.
+              The same number, over and over, until there's a pile.
             </p>
           </div>
           <Link href={`/garden?learner=${learnerId}`}
@@ -80,12 +84,21 @@ export default function TimesTableWorkshop({
           </Link>
         </div>
 
-        <div className="flex gap-2 mb-4">
-          {([['split', '✂️ Cut it up'], ['chart', '▦ The whole table']] as const).map(([k, label]) => (
+        {/* Five tools is a lot for a seven-year-old, so they scroll in
+            one row rather than wrapping into a wall of buttons. */}
+        <div className="flex gap-2 mb-4 overflow-x-auto pb-1"
+             style={{ scrollbarWidth: 'none' }}>
+          {([
+            ['learn', '🔊 Count'],
+            ['split', '✂️ Cut up'],
+            ['practice', '🌰 Practise'],
+            ['cards', '🃏 Cards'],
+            ['chart', '▦ Table'],
+          ] as const).map(([k, label]) => (
             <button
               key={k}
               onClick={() => setTool(k as Tool)}
-              className="flex-1 rounded-xl font-bold text-sm"
+              className="rounded-xl font-bold text-sm px-3 shrink-0"
               style={{
                 minHeight: 48, touchAction: 'manipulation',
                 background: tool === k ? '#5A8C4A' : '#EADFC6',
@@ -97,7 +110,11 @@ export default function TimesTableWorkshop({
           ))}
         </div>
 
-        {tool === 'split' ? <Splitter queue={queue} /> : <Chart accuracy={accMap} />}
+        {tool === 'learn'    && <LearnTable muted={muted} onToggleMute={() => setMuted(m => !m)} />}
+        {tool === 'split'    && <Splitter queue={queue} />}
+        {tool === 'practice' && <Practice queue={queue} muted={muted} onToggleMute={() => setMuted(m => !m)} />}
+        {tool === 'cards'    && <Flashcards queue={queue} muted={muted} onToggleMute={() => setMuted(m => !m)} />}
+        {tool === 'chart'    && <Chart accuracy={accMap} />}
       </div>
     </div>
   );

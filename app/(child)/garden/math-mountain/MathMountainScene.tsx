@@ -46,6 +46,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import PipChipmunk from '@/components/child/garden/PipChipmunk';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { MapStructure } from '@/lib/world/gardenMap';
 import type { BranchCluster } from '@/lib/world/branchMaps';
@@ -99,6 +100,8 @@ interface MathMountainSceneProps {
   /** Crystal Cavern's gate, computed server-side. Monotonic — a place
    *  she has earned must never lock itself again. */
   cavernUnlocked?: boolean;
+  /** Pip is out on the slope. Level 3 + the multiplication base. */
+  pipOut?: boolean;
 }
 
 const W = BRANCH_MAP_WIDTH;   // 1440
@@ -151,7 +154,7 @@ const HABITAT_BY_SKILL: Record<string, string> = Object.entries(HABITAT_GROUPS)
 
 export default function MathMountainScene({
   learnerId, structures, clusters, structureStates, masteredCodes = [],
-  cavernUnlocked = false,
+  cavernUnlocked = false, pipOut = false,
 }: MathMountainSceneProps) {
   const router = useRouter();
   const { settings } = useAccessibilitySettings();
@@ -2595,6 +2598,39 @@ export default function MathMountainScene({
             </g>
           );
         })}
+        {/* ── Pip, on the lower slope ──────────────────────────────
+            Placed in the gap between Measurement Meadow and the lower
+            stops so he does not crowd a skill marker, and drawn ON a
+            rock with a burrow mouth under it rather than hovering — a
+            character standing on nothing is the mistake Cliffside Point
+            already taught this map. */}
+        {pipOut && (
+          <g
+            transform="translate(520, 705)"
+            style={{ cursor: 'pointer' }}
+            onClick={() => router.push(`/times-table?learner=${learnerId}`)}
+            role="button"
+            aria-label="Pip the chipmunk — times tables"
+          >
+            {/* the rock he sits on, and his front door under it */}
+            <ellipse cx={6} cy={26} rx={40} ry={11} fill="#000" opacity={0.12} />
+            <path d="M -34 26 Q -30 6 -10 3 Q 14 0 32 8 Q 44 15 42 26 Z"
+                  fill="#9C9384" stroke="#6E675B" strokeWidth={1.6} strokeLinejoin="round" />
+            <path d="M -34 26 Q -30 8 -12 4 Q -4 12 -6 26 Z" fill="#B3AA99" />
+            <ellipse cx={22} cy={24} rx={9} ry={6} fill="#2E2A22" />
+            {/* a few of his acorns, in equal piles, because that is him */}
+            {[0, 1, 2].map(i => (
+              <g key={i} transform={`translate(${-26 + i * 9}, 20)`}>
+                <ellipse cx={0} cy={0} rx={3} ry={3.4} fill="#C99A6E"
+                         stroke="#8A5E30" strokeWidth={0.9} />
+                <path d="M -3 -1.4 Q 0 -3.6 3 -1.4 Q 0 0 -3 -1.4 Z" fill="#7A5528" />
+              </g>
+            ))}
+            <g transform="translate(-4, -40)">
+              <PipChipmunk size={58} />
+            </g>
+          </g>
+        )}
       </svg>
 
       <PanEdgeHints canLeft={portraitPan.canLeft} canRight={portraitPan.canRight} />
