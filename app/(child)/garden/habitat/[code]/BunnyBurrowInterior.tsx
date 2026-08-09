@@ -1275,6 +1275,44 @@ export default function BunnyBurrowInterior({
             </g>
           );
         })}
+
+        {/* ── the door out to the tunnels ────────────────────────────
+            Cecily asked for this twice: "bunny brow is a little boring
+            because there is not that much things to do". A round door
+            in the back wall, opening onto the ground under the whole
+            garden — which is also where she finds out that the rabbit
+            whose burrow this is never dug it. */}
+        <g
+          transform="translate(1170, 470)"
+          style={{ cursor: 'pointer' }}
+          onClick={() => router.push(`/garden/tunnels?learner=${learnerId}`)}
+          role="button"
+          aria-label="the door to the tunnels"
+        >
+          <rect x={-90} y={-120} width={180} height={210} fill="transparent" />
+          {/* doorway cut into the earth wall */}
+          <path d="M -52 60 L -52 -22 A 52 52 0 0 1 52 -22 L 52 60 Z"
+                fill="#2A1D10" stroke="#6B4A28" strokeWidth={5} strokeLinejoin="round" />
+          {/* the tunnel receding into the dark */}
+          <path d="M -30 60 L -30 -10 A 30 30 0 0 1 30 -10 L 30 60 Z" fill="#170F08" />
+          <ellipse cx={0} cy={58} rx={30} ry={7} fill="#0C0703" />
+          {/* root fringe over the top, so it reads as dug rather than built */}
+          <g stroke="#6B4A28" strokeWidth={2.6} fill="none" strokeLinecap="round" opacity={0.9}>
+            <path d="M -40 -34 q 8 14 4 26" />
+            <path d="M -14 -48 q 4 16 -2 28" />
+            <path d="M 16 -46 q -4 16 2 28" />
+            <path d="M 42 -30 q -8 14 -4 24" />
+          </g>
+          {/* a lantern hung beside it, matching the burrow's own light */}
+          <circle cx={-74} cy={-30} r={9} fill="#FFE9A8" opacity={0.55} />
+          <circle cx={-74} cy={-30} r={4.5} fill="#FFD98A" />
+          <rect x={-58} y={66} width={116} height={20} rx={10}
+                fill="#FFFAF2" stroke="#C9A227" strokeWidth={1.4} />
+          <text x={0} y={80} textAnchor="middle" fontSize={11} fontWeight={700}
+                fill="#6b4423" style={{ userSelect: 'none' }}>
+            the tunnels →
+          </text>
+        </g>
       </svg>
       <BunnyTeachModal
         open={teachOpen}

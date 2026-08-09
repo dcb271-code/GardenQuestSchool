@@ -133,9 +133,14 @@ export default function PickerClient({ learners: initial }: { learners: Learner[
           animate={reducedMotion ? undefined : { opacity: 1, y: 0 }}
           transition={{ delay: 1.2, duration: 0.6 }}
         >
-          <FooterLink href="/garden" emoji="🌿" label="garden" />
-          <FooterLink href="/journal" emoji="📖" label="journal" />
-          <FooterLink href="/habitats" emoji="🏠" label="habitats" />
+          {/* Garden, journal and habitats used to sit here too. They
+              resolved the learner from a cookie — whoever was active
+              last — so on the one screen whose entire job is "who are
+              you", they opened somebody's garden without asking, and
+              usually the wrong child's. With profile PINs they were
+              also a way straight past the picker. Settings and parent
+              are the only two that are genuinely nobody's-in-
+              particular. */}
           <FooterLink href="/settings" emoji="⚙️" label="settings" />
           <FooterLink href="/auth" emoji="👤" label="parent" />
         </motion.div>

@@ -11,6 +11,7 @@ import { SPECIES_CATALOG } from '@/lib/world/speciesCatalog';
 import type { SpeciesData } from '@/lib/world/speciesCatalog';
 import ArrivalCard from '@/components/child/garden/ArrivalCard';
 import LunaWanderer from '@/components/child/garden/LunaWanderer';
+import LunaVisitModal from '@/components/child/garden/LunaVisitModal';
 import AmbientLayer from '@/components/child/garden/AmbientLayer';
 import SisterWalkers, { SISTERS_HOME } from '@/components/child/garden/SisterWalkers';
 import WelcomeOverlay from '@/components/child/garden/WelcomeOverlay';
@@ -364,6 +365,7 @@ export default function GardenScene({
   birdAudio = {},
   unreadLetterReplies = 0,
   moonGardenOpen = false,
+  lunaCanFeedToday = true,
 }: {
   learnerId: string;
   firstName?: string | null;
@@ -391,6 +393,8 @@ export default function GardenScene({
   unreadLetterReplies?: number;
   /** A moon-quadrant flower is actually in bloom tonight. */
   moonGardenOpen?: boolean;
+  /** Luna has not had her treat yet today. */
+  lunaCanFeedToday?: boolean;
 }) {
   const router = useRouter();
   const { settings, update } = useAccessibilitySettings();
@@ -413,6 +417,7 @@ export default function GardenScene({
   // code gets set for ~6s and the matching structure pulses.
   const [highlightCode, setHighlightCode] = useState<string | null>(null);
   const [starting, setStarting] = useState(false);
+  const [lunaOpen, setLunaOpen] = useState(false);
   const [tappedCode, setTappedCode] = useState<string | null>(null);
   // A stop whose star is already earned — nudge toward something new
   // before replaying it.
@@ -1622,7 +1627,7 @@ export default function GardenScene({
 
           <LunaWanderer
             mapWidth={MAP_WIDTH} mapHeight={MAP_HEIGHT} reducedMotion={reducedMotion}
-            onTap={() => router.push(`/adventure/luna?learner=${learnerId}`)}
+            onTap={() => setLunaOpen(true)}
           />
 
           {/* Garden friend — renders nothing until one is adopted */}
@@ -2312,6 +2317,15 @@ export default function GardenScene({
       />
 
       {/* Hodge's estimation duel — Level 3+ */}
+      {lunaOpen && (
+        <LunaVisitModal
+          learnerId={learnerId}
+          canFeedToday={lunaCanFeedToday}
+          onClose={() => setLunaOpen(false)}
+          onStory={() => router.push(`/adventure/luna?learner=${learnerId}`)}
+        />
+      )}
+
       <EstimationDuelModal
         open={duelOpen}
         learnerId={learnerId}

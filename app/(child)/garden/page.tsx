@@ -1,5 +1,7 @@
 import { createServiceClient } from '@/lib/supabase/server';
 import { getPlant } from '@/lib/world/plantCatalog';
+import { canFeed } from '@/lib/world/lunaTreats';
+import { todayKey } from '@/lib/learning/review';
 import { GARDEN_STRUCTURES } from '@/lib/world/gardenMap';
 import { HABITAT_CATALOG } from '@/lib/world/habitatCatalog';
 import { SPECIES_CATALOG } from '@/lib/world/speciesCatalog';
@@ -375,6 +377,11 @@ export default async function GardenPage({
     }
   }
 
+  // Luna's one treat a day, computed server-side like every other cap.
+  const lunaState = ((worldStateRow?.garden as Record<string, any> | null)?.luna
+    ?? {}) as { lastFed?: string };
+  const lunaCanFeedToday = canFeed(lunaState, todayKey());
+
   // Unopened replies put a badge on the letterbox. Read from the same
   // garden blob everything else lives in.
   const unreadLetterReplies = unreadReplies(
@@ -421,6 +428,7 @@ export default async function GardenPage({
       birdAudio={birdAudio}
       unreadLetterReplies={unreadLetterReplies}
       moonGardenOpen={moonGardenOpen}
+      lunaCanFeedToday={lunaCanFeedToday}
     />
   );
 }

@@ -37,6 +37,7 @@ const ROUTES = [
   '/garden/habitat/crystal_cavern',
   '/garden/habitat/bunny_burrow',
   '/garden/habitat/bird_feeder',
+  '/garden/tunnels',
   '/times-table',
   '/letters',
   '/journal',
