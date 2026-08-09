@@ -1,6 +1,7 @@
 import { createServiceClient } from '@/lib/supabase/server';
 import { getPlant } from '@/lib/world/plantCatalog';
 import { canFeed } from '@/lib/world/lunaTreats';
+import { emptyShop, type ShopState } from '@/lib/world/shopCatalog';
 import { todayKey } from '@/lib/learning/review';
 import { GARDEN_STRUCTURES } from '@/lib/world/gardenMap';
 import { HABITAT_CATALOG } from '@/lib/world/habitatCatalog';
@@ -68,7 +69,7 @@ export interface StructureState {
 export default async function GardenPage({
   searchParams,
 }: {
-  searchParams: { learner?: string };
+  searchParams: { learner?: string; arrange?: string };
 }) {
   const db = createServiceClient();
 
@@ -377,6 +378,11 @@ export default async function GardenPage({
     }
   }
 
+  const shopState: ShopState = {
+    ...emptyShop(),
+    ...(((worldStateRow?.garden as Record<string, any> | null)?.shop as ShopState) ?? {}),
+  };
+
   // Luna's one treat a day, computed server-side like every other cap.
   const lunaState = ((worldStateRow?.garden as Record<string, any> | null)?.luna
     ?? {}) as { lastFed?: string };
@@ -429,6 +435,8 @@ export default async function GardenPage({
       unreadLetterReplies={unreadLetterReplies}
       moonGardenOpen={moonGardenOpen}
       lunaCanFeedToday={lunaCanFeedToday}
+      shop={shopState}
+      startArranging={searchParams.arrange === '1'}
     />
   );
 }

@@ -1,10 +1,11 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { GARDEN_STRUCTURES, MAP_WIDTH, MAP_HEIGHT } from '@/lib/world/gardenMap';
+import { PLOTS } from '@/lib/world/plotLayout';
 import type { MapStructure } from '@/lib/world/gardenMap';
 import { HABITAT_CATALOG } from '@/lib/world/habitatCatalog';
 import { SPECIES_CATALOG } from '@/lib/world/speciesCatalog';
@@ -12,6 +13,10 @@ import type { SpeciesData } from '@/lib/world/speciesCatalog';
 import ArrivalCard from '@/components/child/garden/ArrivalCard';
 import LunaWanderer from '@/components/child/garden/LunaWanderer';
 import LunaVisitModal from '@/components/child/garden/LunaVisitModal';
+import {
+  useArrange, ArrangeTray, PlacedItems,
+} from '@/components/child/garden/ArrangeLayer';
+import { emptyShop, type ShopState } from '@/lib/world/shopCatalog';
 import AmbientLayer from '@/components/child/garden/AmbientLayer';
 import SisterWalkers, { SISTERS_HOME } from '@/components/child/garden/SisterWalkers';
 import WelcomeOverlay from '@/components/child/garden/WelcomeOverlay';
@@ -366,6 +371,8 @@ export default function GardenScene({
   unreadLetterReplies = 0,
   moonGardenOpen = false,
   lunaCanFeedToday = true,
+  shop: initialShop = { owned: [], placed: {} },
+  startArranging = false,
 }: {
   learnerId: string;
   firstName?: string | null;
@@ -395,6 +402,10 @@ export default function GardenScene({
   moonGardenOpen?: boolean;
   /** Luna has not had her treat yet today. */
   lunaCanFeedToday?: boolean;
+  /** What she owns from the shop, and where she has stood it. */
+  shop?: ShopState;
+  /** Arrived here from the shop with something to put down. */
+  startArranging?: boolean;
 }) {
   const router = useRouter();
   const { settings, update } = useAccessibilitySettings();
@@ -418,6 +429,22 @@ export default function GardenScene({
   const [highlightCode, setHighlightCode] = useState<string | null>(null);
   const [starting, setStarting] = useState(false);
   const [lunaOpen, setLunaOpen] = useState(false);
+  const [shop, setShop] = useState<ShopState>({ ...emptyShop(), ...initialShop });
+  const [arranging, setArranging] = useState(startArranging);
+
+  // Beds, habitats and paths she must not stand a bench on top of.
+  const arrangeObstacles = useMemo(() => ([
+    ...GARDEN_STRUCTURES.map(st => ({
+      x: st.x, y: st.y, w: (st.size ?? 60) * 1.1, h: (st.size ?? 60) * 1.1,
+    })),
+    ...PLOTS.map(pl => ({ x: pl.x, y: pl.y, w: 96, h: 96 })),
+  ]), []);
+
+  const arrange = useArrange({
+    learnerId, shop, obstacles: arrangeObstacles,
+    mapW: MAP_WIDTH, mapH: MAP_HEIGHT,
+    onChange: setShop, onDone: () => setArranging(false),
+  });
   const [tappedCode, setTappedCode] = useState<string | null>(null);
   // A stop whose star is already earned — nudge toward something new
   // before replaying it.
@@ -665,6 +692,23 @@ export default function GardenScene({
               aria-label="the garden at night"
               title="The Night Garden — something is open out there"
             >🌙</Link>
+          )}
+          <Link
+            href={`/garden/shop?learner=${learnerId}`}
+            className="text-lg p-1.5 rounded-full bg-white border border-ochre"
+            aria-label="the yard"
+            title="The Yard — spend your coins"
+            style={{ minWidth: 40, minHeight: 40, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+          >🪴</Link>
+          {shop.owned.length > 0 && !arranging && (
+            <button
+              type="button"
+              onClick={() => setArranging(true)}
+              className="text-lg p-1.5 rounded-full bg-white border border-ochre"
+              aria-label="arrange your garden"
+              title="Arrange your garden"
+              style={{ minWidth: 40, minHeight: 40, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+            >✋</button>
           )}
           {/* The workshop is for reteaching, so it is always reachable —
               a child who is struggling should not have to earn the tool
@@ -1770,6 +1814,32 @@ export default function GardenScene({
           />
 
           <rect width={MAP_WIDTH} height={MAP_HEIGHT} fill={tint} pointerEvents="none" />
+          {/* ── arranging ─────────────────────────────────────────
+              A transparent sheet over the whole map that turns a tap
+              into world coordinates. It only exists while she is
+              arranging, so it can never swallow a tap meant for a
+              habitat. */}
+          {arranging && arrange.holding && (
+            <rect
+              x={0} y={0} width={MAP_WIDTH} height={MAP_HEIGHT}
+              fill="transparent"
+              style={{ cursor: 'copy' }}
+              onClick={e => {
+                const svg = e.currentTarget.ownerSVGElement;
+                if (!svg) return;
+                // getScreenCTM accounts for the pan offset and the
+                // scale in one step, which hand-rolled arithmetic on
+                // the viewBox would get wrong the moment she pans.
+                const pt = svg.createSVGPoint();
+                pt.x = e.clientX; pt.y = e.clientY;
+                const m = svg.getScreenCTM();
+                if (!m) return;
+                const world = pt.matrixTransform(m.inverse());
+                arrange.placeAt(world.x, world.y);
+              }}
+            />
+          )}
+          <PlacedItems shop={shop} arranging={arranging} onPickUp={arrange.pickUp} />
         </svg>
 
         <PanEdgeHints canLeft={portraitPan.canLeft} canRight={portraitPan.canRight} />
@@ -2317,6 +2387,16 @@ export default function GardenScene({
       />
 
       {/* Hodge's estimation duel — Level 3+ */}
+      {arranging && (
+        <ArrangeTray
+          shed={arrange.shed}
+          holding={arrange.holding}
+          refused={arrange.refused}
+          onHold={arrange.setHolding}
+          onDone={() => { setArranging(false); arrange.setHolding(null); }}
+        />
+      )}
+
       {lunaOpen && (
         <LunaVisitModal
           learnerId={learnerId}
