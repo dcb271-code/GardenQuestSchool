@@ -172,7 +172,33 @@ export async function GET(
     if (eligibleFallback.length === 0) {
       return NextResponse.json({ ended: true, learnerId: session.learner_id });
     }
-    picked = pickFromTier(eligibleFallback);
+
+    // Drop the band, but NOT the notion of difficulty.
+    //
+    // This path is reached when a learner has outgrown an entire skill's
+    // item pool — and it used to hand back whatever was least-used,
+    // which is the exact opposite of what a learner who is too good for
+    // the pool needs. Cecily's Elo on the ×0–×5 facts reached 1688
+    // while the hardest item in that pool was priced 1465, so the band
+    // matched nothing on every single request and the fallback served
+    // her the items she had practised least: "zero times four" and
+    // "one times three". 41% of her multiplication practice went to ×0
+    // and ×1 that way, her mastery reading stayed high on nothing, and
+    // the ×6–×10 facts she actually needed sat at 66%.
+    //
+    // So rank by distance from the band she should be in and keep the
+    // closest half. When she is above the whole pool that yields its
+    // hardest items; when she is below it, its easiest. Least-used
+    // still breaks ties inside that slice, via pickFromTier.
+    const distance = (c: { difficulty_elo: number | null }) => {
+      const e = c.difficulty_elo ?? 0;
+      if (e < band.min) return band.min - e;
+      if (e > band.stretchMax) return e - band.stretchMax;
+      return 0;
+    };
+    const byCloseness = eligibleFallback.slice().sort((a, b) => distance(a) - distance(b));
+    const nearest = byCloseness.slice(0, Math.max(4, Math.ceil(byCloseness.length / 2)));
+    picked = pickFromTier(nearest);
     if (!picked) {
       return NextResponse.json({ ended: true, learnerId: session.learner_id });
     }

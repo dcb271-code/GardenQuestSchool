@@ -661,6 +661,16 @@ export default function GardenScene({
               title="The Night Garden — something is open out there"
             >🌙</Link>
           )}
+          {/* The workshop is for reteaching, so it is always reachable —
+              a child who is struggling should not have to earn the tool
+              that explains the thing she is struggling with. */}
+          <Link
+            href={`/times-table?learner=${learnerId}`}
+            className="text-lg p-1.5 rounded-full bg-white border border-ochre"
+            aria-label="times table workshop"
+            title="Times Table Workshop"
+            style={{ minWidth: 40, minHeight: 40, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}
+          >✖️</Link>
           {cumulativeCorrect >= 25 && (
             <Link
               href={`/garden/grow?learner=${learnerId}`}

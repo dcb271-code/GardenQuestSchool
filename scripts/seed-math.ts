@@ -1133,6 +1133,19 @@ export function buildMathItems(skillId: (code: string) => string | undefined): R
     for (let a = 0; a <= 5; a++) {
       for (let b = 0; b <= 5; b++) {
         const total = a * b;
+        // ×0 and ×1 are ONE RULE EACH, not twenty-one facts.
+        //
+        // Seeding all 36 pairs made 21 of them trivial, and the picker
+        // duly served them: 104 of Cecily's 252 multiplication attempts
+        // were ×0 or ×1 items. That is 41% of her practice spent on
+        // "zero groups of four", and it is where the ×0–×5 band's 87%
+        // came from — a mastery reading with almost nothing behind it,
+        // while ×6–×10 sat at 66% and she quietly stopped improving.
+        //
+        // Keep only the canonical form of each rule (0×n and 1×n, not
+        // the mirrors) so the lesson is still taught and cannot drown
+        // the facts that need the repetitions.
+        if ((a <= 1 || b <= 1) && !(a <= 1 && b > 1)) continue;
         // ×0 facts: the old hand-picked distractors collapsed to
         // duplicates when a or b was 0/1 (e.g. [0,1,0,0]). Build a
         // distinct set instead: 1 and a+b ("added instead of
