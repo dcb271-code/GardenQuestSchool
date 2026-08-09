@@ -1073,7 +1073,7 @@ export function WhiteLinedSphinx({ size = 60 }: SpeciesProps) {
 }
 
 export function RosyMapleMoth({ size = 60 }: SpeciesProps) {
-  // Small, round, and genuinely these colours. The fluff is the point —
+  // Small, round, and genuinely these colors. The fluff is the point —
   // every edge here is deliberately soft, and the body is drawn furry.
   const PINK = '#EE8FB8';
   const PINK_HI = '#F8BBD4';

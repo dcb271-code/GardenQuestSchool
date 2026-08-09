@@ -216,7 +216,7 @@ export default function MusicScene({ learnerId }: { learnerId: string }) {
                   onClick={() => page + 1 < unit.teach.length ? setPage(p => p + 1) : setPhase('practice')}
                   className="flex-[2] bg-forest text-white rounded-full py-3 font-display"
                   style={{ touchAction: 'manipulation', minHeight: 52, fontWeight: 600 }}>
-                  {page + 1 < unit.teach.length ? 'next →' : "let's practise →"}
+                  {page + 1 < unit.teach.length ? 'next →' : "let's practice →"}
                 </button>
               </div>
               <button onClick={() => setPhase('menu')}

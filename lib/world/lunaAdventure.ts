@@ -158,7 +158,7 @@ export const LUNA_EPISODES: LunaEpisode[] = [
       {
         kind: 'narration',
         id: 'ep1_bloom',
-        text: 'That night — Luna will swear to this forever — a flower opens in the dark, wide and white as a small moon come down to rest. Moths arrive like a soft grey snowfall. A moonflower. The first one the garden has ever grown.',
+        text: 'That night — Luna will swear to this forever — a flower opens in the dark, wide and white as a small moon come down to rest. Moths arrive like a soft gray snowfall. A moonflower. The first one the garden has ever grown.',
         art: { type: 'emoji', emoji: '🌸' },
       },
       {
@@ -267,7 +267,7 @@ export const LUNA_EPISODES: LunaEpisode[] = [
         inviteText: 'One lamp is not enough. Bachan looks along the row of houses. "Every light out here is another lie," she says. "Come. We count them, and we knock on doors, and we ask." Counting in the dark, house by house — that is a job for good, careful numbers.',
         art: { type: 'emoji', emoji: '🔢' },
         focusSubject: 'math',
-        afterText: 'Six lamps. Four neighbours who say yes straight away, one who is out, and Mr. Pell next door who says "for a moth?" and then turns his off anyway. The street goes quiet and dim, one window at a time.',
+        afterText: 'Six lamps. Four neighbors who say yes straight away, one who is out, and Mr. Pell next door who says "for a moth?" and then turns his off anyway. The street goes quiet and dim, one window at a time.',
       },
       {
         kind: 'narration',

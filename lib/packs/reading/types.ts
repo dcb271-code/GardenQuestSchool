@@ -77,7 +77,7 @@ export interface ParagraphComprehensionContent {
   choices: string[];
   // Question-kind tag for analytics + lesson-header coloring; not
   // shown to the child. One of:
-  //   'recall'  — literal: "what colour was the bird?"
+  //   'recall'  — literal: "what color was the bird?"
   //   'sequence'— "what happened first / next / last?"
   //   'inference' — "why did X do Y?"
   //   'main_idea' — "what is this passage mostly about?"

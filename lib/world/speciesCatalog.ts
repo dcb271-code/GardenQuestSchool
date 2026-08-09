@@ -25,7 +25,7 @@ export interface SpeciesData {
    * moon-quadrant flower being in BLOOM, which is a garden state rather
    * than a structure, so they carry no habitatReqCodes at all — and
    * arrivals.ts already refuses to place anything with an empty list,
-   * which is exactly the behaviour wanted. This field records that the
+   * which is exactly the behavior wanted. This field records that the
    * empty list is deliberate rather than a typo that would silently
    * make a species undiscoverable.
    */
@@ -52,7 +52,7 @@ export interface ConservationDisplay {
 }
 
 /**
- * The one place status → how-it-looks lives. Colours are drawn from the
+ * The one place status → how-it-looks lives. Colors are drawn from the
  * app palette (forest / ochre / terracotta) so the badge sits happily
  * next to everything else.
  */
@@ -163,23 +163,23 @@ export const SPECIES_CATALOG: SpeciesData[] = [
     funFact: 'The blue is not paint. There is no blue pigment in the feather at all — it is built to scatter light so only blue bounces back. Crush one and the blue vanishes.',
     illustrationKey: 'blue_jay', emoji: '🐦', habitatReqCodes: ['bird_feeder'], conservationStatus: 'stable' },
   { code: 'mourning_dove', commonName: 'Mourning Dove', scientificName: 'Zenaida macroura',
-    description: 'Soft fawn-grey all over, slim, with a very long pointed tail and a small round head.',
+    description: 'Soft fawn-gray all over, slim, with a very long pointed tail and a small round head.',
     funFact: 'The whistling when a dove takes off is not its voice — it is the wings. Specially shaped feathers make the sound, and it warns the whole flock that something is wrong.',
     illustrationKey: 'mourning_dove', emoji: '🕊️', habitatReqCodes: ['bird_feeder'], conservationStatus: 'stable' },
   { code: 'carolina_chickadee', commonName: 'Carolina Chickadee', scientificName: 'Poecile carolinensis',
-    description: 'Tiny and round, grey above and pale below, with a black cap and a black bib — and a bright white cheek squeezed between them.',
+    description: 'Tiny and round, gray above and pale below, with a black cap and a black bib — and a bright white cheek squeezed between them.',
     funFact: 'It hides seeds one at a time in bark cracks and remembers thousands of hiding places. In autumn the memory part of its brain grows new cells to hold them all.',
     illustrationKey: 'carolina_chickadee', emoji: '🐦', habitatReqCodes: ['bird_feeder'], conservationStatus: 'stable' },
   { code: 'american_robin', commonName: 'American Robin', scientificName: 'Turdus migratorius',
-    description: 'Dark grey back, warm orange breast, yellow bill. Upright and long-legged on the grass.',
+    description: 'Dark gray back, warm orange breast, yellow bill. Upright and long-legged on the grass.',
     funFact: 'When a robin tilts its head on the lawn, it is aiming one eye at the ground. Its eyes are on the sides of its head, so it cannot look straight down with both at once.',
     illustrationKey: 'american_robin', emoji: '🐦', habitatReqCodes: ['bird_feeder'], conservationStatus: 'stable' },
   { code: 'tufted_titmouse', commonName: 'Tufted Titmouse', scientificName: 'Baeolophus bicolor',
-    description: 'Soft grey above, white below, with a peachy wash down the sides — a grey crest and a very big black eye.',
+    description: 'Soft gray above, white below, with a peachy wash down the sides — a gray crest and a very big black eye.',
     funFact: 'It lines its nest with fur, and it pulls the fur off live animals to get it — squirrels, dogs, even people.',
     illustrationKey: 'tufted_titmouse', emoji: '🐦', habitatReqCodes: ['bird_feeder'], conservationStatus: 'stable' },
   { code: 'white_breasted_nuthatch', commonName: 'White-breasted Nuthatch', scientificName: 'Sitta carolinensis',
-    description: 'Blue-grey back, clean white face and chest, black cap. Looks like it has no neck and almost no tail.',
+    description: 'Blue-gray back, clean white face and chest, black cap. Looks like it has no neck and almost no tail.',
     funFact: 'It walks DOWN tree trunks head-first, which lets it spot insects hiding in bark that every upward-climbing bird walked straight past.',
     illustrationKey: 'white_breasted_nuthatch', emoji: '🐦', habitatReqCodes: ['bird_feeder'], conservationStatus: 'stable' },
   { code: 'carolina_wren', commonName: 'Carolina Wren', scientificName: 'Thryothorus ludovicianus',
@@ -252,7 +252,7 @@ export const SPECIES_CATALOG: SpeciesData[] = [
   // Night Garden once a moon-quadrant plant is in bloom.
   { code: 'pink_spotted_hawkmoth', commonName: 'Pink-spotted Hawkmoth',
     scientificName: 'Agrius cingulata',
-    description: 'A fast grey moth with hot-pink bands hidden along its body, hovering at flowers in the dark like a small hummingbird.',
+    description: 'A fast gray moth with hot-pink bands hidden along its body, hovering at flowers in the dark like a small hummingbird.',
     funFact: 'Its tongue is longer than its whole body — it can be four inches — and it stays curled up like a watch spring until it feeds. That tongue is the reason a moonflower has such a deep throat: the flower is built to fit this moth and almost nothing else.',
     illustrationKey: 'pink_spotted_hawkmoth', emoji: '🌸', habitatReqCodes: [], arrivesVia: 'night_garden',
     conservationStatus: 'stable' },
@@ -264,8 +264,8 @@ export const SPECIES_CATALOG: SpeciesData[] = [
     conservationStatus: 'stable' },
   { code: 'rosy_maple_moth', commonName: 'Rosy Maple Moth',
     scientificName: 'Dryocampa rubicunda',
-    description: 'A small, extremely fuzzy moth coloured pink and yellow, like a sweet somebody dropped in the garden.',
-    funFact: 'It really is those colours — nobody has touched it up. The fluff is genuine fur-like scales, and it is thought the pink and yellow make it look like a maple seed rather than a meal.',
+    description: 'A small, extremely fuzzy moth colored pink and yellow, like a sweet somebody dropped in the garden.',
+    funFact: 'It really is those colors — nobody has touched it up. The fluff is genuine fur-like scales, and it is thought the pink and yellow make it look like a maple seed rather than a meal.',
     illustrationKey: 'rosy_maple_moth', emoji: '🌷', habitatReqCodes: [], arrivesVia: 'night_garden',
     conservationStatus: 'stable' },
   { code: 'polyphemus_moth', commonName: 'Polyphemus Moth',

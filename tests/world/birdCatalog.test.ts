@@ -44,7 +44,7 @@ describe('BIRD_CATALOG', () => {
   it('every bird has the teaching content the exercises need', () => {
     for (const b of BIRD_CATALOG) {
       expect(b.fieldMarks.length, b.code).toBeGreaterThan(0);
-      expect(b.behaviour.length, b.code).toBeGreaterThan(0);
+      expect(b.behavior.length, b.code).toBeGreaterThan(0);
       expect(b.habitat.length, b.code).toBeGreaterThan(0);
       expect(b.facts.length, b.code).toBeGreaterThan(0);
       expect(b.voices.length, b.code).toBeGreaterThan(0);

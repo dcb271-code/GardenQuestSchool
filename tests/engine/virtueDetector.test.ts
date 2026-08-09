@@ -61,7 +61,7 @@ describe('virtueDetector — rules', () => {
     expect(noticing.length).toBe(1);
     // Pool-based narrative — match any of the recurring themes across
     // the noticing line variants.
-    expect(noticing[0].evidence.narrativeText).toMatch(/pattern|spotted|noticed|naturalist|recognised|fast|catch/i);
+    expect(noticing[0].evidence.narrativeText).toMatch(/pattern|spotted|noticed|naturalist|recognized|fast|catch/i);
   });
 
   it('does NOT grant Noticing for a 4-item session (needs a full 5)', () => {

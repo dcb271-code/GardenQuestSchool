@@ -315,7 +315,7 @@ function exerciseFor(unitCode: string, rand: () => number): Exercise {
         midis: [midiOf(a), midiOf(b)],
         choices,
         correctIndex,
-        hint: 'A step is next-door neighbours. A skip hops over a key and sounds wider.',
+        hint: 'A step is next-door neighbors. A skip hops over a key and sounds wider.',
       };
     }
     case 'same_or_different': {
@@ -578,7 +578,7 @@ export const UNITS: MusicUnit[] = [
   },
   {
     code: 'reading_up_to_c',
-    title: 'Reading the Neighbourhood',
+    title: 'Reading the Neighborhood',
     strand: 'notation',
     blurb: 'From middle C up to the C above — the notes you actually play.',
     exerciseCount: 8,
@@ -653,7 +653,7 @@ export const UNITS: MusicUnit[] = [
     teach: [
       {
         heading: 'A skip sounds wider',
-        body: 'You already know steps and skips on the page. They have a sound too: a step slides gently to its neighbour, a skip leaves a small hole you can hear.',
+        body: 'You already know steps and skips on the page. They have a sound too: a step slides gently to its neighbor, a skip leaves a small hole you can hear.',
         figure: { kind: 'staff', notes: [{ letter: 'C', octave: 4 }, { letter: 'D', octave: 4 }, { letter: 'C', octave: 4 }, { letter: 'E', octave: 4 }], caption: 'step, then skip' },
       },
     ],

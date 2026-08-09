@@ -91,7 +91,7 @@ export default function TimesTableWorkshop({
           {([
             ['learn', '🔊 Count'],
             ['split', '✂️ Cut up'],
-            ['practice', '🌰 Practise'],
+            ['practice', '🌰 Practice'],
             ['cards', '🃏 Cards'],
             ['chart', '▦ Table'],
           ] as const).map(([k, label]) => (

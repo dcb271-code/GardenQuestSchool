@@ -14,7 +14,7 @@ describe('GEM_CATALOG', () => {
   it('every gem carries the teaching content the lessons need', () => {
     for (const g of GEM_CATALOG) {
       expect(g.facts.length, g.code).toBeGreaterThanOrEqual(3);
-      expect(g.colours.length, g.code).toBeGreaterThan(0);
+      expect(g.colors.length, g.code).toBeGreaterThan(0);
       expect(g.formationStory.length, g.code).toBeGreaterThan(60);
       expect(g.whereFound.length, g.code).toBeGreaterThan(10);
       expect(g.crystalShape.length, g.code).toBeGreaterThan(3);

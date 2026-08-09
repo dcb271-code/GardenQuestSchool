@@ -176,7 +176,7 @@ describe('buildExercises', () => {
           // choice verbatim.
           case 'size_anchor':
           case 'bill_face':
-          case 'behaviour':
+          case 'behavior':
           case 'habitat':
           case 'mnemonic':
           case 'pitch_shape':
@@ -236,17 +236,17 @@ describe('buildExercises', () => {
     }
   });
 
-  it('behaviour distractors are never also true of the bird asked about', () => {
+  it('behavior distractors are never also true of the bird asked about', () => {
     // The bug this guards: two birds in a crew can honestly share a
-    // behaviour, and offering it as the wrong answer marks a right
+    // behavior, and offering it as the wrong answer marks a right
     // answer wrong.
     for (const u of UNITS) {
       for (const ex of allExercises(u.code)) {
-        if (ex.kind !== 'behaviour') continue;
+        if (ex.kind !== 'behavior') continue;
         const bird = getBird(ex.birdCode)!;
         ex.choices.forEach((c, i) => {
           if (i === ex.correctIndex) return;
-          expect(bird.behaviour, `${bird.code} also does "${c}"`).not.toContain(c);
+          expect(bird.behavior, `${bird.code} also does "${c}"`).not.toContain(c);
         });
       }
     }
@@ -317,7 +317,7 @@ describe('buildExercises', () => {
 
   it('know units ask about living, not about looks', () => {
     const kinds = new Set(allExercises('crew1_know').map(e => e.kind));
-    expect(kinds.has('behaviour') || kinds.has('habitat')).toBe(true);
+    expect(kinds.has('behavior') || kinds.has('habitat')).toBe(true);
     expect(kinds).not.toContain('size_anchor');
     expect(kinds).not.toContain('photo_name');
   });

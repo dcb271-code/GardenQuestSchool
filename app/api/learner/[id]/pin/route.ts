@@ -38,7 +38,7 @@ export async function POST(req: Request, { params }: { params: { id: string } })
   jar.set(UNLOCK_COOKIE, withUnlocked(jar.get(UNLOCK_COOKIE)?.value, params.id), {
     httpOnly: true, sameSite: 'lax', path: '/',
     // Session cookie on purpose: closing the tablet re-locks it, which
-    // is the behaviour a child expects from "my" profile.
+    // is the behavior a child expects from "my" profile.
   });
   return NextResponse.json({ ok: true });
 }

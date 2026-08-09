@@ -497,7 +497,7 @@ const PARAGRAPHS: Paragraph[] = [
   {
     paragraph:
       "Late in the afternoon, the wind began to grow stronger. " +
-      "The clouds turned grey and then nearly black. " +
+      "The clouds turned gray and then nearly black. " +
       "Cecily ran out to the garden and quickly tied a thin sapling to a wooden stake so the wind couldn't bend it too far. " +
       "Just as she finished, the first big drops of rain began to fall.",
     questions: [
@@ -1201,7 +1201,7 @@ const LONG_PASSAGES: Paragraph[] = [
       "Nana set down her trowel and smiled. " +
       "'Seeds do their best work where we can't see it,' she said. 'Under the ground, roots are already reaching down before a single leaf shows above.' " +
       "Esme wasn't sure she believed her, but she kept watering all the same. " +
-      "Then one grey morning, almost two weeks later, she found a faint green thread no thicker than a hair curling up out of the dirt. " +
+      "Then one gray morning, almost two weeks later, she found a faint green thread no thicker than a hair curling up out of the dirt. " +
       "She shouted so loudly that Luna the cat leapt off the fence. " +
       "Esme understood now what Nana had meant: the most important growing had been happening all along, quietly, out of sight.",
     questions: [

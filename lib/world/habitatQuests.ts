@@ -281,7 +281,7 @@ export const HABITAT_QUESTS: Record<string, HabitatQuest> = {
         prompt: 'What should you do to a feeder every few weeks?',
         choices: [
           'Clean it, so mouldy seed does not make the birds sick',
-          'Paint it a new colour',
+          'Paint it a new color',
           'Move it to a different country',
           'Nothing at all, ever',
         ],
@@ -305,7 +305,7 @@ export const HABITAT_QUESTS: Record<string, HabitatQuest> = {
         correctIndex: 0,
       },
       {
-        prompt: 'Miners in Kentucky dug up a mineral called fluorite in the 1830s and threw it away as rubbish. Why was that a mistake?',
+        prompt: 'Miners in Kentucky dug up a mineral called fluorite in the 1830s and threw it away as junk. Why was that a mistake?',
         choices: [
           'It turned out to be valuable — they just had not looked at it properly',
           'It was actually food',
@@ -315,11 +315,11 @@ export const HABITAT_QUESTS: Record<string, HabitatQuest> = {
         correctIndex: 0,
       },
       {
-        prompt: 'A geode looks like a boring grey lump from the outside. What is the point of that?',
+        prompt: 'A geode looks like a boring gray lump from the outside. What is the point of that?',
         choices: [
           'You cannot tell what is inside until you open it',
           'It is trying to look like a potato',
-          'Grey is the strongest colour',
+          'Gray is the strongest color',
           'There is never anything inside',
         ],
         correctIndex: 0,
@@ -533,7 +533,7 @@ export const HABITAT_QUESTIONS_L3: Record<string, QuestQuestion[]> = {
   ],
   bird_feeder: [
     {
-      prompt: 'Chickadees, titmice and nuthatches move through the winter woods together in one flock. What does travelling as a mixed gang buy them?',
+      prompt: 'Chickadees, titmice and nuthatches move through the winter woods together in one flock. What does traveling as a mixed gang buy them?',
       choices: [
         'Many more eyes watching for hawks, so each bird can spend longer eating',
         'They keep each other warm by holding wings',
@@ -553,12 +553,12 @@ export const HABITAT_QUESTIONS_L3: Record<string, QuestQuestion[]> = {
       correctIndex: 0,
     },
     {
-      prompt: 'A male house finch can be bright red or dull orange. The colour comes from what he ate while growing those feathers. Why do females prefer the reddest males?',
+      prompt: 'A male house finch can be bright red or dull orange. The color comes from what he ate while growing those feathers. Why do females prefer the reddest males?',
       choices: [
         'Red means he found the best food — so he is likely a good provider for chicks',
-        'Red is simply the prettiest colour to a bird',
+        'Red is simply the prettiest color to a bird',
         'Redder males sing more quietly',
-        'The colour tells her how old he is exactly',
+        'The color tells her how old he is exactly',
       ],
       correctIndex: 0,
     },

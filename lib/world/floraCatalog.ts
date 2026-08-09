@@ -32,7 +32,7 @@ export interface FloraData {
   localTier: LocalTier;
   emoji: string;                 // fallback / journal chip
   seasons: Season[];             // when this species is visibly identifiable
-  notableFeatures: string[];     // ['lobed leaf', 'red samaras', 'smooth grey bark']
+  notableFeatures: string[];     // ['lobed leaf', 'red samaras', 'smooth gray bark']
   facts: string[];               // 2-3 short kid-readable facts
   wikiSpecies: string;           // 'Acer_rubrum' — for Wikimedia category lookup
   inatTaxonId: number;           // iNaturalist taxon id
@@ -60,7 +60,7 @@ export const FLORA_CATALOG: FloraData[] = [
     notableFeatures: [
       'four-lobed leaf with a flat top',
       'tulip-shaped greenish-orange flower in late spring',
-      'tall straight grey trunk',
+      'tall straight gray trunk',
     ],
     facts: [
       'The Tulip Poplar is the state tree of Kentucky.',
@@ -414,7 +414,7 @@ export const FLORA_CATALOG: FloraData[] = [
     seasons: ['spring', 'summer', 'fall', 'winter'],
     notableFeatures: [
       'leaves with rounded finger-like lobes — no points, no bristles',
-      'pale grey bark in loose flaky plates',
+      'pale gray bark in loose flaky plates',
       'acorns with a bumpy cap covering about a quarter of the nut',
     ],
     facts: [
@@ -482,7 +482,7 @@ export const FLORA_CATALOG: FloraData[] = [
     emoji: '🦴',
     seasons: ['spring', 'summer', 'fall', 'winter'],
     notableFeatures: [
-      'camouflage bark — patches of grey, green, and cream where it peels',
+      'camouflage bark — patches of gray, green, and cream where it peels',
       'upper branches turn ghost-white',
       'huge maple-ish leaves, and round seed balls on long strings',
     ],

@@ -8,7 +8,7 @@
 // position, and the generator is testable against the catalog.
 //
 // The ordering inside a unit is Cornell's Four Keys, and it is not
-// arbitrary:  size & shape  →  colour  →  behaviour & habitat  →  the
+// arbitrary:  size & shape  →  colour  →  behavior & habitat  →  the
 // fine marks. Their instruction is explicit that field marks matter
 // "after you've placed your bird in the right group", and a beginner
 // who jumps straight to marks ends up memorising spots without ever
@@ -190,8 +190,8 @@ export type BirdExercise =
       choices: string[]; correctIndex: number; hint: string }
   | { kind: 'name_photo'; prompt: string; birdCode: string;
       photos: BirdPhotoRef[]; correctIndex: number; hint: string }
-  // ── then behaviour and habitat ───────────────────────────────
-  | { kind: 'behaviour'; prompt: string; birdCode: string;
+  // ── then behavior and habitat ───────────────────────────────
+  | { kind: 'behavior'; prompt: string; birdCode: string;
       choices: string[]; correctIndex: number; hint: string }
   | { kind: 'habitat'; prompt: string; birdCode: string;
       choices: string[]; correctIndex: number; hint: string }
@@ -375,17 +375,17 @@ function knowExercise(
   const others = otherBirds(bird, pool);
   const roll = rand();
 
-  if (roll < 0.4 && bird.behaviour.length) {
-    const correct = pick(bird.behaviour, rand);
+  if (roll < 0.4 && bird.behavior.length) {
+    const correct = pick(bird.behavior, rand);
     // Filter against THIS bird's whole list, not just the chosen line:
-    // two birds in a crew can honestly share a behaviour, and offering
+    // two birds in a crew can honestly share a behavior, and offering
     // it as the wrong answer would mark a right answer wrong.
     const wrong = others
-      .flatMap(b => b.behaviour)
-      .filter(x => !bird.behaviour.includes(x));
+      .flatMap(b => b.behavior)
+      .filter(x => !bird.behavior.includes(x));
     const { choices, correctIndex } = mc(correct, wrong, rand, n);
     return {
-      kind: 'behaviour',
+      kind: 'behavior',
       prompt: `Which of these does the ${bird.commonName} do?`,
       birdCode: bird.code,
       choices, correctIndex,
@@ -573,7 +573,7 @@ function matchExercise(
  * Deliberately two kinds and no more. Size-against-an-anchor and bill
  * shape are the birder's abstractions — powerful for an adult learning
  * to SEE, and meaningless to a child who does not yet reliably know a
- * cardinal from a jay. Behaviour and habitat questions are long
+ * cardinal from a jay. Behavior and habitat questions are long
  * sentences to read, which is its own barrier at Level 1.
  *
  * She meets the birds on the teach pages with real photographs, then
@@ -658,7 +658,7 @@ export function buildExercises(
 const FOUR_KEYS_PAGE: TeachPage = {
   heading: 'Four things to look at',
   body:
-    'Birders look at four things, always in the same order. First how BIG it is and what SHAPE — especially the bill and the face. Then the COLOUR pattern. Then what it is DOING. Then WHERE it is. The little spots and stripes come last, once you already know roughly what kind of bird it is.',
+    'Birders look at four things, always in the same order. First how BIG it is and what SHAPE — especially the bill and the face. Then the COLOR pattern. Then what it is DOING. Then WHERE it is. The little spots and stripes come last, once you already know roughly what kind of bird it is.',
   figure: { kind: 'four_keys' },
 };
 
@@ -672,7 +672,7 @@ const SIZE_PAGE: TeachPage = {
 const BILL_PAGE: TeachPage = {
   heading: 'The bill tells you what it eats',
   body:
-    'A fat cone bill cracks seeds. A straight chisel drills wood. Fine tweezers pick insects out of cracks. Before you look at a single colour, look at the bill — it puts the bird in the right family straight away.',
+    'A fat cone bill cracks seeds. A straight chisel drills wood. Fine tweezers pick insects out of cracks. Before you look at a single color, look at the bill — it puts the bird in the right family straight away.',
   figure: { kind: 'bills' },
 };
 
@@ -690,7 +690,7 @@ export const UNITS: BirdUnit[] = [
       {
         heading: 'The cardinal is yours',
         body:
-          'The Northern Cardinal is the state bird of Kentucky. Schoolchildren campaigned for it and the state agreed in 1926. The male is scarlet with a black mask. The female is warm brown — but look at her crest and her heavy orange bill and you will see she is the same bird in different colours.',
+          'The Northern Cardinal is the state bird of Kentucky. Schoolchildren campaigned for it and the state agreed in 1926. The male is scarlet with a black mask. The female is warm brown — but look at her crest and her heavy orange bill and you will see she is the same bird in different colors.',
         figure: { kind: 'marks', birdCode: 'northern_cardinal' },
       },
       {
@@ -720,7 +720,7 @@ export const UNITS: BirdUnit[] = [
       {
         heading: 'Watch what it is doing',
         body:
-          'Behaviour identifies a bird as surely as colour does. A robin runs, stops dead, tilts its head, then pulls. A dove walks on the ground and almost never lands on the feeder. A chickadee grabs one seed and leaves. You can name all three with your eyes half shut.',
+          'Behavior identifies a bird as surely as color does. A robin runs, stops dead, tilts its head, then pulls. A dove walks on the ground and almost never lands on the feeder. A chickadee grabs one seed and leaves. You can name all three with your eyes half shut.',
         figure: { kind: 'four_keys' },
       },
       {
@@ -812,7 +812,7 @@ export const UNITS: BirdUnit[] = [
       {
         heading: 'Crest, or no crest?',
         body:
-          'The Tufted Titmouse and the White-breasted Nuthatch are both small and grey and white. The titmouse has a pointed CREST and a big dark eye. The nuthatch has a smooth black cap and almost no tail — and it walks head-first DOWN the tree trunk, which nothing else in the yard does.',
+          'The Tufted Titmouse and the White-breasted Nuthatch are both small and gray and white. The titmouse has a pointed CREST and a big dark eye. The nuthatch has a smooth black cap and almost no tail — and it walks head-first DOWN the tree trunk, which nothing else in the yard does.',
         figure: { kind: 'marks', birdCode: 'white_breasted_nuthatch' },
       },
       {
@@ -932,13 +932,13 @@ export const UNITS: BirdUnit[] = [
       {
         heading: 'The snowbird',
         body:
-          'The Dark-eyed Junco is the easiest of the five: slate grey on top, clean white underneath, as though somebody dipped it halfway. Look on the GROUND under the feeder, not on it — juncos almost never perch on a feeder. When one flies, watch for white tail feathers flashing open.',
+          'The Dark-eyed Junco is the easiest of the five: slate gray on top, clean white underneath, as though somebody dipped it halfway. Look on the GROUND under the feeder, not on it — juncos almost never perch on a feeder. When one flies, watch for white tail feathers flashing open.',
         figure: { kind: 'marks', birdCode: 'dark_eyed_junco' },
       },
       {
         heading: 'The one that already lives in your book',
         body:
-          'You know the House Finch. Now meet its winter cousin, the Purple Finch. Both males are red — but House Finch red sits mostly on the front, like a bib, while a Purple Finch looks as if it was dipped head-first in raspberry juice, colour running right over its back and wings.',
+          'You know the House Finch. Now meet its winter cousin, the Purple Finch. Both males are red — but House Finch red sits mostly on the front, like a bib, while a Purple Finch looks as if it was dipped head-first in raspberry juice, color running right over its back and wings.',
         figure: { kind: 'marks', birdCode: 'purple_finch' },
       },
       {

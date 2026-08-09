@@ -71,7 +71,7 @@ import { MATH_STATIONS, STATION_OPEN_BOX, STATION_CLOSE_BOX } from '@/lib/world/
 // Local Sway helper — same shape as GardenScene's private Sway: a
 // gentle infinite rocking that brings static trees alive. Doesn't gate
 // on reducedMotion (it's tiny ambient motion, not a pulse); the
-// AmbientLayer handles the user-toggleable reduced-motion behaviour.
+// AmbientLayer handles the user-toggleable reduced-motion behavior.
 function Sway({
   x, y, delay = 0, children,
 }: {

@@ -270,7 +270,7 @@ function Clock({ minuteHandOn }: { minuteHandOn: number }) {
   const py = (n: number, r: number) => CY + r * Math.sin(ang(n));
   const target = ((minuteHandOn - 1) % 12) + 1;
   const minutes = target * 5;
-  // Sweep from noon round to the hand: "how far the hand has travelled"
+  // Sweep from noon round to the hand: "how far the hand has traveled"
   // and "how many fives" are literally the same arc.
   const sweep = `M ${CX} ${CY - TICK + 8} A ${TICK - 8} ${TICK - 8} 0 ${target > 6 ? 1 : 0} 1 ${px(target, TICK - 8)} ${py(target, TICK - 8)}`;
   return (

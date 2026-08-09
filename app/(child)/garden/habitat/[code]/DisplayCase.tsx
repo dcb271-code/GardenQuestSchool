@@ -217,7 +217,7 @@ export default function DisplayCase({
                     {selected.kind === 'organic'
                       ? 'made by a living thing'
                       : `a ${selected.kind}`}
-                    {' · '}{selected.colours.slice(0, 3).join(', ')}
+                    {' · '}{selected.colors.slice(0, 3).join(', ')}
                   </p>
                   <p className="text-[11px] mt-1" style={{ color: '#C9BCA4' }}>
                     <strong style={{ color: '#F5D98F' }}>Shape:</strong> {selected.crystalShape}

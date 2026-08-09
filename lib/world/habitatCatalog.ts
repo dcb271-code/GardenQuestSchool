@@ -87,7 +87,7 @@ export const HABITAT_CATALOG: HabitatTypeData[] = [
     // problem she can watch out of a window.
     code: 'bird_feeder',
     name: 'Bird Feeder',
-    description: 'A seed feeder on a tall pole, where the neighbourhood birds queue up.',
+    description: 'A seed feeder on a tall pole, where the neighborhood birds line up.',
     attractsSpeciesCodes: [
       'northern_cardinal', 'blue_jay', 'mourning_dove', 'carolina_chickadee',
       'american_robin', 'tufted_titmouse', 'white_breasted_nuthatch',

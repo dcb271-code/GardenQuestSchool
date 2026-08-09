@@ -785,7 +785,7 @@ function PhotoCard({ photo, tall = false }: { photo: ResolvedPhoto; tall?: boole
  * do not add a second unlock mechanism here.
  */
 /** Exported for tests/components/BirdClipPlayer.test.tsx — the
- *  wrong-bird bug lives entirely in this component's DOM behaviour and
+ *  wrong-bird bug lives entirely in this component's DOM behavior and
  *  cannot be reached through the scene. */
 export function ClipPlayer({ clip, label = 'play the sound', autoPlay = false }: {
   clip: ResolvedClip; label?: string;

@@ -13,7 +13,7 @@
 //    crews.
 //
 // 2. SHAPE BEFORE COLOUR. Cornell's Four Keys run size & shape →
-//    colour pattern → behaviour → habitat, and only THEN fine field
+//    colour pattern → behavior → habitat, and only THEN fine field
 //    marks. But raw silhouette is abstract for a seven-year-old, so
 //    per Sibley's Birding Basics the child's version of "shape" is
 //    BILL AND FACE — a kid can see "fat cone for cracking seeds" long
@@ -101,10 +101,10 @@ export interface BirdData {
   /** Typical length, inches. Lets the size exercises compare honestly. */
   lengthInches: number;
   bill: BillShape;
-  /** The gestalt, in Cornell's "colour pattern" sense — not one diagnostic spot. */
+  /** The gestalt, in Cornell's "color pattern" sense — not one diagnostic spot. */
   colourHook: string;
   fieldMarks: string[];
-  behaviour: string[];
+  behavior: string[];
   habitat: string[];
   facts: string[];
   /** Male and female look different enough to confuse a beginner. */
@@ -154,7 +154,7 @@ export const BIRD_CATALOG: BirdData[] = [
       'a thick orange-red bill shaped like a cone',
       'a black mask around the bill and eyes',
     ],
-    behaviour: [
+    behavior: [
       'usually the first bird at the feeder at dawn and the last at dusk',
       'sings from a high open perch where everyone can hear',
       'feeds on the ground under the feeder as often as on it',
@@ -205,7 +205,7 @@ export const BIRD_CATALOG: BirdData[] = [
       'a black necklace across the throat',
       'black bars across the blue wings and tail, with white patches',
     ],
-    behaviour: [
+    behavior: [
       'loud and bold — you usually hear it before you see it',
       'buries acorns in the ground to eat later',
       'mobs hawks and owls in a noisy gang to drive them off',
@@ -250,13 +250,13 @@ export const BIRD_CATALOG: BirdData[] = [
     lengthInches: 12,
     bill: 'all_purpose',
     colourHook:
-      'Soft fawn-grey all over, slim, with a very long pointed tail and a small round head.',
+      'Soft fawn-gray all over, slim, with a very long pointed tail and a small round head.',
     fieldMarks: [
       'a long tail that comes to a point, with white edges',
       'scattered black spots on the folded wing',
       'a head that looks too small for the body',
     ],
-    behaviour: [
+    behavior: [
       'walks and feeds on the ground, rarely on the feeder itself',
       'sits still on wires for long stretches',
       'gathers in flocks, sometimes forty or more',
@@ -293,13 +293,13 @@ export const BIRD_CATALOG: BirdData[] = [
     lengthInches: 4.7,
     bill: 'tweezers',
     colourHook:
-      'Tiny and round, grey above and pale below, with a black cap and a black bib — and a bright white cheek squeezed between them.',
+      'Tiny and round, gray above and pale below, with a black cap and a black bib — and a bright white cheek squeezed between them.',
     fieldMarks: [
       'a solid black cap pulled down over the eye',
       'a black bib under the chin',
       'a clean white cheek between the cap and the bib',
     ],
-    behaviour: [
+    behavior: [
       'takes ONE seed, flies off to eat it, and comes straight back',
       'hangs upside down from twigs to reach underneath',
       'travels in winter flocks with titmice and nuthatches',
@@ -345,13 +345,13 @@ export const BIRD_CATALOG: BirdData[] = [
     lengthInches: 10,
     bill: 'all_purpose',
     colourHook:
-      'Dark grey back, warm orange breast, yellow bill. Upright and long-legged on the grass.',
+      'Dark gray back, warm orange breast, yellow bill. Upright and long-legged on the grass.',
     fieldMarks: [
       'an orange breast, brightest on the male',
       'a yellow bill',
       'white crescents above and below the eye, like small spectacles',
     ],
-    behaviour: [
+    behavior: [
       'runs a few steps on the lawn, stops dead, tilts its head, then pulls',
       'stands very upright compared to other lawn birds',
       'gathers in big flocks in winter and disappears into the treetops',
@@ -359,7 +359,7 @@ export const BIRD_CATALOG: BirdData[] = [
     habitat: ['lawns', 'parks', 'gardens', 'woodland floor'],
     facts: [
       'When a robin tilts its head on the lawn, it is aiming one eye at the ground. Its eyes are on the sides of its head, so it cannot look straight down with both at once.',
-      'Robin\'s-egg blue is named after these eggs, and they really are that colour.',
+      'Robin\'s-egg blue is named after these eggs, and they really are that color.',
       'The robin is the middle rung of the birder\'s measuring stick: every bird is sparrow-sized, robin-sized, or crow-sized.',
     ],
     dimorphic: false,
@@ -400,14 +400,14 @@ export const BIRD_CATALOG: BirdData[] = [
     lengthInches: 6.5,
     bill: 'cone',
     colourHook:
-      'Soft grey above, white below, with a peachy wash down the sides — a grey crest and a very big black eye.',
+      'Soft gray above, white below, with a peachy wash down the sides — a gray crest and a very big black eye.',
     fieldMarks: [
-      'a pointed grey crest',
+      'a pointed gray crest',
       'a big dark eye that makes it look surprised',
       'a small black patch just above the bill',
-      'peach-coloured flanks under the wings',
+      'peach-colored flanks under the wings',
     ],
-    behaviour: [
+    behavior: [
       'holds a seed down with its feet and hammers it open',
       'travels with chickadees and nuthatches in winter',
       'scolds loudly at anything it does not like',
@@ -445,13 +445,13 @@ export const BIRD_CATALOG: BirdData[] = [
     lengthInches: 5.75,
     bill: 'chisel',
     colourHook:
-      'Blue-grey back, clean white face and chest, black cap. Looks like it has no neck and almost no tail.',
+      'Blue-gray back, clean white face and chest, black cap. Looks like it has no neck and almost no tail.',
     fieldMarks: [
       'a black cap over a completely white face — no stripe through the eye',
       'a long straight bill that turns up very slightly',
       'a stubby tail that looks too short',
     ],
-    behaviour: [
+    behavior: [
       'walks head-first DOWN a tree trunk — nothing else in the yard does this',
       'wedges a seed into bark and hammers it open',
       'joins the winter chickadee and titmouse flock',
@@ -495,7 +495,7 @@ export const BIRD_CATALOG: BirdData[] = [
       'a tail held cocked upright',
       'a long bill that curves gently downward',
     ],
-    behaviour: [
+    behavior: [
       'creeps through brush piles and pokes into every crack',
       'nests in absurd places — boots, mailboxes, flowerpots, coat pockets',
       'stays in pairs all year rather than only in the breeding season',
@@ -546,7 +546,7 @@ export const BIRD_CATALOG: BirdData[] = [
       'a short notched tail',
       'a small pale cone bill, orange in summer',
     ],
-    behaviour: [
+    behavior: [
       'flies in deep bounces — up, down, up, down — and calls on each bounce',
       'clings sideways to seed heads and feeders',
       'comes in chattering flocks rather than alone',
@@ -598,7 +598,7 @@ export const BIRD_CATALOG: BirdData[] = [
       'red only at the front and on the rump, never over the whole back',
       'a plain face with no stripe, on the female',
     ],
-    behaviour: [
+    behavior: [
       'sits at the feeder and eats, rather than grabbing one seed and leaving',
       'comes in noisy flocks',
       'nests in hanging baskets, wreaths and porch corners',
@@ -661,13 +661,13 @@ export const BIRD_CATALOG: BirdData[] = [
     lengthInches: 6.3,
     bill: 'cone',
     colourHook:
-      'Slate grey above and clean white below, as if it had been dipped halfway. A small pale pink bill, and white tail feathers that flash when it flies.',
+      'Slate gray above and clean white below, as if it had been dipped halfway. A small pale pink bill, and white tail feathers that flash when it flies.',
     fieldMarks: [
-      'a crisp line where the grey stops and the white starts',
+      'a crisp line where the gray stops and the white starts',
       'a small pale pink bill',
       'white outer tail feathers that flash open in flight',
     ],
-    behaviour: [
+    behavior: [
       'feeds on the GROUND under the feeder, almost never on it',
       'hops backwards with both feet to kick leaves aside',
       'travels in loose flocks all winter',
@@ -675,7 +675,7 @@ export const BIRD_CATALOG: BirdData[] = [
     habitat: ['under feeders', 'brushy edges', 'leaf litter beneath trees'],
     facts: [
       'People call it the snowbird, because it turns up about when the cold does and leaves about when the cold goes.',
-      'It spends the summer nesting far to the north, in Canada and the high mountains. Your winter is its holiday.',
+      'It spends the summer nesting far to the north, in Canada and the high mountains. Your winter is its vacation.',
       'The flash of white in its tail is a signal to other juncos, not camouflage — it opens as it flies away.',
     ],
     dimorphic: false,
@@ -718,7 +718,7 @@ export const BIRD_CATALOG: BirdData[] = [
       'a yellow spot between the eye and the bill',
       'black and white (or brown and tan) stripes over the crown',
     ],
-    behaviour: [
+    behavior: [
       'scratches in leaf litter with both feet at once',
       'stays low in brush and hops out to feed',
       'sings even in winter, which most birds do not',
@@ -756,13 +756,13 @@ export const BIRD_CATALOG: BirdData[] = [
     lengthInches: 6.3,
     bill: 'cone',
     colourHook:
-      'A neat grey-faced sparrow with a rusty cap and a rusty line behind the eye — and one dark smudge in the middle of a plain grey chest.',
+      'A neat gray-faced sparrow with a rusty cap and a rusty line behind the eye — and one dark smudge in the middle of a plain gray chest.',
     fieldMarks: [
-      'a single dark spot in the centre of the chest, like a button',
+      'a single dark spot in the center of the chest, like a button',
       'a rusty cap and a rusty stripe behind the eye',
       'a bill that is dark on top and yellow underneath',
     ],
-    behaviour: [
+    behavior: [
       'feeds on the ground in small winter flocks',
       'often mixes in with juncos',
       'perches on weed stalks and rides them down to the seeds',
@@ -800,13 +800,13 @@ export const BIRD_CATALOG: BirdData[] = [
     lengthInches: 6,
     bill: 'cone',
     colourHook:
-      'The male looks as though he was dipped head-first in raspberry juice — the colour runs right down over his back and wings. The female is brown with a bold white stripe over the eye.',
+      'The male looks as though he was dipped head-first in raspberry juice — the color runs right down over his back and wings. The female is brown with a bold white stripe over the eye.',
     fieldMarks: [
-      'raspberry colour spread over the head, back AND wings, not just the front',
+      'raspberry color spread over the head, back AND wings, not just the front',
       'a heavier, blunter bill than a House Finch',
       'on the female, a strong white eyebrow and a dark cheek patch',
     ],
-    behaviour: [
+    behavior: [
       'comes to sunflower seed in winter, often in small groups',
       'sits higher in trees than a House Finch does',
       'some winters there are many and some winters almost none',
@@ -814,7 +814,7 @@ export const BIRD_CATALOG: BirdData[] = [
     habitat: ['woodland edges', 'conifers', 'feeders in winter'],
     facts: [
       'A famous bird book describes the male as a sparrow dipped in raspberry juice, which is the best description anyone has managed.',
-      'It is the one to compare with the House Finch you already know. House Finch red sits mostly on the front; Purple Finch colour goes over the back and wings too.',
+      'It is the one to compare with the House Finch you already know. House Finch red sits mostly on the front; Purple Finch color goes over the back and wings too.',
       'It does not come every winter. In some years the northern seed crop fails and they pour south; in others you may not see one at all.',
     ],
     dimorphic: true,
@@ -850,7 +850,7 @@ export const BIRD_CATALOG: BirdData[] = [
       'a yellow band across the very tip of the tail',
       'red waxy spots on the wingtips of older birds',
     ],
-    behaviour: [
+    behavior: [
       'arrives as a whole flock, strips a berry bush, and leaves',
       'passes berries beak to beak along a branch to each other',
       'almost never comes to a seed feeder',

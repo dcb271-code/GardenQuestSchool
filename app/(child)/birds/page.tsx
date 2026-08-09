@@ -31,7 +31,7 @@ export default async function BirdsPage({
 
   // The month gates the seasonal crews. Computed on the SERVER so the
   // answer does not depend on a tablet's clock, and passed in rather
-  // than read in the client so a test can pin the behaviour.
+  // than read in the client so a test can pin the behavior.
   const month = new Date().getMonth() + 1;
 
   return (

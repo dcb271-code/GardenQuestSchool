@@ -43,7 +43,7 @@ export interface BranchStation {
 export const MARKER = {
   UNIFORM: 38,     // icon font size
   HIT: 34,         // transparent tap circle radius
-  LABEL_Y: 28,     // label pill offset below centre
+  LABEL_Y: 28,     // label pill offset below center
   LABEL_W: 92,
   LABEL_H: 17,
 } as const;

@@ -124,7 +124,7 @@ export function traceHint(reason: TraceResult['reason']): string {
   switch (reason) {
     case 'missed-start': return 'start on the green dot';
     case 'missed-end':   return 'keep going all the way to the end';
-    case 'gaps':         return 'try to stay on the grey line';
+    case 'gaps':         return 'try to stay on the gray line';
     case 'backwards':    return 'that way is backwards — follow the arrow';
     case 'too-short':    return 'draw along the line with your finger';
     default:             return 'give it another go';

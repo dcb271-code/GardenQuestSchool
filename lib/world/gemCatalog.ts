@@ -47,7 +47,7 @@ export interface GemData {
   kind: GemKind;
   emoji: string;
   /** What it actually looks like, in words a child would use. */
-  colours: string[];
+  colors: string[];
   /** Mohs hardness, 1–10. The testable property. */
   mohs: number;
   formedBy: FormedBy;
@@ -104,7 +104,7 @@ export const GEM_CATALOG: GemData[] = [
     shelf: 'seam',
     kind: 'mineral',
     emoji: '🪨',
-    colours: ['red', 'black', 'grey', 'white', 'banded'],
+    colors: ['red', 'black', 'gray', 'white', 'banded'],
     mohs: 7,
     formedBy: 'hydrothermal',
     formationStory:
@@ -114,7 +114,7 @@ export const GEM_CATALOG: GemData[] = [
     facts: [
       'It is the official state mineral AND the official state gemstone of Kentucky.',
       'Kentucky agate is hunted in creek beds, and collectors say the best ones look like a sunset sliced in half.',
-      'You cannot tell from the outside. A dull grey lump in a stream can be brilliant red inside, which is why agate hunters carry a saw.',
+      'You cannot tell from the outside. A dull gray lump in a stream can be brilliant red inside, which is why agate hunters carry a saw.',
     ],
     valuePerGram: 40,
     confusableWith: ['geode'],
@@ -125,7 +125,7 @@ export const GEM_CATALOG: GemData[] = [
     shelf: 'seam',
     kind: 'mineral',
     emoji: '💠',
-    colours: ['purple', 'green', 'blue', 'yellow', 'clear'],
+    colors: ['purple', 'green', 'blue', 'yellow', 'clear'],
     mohs: 4,
     formedBy: 'hydrothermal',
     formationStory:
@@ -146,7 +146,7 @@ export const GEM_CATALOG: GemData[] = [
     shelf: 'seam',
     kind: 'rock',
     emoji: '🥚',
-    colours: ['grey outside', 'white', 'purple', 'clear inside'],
+    colors: ['gray outside', 'white', 'purple', 'clear inside'],
     mohs: 7,
     formedBy: 'sedimentary',
     formationStory:
@@ -154,7 +154,7 @@ export const GEM_CATALOG: GemData[] = [
     whereFound: 'All over Kentucky, especially the south-central counties',
     crystalShape: 'hexagonal prisms inside a plain ball',
     facts: [
-      'From the outside it is a boring grey lump. That is the whole point of a geode.',
+      'From the outside it is a boring gray lump. That is the whole point of a geode.',
       'The crystals grow INWARDS, pointing at the hollow middle, which is the opposite of how nearly everything else grows.',
       'You open one by cracking it, and you only get to do that once. Some people never crack theirs.',
     ],
@@ -167,7 +167,7 @@ export const GEM_CATALOG: GemData[] = [
     shelf: 'seam',
     kind: 'rock',
     emoji: '⬛',
-    colours: ['black', 'shiny black'],
+    colors: ['black', 'shiny black'],
     mohs: 2.5,
     formedBy: 'sedimentary',
     formationStory:
@@ -175,7 +175,7 @@ export const GEM_CATALOG: GemData[] = [
     whereFound: 'Eastern and western Kentucky coalfields',
     crystalShape: 'none — it is squashed plants',
     facts: [
-      'It is the official state ROCK of Kentucky, but only since 2024 — before that the state had it labelled a mineral by mistake.',
+      'It is the official state ROCK of Kentucky, but only since 2024 — before that the state had it labeled a mineral by mistake.',
       'It is made of trees that were alive three hundred million years ago, long before there were any dinosaurs.',
       'It is softer than your fingernail is hard — you can scratch coal with a copper coin.',
     ],
@@ -187,7 +187,7 @@ export const GEM_CATALOG: GemData[] = [
     shelf: 'seam',
     kind: 'mineral',
     emoji: '🔮',
-    colours: ['clear', 'white', 'smoky', 'pink'],
+    colors: ['clear', 'white', 'smoky', 'pink'],
     mohs: 7,
     formedBy: 'hydrothermal',
     formationStory:
@@ -208,7 +208,7 @@ export const GEM_CATALOG: GemData[] = [
     shelf: 'seam',
     kind: 'mineral',
     emoji: '⬜',
-    colours: ['white', 'clear', 'honey', 'orange'],
+    colors: ['white', 'clear', 'honey', 'orange'],
     mohs: 3,
     formedBy: 'sedimentary',
     formationStory:
@@ -229,7 +229,7 @@ export const GEM_CATALOG: GemData[] = [
     shelf: 'seam',
     kind: 'mineral',
     emoji: '⬛',
-    colours: ['silver-grey', 'metallic'],
+    colors: ['silver-gray', 'metallic'],
     mohs: 2.5,
     formedBy: 'hydrothermal',
     formationStory:
@@ -250,7 +250,7 @@ export const GEM_CATALOG: GemData[] = [
     shelf: 'seam',
     kind: 'organic',
     emoji: '🦪',
-    colours: ['white', 'cream', 'pink', 'lavender'],
+    colors: ['white', 'cream', 'pink', 'lavender'],
     mohs: 2.5,
     formedBy: 'biological',
     formationStory:
@@ -272,16 +272,16 @@ export const GEM_CATALOG: GemData[] = [
     shelf: 'case',
     kind: 'mineral',
     emoji: '❤️',
-    colours: ['deep red', 'pinkish red'],
+    colors: ['deep red', 'pinkish red'],
     mohs: 9,
     formedBy: 'metamorphic',
     formationStory:
-      'Ordinary rock got buried deep and squeezed and cooked for millions of years, until the aluminium and oxygen inside it rearranged themselves into something new and very hard. A trace of chromium turned it red.',
+      'Ordinary rock got buried deep and squeezed and cooked for millions of years, until the aluminum and oxygen inside it rearranged themselves into something new and very hard. A trace of chromium turned it red.',
     whereFound:
       'Myanmar, Thailand and east Africa — and in North America, the Cowee Valley near Franklin, North Carolina',
     crystalShape: 'hexagonal prism, often barrel-shaped',
     facts: [
-      'Ruby and sapphire are the SAME mineral. It is called corundum. If it is red it is a ruby, and if it is any other colour at all it is a sapphire.',
+      'Ruby and sapphire are the SAME mineral. It is called corundum. If it is red it is a ruby, and if it is any other color at all it is a sapphire.',
       'The red comes from a tiny amount of chromium — the same element that makes emeralds green. Same paint, different rock.',
       'It is a 9 on the hardness scale, which makes it the second hardest natural thing there is. Only a diamond can scratch it.',
     ],
@@ -294,7 +294,7 @@ export const GEM_CATALOG: GemData[] = [
     shelf: 'case',
     kind: 'mineral',
     emoji: '💙',
-    colours: ['blue', 'yellow', 'pink', 'green', 'clear'],
+    colors: ['blue', 'yellow', 'pink', 'green', 'clear'],
     mohs: 9,
     formedBy: 'metamorphic',
     formationStory:
@@ -303,7 +303,7 @@ export const GEM_CATALOG: GemData[] = [
     crystalShape: 'hexagonal prism, often barrel-shaped',
     facts: [
       'A sapphire is a ruby that is not red. That is the entire difference.',
-      'Sapphires come in almost every colour except red, because red is the one that gets its own name.',
+      'Sapphires come in almost every color except red, because red is the one that gets its own name.',
       'You can dig for sapphires and rubies in the same bucket of gravel in North Carolina, because they come out of the same rock.',
     ],
     valuePerGram: 80000,
@@ -315,7 +315,7 @@ export const GEM_CATALOG: GemData[] = [
     shelf: 'case',
     kind: 'mineral',
     emoji: '💚',
-    colours: ['deep green'],
+    colors: ['deep green'],
     mohs: 7.75,
     formedBy: 'hydrothermal',
     formationStory:
@@ -335,11 +335,11 @@ export const GEM_CATALOG: GemData[] = [
     shelf: 'case',
     kind: 'mineral',
     emoji: '🔴',
-    colours: ['dark red', 'orange', 'green', 'purple-red'],
+    colors: ['dark red', 'orange', 'green', 'purple-red'],
     mohs: 7.5,
     formedBy: 'metamorphic',
     formationStory:
-      'Mud and clay buried deep, then squeezed and heated until the minerals in it broke apart and rebuilt themselves. Garnets grow inside the rock like plums in a pudding, and weather out whole when the rock finally crumbles.',
+      'Mud and clay buried deep, then squeezed and heated until the minerals in it broke apart and rebuilt themselves. Garnets grow inside the rock like chocolate chips in a cookie, and weather out whole when the rock finally crumbles.',
     whereFound: 'All over the world — and in the same North Carolina gravels as the rubies',
     crystalShape: 'rhombic dodecahedron — a ball with twelve flat faces',
     facts: [
@@ -356,11 +356,11 @@ export const GEM_CATALOG: GemData[] = [
     shelf: 'case',
     kind: 'mineral',
     emoji: '💎',
-    colours: ['clear', 'yellow', 'brown', 'pink', 'blue'],
+    colors: ['clear', 'yellow', 'brown', 'pink', 'blue'],
     mohs: 10,
     formedBy: 'igneous',
     formationStory:
-      'Carbon, squeezed about 150 kilometres down inside the Earth where it is hot enough to melt rock, and then carried up to the surface fast by a violent volcano. Slowly would not work — it has to be fast.',
+      'Carbon, squeezed about 150 kilometers down inside the Earth where it is hot enough to melt rock, and then carried up to the surface fast by a violent volcano. Slowly would not work — it has to be fast.',
     whereFound: 'Africa, Russia, Australia, Canada',
     crystalShape: 'octahedron — two square pyramids stuck base to base',
     facts: [

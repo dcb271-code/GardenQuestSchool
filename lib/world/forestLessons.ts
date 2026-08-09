@@ -96,7 +96,7 @@ export const FOREST_LESSONS: ForestLesson[] = [
         visual: { kind: 'cloud_chart', highlight: 'cumulus' },
       },
       {
-        text: 'Stratus clouds are different again. Instead of puffs with gaps, stratus spreads out into one flat grey blanket that covers the whole sky. Stratus often brings drizzle. But the cloud to really watch is cumulonimbus: a cumulus that kept growing and growing until it towered up like a mountain with a flat anvil top. Cumulonimbus is the thunderstorm cloud. When you see one building, it is time to head indoors.',
+        text: 'Stratus clouds are different again. Instead of puffs with gaps, stratus spreads out into one flat gray blanket that covers the whole sky. Stratus often brings drizzle. But the cloud to really watch is cumulonimbus: a cumulus that kept growing and growing until it towered up like a mountain with a flat anvil top. Cumulonimbus is the thunderstorm cloud. When you see one building, it is time to head indoors.',
         visual: { kind: 'cloud_chart', highlight: 'cumulonimbus' },
       },
     ],
@@ -113,10 +113,10 @@ export const FOREST_LESSONS: ForestLesson[] = [
         why: 'Height is the reason. Cirrus float higher than any other cloud, and it is bitterly cold up there — so the water freezes into ice crystals.',
       },
       {
-        prompt: 'You look up and the whole sky is one flat grey blanket with no gaps. What kind of cloud is that?',
+        prompt: 'You look up and the whole sky is one flat gray blanket with no gaps. What kind of cloud is that?',
         choices: ['Cumulus', 'Stratus', 'Cirrus', 'Cumulonimbus'],
         correct: 1,
-        why: 'Stratus is the blanket cloud — flat, grey, edge to edge, often with drizzle. Cumulus would have blue sky showing between the puffs.',
+        why: 'Stratus is the blanket cloud — flat, gray, edge to edge, often with drizzle. Cumulus would have blue sky showing between the puffs.',
       },
       {
         prompt: 'Which cloud means a thunderstorm is coming?',
@@ -124,7 +124,7 @@ export const FOREST_LESSONS: ForestLesson[] = [
           'Fair-weather cumulus',
           'Cirrus streaks',
           'Cumulonimbus, towering with a flat top',
-          'Any cloud that is grey',
+          'Any cloud that is gray',
         ],
         correct: 2,
         why: 'Cumulonimbus is a cumulus that grew into a tower with an anvil-flat top. That shape is the storm warning.',
@@ -244,11 +244,11 @@ export const FOREST_LESSONS: ForestLesson[] = [
     teaser: 'The rain in the garden is older than the dinosaurs.',
     pages: [
       {
-        text: 'Sunshine falls on an ocean, a lake, even a puddle in the lane, and warms the water at the top. Warm water turns into an invisible gas called water vapour and floats up into the air. That is evaporation, and it is happening around you all the time — it is why a wet path dries after the rain stops, without anybody wiping it.',
+        text: 'Sunshine falls on an ocean, a lake, even a puddle in the lane, and warms the water at the top. Warm water turns into an invisible gas called water vapor and floats up into the air. That is evaporation, and it is happening around you all the time — it is why a wet path dries after the rain stops, without anybody wiping it.',
         visual: { kind: 'water_cycle', highlight: 'evaporation' },
       },
       {
-        text: 'The higher the vapour rises, the colder the air gets. Cold air cannot hold vapour, so the vapour turns back into tiny water droplets and gathers around specks of dust. Millions of those droplets together are a cloud. That change from gas back into liquid is called condensation. It is the same thing that fogs up a cold window when you breathe on it.',
+        text: 'The higher the vapor rises, the colder the air gets. Cold air cannot hold vapor, so the vapor turns back into tiny water droplets and gathers around specks of dust. Millions of those droplets together are a cloud. That change from gas back into liquid is called condensation. It is the same thing that fogs up a cold window when you breathe on it.',
         visual: { kind: 'water_cycle', highlight: 'condensation' },
       },
       {
@@ -260,24 +260,24 @@ export const FOREST_LESSONS: ForestLesson[] = [
       {
         prompt: 'What is evaporation?',
         choices: [
-          'Water turning into invisible vapour and rising',
-          'Vapour turning back into droplets',
+          'Water turning into invisible vapor and rising',
+          'Vapor turning back into droplets',
           'Rain soaking into the ground',
           'Rivers running down to the sea',
         ],
         correct: 0,
-        why: 'Evaporation is liquid water becoming vapour and floating up — the reason a wet path dries itself.',
+        why: 'Evaporation is liquid water becoming vapor and floating up — the reason a wet path dries itself.',
       },
       {
-        prompt: 'Why does rising vapour turn back into droplets?',
+        prompt: 'Why does rising vapor turn back into droplets?',
         choices: [
           'The wind pushes it together',
-          'The higher air is colder, and cold air cannot hold vapour',
+          'The higher air is colder, and cold air cannot hold vapor',
           'Dust makes it heavy',
           'The sun stops shining on it',
         ],
         correct: 1,
-        why: 'Cold is the cause. Higher air is colder, and cold air cannot hold vapour — so it condenses into droplets around specks of dust, making a cloud.',
+        why: 'Cold is the cause. Higher air is colder, and cold air cannot hold vapor — so it condenses into droplets around specks of dust, making a cloud.',
       },
       {
         prompt: 'What does the passage mean by saying the water never leaves?',
@@ -288,7 +288,7 @@ export const FOREST_LESSONS: ForestLesson[] = [
           'New water is made by the clouds each time',
         ],
         correct: 2,
-        why: 'It is a closed loop. Nothing is added and nothing escapes, so the same water keeps travelling round — which is why some of it once fell on dinosaurs.',
+        why: 'It is a closed loop. Nothing is added and nothing escapes, so the same water keeps traveling round — which is why some of it once fell on dinosaurs.',
       },
     ],
   },
@@ -347,11 +347,11 @@ export const FOREST_LESSONS: ForestLesson[] = [
         visual: { kind: 'spider_web', stage: 1 },
       },
       {
-        text: 'From the bridge line she drops down and builds a frame — the outer edges the whole web will be stretched inside. Then she lays the spokes, running from the frame in to the centre, like the spokes of a bicycle wheel. All of this silk is dry silk. She can walk on it as easily as you walk on a floor.',
+        text: 'From the bridge line she drops down and builds a frame — the outer edges the whole web will be stretched inside. Then she lays the spokes, running from the frame in to the center, like the spokes of a bicycle wheel. All of this silk is dry silk. She can walk on it as easily as you walk on a floor.',
         visual: { kind: 'spider_web', stage: 3 },
       },
       {
-        text: 'Only last does she spiral around from the centre outward, and only that spiral thread is sticky. Now the trap is finished, and the secret is in the order she built it: when she crosses her own web she steps on the dry spokes and steps over the sticky spiral. Many orb weavers tear the whole thing down at the end of the day and eat the silk, so their body can spin it into a fresh web tomorrow.',
+        text: 'Only last does she spiral around from the center outward, and only that spiral thread is sticky. Now the trap is finished, and the secret is in the order she built it: when she crosses her own web she steps on the dry spokes and steps over the sticky spiral. Many orb weavers tear the whole thing down at the end of the day and eat the silk, so their body can spin it into a fresh web tomorrow.',
         visual: { kind: 'spider_web', stage: 4 },
       },
     ],
@@ -430,7 +430,7 @@ export const FOREST_LESSONS: ForestLesson[] = [
         prompt: 'Why do leaves look green?',
         choices: [
           'Chlorophyll soaks up red and blue light and reflects green back',
-          'Green is the colour of the sugar inside them',
+          'Green is the color of the sugar inside them',
           'The water in the leaf is tinted green',
           'Green light is the strongest kind of sunlight',
         ],
@@ -459,7 +459,7 @@ export const FOREST_LESSONS: ForestLesson[] = [
     teaser: 'A monk, a garden, and the hidden rule of inheritance.',
     pages: [
       {
-        text: 'About a hundred and sixty years ago a monk named Gregor Mendel grew pea plants in his monastery garden, and he grew a great many of them — thousands. What made Mendel different from other gardeners was that he counted. He picked one thing at a time, like flower colour, and he crossed the plants on purpose to see what would happen, and then he wrote down exactly how many of each kind he got.',
+        text: 'About a hundred and sixty years ago a monk named Gregor Mendel grew pea plants in his monastery garden, and he grew a great many of them — thousands. What made Mendel different from other gardeners was that he counted. He picked one thing at a time, like flower color, and he crossed the plants on purpose to see what would happen, and then he wrote down exactly how many of each kind he got.',
         visual: { kind: 'punnett', top: ['P', 'P'], side: ['W', 'W'], cells: ['PW', 'PW', 'PW', 'PW'], caption: 'pure purple × pure white → every one purple' },
       },
       {
@@ -500,7 +500,7 @@ export const FOREST_LESSONS: ForestLesson[] = [
           'The white instruction was hiding in the purple plants and two of them met up',
           'The purple plants got weaker over time',
           'Bees carried white pollen in from another garden',
-          'The soil changed the colour',
+          'The soil changed the color',
         ],
         correct: 0,
         why: 'It was never gone. Those purple plants each carried a hidden white instruction, and when two hidden ones met in the same plant, white showed — about one time in four.',
@@ -534,7 +534,7 @@ export const FOREST_LESSONS: ForestLesson[] = [
         choices: [
           'Whether it is flying in the daytime',
           'Whether the antennae end in a little club or knob',
-          'How brightly coloured the wings are',
+          'How brightly colored the wings are',
           'How big it is',
         ],
         correct: 1,
@@ -556,7 +556,7 @@ export const FOREST_LESSONS: ForestLesson[] = [
         choices: [
           'Check more than one clue before deciding',
           'Only trust the daytime rule',
-          'Assume anything colourful is a butterfly',
+          'Assume anything colorful is a butterfly',
           'Give up on telling them apart',
         ],
         correct: 0,
@@ -573,7 +573,7 @@ export const FOREST_LESSONS: ForestLesson[] = [
     teaser: 'The gold was in the leaf all summer. You just could not see it.',
     pages: [
       {
-        text: 'Here is the surprise about autumn: the yellow and orange were in the leaf the whole summer long. Those colours come from pigments called carotenoids — the same family of pigment that makes carrots orange — and they sit in the leaf all season helping to catch light. You never see them because the green chlorophyll is so much stronger that it drowns them out completely.',
+        text: 'Here is the surprise about autumn: the yellow and orange were in the leaf the whole summer long. Those colors come from pigments called carotenoids — the same family of pigment that makes carrots orange — and they sit in the leaf all season helping to catch light. You never see them because the green chlorophyll is so much stronger that it drowns them out completely.',
         visual: { kind: 'leaf_color', stage: 1 },
       },
       {
@@ -614,7 +614,7 @@ export const FOREST_LESSONS: ForestLesson[] = [
           'It seals the wound so the leaf can drop safely',
           'It feeds the leaf through the winter',
           'It holds the leaf on tighter during storms',
-          'It makes the red colour',
+          'It makes the red color',
         ],
         correct: 0,
         why: 'It is a corky wall that seals the twig where the stalk was. Once it is finished the leaf is attached to nothing — the tree dropped it deliberately.',
@@ -697,7 +697,7 @@ export const FOREST_LESSONS: ForestLesson[] = [
         visual: { kind: 'habitat_shrink', stage: 2 },
       },
       {
-        text: 'Here is the part worth holding onto: endangered does not mean gone. It means there is still time. When people protect the wild home, stop the harm, and give the animals room to raise their young, the numbers can climb back up again. It has happened before, more than once. An endangered animal is not a lost cause — it is a neighbour asking for a little help while there is still a chance to give it.',
+        text: 'Here is the part worth holding onto: endangered does not mean gone. It means there is still time. When people protect the wild home, stop the harm, and give the animals room to raise their young, the numbers can climb back up again. It has happened before, more than once. An endangered animal is not a lost cause — it is a neighbor asking for a little help while there is still a chance to give it.',
         visual: { kind: 'population_chart', shape: 'recovery', label: 'when people help', caption: 'the numbers can climb back' },
       },
     ],
@@ -803,7 +803,7 @@ export const FOREST_LESSONS: ForestLesson[] = [
     teaser: 'One plant is the whole reason baby monarchs exist.',
     pages: [
       {
-        text: 'You have met the monarch butterfly already — the orange-and-black traveller that flies thousands of miles. But every monarch begins its life as a tiny egg, and the mother will lay that egg on one kind of plant only: milkweed. Not a rose, not an oak, not a blade of grass. Milkweed, and nothing else. If she cannot find any milkweed, she cannot lay her eggs at all.',
+        text: 'You have met the monarch butterfly already — the orange-and-black traveler that flies thousands of miles. But every monarch begins its life as a tiny egg, and the mother will lay that egg on one kind of plant only: milkweed. Not a rose, not an oak, not a blade of grass. Milkweed, and nothing else. If she cannot find any milkweed, she cannot lay her eggs at all.',
         visual: { kind: 'milkweed', stage: 1 },
       },
       {
@@ -925,7 +925,7 @@ export const FOREST_LESSONS: ForestLesson[] = [
         visual: { kind: 'decomposers', stage: 1 },
       },
       {
-        text: 'The last way to help is about doing less harm. Litter dropped on the ground blows into streams and hurts the animals that live there, so putting rubbish in a bin is a real act of protection, small as it seems. Keeping water clean, using less plastic, and gently telling other people why wild homes matter all add up. No single child can save every animal — but a garden full of milkweed, a dish of clean water, and a bin used instead of the ground is help that a monarch or a hedgehog can truly feel.',
+        text: 'The last way to help is about doing less harm. Litter dropped on the ground blows into streams and hurts the animals that live there, so putting junk in a bin is a real act of protection, small as it seems. Keeping water clean, using less plastic, and gently telling other people why wild homes matter all add up. No single child can save every animal — but a garden full of milkweed, a dish of clean water, and a bin used instead of the ground is help that a monarch or a hedgehog can truly feel.',
         visual: { kind: 'habitat_shrink', stage: 1 },
       },
     ],

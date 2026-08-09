@@ -534,7 +534,7 @@ export const PLANT_CATALOG: PlantData[] = [
       'A leaf\'s yellow was hiding inside it all summer. But a maple\'s red is brand new — the tree makes it in autumn, like one last burst of paint.',
       'Its other name, kaede, comes from kaeru-de: "frog\'s hand." The pointed leaves look like little webbed hands.',
     ],
-    growingTip: 'Harsh afternoon sun scorches the leaf edges. Dappled shade keeps the colour clean.',
+    growingTip: 'Harsh afternoon sun scorches the leaf edges. Dappled shade keeps the color clean.',
     stages: [
       { atProgress: 0,    illustration: 'plant_momiji_seed' },
       { atProgress: 0.12, illustration: 'plant_momiji_sprout' },
@@ -544,7 +544,7 @@ export const PLANT_CATALOG: PlantData[] = [
     ],
     japanese: {
       kanji: '紅葉', romaji: 'momiji', gloss: 'crimson leaves',
-      note: '紅 means crimson and 葉 means leaf. The very same two characters can also be read kōyō — the word for autumn colour itself.',
+      note: '紅 means crimson and 葉 means leaf. The very same two characters can also be read kōyō — the word for autumn color itself.',
     },
   },
   {

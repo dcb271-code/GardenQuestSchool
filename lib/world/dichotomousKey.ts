@@ -196,7 +196,7 @@ export const DICHOTOMOUS_KEY: Record<string, KeyNode> = {
     id: 'tree_camo',
     question: 'Look at the trunk. Is the bark...',
     leftLabel: 'patchy camouflage, white up high?',
-    rightLabel: 'plain grey or brown?',
+    rightLabel: 'plain gray or brown?',
     leftPhoto: { floraCode: 'american_sycamore', role: 'bark' },
     rightPhoto: { floraCode: 'white_oak', role: 'bark' },
     leftChild: { species: 'american_sycamore' },

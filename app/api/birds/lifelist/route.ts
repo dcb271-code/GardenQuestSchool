@@ -14,7 +14,7 @@ import { grantVirtueGem } from '@/lib/engine/virtueGrants';
  *
  * A FIRST sighting of a species grants the 'noticing' gem, which is
  * the exactly right virtue: noticing a bird out of a window is the
- * behaviour the entire curriculum exists to produce. Repeat sightings
+ * behavior the entire curriculum exists to produce. Repeat sightings
  * still count (they build the record) but mint nothing, so the gem
  * cannot be farmed by tapping the same cardinal all afternoon.
  */

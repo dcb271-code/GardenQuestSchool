@@ -6,7 +6,7 @@
 //
 // That framing is the point. Every other interior puts a child inside
 // an animal's home; this one puts her where she actually is when she
-// watches birds, which is the behaviour the whole curriculum is
+// watches birds, which is the behavior the whole curriculum is
 // trying to build. The PLoS study behind the bird spec got its gains
 // from children installing feeders and WATCHING them, not from
 // instruction.

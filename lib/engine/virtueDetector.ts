@@ -15,7 +15,7 @@ const NOTICING_LINES = [
   'You read this set fast — your eyes are catching things that used to take longer.',
   'You found the right answer on the first try most of the way through. Patterns are starting to feel obvious.',
   'A naturalist notices what others miss. That\'s what just happened here.',
-  'You recognised the shape of the question and went straight for it.',
+  'You recognized the shape of the question and went straight for it.',
 ];
 const PERSISTENCE_LINES = [
   'You came back to a tricky one a few times — then it clicked.',

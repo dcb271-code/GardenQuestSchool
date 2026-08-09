@@ -272,12 +272,12 @@ export const RESEARCHER_QUESTS: Record<string, ResearcherQuest> = {
           'Cardinals feed hardest at dawn and dusk, when dim light hides them from hawks that hunt by sight',
           'Cardinals sleep through the middle of the day like owls',
           'The feeder is empty at noon and refills itself',
-          'Cardinals can only see the colour red at low light',
+          'Cardinals can only see the color red at low light',
         ],
         correctIndex: 0,
       },
       {
-        prompt: 'A chickadee caches thousands of seeds each autumn in separate bark cracks — and its brain\'s memory centre physically grows new cells, then shrinks again in spring. What is the trade-off?',
+        prompt: 'A chickadee caches thousands of seeds each autumn in separate bark cracks — and its brain\'s memory center physically grows new cells, then shrinks again in spring. What is the trade-off?',
         choices: [
           'Brain tissue is expensive to run, so it only grows the extra when the caching season needs it',
           'The bird\'s head would be too heavy to fly with all year',
@@ -310,7 +310,7 @@ export const RESEARCHER_QUESTS: Record<string, ResearcherQuest> = {
           'The salamander stays near the entrance where some light still reaches; the shrimp lives deep where there is none, so eyes would cost energy for nothing',
           'The shrimp is younger and its eyes have not grown yet',
           'The salamander is not really a cave animal',
-          'Eyes work fine in total darkness if you practise',
+          'Eyes work fine in total darkness if you practice',
         ],
         correctIndex: 0,
       },

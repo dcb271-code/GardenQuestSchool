@@ -129,8 +129,8 @@ export function BillChart({ highlight }: { highlight?: BillShape }) {
 export function FourKeys() {
   const keys = [
     { n: 1, emoji: '📏', title: 'size & shape', body: 'How big? What shape is the bill?' },
-    { n: 2, emoji: '🎨', title: 'colour pattern', body: 'Light and dark, not just one bright spot.' },
-    { n: 3, emoji: '🏃', title: 'behaviour', body: 'What is it doing? How does it move?' },
+    { n: 2, emoji: '🎨', title: 'color pattern', body: 'Light and dark, not just one bright spot.' },
+    { n: 3, emoji: '🏃', title: 'behavior', body: 'What is it doing? How does it move?' },
     { n: 4, emoji: '🌳', title: 'habitat', body: 'Where is it — ground, trunk, treetop?' },
   ];
   return (
