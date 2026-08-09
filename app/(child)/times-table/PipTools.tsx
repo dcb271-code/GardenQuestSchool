@@ -34,7 +34,16 @@ import { strategyFor, type Fact } from '@/lib/packs/math/timesTable';
 /* ─── shared speech ───────────────────────────────────────────────── */
 
 function usePipVoice(muted: boolean) {
-  const available = typeof window !== 'undefined' && isSpeechAvailable();
+  // Resolved AFTER mount, not during render.
+  //
+  // Reading `typeof window` at render time gives false on the server
+  // and true in the browser, so the very first client render disagreed
+  // with the server HTML — the mute button and the "no voice on this
+  // device" note swap places — and React threw a hydration error.
+  // Starting false on both sides and flipping in an effect keeps the
+  // first paint identical.
+  const [available, setAvailable] = useState(false);
+  useEffect(() => { setAvailable(isSpeechAvailable()); }, []);
   const say = useCallback((text: string) => {
     if (muted || !available) return Promise.resolve();
     // A slightly quicker, brighter voice than the storybook default —

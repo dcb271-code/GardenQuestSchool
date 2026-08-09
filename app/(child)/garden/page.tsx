@@ -377,8 +377,20 @@ export default async function GardenPage({
 
   // Unopened replies put a badge on the letterbox. Read from the same
   // garden blob everything else lives in.
+  const unreadLetterReplies = unreadReplies(
+    ((worldStateRow?.garden as Record<string, unknown> | null)?.letters as Letterbox) ?? [],
+  ).length;
+
+  const cumulativeCorrect = await getCumulativeCorrect(db, learnerId);
+
   // The night garden opens only while a moon-quadrant flower is
   // actually in bloom — the same sum the garden uses to draw it.
+  //
+  // MUST come after cumulativeCorrect. This block sat above it and
+  // still typechecked, because the reference is inside a closure and
+  // TypeScript cannot prove when a closure runs. `.some()` runs it
+  // immediately, so at runtime it was a temporal-dead-zone
+  // ReferenceError that took out Cecily's whole garden page.
   const { data: moonPlots } = await db.from('garden_plot')
     .select('plant_code, planted_at_correct')
     .eq('learner_id', learnerId).is('harvested_at', null);
@@ -388,11 +400,6 @@ export default async function GardenPage({
     return (cumulativeCorrect - (p.planted_at_correct as number)) >= plant.growthCost;
   });
 
-  const unreadLetterReplies = unreadReplies(
-    ((worldStateRow?.garden as Record<string, unknown> | null)?.letters as Letterbox) ?? [],
-  ).length;
-
-  const cumulativeCorrect = await getCumulativeCorrect(db, learnerId);
 
   return (
     <GardenScene
