@@ -67,7 +67,7 @@ export async function POST(req: Request) {
     // THE CAP. Owned by the server, checked before anything else.
     if (!canDig(state, today)) {
       return NextResponse.json({
-        error: 'The seam needs a day to settle. Come back tomorrow.',
+        error: 'You already dug today. The seam opens again tomorrow morning.',
         cavern: { ...state, canDigToday: false },
       });
     }

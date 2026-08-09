@@ -104,7 +104,33 @@ export const BADGE_MARK: Record<Badge, string> = {
   none: '', bronze: '🥉', silver: '🥈', gold: '🥇',
 };
 
-/** Today, as the yyyy-mm-dd the schedule uses. */
+/**
+ * The family's home timezone.
+ *
+ * Every "one a day" rule in this world is a rule about the child's day,
+ * not the server's. Kept in one place so it is changeable if they move.
+ */
+export const HOME_TIMEZONE = 'America/Kentucky/Louisville';
+
+/**
+ * Today, as the yyyy-mm-dd the schedule uses — IN HER TIMEZONE.
+ *
+ * This used to be `now.toISOString().slice(0,10)`, which is UTC. Vercel
+ * runs in UTC and Louisville is four or five hours behind it, so the
+ * day rolled over at 8pm local rather than midnight. That broke every
+ * daily cap in both directions: dig at 9pm and the stored day was
+ * already tomorrow, so the whole of the next real day was blocked —
+ * and the same evening could yield a second dig once UTC ticked over.
+ * Cecily wrote to ask why the cavern would not let her dig, which is
+ * how this got looked at.
+ *
+ * Intl gives the civil date in a zone without pulling in a date
+ * library, and en-CA formats as yyyy-mm-dd, which is exactly the shape
+ * the rest of the schedule already sorts and compares as a string.
+ */
 export function todayKey(now: Date = new Date()): string {
-  return now.toISOString().slice(0, 10);
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: HOME_TIMEZONE,
+    year: 'numeric', month: '2-digit', day: '2-digit',
+  }).format(now);
 }

@@ -261,8 +261,11 @@ export default function CrystalCavernInterior({
               </button>
             </div>
             {!cavern.canDigToday && (
-              <span className="text-[11px] italic text-right" style={{ color: '#9A8C76', maxWidth: 150 }}>
-                one dig a day — the seam needs time
+              /* "No" on its own reads as broken to a seven-year-old —
+                 she wrote to ask why the cavern would not let her dig.
+                 Say WHEN instead. */
+              <span className="text-[11px] italic text-right" style={{ color: '#9A8C76', maxWidth: 160 }}>
+                you dug today — the seam opens again tomorrow morning
               </span>
             )}
           </div>

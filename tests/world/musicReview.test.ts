@@ -196,3 +196,28 @@ describe('new reading units', () => {
     expect(unitsOfStrand('ear').length).toBeGreaterThanOrEqual(7);
   });
 });
+
+describe('todayKey uses the family timezone, not UTC', () => {
+  // Vercel runs in UTC; Louisville is UTC-4 in summer. Computing the
+  // day key in UTC rolled every "one a day" cap over at 8pm local.
+  it('still reports the local day late in a Louisville evening', () => {
+    // 01:30 UTC on the 10th is 9:30pm on the 9th in Louisville.
+    expect(todayKey(new Date('2026-08-10T01:30:00Z'))).toBe('2026-08-09');
+  });
+
+  it('rolls over at local midnight, not at 8pm', () => {
+    // 03:59 UTC = 11:59pm local on the 9th — still the 9th.
+    expect(todayKey(new Date('2026-08-10T03:59:00Z'))).toBe('2026-08-09');
+    // 04:01 UTC = 12:01am local on the 10th — now the 10th.
+    expect(todayKey(new Date('2026-08-10T04:01:00Z'))).toBe('2026-08-10');
+  });
+
+  it('handles winter, when Louisville is UTC-5', () => {
+    expect(todayKey(new Date('2027-01-10T04:59:00Z'))).toBe('2027-01-09');
+    expect(todayKey(new Date('2027-01-10T05:01:00Z'))).toBe('2027-01-10');
+  });
+
+  it('is still a sortable yyyy-mm-dd', () => {
+    expect(todayKey(new Date('2026-07-25T22:00:00Z'))).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+  });
+});
