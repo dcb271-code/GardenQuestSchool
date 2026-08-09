@@ -33,8 +33,12 @@ import {
 import { coinsToPrice, type CavernState } from '@/lib/world/cavern';
 import DisplayCase from './DisplayCase';
 
-const VB_W = 900;
-const VB_H = 620;
+// Portrait-first. The scene used to be 900x620 — a landscape picture
+// letterboxed into a tall phone, which is where the two dead brown
+// bands came from. 700x1100 is close to a phone's shape, and a rock
+// backdrop fills whatever is left over on any screen.
+const VB_W = 700;
+const VB_H = 1100;
 
 export default function CrystalCavernInterior({
   learnerId, themedSkillCode, themedStructureLabel, themedStructureEmoji,
@@ -137,61 +141,195 @@ export default function CrystalCavernInterior({
 
   const kept = Object.keys(cavern.kept ?? {}).length;
   const [caseOpen, setCaseOpen] = useState(false);
-  const slot = (i: number) => ({ x: 140 + (i % 4) * 200, y: 430 + Math.floor(i / 4) * 96 });
+  // Along the floor at the front, spaced so the labels never collide.
+  // They used to sit at y=430, which was mid-air before there was a
+  // floor to stand on.
+  // Along the floor at the front. They used to sit in mid-air, before
+  // there was a floor to stand on.
+  const slot = (i: number) => ({ x: 96 + (i % 4) * 170, y: 860 + Math.floor(i / 4) * 100 });
 
   return (
     <HabitatInteriorLayout learnerId={learnerId} title="Crystal Cavern" iconEmoji="💎">
+      {/*
+        A CAVE, not a gradient.
+        ─────────────────────────────────────────────────────────────
+        The first version was a flat brown rectangle with six diamonds
+        floating in it and a yellow square for a lantern. The feedback
+        was "I am not sure what I am looking at", which was fair: no
+        ceiling, no floor, no walls, nothing to say where you stood.
+
+        What makes an interior legible is a GROUND PLANE and a LIGHT
+        SOURCE that explains its own shadows. So: a rocky ceiling with
+        stalactites, a back wall with a tunnel receding into black, a
+        floor you could stand on with rubble on it, and one lantern
+        whose pool of light lands on that floor where it should.
+
+        The crystals grow OUT OF a vein running through the wall, the
+        way a real seam does, instead of hovering in mid-air.
+
+        The backdrop div behind the svg is not lazy — it is what stops
+        the letterboxing from ever reading as dead space again. The svg
+        keeps `meet` so nothing is ever cropped off the sides; whatever
+        it does not cover is more rock.
+      */}
+      <div aria-hidden className="absolute inset-0"
+           style={{ background: 'linear-gradient(#2A231C, #4A3F35 45%, #241E19)' }} />
       <svg viewBox={`0 0 ${VB_W} ${VB_H}`} className="absolute inset-0 w-full h-full">
         <defs>
-          <linearGradient id="cav-rock" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#4A4038" />
-            <stop offset="100%" stopColor="#2A2420" />
+          <linearGradient id="cav-wall" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#3A322A" />
+            <stop offset="55%" stopColor="#4E4238" />
+            <stop offset="100%" stopColor="#332B24" />
+          </linearGradient>
+          <linearGradient id="cav-floor" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#5A4C3E" />
+            <stop offset="100%" stopColor="#2E2721" />
+          </linearGradient>
+          <linearGradient id="cav-ceiling" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#241E19" />
+            <stop offset="100%" stopColor="#3E352C" />
           </linearGradient>
           <radialGradient id="cav-lantern" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#FFE89A" stopOpacity="0.85" />
+            <stop offset="0%" stopColor="#FFE89A" stopOpacity="0.5" />
+            <stop offset="60%" stopColor="#FFD98A" stopOpacity="0.15" />
             <stop offset="100%" stopColor="#FFE89A" stopOpacity="0" />
           </radialGradient>
+          <radialGradient id="cav-pool" cx="50%" cy="50%" r="50%">
+            <stop offset="0%" stopColor="#FFE0A0" stopOpacity="0.30" />
+            <stop offset="100%" stopColor="#FFE0A0" stopOpacity="0" />
+          </radialGradient>
+          <linearGradient id="cav-seam" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0%" stopColor="#6E5A78" />
+            <stop offset="100%" stopColor="#4A3E52" />
+          </linearGradient>
         </defs>
 
-        {/* the rock the tunnel is cut through */}
-        <rect x={0} y={0} width={VB_W} height={VB_H} fill="url(#cav-rock)" />
+        {/* the rock this room is cut through */}
+        <rect x={-40} y={-40} width={VB_W + 80} height={VB_H + 80} fill="url(#cav-wall)" />
 
-        {/* tunnel mouth behind, opening deeper into the dark */}
-        <path d={`M 300 ${VB_H} Q 330 250 450 240 Q 570 250 600 ${VB_H} Z`} fill="#181410" />
-        <ellipse cx={450} cy={250} rx={148} ry={26} fill="#0E0B08" />
+        {/* ── ceiling, with stalactites hanging from it ──────────── */}
+        <path d={`M -40 -40 L ${VB_W + 40} -40 L ${VB_W + 40} 150
+                  Q 580 216 470 168 Q 350 112 240 176 Q 130 236 -40 178 Z`}
+              fill="url(#cav-ceiling)" />
+        {/* A lit lower edge. Without it the ceiling blended into the
+            wall and the stalactites appeared to hang from nothing. */}
+        <path d={`M ${VB_W + 40} 150 Q 580 216 470 168 Q 350 112 240 176 Q 130 236 -40 178`}
+              fill="none" stroke="#5E5044" strokeWidth={4} opacity={0.75} />
+        {[[52, 190, 42], [116, 178, 26], [182, 196, 56], [246, 176, 30],
+          [452, 178, 34], [520, 194, 60], [586, 172, 26], [648, 190, 44],
+        ].map(([sx, sy, len], i) => (
+          <path key={i}
+                d={`M ${sx - 15} ${sy - 34} Q ${sx} ${sy + len * 0.55} ${sx} ${sy + len}
+                    Q ${sx} ${sy + len * 0.55} ${sx + 15} ${sy - 34} Z`}
+                fill="#2C251F" stroke="#1E1915" strokeWidth={1.2} />
+        ))}
 
-        {/* the seam — crystals still in the wall, catching the light */}
+        {/* ── the tunnel going deeper, in the back wall ──────────── */}
+        {/* The near rim, catching the lantern — this is what makes it
+            an opening cut INTO the wall rather than a slab standing in
+            front of it. */}
+        <path d="M 250 710 L 272 388 Q 350 332 428 388 L 450 710 Z"
+              fill="#6B5A48" opacity={0.55} />
+        <path d="M 262 706 L 282 396 Q 350 344 418 396 L 438 706 Z" fill="#1C1712" />
+        <path d="M 282 396 Q 350 344 418 396 Q 350 380 282 396 Z" fill="#120E0B" />
+        {/* rubble spilling out of the mouth, onto the floor in front */}
+        <path d="M 268 706 Q 300 690 350 694 Q 402 690 432 706 Z" fill="#3A3129" />
+        <path d="M 294 660 L 306 432 Q 350 400 394 432 L 406 660 Z"
+              fill="none" stroke="#0E0B08" strokeWidth={7} opacity={0.55} />
+        <path d="M 318 604 L 326 462 Q 350 442 374 462 L 382 604 Z"
+              fill="none" stroke="#0A0806" strokeWidth={6} opacity={0.6} />
+
+        {/* ── the floor she is standing on ───────────────────────── */}
+        <path d={`M -40 706 Q 180 686 350 706 Q 530 726 ${VB_W + 40} 698
+                  L ${VB_W + 40} ${VB_H + 40} L -40 ${VB_H + 40} Z`}
+              fill="url(#cav-floor)" />
+        <path d="M -40 706 Q 180 686 350 706 Q 530 726 740 698"
+              fill="none" stroke="#6B5A48" strokeWidth={3} opacity={0.7} />
+        {[[74, 754, 16, 7], [148, 792, 11, 5], [232, 742, 13, 6], [286, 806, 9, 4],
+          [452, 748, 14, 6], [530, 794, 17, 7], [610, 744, 11, 5], [660, 800, 13, 6],
+        ].map(([rx, ry, w, h], i) => (
+          <ellipse key={i} cx={rx} cy={ry} rx={w} ry={h}
+                   fill="#4A3E33" stroke="#2A231D" strokeWidth={1} />
+        ))}
+
+        {/* ── THE SEAM — crystals growing out of a vein in the wall ── */}
+        {/* ── THE SEAM ───────────────────────────────────────────
+            Crystals burst out of a CRACK. Two earlier attempts drew a
+            slab of purple with gems sitting on top of it, which read as
+            a painted plank leaning against the wall — the gems looked
+            stuck on rather than grown. What says "mineral inside rock"
+            is a jagged split in the stone with points crowding out of
+            it at angles, and a faint stain in the rock around it where
+            the mineral has bled. No slab at all. */}
+        <ellipse cx={104} cy={452} rx={132} ry={196} fill="#6E5A78" opacity={0.13}
+                 transform="rotate(-24 104 452)" />
+        <path d="M 4 292 L 42 330 L 30 356 L 78 404 L 66 432 L 118 486
+                 L 106 512 L 158 566 L 146 592 L 196 638"
+              fill="none" stroke="#1E1822" strokeWidth={9} strokeLinecap="round"
+              strokeLinejoin="round" />
+        <path d="M 4 292 L 42 330 L 30 356 L 78 404 L 66 432 L 118 486
+                 L 106 512 L 158 566 L 146 592 L 196 638"
+              fill="none" stroke="#5A4A64" strokeWidth={3.5} strokeLinecap="round" />
         {[
-          { x: 120, y: 300, r: 16, c: '#B589D6' }, { x: 168, y: 268, r: 11, c: '#C9A7E6' },
-          { x: 96, y: 250, r: 9, c: '#8FD1E8' }, { x: 760, y: 292, r: 15, c: '#E88F9C' },
-          { x: 806, y: 258, r: 10, c: '#F0B8C2' }, { x: 716, y: 246, r: 8, c: '#F5D98F' },
+          { x: 30, y: 322, h: 40, w: 15, c: '#C9A7E6', a: -58 },
+          { x: 58, y: 350, h: 30, w: 12, c: '#8FD1E8', a: 24 },
+          { x: 72, y: 396, h: 52, w: 18, c: '#B589D6', a: -50 },
+          { x: 104, y: 440, h: 34, w: 13, c: '#D8B8EE', a: 30 },
+          { x: 122, y: 486, h: 44, w: 16, c: '#C9A7E6', a: -46 },
+          { x: 152, y: 540, h: 28, w: 11, c: '#9FD8EC', a: 34 },
+          { x: 168, y: 580, h: 46, w: 16, c: '#B589D6', a: -42 },
+          { x: 190, y: 624, h: 30, w: 12, c: '#D8B8EE', a: 22 },
         ].map((g, i) => (
-          <motion.g key={i}
-            animate={reducedMotion ? undefined : { opacity: [0.75, 1, 0.75] }}
+          <motion.g key={i} transform={`translate(${g.x}, ${g.y}) rotate(${g.a})`}
+            animate={reducedMotion ? undefined : { opacity: [0.82, 1, 0.82] }}
             transition={reducedMotion ? undefined : {
-              duration: 3 + (i % 3), repeat: Infinity, ease: 'easeInOut', delay: i * 0.4,
+              duration: 3 + (i % 3), repeat: Infinity, ease: 'easeInOut', delay: i * 0.35,
             }}
           >
-            <path
-              d={`M ${g.x} ${g.y - g.r} L ${g.x + g.r * 0.6} ${g.y} L ${g.x} ${g.y + g.r} L ${g.x - g.r * 0.6} ${g.y} Z`}
-              fill={g.c} stroke="#1A1410" strokeWidth={1.4} strokeLinejoin="round"
-            />
+            {/* six-sided prism with a point — the quartz habit, and the
+                same shape the display case draws for quartz */}
+            <path d={`M ${-g.w / 2} 6 L ${-g.w / 2} ${-g.h * 0.62}
+                      L 0 ${-g.h} L ${g.w / 2} ${-g.h * 0.62} L ${g.w / 2} 6 Z`}
+                  fill={g.c} stroke="#1A1410" strokeWidth={1.4} strokeLinejoin="round" />
+            <path d={`M ${-g.w / 6} 6 L ${-g.w / 6} ${-g.h * 0.66} L 0 ${-g.h}
+                      L ${g.w / 6} ${-g.h * 0.66} L ${g.w / 6} 6 Z`}
+                  fill="#FFFFFF" opacity={0.3} />
           </motion.g>
         ))}
 
-        {/* lantern on a hook, and the pool of light it makes */}
-        <circle cx={450} cy={150} r={190} fill="url(#cav-lantern)" />
-        <g transform="translate(450, 96)">
-          <line x1={0} y1={-40} x2={0} y2={-14} stroke="#7A6A55" strokeWidth={2} />
-          <rect x={-13} y={-14} width={26} height={30} rx={4}
-                fill="#C9A227" stroke="#3F2614" strokeWidth={2} />
-          <motion.circle cx={0} cy={1} r={7} fill="#FFF3C4"
-            animate={reducedMotion ? undefined : { opacity: [0.7, 1, 0.7] }}
+        {/* ── the sorting table, where the day's finds get counted ── */}
+        <g transform="translate(530, 660)">
+          <ellipse cx={0} cy={64} rx={86} ry={12} fill="#000" opacity={0.3} />
+          <rect x={-78} y={0} width={156} height={13} rx={3}
+                fill="#7A5B3C" stroke="#3F2C1A" strokeWidth={2} />
+          <rect x={-68} y={13} width={12} height={52} fill="#6B4E33" stroke="#3F2C1A" strokeWidth={2} />
+          <rect x={56} y={13} width={12} height={52} fill="#6B4E33" stroke="#3F2C1A" strokeWidth={2} />
+          {[[-50, -9, '#B4472F'], [-26, -8, '#9B6FD4'], [-2, -10, '#D2DEEA'],
+            [22, -8, '#EBD3A0'], [46, -9, '#9AA3AE']].map(([sx, sy, c], i) => (
+            <ellipse key={i} cx={sx as number} cy={sy as number} rx={8} ry={6.5}
+                     fill={c as string} stroke="#2A231D" strokeWidth={1.2} />
+          ))}
+        </g>
+
+        {/* ── the lantern, and the light it actually casts ────────── */}
+        <ellipse cx={214} cy={730} rx={210} ry={62} fill="url(#cav-pool)" />
+        <circle cx={214} cy={318} r={200} fill="url(#cav-lantern)" />
+        <g transform="translate(214, 282)">
+          <line x1={0} y1={-282} x2={0} y2={-26} stroke="#6B5A48" strokeWidth={2.5} />
+          <path d="M -9 -26 L 9 -26 L 6 -20 L -6 -20 Z" fill="#8A7358" stroke="#3F3428" strokeWidth={1.4} />
+          <path d="M -16 -20 L 16 -20 L 20 24 L -20 24 Z"
+                fill="#3E3428" stroke="#241D16" strokeWidth={2} strokeLinejoin="round" />
+          <path d="M -13 -16 L 13 -16 L 16 20 L -16 20 Z" fill="#FFE9A8" />
+          <motion.ellipse cx={0} cy={4} rx={6} ry={9} fill="#FFF6D0"
+            animate={reducedMotion ? undefined : { opacity: [0.75, 1, 0.75], ry: [8, 10, 8] }}
             transition={reducedMotion ? undefined : { duration: 2.2, repeat: Infinity }} />
+          <line x1={-16} y1={-3} x2={16} y2={-3} stroke="#241D16" strokeWidth={1.6} />
+          <line x1={-18} y1={11} x2={18} y2={11} stroke="#241D16" strokeWidth={1.6} />
+          <path d="M -20 24 L 20 24 L 16 30 L -16 30 Z" fill="#3E3428" stroke="#241D16" strokeWidth={1.6} />
         </g>
 
         {/* THE MATHS STOP — the price board */}
-        <g transform="translate(730, 150)"
+        <g transform="translate(536, 468)"
            style={{ cursor: 'pointer', touchAction: 'manipulation' }}
            onClick={startSkill} aria-label={themedStructureLabel}>
           <circle r={46} fill="transparent" />
