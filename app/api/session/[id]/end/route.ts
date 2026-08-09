@@ -1,5 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
+import {
+  emptyCavern, awardMasteryStones, type CavernState,
+} from '@/lib/world/cavern';
 import { z } from 'zod';
 import { detectVirtuesFromSession } from '@/lib/engine/virtueDetector';
 import { grantVirtueGem } from '@/lib/engine/virtueGrants';
@@ -66,6 +69,54 @@ export async function POST(
           to: entry.to,
         });
       }
+    }
+  }
+
+  /**
+   * "Doing math for the crystals" — Cecily's phrase, and her design.
+   *
+   * A skill reaching mastered for the first time pays one stone into
+   * the cavern. Not per session and not per correct answer: mastery is
+   * one-pass and there are only so many skills, so the supply is
+   * bounded by how much mathematics exists rather than by how long she
+   * is willing to sit there. Failing that test is what "farming easy
+   * content for rewards" means, and it is this world's oldest bug.
+   *
+   * Math only. The cavern is inside Math Mountain, and she asked for
+   * maths; paying it for spelling would make it scenery.
+   */
+  const newlyMastered = Array.from(new Set(
+    transitions
+      .filter(t => t.to === 'mastered' && String(t.skillCode).startsWith('math.'))
+      .map(t => t.skillCode as string),
+  ));
+  let earnedStones: Array<{ skillCode: string; gemCode: string }> = [];
+  if (newlyMastered.length) {
+    const { data: wsRow } = await db
+      .from('world_state').select('garden')
+      .eq('learner_id', session.learner_id).maybeSingle();
+    const garden = (wsRow?.garden as Record<string, unknown>) ?? {};
+    const cavern: CavernState = {
+      ...emptyCavern(), ...((garden.cavern as CavernState) ?? {}),
+    };
+    const out = awardMasteryStones(
+      cavern, newlyMastered, newlyMastered.map(() => Math.random()),
+    );
+    earnedStones = out.earned;
+    if (earnedStones.length) {
+      garden.cavern = {
+        coins: out.state.coins,
+        kept: out.state.kept,
+        lastDig: out.state.lastDig,
+        creaturesFound: out.state.creaturesFound,
+        pending: out.state.pending,
+        masteryPaid: out.state.masteryPaid,
+      };
+      await db.from('world_state').upsert(
+        { learner_id: session.learner_id, garden,
+          last_updated_at: new Date().toISOString() },
+        { onConflict: 'learner_id' },
+      );
     }
   }
 
@@ -211,5 +262,8 @@ export async function POST(
     gems: grantedGems,
     narratorMoments,
     queuedArrivalCode,
+    // Stones the cavern owes her for mastering something. She keeps or
+    // sells them there, not here — the choice is the good part.
+    earnedStones,
   });
 }

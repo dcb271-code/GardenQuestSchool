@@ -19,7 +19,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { SpeciesData } from '@/lib/world/speciesCatalog';
@@ -56,6 +56,19 @@ export default function CrystalCavernInterior({
   const [digging, setDigging] = useState(false);
   /** The stone just dug up, awaiting her keep-or-sell decision. */
   const [found, setFound] = useState<GemData | null>(null);
+  // Where the stone in front of her came from. An earned stone should
+  // not be presented as luck — she worked for it.
+  const [foundReason, setFoundReason] = useState<'dug' | 'earned'>('dug');
+
+  // Stones the cavern owes her for mastering a skill, waiting here so
+  // the keep-or-sell choice is still hers. Shown one at a time.
+  useEffect(() => {
+    if (found) return;
+    const next = (cavern.pending ?? [])[0];
+    if (!next) return;
+    const gem = getGem(next);
+    if (gem) { setFound(gem); setFoundReason('earned'); playSparkle(); }
+  }, [cavern.pending, found]);
   const [foundCreature, setFoundCreature] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -88,7 +101,7 @@ export default function CrystalCavernInterior({
       const d = await res.json();
       if (d.error) { setMessage(d.error); return; }
       setCavern(d.cavern);
-      if (d.gemCode) { setFound(getGem(d.gemCode) ?? null); playSparkle(); }
+      if (d.gemCode) { setFound(getGem(d.gemCode) ?? null); setFoundReason('dug'); playSparkle(); }
       if (d.creatureCode) { setFoundCreature(d.creatureCode); playSparkle(); }
       if (!d.gemCode && !d.creatureCode) setMessage('Nothing but rock today. It happens.');
     } catch {
@@ -300,6 +313,15 @@ export default function CrystalCavernInterior({
               style={{ background: '#FFFAF2', border: '2px solid #C9A227', maxWidth: 400 }}
             >
               <div className="text-center">
+                {/* Earned reads differently from dug. She asked for the
+                    maths and the crystals to be one thing; the banner is
+                    where that promise is actually kept. */}
+                {foundReason === 'earned' && (
+                  <div className="rounded-full px-3 py-1 mb-2 inline-block text-[11px] font-bold"
+                       style={{ background: '#EFE0B0', color: '#5A4520' }}>
+                    ⛏ the seam paid you for mastering something
+                  </div>
+                )}
                 <div className="text-4xl" aria-hidden>{found.emoji}</div>
                 <h2 className="font-bold text-lg mt-1" style={{ color: '#3f2614' }}>
                   {found.name}

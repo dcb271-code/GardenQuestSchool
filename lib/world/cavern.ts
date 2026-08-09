@@ -15,8 +15,22 @@
 //   * ONE dig per day. Not per session, not per lesson — per day.
 //   * No coin is ever paid per correct answer. Doing a hundred easy
 //     sums earns nothing here.
-//   * Coins come only from SELLING a specimen, and specimens come only
-//     from digging.
+//   * Coins come only from SELLING a specimen, and specimens come from
+//     digging or from MASTERING A SKILL.
+//
+// That last route is Cecily's, and it is worth quoting her because she
+// aimed it better than I did. She asked for more digging; I offered her
+// either a second dig or a deeper one; she wrote back: "I know that one
+// dig a day is the rule and I don't mean more digging a day I mean
+// doing math for the crystals."
+//
+// She was never asking to farm. She was asking for the maths and the
+// cavern to be the same world. So mastering a skill pays a stone —
+// ONCE, ever, per skill. Mastery decays and can be won back, and the
+// stone is not paid again when it is. The supply is therefore bounded
+// by how much mathematics exists, not by how long she sits there,
+// which is the same reason the trellis gate is mastery-gated rather
+// than count-gated.
 //
 // The consequence is deliberate: the cavern pays for going deeper, not
 // for going again.
@@ -36,10 +50,24 @@ export interface CavernState {
   canDigToday: boolean;
   /** Codes of cave creatures already found by digging. */
   creaturesFound: string[];
+  /**
+   * Stones earned but not yet kept or sold. Waiting in the cavern so
+   * the choice still belongs to her — a stone that silently appeared
+   * in the case would have taken it away.
+   */
+  pending: string[];
+  /**
+   * Skill codes that have already paid a stone. Never pays twice, even
+   * if mastery lapses and is won back.
+   */
+  masteryPaid: string[];
 }
 
 export function emptyCavern(): CavernState {
-  return { coins: 0, kept: {}, canDigToday: true, creaturesFound: [] };
+  return {
+    coins: 0, kept: {}, canDigToday: true, creaturesFound: [],
+    pending: [], masteryPaid: [],
+  };
 }
 
 /** One dig a day. The single most important rule in this file. */
@@ -79,6 +107,62 @@ export function rollDig(roll: number): GemData {
   }
   const j = Math.floor(((roll - 0.88) / 0.12) * display.length);
   return display[Math.min(j, display.length - 1)];
+}
+
+/**
+ * What mastering a skill turns up.
+ *
+ * Weighted better than a plain dig — a dig is luck and this was work,
+ * so the case shelf comes up more often. Still mostly local stone,
+ * because the seam is what is actually under Kentucky.
+ */
+export function stoneForMastery(roll: number): GemData {
+  const seam = GEM_CATALOG.filter(g => g.shelf === 'seam');
+  const display = GEM_CATALOG.filter(g => g.shelf === 'case');
+  if (roll < 0.72) {
+    const i = Math.floor((roll / 0.72) * seam.length);
+    return seam[Math.min(i, seam.length - 1)];
+  }
+  const j = Math.floor(((roll - 0.72) / 0.28) * display.length);
+  return display[Math.min(j, display.length - 1)];
+}
+
+/**
+ * Pay for every skill in `masteredNow` that has not been paid before.
+ *
+ * Pure, and one-pass per skill. `rolls` supplies a 0–1 number per new
+ * skill so the caller owns the randomness and this stays testable.
+ */
+export function awardMasteryStones(
+  state: CavernState,
+  masteredNow: string[],
+  rolls: number[],
+): { state: CavernState; earned: Array<{ skillCode: string; gemCode: string }> } {
+  const paid = new Set(state.masteryPaid ?? []);
+  const fresh = masteredNow.filter(c => !paid.has(c));
+  if (fresh.length === 0) return { state, earned: [] };
+
+  const earned = fresh.map((skillCode, i) => ({
+    skillCode,
+    gemCode: stoneForMastery(rolls[i] ?? 0).code,
+  }));
+  return {
+    state: {
+      ...state,
+      pending: [...(state.pending ?? []), ...earned.map(e => e.gemCode)],
+      masteryPaid: [...(state.masteryPaid ?? []), ...fresh],
+    },
+    earned,
+  };
+}
+
+/** Take one pending stone off the front, once she has chosen. */
+export function resolvePending(state: CavernState, gemCode: string): CavernState {
+  const i = (state.pending ?? []).indexOf(gemCode);
+  if (i < 0) return state;
+  const pending = [...state.pending];
+  pending.splice(i, 1);
+  return { ...state, pending };
 }
 
 /** Cave creatures, in the order digging reveals them. */

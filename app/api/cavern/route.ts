@@ -5,7 +5,7 @@ import { getSpeciesByCode } from '@/lib/world/speciesCatalog';
 import { todayKey } from '@/lib/learning/review';
 import {
   emptyCavern, canDig, rollDig, creatureForDig, sellGem, keepGem,
-  type CavernState,
+  resolvePending, type CavernState,
 } from '@/lib/world/cavern';
 
 /**
@@ -98,10 +98,14 @@ export async function POST(req: Request) {
     const out = sellGem(state, body.gemCode);
     Object.assign(state, out.state);
     paid = out.paid;
+    // If this stone was one she earned by mastering something, it is
+    // now spoken for. Harmless when it came from a dig.
+    Object.assign(state, resolvePending(state, body.gemCode));
   }
 
   if (body.action === 'keep' && body.gemCode) {
     Object.assign(state, keepGem(state, body.gemCode));
+    Object.assign(state, resolvePending(state, body.gemCode));
   }
 
   garden.cavern = {
@@ -109,6 +113,8 @@ export async function POST(req: Request) {
     kept: state.kept,
     lastDig: state.lastDig,
     creaturesFound: state.creaturesFound,
+    pending: state.pending,
+    masteryPaid: state.masteryPaid,
   };
 
   const { error } = await db.from('world_state').upsert(
