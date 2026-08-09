@@ -200,9 +200,9 @@ function Splitter({ queue }: { queue: Fact[] }) {
         {cut !== null && (
           <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}>
             <div className="flex items-center justify-center gap-2 text-lg font-bold flex-wrap">
-              <Piece n={top} cols={cols} colour="#5A8C4A" />
+              <Piece n={top} cols={cols} color="#5A8C4A" />
               <span style={{ color: '#8A7A5E' }}>+</span>
-              <Piece n={bottom} cols={cols} colour="#D89A4A" />
+              <Piece n={bottom} cols={cols} color="#D89A4A" />
               <span style={{ color: '#8A7A5E' }}>=</span>
               {revealed ? (
                 <motion.span initial={{ scale: 0.8 }} animate={{ scale: 1 }}
@@ -261,9 +261,9 @@ function Splitter({ queue }: { queue: Fact[] }) {
   );
 }
 
-function Piece({ n, cols, colour }: { n: number; cols: number; colour: string }) {
+function Piece({ n, cols, color }: { n: number; cols: number; color: string }) {
   return (
-    <span className="rounded-lg px-2 py-1" style={{ background: colour + '22', color: colour }}>
+    <span className="rounded-lg px-2 py-1" style={{ background: color + '22', color: color }}>
       {n}×{cols} = {n * cols}
     </span>
   );

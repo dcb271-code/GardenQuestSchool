@@ -77,29 +77,29 @@ export function LearnTable({ muted, onToggleMute }: {
   const [table, setTable] = useState(7);
   const [upTo, setUpTo] = useState(0);
   const [running, setRunning] = useState(false);
-  const cancelled = useRef(false);
+  const canceled = useRef(false);
 
-  useEffect(() => () => { cancelled.current = true; stopSpeaking(); }, []);
+  useEffect(() => () => { canceled.current = true; stopSpeaking(); }, []);
 
   const run = async () => {
     if (running) return;
-    cancelled.current = false;
+    canceled.current = false;
     setRunning(true);
     setUpTo(0);
     await say(`The ${table} times table. ${table} in every pouch.`);
     for (let i = 1; i <= 10; i++) {
-      if (cancelled.current) break;
+      if (canceled.current) break;
       setUpTo(i);
       // The product alone, not "3 times 7 is 21" — the run of numbers
       // is what has to become automatic.
       await say(String(i * table));
       if (!available) await new Promise(r => setTimeout(r, 420));
     }
-    if (!cancelled.current) await say(`That is the ${table}s.`);
+    if (!canceled.current) await say(`That is the ${table}s.`);
     setRunning(false);
   };
 
-  const stop = () => { cancelled.current = true; stopSpeaking(); setRunning(false); };
+  const stop = () => { canceled.current = true; stopSpeaking(); setRunning(false); };
 
   return (
     <div className="rounded-2xl p-4" style={{ background: '#FFF', border: '1px solid #E0D4B8' }}>

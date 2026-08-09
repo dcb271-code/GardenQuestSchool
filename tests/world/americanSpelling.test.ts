@@ -39,8 +39,16 @@ const UK_TO_US: Record<string, string> = {
   rubbish: 'junk or trash', fortnight: 'two weeks', queueing: 'lining up',
 };
 
-/** Files whose strings a child reads. */
-const CONTENT_DIRS = ['lib/world', 'lib/packs', 'lib/birds', 'lib/music'];
+/**
+ * Everywhere a child-facing word can live: the content catalogs AND the
+ * screens themselves. The first version of this checked only the
+ * catalogs, which missed the tab label in Pip's larder — the exact
+ * string that prompted all of this.
+ */
+const CONTENT_DIRS = [
+  'lib/world', 'lib/packs', 'lib/birds', 'lib/music',
+  'app', 'components',
+];
 
 function walk(dir: string): string[] {
   const out: string[] = [];
