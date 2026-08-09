@@ -2599,19 +2599,35 @@ export default function MathMountainScene({
           );
         })}
         {/* ── Pip, on the lower slope ──────────────────────────────
-            Placed in the gap between Measurement Meadow and the lower
-            stops so he does not crowd a skill marker, and drawn ON a
-            rock with a burrow mouth under it rather than hovering — a
-            character standing on nothing is the mistake Cliffside Point
-            already taught this map. */}
+            AT x=238, NOT 520. In portrait the map opens showing only
+            about x=95–505 on a phone, so the first placement put him
+            just past the right edge with nothing to suggest he was
+            there — Cecily went looking for the chipmunk and could not
+            find him. Sat on the bank below the stream rather than in
+            it, and named the way the stations are named. He also carries a name pill now, in the same
+            style as every station, because an unlabeled animal on a
+            map is scenery.
+
+            He sits ON a rock with a burrow mouth under it rather than
+            hovering; Cliffside Point already taught this map what a
+            character standing on nothing looks like. */}
         {pipOut && (
           <g
-            transform="translate(520, 705)"
+            transform="translate(238, 726)"
             style={{ cursor: 'pointer' }}
             onClick={() => router.push(`/times-table?learner=${learnerId}`)}
             role="button"
             aria-label="Pip the chipmunk — times tables"
           >
+            {/* a soft ring so he reads as somewhere you can go */}
+            {!calmAmbient && (
+              <motion.circle
+                cx={6} cy={0} r={40}
+                fill="none" stroke="#E8A87C" strokeWidth={2}
+                animate={{ opacity: [0.15, 0.5, 0.15], r: [36, 44, 36] }}
+                transition={{ duration: 3.4, repeat: Infinity, ease: 'easeInOut' }}
+              />
+            )}
             {/* the rock he sits on, and his front door under it */}
             <ellipse cx={6} cy={26} rx={40} ry={11} fill="#000" opacity={0.12} />
             <path d="M -34 26 Q -30 6 -10 3 Q 14 0 32 8 Q 44 15 42 26 Z"
@@ -2629,6 +2645,13 @@ export default function MathMountainScene({
             <g transform="translate(-4, -40)">
               <PipChipmunk size={58} />
             </g>
+            {/* name pill, matching the stations */}
+            <rect x={-52} y={34} width={104} height={17} rx={8.5}
+                  fill="#FFFAF2" stroke="#E8A87C" strokeWidth={1.1} />
+            <text x={0} y={46.5} textAnchor="middle" fontSize={10}
+                  fontWeight={700} fill="#6b4423" style={{ userSelect: 'none' }}>
+              Pip's Larder
+            </text>
           </g>
         )}
       </svg>
