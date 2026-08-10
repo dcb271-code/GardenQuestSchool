@@ -32,6 +32,7 @@ import {
 } from '@/lib/world/gemCatalog';
 import { coinsToPrice, type CavernState } from '@/lib/world/cavern';
 import DisplayCase from './DisplayCase';
+import GemSpecimen from '@/components/child/garden/GemSpecimen';
 
 // Portrait-first. The scene used to be 900x620 — a landscape picture
 // letterboxed into a tall phone, which is where the two dead brown
@@ -146,7 +147,7 @@ export default function CrystalCavernInterior({
   // floor to stand on.
   // Along the floor at the front. They used to sit in mid-air, before
   // there was a floor to stand on.
-  const slot = (i: number) => ({ x: 96 + (i % 4) * 170, y: 860 + Math.floor(i / 4) * 100 });
+  const slot = (i: number) => ({ x: 96 + (i % 4) * 170, y: 934 + Math.floor(i / 4) * 100 });
 
   return (
     <HabitatInteriorLayout learnerId={learnerId} title="Crystal Cavern" iconEmoji="💎">
@@ -198,6 +199,10 @@ export default function CrystalCavernInterior({
             <stop offset="0%" stopColor="#FFE0A0" stopOpacity="0.30" />
             <stop offset="100%" stopColor="#FFE0A0" stopOpacity="0" />
           </radialGradient>
+          <linearGradient id="cav-tunnelfade" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#1C1712" stopOpacity="0" />
+            <stop offset="100%" stopColor="#150F0B" stopOpacity="1" />
+          </linearGradient>
           <linearGradient id="cav-seam" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0%" stopColor="#6E5A78" />
             <stop offset="100%" stopColor="#4A3E52" />
@@ -252,63 +257,111 @@ export default function CrystalCavernInterior({
                    fill="#4A3E33" stroke="#2A231D" strokeWidth={1} />
         ))}
 
-        {/* ── THE SEAM — crystals growing out of a vein in the wall ── */}
-        {/* ── THE SEAM ───────────────────────────────────────────
-            Crystals burst out of a CRACK. Two earlier attempts drew a
-            slab of purple with gems sitting on top of it, which read as
-            a painted plank leaning against the wall — the gems looked
-            stuck on rather than grown. What says "mineral inside rock"
-            is a jagged split in the stone with points crowding out of
-            it at angles, and a faint stain in the rock around it where
-            the mineral has bled. No slab at all. */}
-        <ellipse cx={104} cy={452} rx={132} ry={196} fill="#6E5A78" opacity={0.13}
-                 transform="rotate(-24 104 452)" />
-        <path d="M 4 292 L 42 330 L 30 356 L 78 404 L 66 432 L 118 486
-                 L 106 512 L 158 566 L 146 592 L 196 638"
-              fill="none" stroke="#1E1822" strokeWidth={9} strokeLinecap="round"
-              strokeLinejoin="round" />
-        <path d="M 4 292 L 42 330 L 30 356 L 78 404 L 66 432 L 118 486
-                 L 106 512 L 158 566 L 146 592 L 196 638"
-              fill="none" stroke="#5A4A64" strokeWidth={3.5} strokeLinecap="round" />
-        {[
-          { x: 30, y: 322, h: 40, w: 15, c: '#C9A7E6', a: -58 },
-          { x: 58, y: 350, h: 30, w: 12, c: '#8FD1E8', a: 24 },
-          { x: 72, y: 396, h: 52, w: 18, c: '#B589D6', a: -50 },
-          { x: 104, y: 440, h: 34, w: 13, c: '#D8B8EE', a: 30 },
-          { x: 122, y: 486, h: 44, w: 16, c: '#C9A7E6', a: -46 },
-          { x: 152, y: 540, h: 28, w: 11, c: '#9FD8EC', a: 34 },
-          { x: 168, y: 580, h: 46, w: 16, c: '#B589D6', a: -42 },
-          { x: 190, y: 624, h: 30, w: 12, c: '#D8B8EE', a: 22 },
-        ].map((g, i) => (
-          <motion.g key={i} transform={`translate(${g.x}, ${g.y}) rotate(${g.a})`}
-            animate={reducedMotion ? undefined : { opacity: [0.82, 1, 0.82] }}
-            transition={reducedMotion ? undefined : {
-              duration: 3 + (i % 3), repeat: Infinity, ease: 'easeInOut', delay: i * 0.35,
-            }}
-          >
-            {/* six-sided prism with a point — the quartz habit, and the
-                same shape the display case draws for quartz */}
-            <path d={`M ${-g.w / 2} 6 L ${-g.w / 2} ${-g.h * 0.62}
-                      L 0 ${-g.h} L ${g.w / 2} ${-g.h * 0.62} L ${g.w / 2} 6 Z`}
-                  fill={g.c} stroke="#1A1410" strokeWidth={1.4} strokeLinejoin="round" />
-            <path d={`M ${-g.w / 6} 6 L ${-g.w / 6} ${-g.h * 0.66} L 0 ${-g.h}
-                      L ${g.w / 6} ${-g.h * 0.66} L ${g.w / 6} 6 Z`}
-                  fill="#FFFFFF" opacity={0.3} />
-          </motion.g>
-        ))}
-
-        {/* ── the sorting table, where the day's finds get counted ── */}
-        <g transform="translate(530, 660)">
-          <ellipse cx={0} cy={64} rx={86} ry={12} fill="#000" opacity={0.3} />
-          <rect x={-78} y={0} width={156} height={13} rx={3}
-                fill="#7A5B3C" stroke="#3F2C1A" strokeWidth={2} />
-          <rect x={-68} y={13} width={12} height={52} fill="#6B4E33" stroke="#3F2C1A" strokeWidth={2} />
-          <rect x={56} y={13} width={12} height={52} fill="#6B4E33" stroke="#3F2C1A" strokeWidth={2} />
-          {[[-50, -9, '#B4472F'], [-26, -8, '#9B6FD4'], [-2, -10, '#D2DEEA'],
-            [22, -8, '#EBD3A0'], [46, -9, '#9AA3AE']].map(([sx, sy, c], i) => (
-            <ellipse key={i} cx={sx as number} cy={sy as number} rx={8} ry={6.5}
-                     fill={c as string} stroke="#2A231D" strokeWidth={1.2} />
+        {/* ── THE MINE CART, on its rails ─────────────────────────
+            This replaces a crack in the wall with crystals sprouting
+            out of it. The crack was the third attempt at that idea and
+            still read as decoration — nothing in it said "somebody
+            works down here". A cart on rails does: it is a machine, it
+            has a job, and it points at the tunnel it came out of. */}
+        <g>
+          {/* sleepers and rails, running out of the tunnel mouth */}
+          {/* The rails RUN INTO THE TUNNEL. They used to stop dead in
+              the middle of the floor, which made them a stripe rather
+              than a track — a line that ends nowhere has no reason to
+              exist. Now they carry on past the mouth and the dark eats
+              them, which also explains where the cart came from. */}
+          {[-20, 34, 88, 142, 196, 250, 300].map(x => (
+            <rect key={x} x={x} y={702} width={40} height={9} rx={2}
+                  fill="#5C4229" stroke="#3A2A18" strokeWidth={1.2} />
           ))}
+          <rect x={-40} y={698} width={390} height={5} rx={2}
+                fill="#8A8378" stroke="#4E463C" strokeWidth={1.2} />
+          <rect x={-40} y={712} width={390} height={5} rx={2}
+                fill="#6E675B" stroke="#4E463C" strokeWidth={1.2} />
+          {/* the dark swallowing them at the mouth */}
+          <rect x={286} y={690} width={70} height={34} fill="url(#cav-tunnelfade)" />
+
+          <g transform="translate(150, 640)">
+            <ellipse cx={0} cy={78} rx={64} ry={11} fill="#000" opacity={0.32} />
+            {/* the tub: narrower at the bottom, the way a real one is */}
+            <path d="M -58 6 L 58 6 L 44 62 L -44 62 Z"
+                  fill="#7A6A56" stroke="#33291E" strokeWidth={3} strokeLinejoin="round" />
+            <path d="M -58 6 L 58 6 L 54 18 L -54 18 Z" fill="#95836B" />
+            {/* iron bands */}
+            <path d="M -52 28 L 52 28 M -48 44 L 48 44"
+                  stroke="#4A3E30" strokeWidth={3} />
+            {/* riveted end plate */}
+            <path d="M -44 62 L 44 62 L 40 70 L -40 70 Z"
+                  fill="#4A3E30" stroke="#2A231A" strokeWidth={2} strokeLinejoin="round" />
+            {/* ore heaped over the rim — this is what it is FOR */}
+            <path d="M -50 8 Q -30 -16 -6 -8 Q 14 -22 34 -6 Q 46 -12 52 8 Z"
+                  fill="#5E5248" stroke="#33291E" strokeWidth={2} strokeLinejoin="round" />
+            {[[-34, -2], [-14, -8], [6, -4], [26, -8], [42, 0]].map(([ox, oy], i) => (
+              <ellipse key={i} cx={ox} cy={oy} rx={9} ry={7}
+                       fill={['#9B6FD4', '#B4472F', '#D2DEEA', '#EBD3A0', '#9AA3AE'][i]}
+                       stroke="#2A231D" strokeWidth={1.4} />
+            ))}
+            {/* wheels, sitting ON the rail */}
+            {[-34, 34].map(wx => (
+              <g key={wx}>
+                <circle cx={wx} cy={70} r={15} fill="#3E3428" stroke="#221B14" strokeWidth={2.5} />
+                <circle cx={wx} cy={70} r={6} fill="#6E675B" stroke="#221B14" strokeWidth={1.6} />
+                {[0, 60, 120].map(a => (
+                  <line key={a} x1={wx} y1={70} x2={wx + Math.cos(a * Math.PI / 180) * 13}
+                        y2={70 + Math.sin(a * Math.PI / 180) * 13}
+                        stroke="#221B14" strokeWidth={1.6} />
+                ))}
+              </g>
+            ))}
+            {/* push handle at the back */}
+            <path d="M 58 10 L 76 -14 M 70 -14 L 82 -14"
+                  stroke="#4A3E30" strokeWidth={4} strokeLinecap="round" fill="none" />
+          </g>
+        </g>
+
+        {/* ── the shovel, stood against the wall ─────────────────── */}
+        <g transform="translate(52, 566) rotate(-14)">
+          <rect x={-3} y={0} width={6} height={112} rx={3}
+                fill="#8A6238" stroke="#4A3018" strokeWidth={1.8} />
+          <path d="M -4 0 L 4 0 L 6 -12 L -6 -12 Z" fill="#6B4A28" stroke="#4A3018" strokeWidth={1.6} />
+          <path d="M -13 112 L 13 112 L 10 140 Q 0 150 -10 140 Z"
+                fill="#9AA3AE" stroke="#4E463C" strokeWidth={2.2} strokeLinejoin="round" />
+          <path d="M -13 112 L 13 112 L 12 120 L -12 120 Z" fill="#B6BEC8" />
+        </g>
+
+        {/* ── the sorting shelf ──────────────────────────────────────
+            Three tiers, standing on the floor, with the day's finds set
+            out on them — drawn with the SAME crystal habits as the
+            display case, so a fluorite cube is a cube in both places
+            and she can match what is on the shelf to what is in her
+            collection. It was one plank with five flat blobs on it. */}
+        <g transform="translate(548, 424)">
+          <ellipse cx={0} cy={286} rx={104} ry={13} fill="#000" opacity={0.3} />
+          {/* uprights */}
+          <rect x={-92} y={0} width={13} height={282} fill="#6B4E33" stroke="#3F2C1A" strokeWidth={2.2} />
+          <rect x={79} y={0} width={13} height={282} fill="#6B4E33" stroke="#3F2C1A" strokeWidth={2.2} />
+          {/* three shelves with a front lip each */}
+          {[0, 94, 188].map(ty => (
+            <g key={ty}>
+              <rect x={-96} y={ty + 68} width={192} height={12} rx={3}
+                    fill="#A87A4A" stroke="#3F2C1A" strokeWidth={2.2} />
+              <rect x={-96} y={ty + 68} width={192} height={4} rx={2} fill="#C79A66" />
+            </g>
+          ))}
+          {/* the stock, in real crystal habits */}
+          {[
+            ['fluorite', -62, 24], ['quartz', -18, 24], ['kentucky_agate', 30, 24],
+            ['calcite', -62, 118], ['galena', -18, 118], ['geode', 30, 118],
+            ['freshwater_pearl', -62, 212], ['coal', -18, 212], ['garnet', 30, 212],
+          ].map(([code, gx, gy]) => {
+            const gem = getGem(code as string);
+            if (!gem) return null;
+            return (
+              <g key={`${code}-${gy}`} transform={`translate(${gx}, ${gy})`}>
+                <GemSpecimen gem={gem} size={44} />
+              </g>
+            );
+          })}
         </g>
 
         {/* ── the lantern, and the light it actually casts ────────── */}
@@ -328,20 +381,37 @@ export default function CrystalCavernInterior({
           <path d="M -20 24 L 20 24 L 16 30 L -16 30 Z" fill="#3E3428" stroke="#241D16" strokeWidth={1.6} />
         </g>
 
-        {/* THE MATHS STOP — the price board */}
-        <g transform="translate(536, 468)"
+        {/* ── THE MATHS STOP — a pick left on the floor ────────────
+            It used to be the ⛏ emoji inside a glowing circle stuck to
+            the wall, which is a button wearing a costume. A tool lying
+            where somebody put it down belongs in the room, and it is
+            still obviously a thing you can tap. */}
+        <g transform="translate(300, 806)"
            style={{ cursor: 'pointer', touchAction: 'manipulation' }}
-           onClick={startSkill} aria-label={themedStructureLabel}>
-          <circle r={46} fill="transparent" />
+           onClick={startSkill} aria-label={themedStructureLabel} role="button">
+          <rect x={-92} y={-46} width={184} height={92} fill="transparent" />
           {!reducedMotion && (
-            <motion.circle r={38} fill="#FFE89A"
-              animate={{ opacity: [0.14, 0.36, 0.14], scale: [0.95, 1.08, 0.95] }}
+            <motion.ellipse cx={0} cy={10} rx={72} ry={26} fill="#FFE89A"
+              animate={{ opacity: [0.10, 0.26, 0.10] }}
               transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }} />
           )}
-          <text y={8} textAnchor="middle" fontSize={34}>{themedStructureEmoji}</text>
-          <rect x={-64} y={26} width={128} height={19} rx={9}
-                fill="rgba(255,250,242,0.94)" stroke="#6b8e5a" strokeWidth={1} />
-          <text y={39} textAnchor="middle" fontSize={10} fontWeight={700} fill="#3f2614">
+          <g transform="rotate(-9)">
+            <ellipse cx={4} cy={16} rx={60} ry={9} fill="#000" opacity={0.28} />
+            {/* haft */}
+            <rect x={-58} y={2} width={116} height={9} rx={4.5}
+                  fill="#8A6238" stroke="#4A3018" strokeWidth={2} />
+            <rect x={-58} y={2} width={116} height={3} rx={1.5} fill="#A87A4A" />
+            {/* the head: one point, one chisel, the way a pick is */}
+            <path d="M -66 6 Q -44 -14 -18 -2 Q -44 12 -66 6 Z"
+                  fill="#9AA3AE" stroke="#4E463C" strokeWidth={2} strokeLinejoin="round" />
+            <path d="M -18 -2 Q 4 -14 22 -4 L 20 10 Q 2 14 -18 8 Z"
+                  fill="#B6BEC8" stroke="#4E463C" strokeWidth={2} strokeLinejoin="round" />
+            <rect x={-24} y={-6} width={13} height={20} rx={3}
+                  fill="#6E675B" stroke="#3D3831" strokeWidth={1.8} />
+          </g>
+          <rect x={-72} y={34} width={144} height={20} rx={10}
+                fill="rgba(255,250,242,0.94)" stroke="#6b8e5a" strokeWidth={1.2} />
+          <text y={48} textAnchor="middle" fontSize={11} fontWeight={700} fill="#3f2614">
             {starting ? 'starting…' : themedStructureLabel}
           </text>
         </g>
