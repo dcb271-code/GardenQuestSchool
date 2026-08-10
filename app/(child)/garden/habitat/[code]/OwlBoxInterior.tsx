@@ -70,8 +70,44 @@ export default function OwlBoxInterior({
     } catch { setStarting(false); }
   };
 
-  // Along the branch, in front of the trunk.
-  const slot = (i: number) => ({ x: 118 + (i % 3) * 232, y: 830 + Math.floor(i / 3) * 116 });
+  /**
+   * WHERE EACH ANIMAL ACTUALLY IS, rather than a row of cut-outs.
+   *
+   * The old version dropped every species at one size, evenly spaced,
+   * in a horizontal line hovering in front of the scenery. Nothing was
+   * standing on anything, and a screech-owl came out the same size as a
+   * flying squirrel because the size was a constant.
+   *
+   * So: named places in this tree, each with its own scale, and each
+   * with a note about what the animal is doing there. `size` is in the
+   * same units as everything else in the scene, so an animal drawn at
+   * 96 next to a 168-wide nest box is legibly smaller than the box —
+   * which is true, and which the uniform row could not express.
+   */
+  const PERCHES = [
+    // on the big limb, close to us and side-on. The largest place,
+    // because the owl is the largest resident.
+    { x: 486, y: 668, size: 104, labelBelow: true },
+    // clinging to the trunk under the box, a bit further round
+    { x: 262, y: 604, size: 84, labelBelow: true },
+    // on the lower fork, further off and so drawn smaller. It used to
+    // sit in open sky with nothing under it, which is the floating
+    // problem in miniature — every perch is now ON something.
+    { x: 624, y: 638, size: 74, labelBelow: true },
+  ];
+
+  /**
+   * Relative size, animal to animal. An Eastern Screech-Owl is a
+   * heavier, rounder thing than a flying squirrel even though they are
+   * a similar length, and drawing them identically was the flattest
+   * part of the old scene.
+   */
+  const RELATIVE: Record<string, number> = {
+    eastern_screech_owl: 1,
+    flying_squirrel: 0.86,
+  };
+
+  const perch = (i: number) => PERCHES[i % PERCHES.length];
 
   return (
     <HabitatInteriorLayout learnerId={learnerId} title="Owl Box" iconEmoji="🦉">
@@ -117,18 +153,56 @@ export default function OwlBoxInterior({
         <path d={`M -40 690 Q 240 664 ${VB_W + 40} 700 L ${VB_W + 40} ${VB_H + 40} L -40 ${VB_H + 40} Z`}
               fill="#1A2418" />
 
-        {/* ── THE TRUNK — she is level with it, high up ─────────── */}
-        <rect x={196} y={-40} width={210} height={VB_H + 80} fill="url(#ob-bark)" />
-        {[212, 246, 288, 330, 372].map(bx => (
-          <path key={bx} d={`M ${bx} -20 q ${bx % 3 ? 8 : -8} 300 0 620 q ${bx % 2 ? -6 : 6} 300 0 520`}
-                stroke="#1E1710" strokeWidth={3} fill="none" opacity={0.55} />
+        {/* ── THE TREE ───────────────────────────────────────────
+            It was a flat rectangle running off the bottom of the frame
+            with one thin arc for a branch, which read as a post rather
+            than a tree. A trunk TAPERS, its bark runs in broken ridges
+            rather than continuous pinstripes, and a limb is thick where
+            it leaves the trunk and forks as it goes — one twig sticking
+            out sideways is the shape nothing in a wood actually has. */}
+        <path d={`M 210 -40 L 196 700 Q 190 900 168 ${VB_H + 40}
+                  L 452 ${VB_H + 40} Q 424 900 410 700 L 396 -40 Z`}
+              fill="url(#ob-bark)" />
+        {/* roots flaring where the trunk meets the dark, so it is not
+            simply cut off by the edge of the picture */}
+        <path d={`M 178 ${VB_H + 40} Q 168 1000 108 972 Q 74 1040 96 ${VB_H + 40} Z`}
+              fill="#2A2117" />
+        <path d={`M 442 ${VB_H + 40} Q 452 996 516 970 Q 552 1038 528 ${VB_H + 40} Z`}
+              fill="#2A2117" />
+        <path d={`M 300 ${VB_H + 40} Q 296 1020 262 998 Q 250 1046 266 ${VB_H + 40} Z`}
+              fill="#241C12" opacity={0.8} />
+        {/* bark: broken vertical ridges, offset and varied */}
+        {[
+          [222, -20, 300], [222, 340, 260], [252, 60, 420], [252, 540, 300],
+          [288, -30, 260], [288, 300, 380], [318, 120, 340], [318, 560, 320],
+          [352, -10, 300], [352, 380, 300], [382, 200, 420],
+        ].map(([bx, by, len], i) => (
+          <path key={i}
+                d={`M ${bx} ${by} q ${i % 2 ? 7 : -7} ${len / 2} 0 ${len}`}
+                stroke="#1E1710" strokeWidth={i % 3 === 0 ? 4 : 2.5}
+                fill="none" opacity={0.5} strokeLinecap="round" />
         ))}
 
-        {/* a branch running out to the right, for perching on */}
-        <path d="M 400 742 Q 520 726 660 748" stroke="#3E3222" strokeWidth={22}
+        {/* THE LIMB — thick at the trunk, tapering, forking twice */}
+        <path d="M 400 706 Q 500 686 596 700 Q 664 710 700 692"
+              stroke="#3E3222" strokeWidth={30} fill="none" strokeLinecap="round" />
+        <path d="M 400 700 Q 500 680 596 694 Q 664 704 700 686"
+              stroke="#5A4A32" strokeWidth={13} fill="none" strokeLinecap="round" />
+        {/* the forks */}
+        <path d="M 556 692 Q 580 640 566 596" stroke="#3E3222" strokeWidth={13}
               fill="none" strokeLinecap="round" />
-        <path d="M 400 738 Q 520 722 660 744" stroke="#5A4A32" strokeWidth={9}
+        <path d="M 566 596 Q 560 566 578 546" stroke="#3E3222" strokeWidth={7}
               fill="none" strokeLinecap="round" />
+        <path d="M 634 700 Q 662 664 656 630" stroke="#3E3222" strokeWidth={9}
+              fill="none" strokeLinecap="round" />
+        {/* a little foliage on the forks, dark because it is night */}
+        {[[566, 586, 30], [580, 540, 22], [656, 622, 26], [612, 664, 20]].map(([lx, ly, lr], i) => (
+          <g key={i} opacity={0.9}>
+            <ellipse cx={lx} cy={ly} rx={lr} ry={lr * 0.66} fill="#1E3324" />
+            <ellipse cx={lx - lr * 0.3} cy={ly - lr * 0.2} rx={lr * 0.55} ry={lr * 0.4}
+                     fill="#27402C" />
+          </g>
+        ))}
 
         {/* ── THE BOX ────────────────────────────────────────────── */}
         <g transform="translate(300, 330)">
@@ -170,7 +244,7 @@ export default function OwlBoxInterior({
         </g>
 
         {/* ── THE NIGHT LOG — the reading stop ───────────────────── */}
-        <g transform="translate(546, 690)"
+        <g transform="translate(596, 556)"
            style={{ cursor: 'pointer', touchAction: 'manipulation' }}
            onClick={startSkill} role="button" aria-label={themedStructureLabel}>
           <rect x={-96} y={-72} width={192} height={150} fill="transparent" />
@@ -195,23 +269,35 @@ export default function OwlBoxInterior({
           </text>
         </g>
 
-        {/* ── who has been seen at the box ───────────────────────── */}
+        {/* ── who has been seen at the box ─────────────────────────
+            Placed at perches in the tree, at sizes relative to one
+            another, rather than lined up at a uniform size in front of
+            the picture. Each sits on something and casts a shadow onto
+            what it is sitting on. */}
         {discoveredSpecies.map((sp, i) => {
-          const { x, y } = slot(i);
+          const p = perch(i);
+          const size = p.size * (RELATIVE[sp.code] ?? 0.9);
           return (
             <motion.g key={sp.code}
-              animate={reducedMotion ? undefined : { y: [0, -4, 0] }}
+              animate={reducedMotion ? undefined : { y: [0, -3, 0] }}
               transition={reducedMotion ? undefined : {
-                duration: 3.4 + (i % 3) * 0.6, repeat: Infinity, ease: 'easeInOut', delay: i * 0.4,
+                duration: 3.8 + (i % 3) * 0.7, repeat: Infinity,
+                ease: 'easeInOut', delay: i * 0.5,
               }}
             >
-              <g transform={`translate(${x - 34}, ${y - 34})`}>
-                {SpeciesIllustration({ code: sp.illustrationKey, size: 68 })
-                  ?? <text x={34} y={44} textAnchor="middle" fontSize={40}>{sp.emoji}</text>}
+              {/* contact shadow on the branch it is gripping */}
+              {p.labelBelow && (
+                <ellipse cx={p.x} cy={p.y + size * 0.34} rx={size * 0.32} ry={size * 0.07}
+                         fill="#000" opacity={0.35} />
+              )}
+              <g transform={`translate(${p.x - size / 2}, ${p.y - size / 2})`}>
+                {SpeciesIllustration({ code: sp.illustrationKey, size })
+                  ?? <text x={size / 2} y={size * 0.66} textAnchor="middle"
+                           fontSize={size * 0.6}>{sp.emoji}</text>}
               </g>
-              <rect x={x - 66} y={y + 38} width={132} height={19} rx={5}
+              <rect x={p.x - 66} y={p.y + size * 0.38} width={132} height={19} rx={5}
                     fill="rgba(20,28,20,0.85)" />
-              <text x={x} y={y + 51} textAnchor="middle" fontSize={9.5}
+              <text x={p.x} y={p.y + size * 0.38 + 13} textAnchor="middle" fontSize={9.5}
                     fontWeight={700} fill="#DCE8CE">
                 {sp.commonName}
               </text>
@@ -219,16 +305,19 @@ export default function OwlBoxInterior({
           );
         })}
         {Array.from({ length: undiscoveredCount }).map((_, i) => {
-          const { x, y } = slot(discoveredSpecies.length + i);
+          const p = perch(discoveredSpecies.length + i);
           return (
-            <g key={`unknown-${i}`} opacity={0.45}>
-              <text x={x} y={y + 6} textAnchor="middle" fontSize={22}
+            <g key={`unknown-${i}`} opacity={0.4}>
+              {/* an empty perch, not an empty slot in a row */}
+              <ellipse cx={p.x} cy={p.y} rx={p.size * 0.3} ry={p.size * 0.26}
+                       fill="none" stroke="#8FA6D8" strokeWidth={2} strokeDasharray="5 6" />
+              <text x={p.x} y={p.y + 7} textAnchor="middle" fontSize={22}
                     fontStyle="italic" fill="#8FA6D8">?</text>
-              <rect x={x - 66} y={y + 38} width={132} height={19} rx={5}
+              <rect x={p.x - 60} y={p.y + p.size * 0.34} width={120} height={18} rx={5}
                     fill="rgba(20,28,20,0.6)" />
-              <text x={x} y={y + 51} textAnchor="middle" fontSize={9}
+              <text x={p.x} y={p.y + p.size * 0.34 + 12.5} textAnchor="middle" fontSize={9}
                     fontStyle="italic" fill="#AFC4EA">
-                not yet
+                nobody yet
               </text>
             </g>
           );
