@@ -268,6 +268,22 @@ export const SPECIES_CATALOG: SpeciesData[] = [
     funFact: 'It really is those colors — nobody has touched it up. The fluff is genuine fur-like scales, and it is thought the pink and yellow make it look like a maple seed rather than a meal.',
     illustrationKey: 'rosy_maple_moth', emoji: '🌷', habitatReqCodes: [], arrivesVia: 'night_garden',
     conservationStatus: 'stable' },
+  // ── THE OWL BOX — the Reading Forest's first residents ──────────
+  // A box on a trunk is one of the few homes a person can genuinely put
+  // up and have a wild animal move into, which is why it belongs in a
+  // world about tending things.
+  { code: 'eastern_screech_owl', commonName: 'Eastern Screech-Owl',
+    scientificName: 'Megascops asio',
+    description: 'A tiny owl the size of a soda can, gray or rusty-red, with ear tufts and a face like tree bark.',
+    funFact: 'It does not screech. It makes a soft descending whinny like a small horse, and a long trilling purr. It is also almost certainly nearer to you than you think — screech-owls live in ordinary neighborhoods, in parks and back yards, and most people never once see one.',
+    illustrationKey: 'eastern_screech_owl', emoji: '🦉', habitatReqCodes: ['owl_box'],
+    conservationStatus: 'stable' },
+  { code: 'flying_squirrel', commonName: 'Southern Flying Squirrel',
+    scientificName: 'Glaucomys volans',
+    description: 'A small squirrel with enormous black eyes and a loose flap of skin between wrist and ankle that opens into a glider.',
+    funFact: 'It does not fly, it glides — and it can steer, banking around trunks and braking by throwing its tail up before it lands. Kentucky has more of these than gray squirrels in some woods. You never see them because they only come out after dark.',
+    illustrationKey: 'flying_squirrel', emoji: '🐿️', habitatReqCodes: ['owl_box'],
+    conservationStatus: 'stable' },
   { code: 'polyphemus_moth', commonName: 'Polyphemus Moth',
     scientificName: 'Antheraea polyphemus',
     description: 'A huge tan moth, nearly as wide as your hand, with a see-through eyespot on each back wing.',

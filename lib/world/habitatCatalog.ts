@@ -99,6 +99,19 @@ export const HABITAT_CATALOG: HabitatTypeData[] = [
     interestTags: ['multiply', 'groups', 'counting', 'nature'],
   },
   {
+    // The Reading Forest had NO habitat at all — every animal home was
+    // in the garden, and the two on the mountain are the cave and the
+    // cavern. Cecily spotted the hole before anyone else did.
+    code: 'owl_box',
+    name: 'Owl Box',
+    description: 'A deep wooden box high on a trunk, with a round hole and a floor of wood shavings.',
+    attractsSpeciesCodes: ['eastern_screech_owl', 'flying_squirrel'],
+    prereqSkillCodes: ['reading.phonics.cvc_blend'],
+    illustrationKey: 'owl_box',
+    emoji: '🦉',
+    interestTags: ['reading', 'comprehension', 'read_aloud'],
+  },
+  {
     // Crystal Cavern — Cecily's, by request and by name.
     //
     // The second cut into Math Mountain, higher than Operations Cave

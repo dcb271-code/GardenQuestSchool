@@ -63,6 +63,12 @@ export const HABITAT_INTERIORS: Record<string, HabitatInteriorConfig> = {
     themedStructureLabel: 'Counting the Queue',
     themedStructureEmoji: '🌻',
   },
+  owl_box: {
+    // The Reading Forest's habitat, so its stop is a reading stop.
+    themedSkillCode: 'reading.comprehension.paragraph',
+    themedStructureLabel: 'The Night Log',
+    themedStructureEmoji: '📖',
+  },
   crystal_cavern: {
     // The money maths Cecily asked for: a price times a count is
     // exactly multiplication facts, which is also what opens the

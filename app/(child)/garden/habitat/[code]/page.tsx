@@ -31,6 +31,7 @@ import ButterflyBushInterior from './ButterflyBushInterior';
 import LogPileInterior from './LogPileInterior';
 import BirdFeederInterior from './BirdFeederInterior';
 import CrystalCavernInterior from './CrystalCavernInterior';
+import OwlBoxInterior from './OwlBoxInterior';
 import CaveInterior, { type CaveSkillStop } from './CaveInterior';
 
 export const dynamic = 'force-dynamic';
@@ -104,6 +105,19 @@ export default async function HabitatInteriorPage({
   // Every habitat that is a HOME now has an interior; they all share
   // the same shape (one themed skill stop plus the residents), so a
   // lookup beats a chain of branches.
+  if (code === 'owl_box') {
+    return (
+      <OwlBoxInterior
+        learnerId={learnerId}
+        themedSkillCode={cfg.themedSkillCode}
+        themedStructureLabel={cfg.themedStructureLabel}
+        themedStructureEmoji={cfg.themedStructureEmoji}
+        discoveredSpecies={discoveredSpecies}
+        undiscoveredCount={undiscoveredCount}
+      />
+    );
+  }
+
   if (code === 'crystal_cavern') {
     const { data: stateRow } = await db
       .from('world_state').select('garden').eq('learner_id', learnerId).maybeSingle();

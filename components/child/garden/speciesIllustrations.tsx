@@ -1184,6 +1184,98 @@ export function PolyphemusMoth({ size = 60 }: SpeciesProps) {
   );
 }
 
+export function EasternScreechOwl({ size = 60 }: SpeciesProps) {
+  // The point of this bird is that it is TINY and looks like bark.
+  // Drawn squat and round with ear tufts and a pale facial disc, in the
+  // gray morph — the rufous one exists too, which is a quest question.
+  const BARK = '#8A8074';
+  const BARK_D = '#5E564C';
+  const PALE = '#CFC6B6';
+  return (
+    <Svg size={size}>
+      <ellipse cx={0} cy={34} rx={17} ry={3} fill="#000" opacity={0.18} />
+      {/* body — wider than tall, because a screech-owl is a stump */}
+      <path d="M -22 6 Q -24 -18 -12 -26 Q 0 -33 12 -26 Q 24 -18 22 6
+               Q 20 28 0 30 Q -20 28 -22 6 Z"
+            fill={BARK} stroke="#3F3830" strokeWidth={1.8} strokeLinejoin="round" />
+      {/* streaked bark camouflage */}
+      {[-13, -4, 5, 14].map(x => (
+        <path key={x} d={`M ${x} -8 q 2 12 0 24`} stroke={BARK_D}
+              strokeWidth={1.6} fill="none" opacity={0.75} strokeLinecap="round" />
+      ))}
+      <path d="M -18 2 q 4 -6 9 -1 M 9 2 q 5 -5 9 1" stroke={BARK_D}
+            strokeWidth={1.3} fill="none" opacity={0.6} />
+      {/* ear tufts — not ears at all, just feathers */}
+      <path d="M -18 -20 L -21 -34 L -9 -25 Z" fill={BARK} stroke="#3F3830" strokeWidth={1.6} strokeLinejoin="round" />
+      <path d="M 18 -20 L 21 -34 L 9 -25 Z" fill={BARK} stroke="#3F3830" strokeWidth={1.6} strokeLinejoin="round" />
+      {/* facial disc */}
+      <path d="M -15 -20 Q 0 -26 15 -20 Q 17 -4 0 0 Q -17 -4 -15 -20 Z"
+            fill={PALE} stroke="#3F3830" strokeWidth={1.5} />
+      {/* the enormous yellow eyes */}
+      <circle cx={-7} cy={-14} r={6} fill="#F5C542" stroke="#3F3830" strokeWidth={1.5} />
+      <circle cx={7} cy={-14} r={6} fill="#F5C542" stroke="#3F3830" strokeWidth={1.5} />
+      <circle cx={-7} cy={-14} r={3} fill="#1A140E" />
+      <circle cx={7} cy={-14} r={3} fill="#1A140E" />
+      <circle cx={-8.5} cy={-15.5} r={1.1} fill="#FFF" opacity={0.9} />
+      <circle cx={5.5} cy={-15.5} r={1.1} fill="#FFF" opacity={0.9} />
+      {/* hooked bill */}
+      <path d="M 0 -10 L -3 -4 Q 0 -1 3 -4 Z" fill="#D8C9A8" stroke="#3F3830" strokeWidth={1.2} strokeLinejoin="round" />
+      {/* feet gripping */}
+      <path d="M -8 29 l -4 4 M -8 29 l 0 5 M 8 29 l 4 4 M 8 29 l 0 5"
+            stroke="#C9A227" strokeWidth={2} strokeLinecap="round" />
+    </Svg>
+  );
+}
+
+export function FlyingSquirrel({ size = 60 }: SpeciesProps) {
+  // Seen from BELOW, mid-glide, which is how anybody actually sees one:
+  // a pale rectangle crossing between two trees at dusk.
+  //
+  // The first version drew the membrane in the same fur colour as the
+  // body, so the two merged into a lump. The membrane is the animal —
+  // it needs its own paler tone, its own outline, and four legs pushed
+  // out to the corners visibly holding it taut.
+  const FUR = '#A89478';
+  const FUR_D = '#7A6A52';
+  const SAIL = '#E6DAC0';
+  const BELLY = '#F6F0E2';
+  return (
+    <Svg size={size}>
+      <ellipse cx={2} cy={36} rx={22} ry={3.5} fill="#000" opacity={0.14} />
+      {/* THE MEMBRANE — a taut kite between wrist and ankle */}
+      <path d="M -30 -22 Q 0 -30 30 -22 Q 38 0 30 22 Q 0 30 -30 22 Q -38 0 -30 -22 Z"
+            fill={SAIL} stroke="#6B5B44" strokeWidth={2} strokeLinejoin="round" />
+      {/* the body lying along it, darker so it separates */}
+      <path d="M -13 -20 Q 13 -20 13 0 Q 13 20 -13 20 Q -19 0 -13 -20 Z"
+            fill={FUR} stroke="#4E4130" strokeWidth={1.8} strokeLinejoin="round" />
+      <path d="M -8 -13 Q 8 -13 8 0 Q 8 13 -8 13 Q -12 0 -8 -13 Z" fill={BELLY} />
+      {/* flat rudder tail, off the back */}
+      <path d="M -10 20 Q -2 40 -14 44 Q -26 40 -20 20 Z"
+            fill={FUR_D} stroke="#4E4130" strokeWidth={1.7} strokeLinejoin="round" />
+      {/* four legs, out to the corners, holding the sail open */}
+      {[[-1, -1], [1, -1], [-1, 1], [1, 1]].map(([sx, sy], i) => (
+        <path key={i}
+              d={`M ${sx * 11} ${sy * 13} L ${sx * 27} ${sy * 20}`}
+              stroke={FUR_D} strokeWidth={4} strokeLinecap="round" />
+      ))}
+      {/* head at the front, with the eyes that make it nocturnal */}
+      <circle cx={0} cy={-24} r={11} fill={FUR} stroke="#4E4130" strokeWidth={1.8} />
+      <ellipse cx={0} cy={-20} rx={6.5} ry={5} fill={BELLY} />
+      <circle cx={-4.5} cy={-27} r={4.2} fill="#1A140E" />
+      <circle cx={4.5} cy={-27} r={4.2} fill="#1A140E" />
+      <circle cx={-5.8} cy={-28.4} r={1.4} fill="#FFF" opacity={0.9} />
+      <circle cx={3.2} cy={-28.4} r={1.4} fill="#FFF" opacity={0.9} />
+      <ellipse cx={0} cy={-18} rx={2.2} ry={1.7} fill="#3F3830" />
+      <ellipse cx={-9} cy={-31} rx={4} ry={4.6} fill={FUR} stroke="#4E4130" strokeWidth={1.4} />
+      <ellipse cx={9} cy={-31} rx={4} ry={4.6} fill={FUR} stroke="#4E4130" strokeWidth={1.4} />
+      <g stroke="#4E4130" strokeWidth={0.7} opacity={0.55} strokeLinecap="round">
+        <path d="M -6 -18 q -10 1 -14 3" />
+        <path d="M 6 -18 q 10 1 14 3" />
+      </g>
+    </Svg>
+  );
+}
+
 export function LunaMoth({ size = 60 }: SpeciesProps) {
   // Pale green, with the long twisted TAILS that make it unmistakable
   // and unlike the butterflies already in the journal.
@@ -1565,6 +1657,9 @@ export function SpeciesIllustration({
     case 'painted_turtle':     return <PaintedTurtle size={size} />;
     case 'spotted_salamander': return <SpottedSalamander size={size} />;
     case 'luna_moth':          return <LunaMoth size={size} />;
+    // the owl box, in the Reading Forest
+    case 'eastern_screech_owl': return <EasternScreechOwl size={size} />;
+    case 'flying_squirrel':     return <FlyingSquirrel size={size} />;
     // night garden — the moths a moonflower advertises to
     case 'pink_spotted_hawkmoth': return <PinkSpottedHawkmoth size={size} />;
     case 'white_lined_sphinx':    return <WhiteLinedSphinx size={size} />;

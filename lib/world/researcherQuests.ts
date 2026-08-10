@@ -29,6 +29,44 @@ export interface ResearcherQuest {
 }
 
 export const RESEARCHER_QUESTS: Record<string, ResearcherQuest> = {
+  owl_box: {
+    habitatCode: 'owl_box',
+    intro: 'A box on a trunk is an experiment. Time to read the results.',
+    questions: [
+      {
+        prompt: 'A researcher pulls apart owl pellets from under one box and finds 41 skulls: 33 voles, 6 mice, 2 shrews. What does that let her say?',
+        choices: [
+          'That this owl hunts mostly voles — the bones are a record of every meal',
+          'That there are 41 owls nearby',
+          'That the owl is 41 days old',
+          'That voles are the only animal in the wood',
+        ],
+        correctIndex: 0,
+      },
+      {
+        prompt: 'Boxes on quiet woodland edges fill up; boxes deep inside dense woods often stay empty. Why would an owl prefer the edge?',
+        choices: [
+          'It hunts in the open and roosts in cover, so it wants both within reach',
+          'The edge is warmer',
+          'Deep woods are too dark even for an owl',
+          'There are no trees to perch on inside a wood',
+        ],
+        correctIndex: 0,
+      },
+      {
+        prompt: 'Screech-owls hunt by sound, and one ear sits slightly higher than the other. What does that buy them?',
+        choices: [
+          'A sound reaches the two ears at different moments, which tells them how high it is as well as which way',
+          'They can hear twice as loudly',
+          'It stops them getting dizzy',
+          'It helps them hear their own call',
+        ],
+        correctIndex: 0,
+      },
+    ],
+    outro: 'You can read a wood from the bones under a box. Very few people can.',
+    gemLine: 'She worked out what an owl had eaten without ever seeing the owl.',
+  },
   bunny_burrow: {
     habitatCode: 'bunny_burrow',
     intro: 'Time to study the burrow like a real field researcher.',

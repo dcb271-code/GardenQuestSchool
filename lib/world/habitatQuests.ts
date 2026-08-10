@@ -290,6 +290,53 @@ export const HABITAT_QUESTS: Record<string, HabitatQuest> = {
     ],
     outro: 'Now watch the window. Somebody will find it within a day or two.',
   },
+  owl_box: {
+    habitatCode: 'owl_box',
+    intro: "Let's put a box up a tree in the Reading Forest and see who moves in.",
+    questions: [
+      {
+        prompt: 'An owl box needs wood shavings in the bottom. Why not a nice soft nest of straw?',
+        choices: [
+          'Owls do not build nests — they lay eggs straight onto whatever is there',
+          'Straw is too expensive',
+          'Shavings smell nicer',
+          'Straw would blow away',
+        ],
+        correctIndex: 0,
+      },
+      {
+        prompt: 'The hole in the front is small — about as wide as a tennis ball. Why not make it bigger?',
+        choices: [
+          'A small hole keeps bigger animals from getting in',
+          'Big holes let in too much rain',
+          'Owls like squeezing',
+          'To save wood',
+        ],
+        correctIndex: 0,
+      },
+      {
+        prompt: 'Where should the box go?',
+        choices: [
+          'High on a trunk, with a clear flight path to the hole',
+          'Low down where it is easy to check',
+          'Deep inside a thick bush',
+          'On the ground under a tree',
+        ],
+        correctIndex: 0,
+      },
+      {
+        prompt: 'An Eastern Screech-Owl is about as big as...',
+        choices: [
+          'a soda can',
+          'a cat',
+          'a chicken',
+          'a football',
+        ],
+        correctIndex: 0,
+      },
+    ],
+    outro: 'The box is up. Now it is a waiting game — and it might not be an owl who moves in first.',
+  },
   crystal_cavern: {
     habitatCode: 'crystal_cavern',
     intro: "There is an old mine in the mountain. Let's see if it is safe to open.",
@@ -338,7 +385,41 @@ export const HABITAT_QUESTS: Record<string, HabitatQuest> = {
 // outro stay the same). Same authoring rules: 4 choices, correct at
 // index 0 (shuffled at render), wrong answers plausible or gently silly.
 
+const OWL_BOX_L3: QuestQuestion[] = [
+  {
+    prompt: 'A screech-owl pair uses the box in spring. By autumn a flying squirrel is living in it. Has something gone wrong?',
+    choices: [
+      'No — the box is empty once the owlets leave, and an empty hole never stays empty',
+      'Yes, the squirrel drove the owls out',
+      'Yes, the box was built wrong',
+      'No, they live in it together all year',
+    ],
+    correctIndex: 0,
+  },
+  {
+    prompt: 'Screech-owls come in two colors — gray and rusty-red — and both turn up in the same wood, sometimes in one family. Why would a species keep two?',
+    choices: [
+      'Different colors hide better against different bark, so neither one wins everywhere',
+      'The red ones are younger',
+      'It depends what they eat',
+      'One is male and one is female',
+    ],
+    correctIndex: 0,
+  },
+  {
+    prompt: 'Owls swallow mice whole and later cough up a pellet of fur and bone. Why is that pellet useful to a researcher?',
+    choices: [
+      'Pull it apart and the bones tell you exactly what the owl has been eating',
+      'It tells you how old the owl is',
+      'It shows how many owls live nearby',
+      'It can be weighed to find the owl’s weight',
+    ],
+    correctIndex: 0,
+  },
+];
+
 export const HABITAT_QUESTIONS_L3: Record<string, QuestQuestion[]> = {
+  owl_box: OWL_BOX_L3,
   bunny_burrow: [
     {
       prompt: 'A good burrow has more than one exit. Why dig extra doors?',

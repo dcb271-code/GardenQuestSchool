@@ -98,7 +98,7 @@ describe('selling a stone that is already in the case', () => {
   });
 
   it('never goes negative on a repeated sale', () => {
-    let s = { ...emptyCavern(), kept: { galena: 1 } };
+    let s: ReturnType<typeof emptyCavern> = { ...emptyCavern(), kept: { galena: 1 } };
     s = sellKept(s, 'galena').state;
     const again = sellKept(s, 'galena');
     expect(again.paid).toBe(0);
