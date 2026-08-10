@@ -335,7 +335,7 @@ export default function CrystalCavernInterior({
             display case, so a fluorite cube is a cube in both places
             and she can match what is on the shelf to what is in her
             collection. It was one plank with five flat blobs on it. */}
-        <g transform="translate(548, 424)">
+        <g transform="translate(556, 430)">
           <ellipse cx={0} cy={286} rx={104} ry={13} fill="#000" opacity={0.3} />
           {/* uprights */}
           <rect x={-92} y={0} width={13} height={282} fill="#6B4E33" stroke="#3F2C1A" strokeWidth={2.2} />
@@ -381,37 +381,70 @@ export default function CrystalCavernInterior({
           <path d="M -20 24 L 20 24 L 16 30 L -16 30 Z" fill="#3E3428" stroke="#241D16" strokeWidth={1.6} />
         </g>
 
-        {/* ── THE MATHS STOP — a pick left on the floor ────────────
-            It used to be the ⛏ emoji inside a glowing circle stuck to
-            the wall, which is a button wearing a costume. A tool lying
-            where somebody put it down belongs in the room, and it is
-            still obviously a thing you can tap. */}
-        <g transform="translate(300, 806)"
+        {/* ── A PICK, left on the floor ───────────────────────────
+            Scenery, not a button. It reads as a tool somebody put down
+            rather than an icon: a long haft, a head with a POINT on one
+            side and a flat chisel on the other, and a collar where the
+            two are wedged on. Drawn side-on so both ends of the head
+            are visible — the first attempt was a grey blob with a stick
+            through it and did not read as a pick at all. */}
+        <g transform="translate(150, 786) rotate(-7)" pointerEvents="none">
+          <ellipse cx={6} cy={22} rx={62} ry={8} fill="#000" opacity={0.26} />
+          {/* haft, thicker at the grip end */}
+          <path d="M -54 14 L 62 4 L 62 12 L -54 22 Z"
+                fill="#8A6238" stroke="#4A3018" strokeWidth={2} strokeLinejoin="round" />
+          <path d="M -54 14 L 62 4 L 62 7 L -54 17 Z" fill="#A87A4A" />
+          {/* the head — one long spike, one flat blade, meeting at the eye */}
+          <path d="M -46 12 Q -70 -6 -96 -14 Q -74 6 -50 20 Z"
+                fill="#B6BEC8" stroke="#4E463C" strokeWidth={2} strokeLinejoin="round" />
+          <path d="M -46 12 Q -26 -10 -2 -18 L 4 -6 Q -20 4 -44 20 Z"
+                fill="#9AA3AE" stroke="#4E463C" strokeWidth={2} strokeLinejoin="round" />
+          {/* the eye/collar the haft passes through */}
+          <path d="M -52 6 L -38 4 L -34 22 L -48 24 Z"
+                fill="#6E675B" stroke="#3D3831" strokeWidth={2} strokeLinejoin="round" />
+        </g>
+
+        {/* ── THE MATHS STOP — the price board ─────────────────────
+            It is called The Price Board and it is the money maths she
+            asked for, so it should be a board with prices on it. It had
+            been the ⛏ emoji in a glowing circle, and then a pickaxe —
+            both wrong, because a pick is for digging and this is for
+            counting what the digging was worth. */}
+        <g transform="translate(548, 286)"
            style={{ cursor: 'pointer', touchAction: 'manipulation' }}
            onClick={startSkill} aria-label={themedStructureLabel} role="button">
-          <rect x={-92} y={-46} width={184} height={92} fill="transparent" />
+          <rect x={-108} y={-92} width={216} height={200} fill="transparent" />
           {!reducedMotion && (
-            <motion.ellipse cx={0} cy={10} rx={72} ry={26} fill="#FFE89A"
-              animate={{ opacity: [0.10, 0.26, 0.10] }}
+            <motion.rect x={-92} y={-76} width={184} height={140} rx={10}
+              fill="#FFE89A"
+              animate={{ opacity: [0.08, 0.22, 0.08] }}
               transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }} />
           )}
-          <g transform="rotate(-9)">
-            <ellipse cx={4} cy={16} rx={60} ry={9} fill="#000" opacity={0.28} />
-            {/* haft */}
-            <rect x={-58} y={2} width={116} height={9} rx={4.5}
-                  fill="#8A6238" stroke="#4A3018" strokeWidth={2} />
-            <rect x={-58} y={2} width={116} height={3} rx={1.5} fill="#A87A4A" />
-            {/* the head: one point, one chisel, the way a pick is */}
-            <path d="M -66 6 Q -44 -14 -18 -2 Q -44 12 -66 6 Z"
-                  fill="#9AA3AE" stroke="#4E463C" strokeWidth={2} strokeLinejoin="round" />
-            <path d="M -18 -2 Q 4 -14 22 -4 L 20 10 Q 2 14 -18 8 Z"
-                  fill="#B6BEC8" stroke="#4E463C" strokeWidth={2} strokeLinejoin="round" />
-            <rect x={-24} y={-6} width={13} height={20} rx={3}
-                  fill="#6E675B" stroke="#3D3831" strokeWidth={1.8} />
-          </g>
-          <rect x={-72} y={34} width={144} height={20} rx={10}
+          {/* slate, in a plank frame, hung on the wall */}
+          <rect x={-86} y={-70} width={172} height={128} rx={5}
+                fill="#7A5B3C" stroke="#3F2C1A" strokeWidth={3} />
+          <rect x={-76} y={-60} width={152} height={108} rx={3} fill="#33302B" />
+          <text x={0} y={-40} textAnchor="middle" fontSize={15} fontWeight={700}
+                fill="#E8DCC0" style={{ userSelect: 'none' }}>PRICES</text>
+          <line x1={-58} y1={-32} x2={58} y2={-32} stroke="#8A8378" strokeWidth={2} />
+          {/* chalked rows: a stone, and what it fetches */}
+          {[['#B4472F', '40c'], ['#9B6FD4', '25c'], ['#D2DEEA', '10c']].map(([c, price], i) => (
+            <g key={i} transform={`translate(0, ${-14 + i * 24})`}>
+              <ellipse cx={-42} cy={0} rx={11} ry={8.5} fill={c as string}
+                       stroke="#1F1D19" strokeWidth={1.5} />
+              <text x={-18} y={5} fontSize={14} fontWeight={700} fill="#E8DCC0"
+                    style={{ userSelect: 'none', fontFamily: 'ui-monospace, monospace' }}>
+                ×
+              </text>
+              <text x={46} y={5} textAnchor="end" fontSize={14} fontWeight={700}
+                    fill="#F5D98F" style={{ userSelect: 'none', fontFamily: 'ui-monospace, monospace' }}>
+                {price}
+              </text>
+            </g>
+          ))}
+          <rect x={-72} y={68} width={144} height={20} rx={10}
                 fill="rgba(255,250,242,0.94)" stroke="#6b8e5a" strokeWidth={1.2} />
-          <text y={48} textAnchor="middle" fontSize={11} fontWeight={700} fill="#3f2614">
+          <text y={82} textAnchor="middle" fontSize={11} fontWeight={700} fill="#3f2614">
             {starting ? 'starting…' : themedStructureLabel}
           </text>
         </g>

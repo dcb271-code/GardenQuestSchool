@@ -44,7 +44,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import PipChipmunk from '@/components/child/garden/PipChipmunk';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -166,6 +166,9 @@ export default function MathMountainScene({
   // Locked stop → guidance modal ("this opens when you master…").
   const [lockedHint, setLockedHint] = useState<MapStructure | null>(null);
   const allHintSkills: HintSkill[] = [...MATH_SKILLS, ...READING_SKILLS];
+  // Names already shown as a station pill, so a cluster does not repeat them.
+  const stationLabels = useMemo(
+    () => new Set(Object.values(HABITAT_GROUPS).map(g => g.label)), []);
   // "✨ next" beacon: among this scene's playable-but-unmastered stops,
   // the one whose mastery opens the most doors.
   const beaconSkill = pickBeaconSkill(
@@ -1475,8 +1478,16 @@ export default function MathMountainScene({
           <path d="M -3 -8 Q 0 -8 3 -10" stroke="#8A6635" strokeWidth={1} fill="none" strokeLinecap="round" />
         </g>
 
-        {/* ── CLUSTER LABELS — softened italic name-tags ── */}
+        {/* ── CLUSTER LABELS — softened italic name-tags ──
+            Skipped when a STATION already carries the same name. Three
+            of them collided: Cliffside Point, Measurement Meadow and
+            Phonics Path each had a cluster label AND a station pill, so
+            the map said the name twice, a hand's width apart, in two
+            different typefaces. Comparing labels rather than hardcoding
+            the three means the next station named after a cluster does
+            not reintroduce it. */}
         {clusters.map(c => {
+          if (stationLabels.has(c.label)) return null;
           const members = c.structureCodes
             .map(code => structures.find(s => s.code === code))
             .filter((s): s is MapStructure => !!s);
@@ -2110,13 +2121,21 @@ export default function MathMountainScene({
              Tapping a marker → its skills fan out; tap again → close. */}
         {/* SUMMIT TRAIL — dotted switchback stitching the vertical
             journey together: Cliffside Point → High Meadow Waystation →
-            Summit Cairn. Gives the upper landmarks a path to belong
-            to instead of floating in sky. */}
+            Summit Cairn. Gives the upper landmarks a path to belong to
+            instead of floating in sky.
+
+            It used to start at (1262, 372), which is where Cliffside
+            Point stood before it was moved up onto the peak at
+            (1250, 196). Moving the station orphaned the trail's start,
+            so the path began on bare hillside and wandered off — a
+            dotted line to nowhere. Anchored to the stations now, so
+            moving one again is visibly wrong rather than quietly
+            wrong. */}
         <path
-          d="M 1262 372
-             C 1120 360, 980 340, 745 305
-             C 660 280, 640 230, 690 195
-             C 730 168, 750 155, 758 148"
+          d="M 1244 232
+             C 1140 292, 1010 318, 902 318
+             C 866 318, 842 302, 828 282
+             C 800 232, 760 176, 736 150"
           fill="none" stroke="#E8DCC0" strokeWidth={5}
           strokeLinecap="round" strokeDasharray="1 11" opacity={0.85}
           pointerEvents="none"
