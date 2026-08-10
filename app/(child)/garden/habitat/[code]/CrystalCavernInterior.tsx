@@ -539,6 +539,8 @@ export default function CrystalCavernInterior({
           <DisplayCase
             kept={cavern.kept ?? {}}
             open={caseOpen}
+            learnerId={learnerId}
+            onSold={c => setCavern(c as CavernState)}
             onClose={() => setCaseOpen(false)}
           />
         )}

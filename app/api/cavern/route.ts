@@ -6,7 +6,7 @@ import { todayKey } from '@/lib/learning/review';
 import {
   emptyCavern, canDig, rollDig, creatureForDig, sellGem, keepGem,
   resolvePending, recordDig, digsLeftToday, digCooldownMs, cooldownLabel,
-  type CavernState,
+  sellKept, type CavernState,
 } from '@/lib/world/cavern';
 
 /**
@@ -22,7 +22,7 @@ export const revalidate = 0;
 
 const Body = z.object({
   learnerId: z.string().min(1),
-  action: z.enum(['dig', 'keep', 'sell']),
+  action: z.enum(['dig', 'keep', 'sell', 'sell_kept']),
   gemCode: z.string().optional(),
 });
 
@@ -115,6 +115,14 @@ export async function POST(req: Request) {
     // If this stone was one she earned by mastering something, it is
     // now spoken for. Harmless when it came from a dig.
     Object.assign(state, resolvePending(state, body.gemCode));
+  }
+
+  // Selling something already in the case. The stone must actually be
+  // in there — the client cannot conjure coins by naming a gem.
+  if (body.action === 'sell_kept' && body.gemCode) {
+    const out = sellKept(state, body.gemCode);
+    Object.assign(state, out.state);
+    paid = out.paid;
   }
 
   if (body.action === 'keep' && body.gemCode) {

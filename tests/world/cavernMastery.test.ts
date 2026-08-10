@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   emptyCavern, awardMasteryStones, stoneForMastery, resolvePending,
+  sellKept, lastOfItsKind,
 } from '@/lib/world/cavern';
 import { GEM_CATALOG } from '@/lib/world/gemCatalog';
 
@@ -67,5 +68,46 @@ describe('mastery pays a stone', () => {
       const s = { ...emptyCavern(), pending: ['quartz'] };
       expect(resolvePending(s, 'diamond').pending).toEqual(['quartz']);
     });
+  });
+});
+
+describe('selling a stone that is already in the case', () => {
+  // Cecily: "After I put my crystals in the display case I can't sell
+  // them". Keeping used to be a one-way door.
+  it('pays out and removes one from the case', () => {
+    const s = { ...emptyCavern(), coins: 5, kept: { quartz: 2 } };
+    const out = sellKept(s, 'quartz');
+    expect(out.paid).toBe(10);
+    expect(out.state.coins).toBe(15);
+    expect(out.state.kept.quartz).toBe(1);
+  });
+
+  it('clears the slot entirely when the last one goes', () => {
+    const s = { ...emptyCavern(), kept: { quartz: 1 } };
+    const out = sellKept(s, 'quartz');
+    expect(out.state.kept.quartz).toBeUndefined();
+    expect('quartz' in out.state.kept).toBe(false);
+  });
+
+  // The client must not be able to conjure coins by naming a gem.
+  it('pays nothing for a stone she does not have', () => {
+    const s = { ...emptyCavern(), coins: 7, kept: { quartz: 1 } };
+    expect(sellKept(s, 'diamond').paid).toBe(0);
+    expect(sellKept(s, 'diamond').state.coins).toBe(7);
+    expect(sellKept(s, 'not_a_gem').paid).toBe(0);
+  });
+
+  it('never goes negative on a repeated sale', () => {
+    let s = { ...emptyCavern(), kept: { galena: 1 } };
+    s = sellKept(s, 'galena').state;
+    const again = sellKept(s, 'galena');
+    expect(again.paid).toBe(0);
+    expect(again.state.kept.galena).toBeUndefined();
+  });
+
+  it('knows when selling would leave a gap', () => {
+    expect(lastOfItsKind({ ...emptyCavern(), kept: { quartz: 1 } }, 'quartz')).toBe(true);
+    expect(lastOfItsKind({ ...emptyCavern(), kept: { quartz: 2 } }, 'quartz')).toBe(false);
+    expect(lastOfItsKind(emptyCavern(), 'quartz')).toBe(false);
   });
 });

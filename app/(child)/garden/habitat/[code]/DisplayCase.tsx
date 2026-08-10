@@ -36,6 +36,7 @@ import GemSpecimen from '@/components/child/garden/GemSpecimen';
 import {
   GEM_CATALOG, gemsOnShelf, scratchTestFor, type GemData,
 } from '@/lib/world/gemCatalog';
+import { coinsToPrice } from '@/lib/world/cavern';
 
 const SHELVES: Array<{ shelf: 'seam' | 'case'; title: string; blurb: string }> = [
   { shelf: 'seam', title: 'The Seam',
@@ -45,14 +46,34 @@ const SHELVES: Array<{ shelf: 'seam' | 'case'; title: string; blurb: string }> =
 ];
 
 export default function DisplayCase({
-  kept, open, onClose,
+  kept, open, onClose, learnerId, onSold,
 }: {
   /** gem code → how many she has kept. */
   kept: Record<string, number>;
   open: boolean;
   onClose: () => void;
+  learnerId: string;
+  /** Selling from the case pays into the same purse the shop spends. */
+  onSold: (cavern: unknown) => void;
 }) {
   const [selected, setSelected] = useState<GemData | null>(null);
+  const [selling, setSelling] = useState(false);
+  const [confirmGap, setConfirmGap] = useState(false);
+
+  const sell = async (gem: GemData) => {
+    if (selling) return;
+    setSelling(true);
+    try {
+      const res = await fetch('/api/cavern', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ learnerId, action: 'sell_kept', gemCode: gem.code }),
+      });
+      const d = await res.json();
+      if (d.cavern) onSold(d.cavern);
+      setSelected(null);
+      setConfirmGap(false);
+    } finally { setSelling(false); }
+  };
 
   if (!open) return null;
 
@@ -256,9 +277,54 @@ export default function DisplayCase({
                 ))}
               </ul>
 
+              {/* Selling from the case. It used to be a one-way door:
+                  keeping was permanent, so she could be holding four
+                  sellable stones with no way to reach them. */}
+              {(kept[selected.code] ?? 0) > 0 && (
+                confirmGap ? (
+                  <div className="rounded-xl p-3 mt-4"
+                       style={{ background: '#3A2A20', border: '1px solid #7A5A3A' }}>
+                    <p className="text-xs" style={{ color: '#F0DFAE' }}>
+                      This is your only {selected.name}. Sell it and your
+                      case will have a gap where it was.
+                    </p>
+                    <div className="flex gap-2 mt-3">
+                      <button
+                        onClick={() => setConfirmGap(false)}
+                        className="flex-1 rounded-xl font-bold text-sm"
+                        style={{ background: '#3A322A', color: '#E4D3A8', minHeight: 48 }}
+                      >
+                        keep it
+                      </button>
+                      <button
+                        onClick={() => sell(selected)}
+                        disabled={selling}
+                        className="flex-1 rounded-xl font-bold text-sm"
+                        style={{ background: '#C9A227', color: '#2A2420', minHeight: 48 }}
+                      >
+                        {selling ? 'selling…' : 'sell anyway'}
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => {
+                      if ((kept[selected.code] ?? 0) === 1) setConfirmGap(true);
+                      else sell(selected);
+                    }}
+                    disabled={selling}
+                    className="w-full rounded-xl mt-4 font-bold text-sm"
+                    style={{ background: '#8A6534', color: '#FFF3DC', minHeight: 48,
+                             touchAction: 'manipulation' }}
+                  >
+                    {selling ? 'selling…'
+                      : `sell one for ${coinsToPrice(selected.valuePerGram)}`}
+                  </button>
+                )
+              )}
               <button
-                onClick={() => setSelected(null)}
-                className="w-full rounded-xl mt-4 font-bold text-sm"
+                onClick={() => { setSelected(null); setConfirmGap(false); }}
+                className="w-full rounded-xl mt-2 font-bold text-sm"
                 style={{ background: '#C9A227', color: '#2A2420', minHeight: 48,
                          touchAction: 'manipulation' }}
               >

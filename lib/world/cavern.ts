@@ -297,6 +297,43 @@ export function keepGem(state: CavernState, code: string): CavernState {
   return { ...state, kept: { ...state.kept, [code]: (state.kept[code] ?? 0) + 1 } };
 }
 
+/**
+ * Sell a stone that is already in the case.
+ *
+ * Cecily: "After I put my crystals in the display case I can't sell
+ * them can you fix that". She was right, and it was a one-way door —
+ * keeping was permanent, so a child saving for a bench could be
+ * holding four sellable stones she had no way to reach. That is worse
+ * than a missing feature: it punishes her for having chosen to keep
+ * something before a shop existed to spend it in.
+ *
+ * The keep-or-sell choice survives, because it is still a choice — it
+ * just is not final any more. `lastOfItsKind` tells the screen whether
+ * selling leaves a gap in the case, which is the thing actually worth
+ * warning her about.
+ */
+export function sellKept(
+  state: CavernState, code: string,
+): { state: CavernState; paid: number } {
+  const gem = getGem(code);
+  const have = state.kept[code] ?? 0;
+  if (!gem || have <= 0) return { state, paid: 0 };
+
+  const kept = { ...state.kept };
+  if (have === 1) delete kept[code];
+  else kept[code] = have - 1;
+
+  return {
+    state: { ...state, kept, coins: state.coins + gem.valuePerGram },
+    paid: gem.valuePerGram,
+  };
+}
+
+/** Would selling this one empty its slot in the case? */
+export function lastOfItsKind(state: CavernState, code: string): boolean {
+  return (state.kept[code] ?? 0) === 1;
+}
+
 /** How much of the display case is filled — one of each is the goal. */
 export function caseProgress(state: CavernState): { have: number; total: number } {
   return {
