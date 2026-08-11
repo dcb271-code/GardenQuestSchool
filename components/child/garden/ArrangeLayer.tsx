@@ -25,7 +25,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import ShopItemArt from './ShopItemArt';
 import { playSparkle } from '@/lib/audio/sfx';
 import {
-  getShopItem, codeOf, snapToGrid, canPlaceAt, unplaced,
+  getShopItem, codeOf, snapToGrid, canPlaceAt, unplaced, isGreatWork,
+  nearestLandmark, LANDMARKS,
   type Box, type ShopState,
 } from '@/lib/world/shopCatalog';
 
@@ -50,8 +51,11 @@ export function useArrange({
     const item = getShopItem(codeOf(holding));
     if (!item) return;
 
-    const x = snapToGrid(worldX);
-    const y = snapToGrid(worldY);
+    // A monument snaps to its landmark, not to the grid — the whole
+    // point of reserved ground is that it lands exactly on it.
+    const near = isGreatWork(item) ? nearestLandmark(worldX, worldY) : null;
+    const x = near ? near.x : snapToGrid(worldX);
+    const y = near ? near.y : snapToGrid(worldY);
     const others: Box[] = Object.entries(shop.placed)
       .filter(([id]) => id !== holding)
       .map(([id, p]) => {
@@ -61,7 +65,9 @@ export function useArrange({
 
     if (!canPlaceAt(item, x, y, [...obstacles, ...others], { w: mapW, h: mapH })) {
       // Say WHY. A bench that silently refuses to land reads as broken.
-      setRefused('Not there — something is already growing or standing on that spot.');
+      setRefused(isGreatWork(item)
+        ? 'Not there. Something this big needs one of the marked places.'
+        : 'Not there — something is already growing or standing on that spot.');
       setTimeout(() => setRefused(null), 2200);
       return;
     }
@@ -87,7 +93,10 @@ export function useArrange({
     });
   };
 
-  return { holding, refused, shed, placeAt, pickUp, setHolding, onDone };
+  const holdingItem = holding ? getShopItem(codeOf(holding)) : null;
+  const showLandmarks = !!holdingItem && isGreatWork(holdingItem);
+
+  return { holding, refused, shed, placeAt, pickUp, setHolding, onDone, showLandmarks };
 }
 
 /* ─── the tray along the bottom ───────────────────────────────────── */
@@ -168,6 +177,30 @@ export function ArrangeTray({
         </div>
       </div>
     </div>
+  );
+}
+
+/** The reserved ground, shown only while a monument is in her hands. */
+export function LandmarkSpots({ visible }: { visible: boolean }) {
+  if (!visible) return null;
+  return (
+    <>
+      {LANDMARKS.map(l => (
+        <g key={l.code} pointerEvents="none">
+          <motion.circle
+            cx={l.x} cy={l.y} r={54}
+            fill="rgba(255,243,220,0.10)" stroke="#FFF3DC" strokeWidth={3}
+            strokeDasharray="9 8"
+            animate={{ opacity: [0.5, 0.95, 0.5] }}
+            transition={{ duration: 2.6, repeat: Infinity, ease: 'easeInOut' }}
+          />
+          <rect x={l.x - 56} y={l.y + 60} width={112} height={19} rx={9}
+                fill="rgba(42,29,18,0.9)" />
+          <text x={l.x} y={l.y + 73} textAnchor="middle" fontSize={10}
+                fontWeight={700} fill="#F0DCBC">{l.note}</text>
+        </g>
+      ))}
+    </>
   );
 }
 

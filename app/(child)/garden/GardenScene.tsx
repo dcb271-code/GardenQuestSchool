@@ -14,7 +14,7 @@ import ArrivalCard from '@/components/child/garden/ArrivalCard';
 import LunaWanderer from '@/components/child/garden/LunaWanderer';
 import LunaVisitModal from '@/components/child/garden/LunaVisitModal';
 import {
-  useArrange, ArrangeTray, PlacedItems,
+  useArrange, ArrangeTray, PlacedItems, LandmarkSpots,
 } from '@/components/child/garden/ArrangeLayer';
 import { emptyShop, type ShopState } from '@/lib/world/shopCatalog';
 import AmbientLayer from '@/components/child/garden/AmbientLayer';
@@ -1839,6 +1839,7 @@ export default function GardenScene({
               }}
             />
           )}
+          <LandmarkSpots visible={arranging && arrange.showLandmarks} />
           <PlacedItems shop={shop} arranging={arranging} onPickUp={arrange.pickUp} />
         </svg>
 

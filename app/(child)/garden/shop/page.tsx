@@ -27,5 +27,8 @@ export default async function ShopPage({
   const shop: ShopState = { ...emptyShop(), ...((garden.shop as ShopState) ?? {}) };
   const cavern: CavernState = { ...emptyCavern(), ...((garden.cavern as CavernState) ?? {}) };
 
-  return <ShopScene learnerId={learnerId} coins={cavern.coins} shop={shop} />;
+  return (
+    <ShopScene learnerId={learnerId} coins={cavern.coins}
+               shop={shop} kept={cavern.kept} />
+  );
 }

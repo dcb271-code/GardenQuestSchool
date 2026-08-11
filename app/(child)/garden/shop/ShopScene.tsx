@@ -25,17 +25,23 @@ import ShopItemArt from '@/components/child/garden/ShopItemArt';
 import { playHarvest } from '@/lib/audio/sfx';
 import { coinsToPrice } from '@/lib/world/cavern';
 import {
-  SHOP_ITEMS, canAfford, unplaced, type ShopItem, type ShopState,
+  SHOP_ITEMS, GREAT_WORKS, canAfford, canTradeFor, unplaced,
+  type ShopItem, type ShopState,
 } from '@/lib/world/shopCatalog';
+import { getGem } from '@/lib/world/gemCatalog';
+import GemSpecimen from '@/components/child/garden/GemSpecimen';
 
 export default function ShopScene({
-  learnerId, coins: initialCoins, shop: initialShop,
+  learnerId, coins: initialCoins, shop: initialShop, kept: initialKept = {},
 }: {
   learnerId: string;
   coins: number;
   shop: ShopState;
+  /** What is in her display case — the Great Works are paid in stones. */
+  kept?: Record<string, number>;
 }) {
   const [coins, setCoins] = useState(initialCoins);
+  const [kept, setKept] = useState<Record<string, number>>(initialKept);
   const [shop, setShop] = useState<ShopState>(initialShop);
   const [busy, setBusy] = useState<string | null>(null);
   const [bought, setBought] = useState<ShopItem | null>(null);
@@ -54,6 +60,7 @@ export default function ShopScene({
       if (d.error) { setMessage(d.error); return; }
       setCoins(d.coins);
       setShop(d.shop);
+      if (d.kept) setKept(d.kept);
       setBought(item);
       playHarvest();
     } finally { setBusy(null); }
@@ -203,6 +210,69 @@ export default function ShopScene({
               </div>
             );
           })}
+        </div>
+
+        {/* ── THE GREAT WORKS ─────────────────────────────────────
+            Traded, not bought. Money cannot price these: a diamond is
+            500,000 pennies and the whole Yard costs 590. Handing over
+            the stone keeps every catalog number honest and makes the
+            decision the real one — the ruby or the observatory. */}
+        <div className="px-3 mt-6">
+          <h2 className="text-sm font-bold uppercase tracking-widest"
+              style={{ color: '#C9A227' }}>
+            The Great Works
+          </h2>
+          <p className="text-[11px] italic mb-2" style={{ color: '#8A7A5E' }}>
+            Not for sale. Each one is traded for a single stone out of
+            your case.
+          </p>
+
+          <div className="space-y-3">
+            {GREAT_WORKS.map(item => {
+              const gem = getGem(item.tradeFor!);
+              const has = canTradeFor(item, kept);
+              const owned = shop.owned.filter(c => c === item.code).length;
+              return (
+                <div key={item.code} className="rounded-2xl p-3 flex gap-3 items-center"
+                     style={{ background: has ? '#F6EEDF' : '#EFE7D8',
+                              border: `1px solid ${has ? '#C9A227' : '#D8CEBA'}`,
+                              opacity: owned > 0 ? 0.75 : 1 }}>
+                  <div className="shrink-0 rounded-xl" style={{ background: '#E4DCC8', padding: 4 }}>
+                    <ShopItemArt code={item.code} size={72} />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-baseline gap-2">
+                      <h3 className="font-bold text-sm" style={{ color: '#3f2614' }}>{item.name}</h3>
+                      {owned > 0 && (
+                        <span className="text-[10px] rounded-full px-1.5"
+                              style={{ background: '#5A8C4A', color: '#FFF' }}>built</span>
+                      )}
+                    </div>
+                    <p className="text-[11px] leading-snug mt-0.5" style={{ color: '#6B5C42' }}>
+                      {item.blurb}
+                    </p>
+                    <div className="flex items-center gap-1.5 mt-1">
+                      {gem && <GemSpecimen gem={gem} size={22} ghost={!has} />}
+                      <span className="text-[10px] italic"
+                            style={{ color: has ? '#5A8C4A' : '#8A7A5E' }}>
+                        {has ? `you have a ${gem?.name.toLowerCase()}` : `needs a ${gem?.name.toLowerCase()}`}
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => buy(item)}
+                    disabled={!has || busy === item.code || owned > 0}
+                    className="rounded-xl px-3 font-bold text-xs shrink-0 disabled:opacity-45"
+                    style={{ background: has && !owned ? '#C9A227' : '#D8CEBA',
+                             color: '#2A2420', minHeight: 52, minWidth: 74,
+                             touchAction: 'manipulation' }}
+                  >
+                    {busy === item.code ? '…' : owned > 0 ? 'built' : 'trade'}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
         </div>
 
         <p className="text-[11px] text-center mt-4 px-6" style={{ color: '#9A8C76' }}>

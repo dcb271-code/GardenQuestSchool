@@ -1,5 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { GREAT_WORKS, getShopItem, canTradeFor, itemsOnShelf } from '@/lib/world/shopCatalog';
+import {
+  GREAT_WORKS, getShopItem, canTradeFor, itemsOnShelf,
+  LANDMARKS, nearestLandmark, isGreatWork, canPlaceAt,
+} from '@/lib/world/shopCatalog';
 import { emptyCavern, spendKeptGem, sellGem, sellKept, isSellableForCoins } from '@/lib/world/cavern';
 import { getGem } from '@/lib/world/gemCatalog';
 
@@ -60,5 +63,41 @@ describe('case gems have no cash price', () => {
   it('puts four monuments on the great_work shelf', () => {
     expect(itemsOnShelf('great_work')).toHaveLength(4);
     expect(itemsOnShelf('yard')).toHaveLength(6);
+  });
+});
+
+describe('a monument only stands on reserved ground', () => {
+  const obs = getShopItem('observatory')!;
+  const bench = getShopItem('bench')!;
+  const bounds = { w: 1200, h: 800 };
+  const spot = LANDMARKS[0];
+
+  it('accepts a tap on a landmark', () => {
+    expect(canPlaceAt(obs, spot.x, spot.y, [], bounds)).toBe(true);
+  });
+
+  it('refuses open ground, however empty', () => {
+    expect(canPlaceAt(obs, 120, 120, [], bounds)).toBe(false);
+  });
+
+  it('snaps from a near miss onto the landmark itself', () => {
+    const near = nearestLandmark(spot.x + 40, spot.y - 30);
+    expect(near?.code).toBe(spot.code);
+    expect(nearestLandmark(40, 40)).toBeNull();
+  });
+
+  // A bench is not a monument and must not be restricted.
+  it('leaves ordinary ornaments free to go anywhere', () => {
+    expect(canPlaceAt(bench, 120, 120, [], bounds)).toBe(true);
+    expect(isGreatWork(bench)).toBe(false);
+    expect(isGreatWork(obs)).toBe(true);
+  });
+
+  it('gives every landmark a distinct spot and a name', () => {
+    const codes = LANDMARKS.map(l => l.code);
+    expect(new Set(codes).size).toBe(codes.length);
+    for (const l of LANDMARKS) expect(l.note.length).toBeGreaterThan(3);
+    // enough places for every monument
+    expect(LANDMARKS.length).toBeGreaterThanOrEqual(GREAT_WORKS.length);
   });
 });

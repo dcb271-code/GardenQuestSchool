@@ -169,6 +169,43 @@ export function canAfford(coins: number, item: ShopItem): boolean {
   return coins >= item.price;
 }
 
+/* ─── where a monument may stand ──────────────────────────────────── */
+
+/**
+ * Reserved ground for the Great Works.
+ *
+ * An observatory is nearly the size of a habitat, and the garden map
+ * already holds beds, habitats and paths. Free placement is right for a
+ * bench and wrong for a tower: a monument wedged behind the ant hill is
+ * not a landmark. So there are four chosen places, each picked to suit
+ * what stands on it, and she decides WHICH — not anywhere.
+ */
+export interface Landmark { code: string; x: number; y: number; note: string }
+
+export const LANDMARKS: Landmark[] = [
+  { code: 'wet_corner', x: 700, y: 620, note: 'the wet corner' },
+  { code: 'open_rise',  x: 980, y: 300, note: 'the open rise' },
+  { code: 'by_the_beds', x: 470, y: 250, note: 'beside the beds' },
+  { code: 'near_the_path', x: 840, y: 470, note: 'near the path' },
+];
+
+/** How close a tap must be to count as landing on a landmark. */
+export const LANDMARK_RADIUS = 110;
+
+export function nearestLandmark(x: number, y: number): Landmark | null {
+  let best: Landmark | null = null;
+  let bestD = Infinity;
+  for (const l of LANDMARKS) {
+    const d = Math.hypot(l.x - x, l.y - y);
+    if (d < bestD) { bestD = d; best = l; }
+  }
+  return bestD <= LANDMARK_RADIUS ? best : null;
+}
+
+export function isGreatWork(item: ShopItem): boolean {
+  return item.shelf === 'great_work';
+}
+
 /* ─── placement rules ─────────────────────────────────────────────── */
 
 /**
@@ -208,6 +245,8 @@ export function canPlaceAt(
   obstacles: Box[],
   bounds: { w: number; h: number },
 ): boolean {
+  // A Great Work only stands on reserved ground.
+  if (isGreatWork(item) && !nearestLandmark(x, y)) return false;
   const half = { w: item.w / 2, h: item.h / 2 };
   if (x - half.w < 0 || x + half.w > bounds.w) return false;
   if (y - half.h < 0 || y + half.h > bounds.h) return false;
