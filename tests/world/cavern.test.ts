@@ -72,15 +72,22 @@ describe('the creatures in the dark', () => {
 });
 
 describe('keep or sell — the choice is the feature', () => {
+  /**
+   * A stone she was actually handed. Both paths now refuse anything the
+   * server did not give her, so every case here has to start from a
+   * real find — which is the point of the guard.
+   */
+  const holding = (code: string) => ({ ...emptyCavern(), currentFind: code });
+
   it('selling pays the stone\'s worth and adds no stone to the case', () => {
-    const { state, paid } = sellGem(emptyCavern(), 'kentucky_agate');
+    const { state, paid } = sellGem(holding('kentucky_agate'), 'kentucky_agate');
     expect(paid).toBe(getGem('kentucky_agate')!.valuePerGram);
     expect(state.coins).toBe(paid);
     expect(Object.keys(state.kept)).toHaveLength(0);
   });
 
   it('keeping fills the case and pays nothing — that IS the trade-off', () => {
-    const state = keepGem(emptyCavern(), 'fluorite');
+    const state = keepGem(holding('fluorite'), 'fluorite');
     expect(state.coins).toBe(0);
     expect(state.kept.fluorite).toBe(1);
   });
@@ -89,20 +96,35 @@ describe('keep or sell — the choice is the feature', () => {
     const start = emptyCavern();
     expect(sellGem(start, 'moon_cheese').paid).toBe(0);
     expect(keepGem(start, 'moon_cheese')).toEqual(start);
+    // and a real stone she was never handed is refused just as firmly
+    expect(sellGem(start, 'diamond').paid).toBe(0);
   });
 
+  // The order of worth is still the lesson, but it is no longer told
+  // through the till: a case gem has no cash price at all now, because
+  // 500,000 pennies against a 590-penny shop breaks either the economy
+  // or the honesty of the number. The catalog still says what a ruby is
+  // worth, and the shop trades one whole for a monument.
   it('a ruby is worth far more than a day of agate — the order is the lesson', () => {
-    expect(sellGem(emptyCavern(), 'ruby').paid)
-      .toBeGreaterThan(sellGem(emptyCavern(), 'kentucky_agate').paid * 100);
+    expect(getGem('ruby')!.valuePerGram)
+      .toBeGreaterThan(getGem('kentucky_agate')!.valuePerGram * 100);
+  });
+
+  it('but a ruby cannot be cashed — it is traded, not sold', () => {
+    expect(sellGem(holding('ruby'), 'ruby').paid).toBe(0);
+    expect(sellGem(holding('kentucky_agate'), 'kentucky_agate').paid).toBe(40);
   });
 });
 
 describe('the display case', () => {
   it('counts species of stone, not piles of it', () => {
-    let s = keepGem(emptyCavern(), 'geode');
-    s = keepGem(s, 'geode');
+    // Each keep needs its own find, because one dig is one stone.
+    const dig = (st: ReturnType<typeof emptyCavern>, code: string) =>
+      keepGem({ ...st, currentFind: code }, code);
+    let s = dig(emptyCavern(), 'geode');
+    s = dig(s, 'geode');
     expect(caseProgress(s).have).toBe(1);
-    s = keepGem(s, 'coal');
+    s = dig(s, 'coal');
     expect(caseProgress(s).have).toBe(2);
     expect(caseProgress(s).total).toBe(GEM_CATALOG.length);
   });

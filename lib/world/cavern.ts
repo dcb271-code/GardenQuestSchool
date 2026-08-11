@@ -263,6 +263,17 @@ export function awardMasteryStones(
   };
 }
 
+/** Hand over a case gem for a Great Work. Returns null if she has none. */
+export function spendKeptGem(
+  state: CavernState, code: string,
+): CavernState | null {
+  const have = state.kept[code] ?? 0;
+  if (have <= 0) return null;
+  const kept = { ...state.kept };
+  if (have === 1) delete kept[code]; else kept[code] = have - 1;
+  return { ...state, kept };
+}
+
 /** Take one pending stone off the front, once she has chosen. */
 export function resolvePending(state: CavernState, gemCode: string): CavernState {
   const i = (state.pending ?? []).indexOf(gemCode);
@@ -299,11 +310,27 @@ export function creatureForDig(
  * stone just dug, or one of the mastery stones waiting in `pending`.
  * Clears it either way, so the same find cannot be sold twice.
  */
+/**
+ * Case gems have no cash price.
+ *
+ * They are traded whole for a Great Work in the shop instead. A diamond
+ * is 500,000 pennies against a Yard that costs 590 in total, so any
+ * cash sale of one either ends the economy on the spot or requires a
+ * pretend price that makes the catalog a lie. Bartering the stone keeps
+ * both true.
+ */
+export function isSellableForCoins(code: string): boolean {
+  return getGem(code)?.shelf === 'seam';
+}
+
 export function sellGem(
   state: CavernState, code: string,
 ): { state: CavernState; paid: number } {
   const gem = getGem(code);
   if (!gem || !holdsFind(state, code)) return { state, paid: 0 };
+  // A case gem cannot be cashed — it goes in the case and buys a
+  // monument later, or nothing.
+  if (gem.shelf !== 'seam') return { state, paid: 0 };
   return {
     state: { ...clearFind(state, code), coins: state.coins + gem.valuePerGram },
     paid: gem.valuePerGram,
@@ -357,6 +384,7 @@ export function sellKept(
   const gem = getGem(code);
   const have = state.kept[code] ?? 0;
   if (!gem || have <= 0) return { state, paid: 0 };
+  if (gem.shelf !== 'seam') return { state, paid: 0 };
 
   const kept = { ...state.kept };
   if (have === 1) delete kept[code];

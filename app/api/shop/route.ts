@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { createServiceClient } from '@/lib/supabase/server';
 import { getShopItem, emptyShop, instanceIds, codeOf, snapToGrid,
          type ShopState } from '@/lib/world/shopCatalog';
-import { emptyCavern, type CavernState } from '@/lib/world/cavern';
+import { emptyCavern, spendKeptGem, type CavernState } from '@/lib/world/cavern';
 
 /**
  * Buying, placing and putting back.
@@ -42,6 +42,29 @@ export async function POST(req: Request) {
   if (body.action === 'buy') {
     const item = body.itemCode ? getShopItem(body.itemCode) : undefined;
     if (!item) return NextResponse.json({ error: 'no such item' }, { status: 400 });
+
+    // A Great Work is bartered: the stone leaves the case and the
+    // monument arrives. Checked here, because the client knowing the
+    // catalog is not the same as the child owning the ruby.
+    if (item.tradeFor) {
+      const after = spendKeptGem(cavern, item.tradeFor);
+      if (!after) {
+        return NextResponse.json({
+          error: `That is traded for a ${item.tradeFor.replace(/_/g, ' ')}, and you do not have one.`,
+        }, { status: 400 });
+      }
+      Object.assign(cavern, after);
+      shop.owned = [...shop.owned, item.code];
+      garden.shop = shop;
+      garden.cavern = { ...(garden.cavern as object ?? {}), kept: cavern.kept };
+      const { error: e } = await db.from('world_state').upsert(
+        { learner_id: body.learnerId, garden, last_updated_at: new Date().toISOString() },
+        { onConflict: 'learner_id' },
+      );
+      if (e) return NextResponse.json({ error: e.message }, { status: 500 });
+      return NextResponse.json({ shop, coins: cavern.coins, kept: cavern.kept });
+    }
+
     if (cavern.coins < item.price) {
       return NextResponse.json({
         error: `That costs ${item.price}c and you have ${cavern.coins}c.`,

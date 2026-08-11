@@ -17,14 +17,30 @@
 // See docs/superpowers/specs/2026-08-09-shop-spec.md. The Great Works —
 // the case-gem tier — are phase two and deliberately not here yet.
 
-export type ShopShelf = 'yard';
+export type ShopShelf = 'yard' | 'great_work';
 
 export interface ShopItem {
   code: string;
   name: string;
-  /** Pennies, the same purse the cavern fills. */
+  /**
+   * Pennies, the same purse the cavern fills. Zero for a Great Work —
+   * those are not bought with money at all.
+   */
   price: number;
   shelf: ShopShelf;
+  /**
+   * A Great Work is BARTERED, not bought: she hands over this stone
+   * and gets the thing.
+   *
+   * Money could not do this job. A diamond is 500,000 pennies and the
+   * whole Yard costs 590, so any single price is either unreachable or
+   * ends the economy the moment it is paid — and pricing the monument
+   * at 500,000 just moves the absurdity around. Trading the stone
+   * itself keeps the catalog values true, keeps "this stone buys that
+   * thing" legible, and makes the decision the interesting one: the
+   * ruby OR the observatory, never both.
+   */
+  tradeFor?: string;
   /** What it is, in her language. Shown under the name. */
   blurb: string;
   /** Roughly what it costs in stones, so the price means something. */
@@ -67,12 +83,49 @@ export const SHOP_ITEMS: ShopItem[] = [
   },
 ];
 
+export const GREAT_WORKS: ShopItem[] = [
+  {
+    code: 'stone_bridge', name: 'Little Stone Bridge', price: 0, shelf: 'great_work',
+    tradeFor: 'garnet',
+    blurb: 'A humped stone bridge over the wet corner, wide enough for one person.',
+    worth: 'trade one garnet', w: 130, h: 62,
+  },
+  {
+    code: 'glasshouse', name: 'Glasshouse', price: 0, shelf: 'great_work',
+    tradeFor: 'sapphire',
+    blurb: 'A little house made of windows, warm enough to start seeds while it is still frozen outside.',
+    worth: 'trade one sapphire', w: 132, h: 116,
+  },
+  {
+    code: 'observatory', name: 'Observatory', price: 0, shelf: 'great_work',
+    tradeFor: 'ruby',
+    blurb: 'A round tower with a roof that opens, and a telescope pointed at the sky you already know the names of.',
+    worth: 'trade one ruby', w: 118, h: 146,
+  },
+  {
+    code: 'stone_well', name: 'Stone Well', price: 0, shelf: 'great_work',
+    tradeFor: 'diamond',
+    blurb: 'A deep well with a bucket on a rope, and a roof to keep the rain out of the water.',
+    worth: 'trade one diamond', w: 112, h: 124,
+  },
+];
+
+/** Everything on both shelves. */
+export const ALL_SHOP_ITEMS: ShopItem[] = [...SHOP_ITEMS, ...GREAT_WORKS];
+
 export function getShopItem(code: string): ShopItem | undefined {
-  return SHOP_ITEMS.find(i => i.code === code);
+  return ALL_SHOP_ITEMS.find(i => i.code === code);
 }
 
 export function itemsOnShelf(shelf: ShopShelf): ShopItem[] {
-  return SHOP_ITEMS.filter(i => i.shelf === shelf);
+  return ALL_SHOP_ITEMS.filter(i => i.shelf === shelf);
+}
+
+/** Does she hold the stone this Great Work asks for? */
+export function canTradeFor(
+  item: ShopItem, kept: Record<string, number>,
+): boolean {
+  return !!item.tradeFor && (kept[item.tradeFor] ?? 0) > 0;
 }
 
 /* ─── what she owns and where she has put it ──────────────────────── */
