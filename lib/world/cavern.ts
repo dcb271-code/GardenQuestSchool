@@ -61,6 +61,18 @@ export interface CavernState {
   digsToday?: number;
   /** ISO timestamp of the most recent dig, for the spacing rule. */
   lastDigAt?: string;
+  /**
+   * The stone currently in her hand, waiting on keep-or-sell.
+   *
+   * THE SERVER HAS TO REMEMBER WHAT SHE DUG. Without this the keep and
+   * sell endpoints took a gem code straight from the request body and
+   * believed it: `sellGem` paid out `valuePerGram` for any name, with
+   * no check that she had ever found one. A repeated tap, a network
+   * retry, or anything replaying that request minted money — which is
+   * how a balance of 499,926 coins appeared out of a shop whose entire
+   * stock costs 590.
+   */
+  currentFind?: string;
   /** Derived for the client; never trusted from it. */
   canDigToday: boolean;
   /** Also derived. Lets the screen say how many are left. */
@@ -280,21 +292,48 @@ export function creatureForDig(
 }
 
 /** Sell a stone. Returns the new state and what she was paid. */
+/**
+ * Sell the stone she is holding.
+ *
+ * Refuses unless `code` is genuinely what the server handed her — the
+ * stone just dug, or one of the mastery stones waiting in `pending`.
+ * Clears it either way, so the same find cannot be sold twice.
+ */
 export function sellGem(
   state: CavernState, code: string,
 ): { state: CavernState; paid: number } {
   const gem = getGem(code);
-  if (!gem) return { state, paid: 0 };
+  if (!gem || !holdsFind(state, code)) return { state, paid: 0 };
   return {
-    state: { ...state, coins: state.coins + gem.valuePerGram },
+    state: { ...clearFind(state, code), coins: state.coins + gem.valuePerGram },
     paid: gem.valuePerGram,
   };
 }
 
-/** Keep a stone. It fills the case and pays nothing — that is the point. */
+/** Is this actually the stone the server gave her? */
+export function holdsFind(state: CavernState, code: string): boolean {
+  return state.currentFind === code || (state.pending ?? []).includes(code);
+}
+
+/** Consume it, so one find cannot be banked twice. */
+export function clearFind(state: CavernState, code: string): CavernState {
+  if (state.currentFind === code) return { ...state, currentFind: undefined };
+  return resolvePending(state, code);
+}
+
+/**
+ * Keep a stone. It fills the case and pays nothing — that is the point.
+ *
+ * Same ownership guard as selling: she can only keep what she was
+ * actually handed. Two of the diamonds in her case arrived through the
+ * unguarded version of this.
+ */
 export function keepGem(state: CavernState, code: string): CavernState {
-  if (!getGem(code)) return state;
-  return { ...state, kept: { ...state.kept, [code]: (state.kept[code] ?? 0) + 1 } };
+  if (!getGem(code) || !holdsFind(state, code)) return state;
+  return {
+    ...clearFind(state, code),
+    kept: { ...state.kept, [code]: (state.kept[code] ?? 0) + 1 },
+  };
 }
 
 /**

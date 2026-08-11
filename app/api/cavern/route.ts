@@ -105,6 +105,9 @@ export async function POST(req: Request) {
       }
     } else {
       gemCode = rollDig(Math.random()).code;
+      // Remember it. keep/sell check against this rather than trusting
+      // whatever the client names.
+      state.currentFind = gemCode;
     }
   }
 
@@ -140,6 +143,7 @@ export async function POST(req: Request) {
     digDate: state.digDate,
     digsToday: state.digsToday,
     lastDigAt: state.lastDigAt,
+    currentFind: state.currentFind,
   };
 
   const { error } = await db.from('world_state').upsert(
