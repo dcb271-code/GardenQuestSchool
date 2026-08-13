@@ -6,8 +6,9 @@ import { todayKey } from '@/lib/learning/review';
 import {
   emptyCavern, canDig, rollDig, creatureForDig, sellGem, keepGem,
   resolvePending, recordDig, digsLeftToday, digCooldownMs, cooldownLabel,
-  sellKept, type CavernState,
+  sellKept, holdsFind, isSellableForCoins, type CavernState,
 } from '@/lib/world/cavern';
+import { getGem } from '@/lib/world/gemCatalog';
 
 /**
  * Crystal Cavern: digging, keeping, selling.
@@ -112,6 +113,29 @@ export async function POST(req: Request) {
   }
 
   if (body.action === 'sell' && body.gemCode) {
+    // A refusal must SAY so. sellGem returning { paid: 0 } as a 200
+    // used to reach the screen as "Sold the Garnet for 0" with a happy
+    // chime, and the stone was gone from her view — not sold, not in
+    // the case. She wrote a letter asking what was going on.
+    const gem = getGem(body.gemCode);
+    if (!gem || !holdsFind(state, body.gemCode)) {
+      return NextResponse.json({
+        error: 'That stone is not in your hand, so nothing was sold.',
+        cavern: {
+          ...state, canDigToday: canDig(state, today),
+          digsLeftToday: digsLeftToday(state, today),
+        },
+      });
+    }
+    if (!isSellableForCoins(body.gemCode)) {
+      return NextResponse.json({
+        error: `A ${gem.name.toLowerCase()} has no coin price. It goes in the case — and one day it can be traded for a Great Work.`,
+        cavern: {
+          ...state, canDigToday: canDig(state, today),
+          digsLeftToday: digsLeftToday(state, today),
+        },
+      });
+    }
     const out = sellGem(state, body.gemCode);
     Object.assign(state, out.state);
     paid = out.paid;
@@ -124,6 +148,18 @@ export async function POST(req: Request) {
   // in there — the client cannot conjure coins by naming a gem.
   if (body.action === 'sell_kept' && body.gemCode) {
     const out = sellKept(state, body.gemCode);
+    if (out.paid === 0) {
+      const gem = getGem(body.gemCode);
+      return NextResponse.json({
+        error: gem && (state.kept[body.gemCode] ?? 0) > 0
+          ? `A ${gem.name.toLowerCase()} has no coin price. It stays in the case — and one day it can be traded for a Great Work.`
+          : 'That stone is not in your case, so nothing was sold.',
+        cavern: {
+          ...state, canDigToday: canDig(state, today),
+          digsLeftToday: digsLeftToday(state, today),
+        },
+      });
+    }
     Object.assign(state, out.state);
     paid = out.paid;
   }

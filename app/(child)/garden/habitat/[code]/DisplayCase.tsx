@@ -36,7 +36,7 @@ import GemSpecimen from '@/components/child/garden/GemSpecimen';
 import {
   GEM_CATALOG, gemsOnShelf, scratchTestFor, type GemData,
 } from '@/lib/world/gemCatalog';
-import { coinsToPrice } from '@/lib/world/cavern';
+import { coinsToPrice, isSellableForCoins } from '@/lib/world/cavern';
 
 const SHELVES: Array<{ shelf: 'seam' | 'case'; title: string; blurb: string }> = [
   { shelf: 'seam', title: 'The Seam',
@@ -59,6 +59,7 @@ export default function DisplayCase({
   const [selected, setSelected] = useState<GemData | null>(null);
   const [selling, setSelling] = useState(false);
   const [confirmGap, setConfirmGap] = useState(false);
+  const [note, setNote] = useState<string | null>(null);
 
   const sell = async (gem: GemData) => {
     if (selling) return;
@@ -70,6 +71,9 @@ export default function DisplayCase({
       });
       const d = await res.json();
       if (d.cavern) onSold(d.cavern);
+      // A refused sale must not close the drawer as if it worked —
+      // the stone stays where it is and she gets told why.
+      if (d.error) { setNote(d.error); setConfirmGap(false); return; }
       setSelected(null);
       setConfirmGap(false);
     } finally { setSelling(false); }
@@ -147,7 +151,7 @@ export default function DisplayCase({
                   return (
                     <button
                       key={gem.code}
-                      onClick={() => found && setSelected(gem)}
+                      onClick={() => { if (found) { setSelected(gem); setNote(null); } }}
                       disabled={!found}
                       className="relative rounded-lg flex flex-col items-center justify-start pt-2 pb-1.5 px-1"
                       style={{
@@ -280,7 +284,17 @@ export default function DisplayCase({
               {/* Selling from the case. It used to be a one-way door:
                   keeping was permanent, so she could be holding four
                   sellable stones with no way to reach them. */}
-              {(kept[selected.code] ?? 0) > 0 && (
+              {(kept[selected.code] ?? 0) > 0 && !isSellableForCoins(selected.code) && (
+                /* A case gem has no coin price — offering "sell one
+                   for 500,000" and paying nothing is the bug she wrote
+                   a letter about. Say what it is actually for. */
+                <p className="text-xs italic mt-4 text-center"
+                   style={{ color: '#C9BCA4' }}>
+                  Too precious for coins. It can be traded for a Great
+                  Work at the shop.
+                </p>
+              )}
+              {(kept[selected.code] ?? 0) > 0 && isSellableForCoins(selected.code) && (
                 confirmGap ? (
                   <div className="rounded-xl p-3 mt-4"
                        style={{ background: '#3A2A20', border: '1px solid #7A5A3A' }}>
@@ -322,8 +336,12 @@ export default function DisplayCase({
                   </button>
                 )
               )}
+              {note && (
+                <p className="text-xs mt-3 rounded-lg p-2"
+                   style={{ background: '#3A2A20', color: '#F0DFAE' }}>{note}</p>
+              )}
               <button
-                onClick={() => { setSelected(null); setConfirmGap(false); }}
+                onClick={() => { setSelected(null); setConfirmGap(false); setNote(null); }}
                 className="w-full rounded-xl mt-2 font-bold text-sm"
                 style={{ background: '#C9A227', color: '#2A2420', minHeight: 48,
                          touchAction: 'manipulation' }}

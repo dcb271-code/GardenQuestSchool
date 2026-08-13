@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
-  emptyCavern, sellGem, keepGem, holdsFind, awardMasteryStones,
+  emptyCavern, sellGem, keepGem, holdsFind, awardMasteryStones, sellKept,
 } from '@/lib/world/cavern';
 
 /**
@@ -56,5 +56,39 @@ describe('you can only bank a stone you were actually given', () => {
   it('refuses anything not in hand and not pending', () => {
     expect(holdsFind(emptyCavern(), 'diamond')).toBe(false);
     expect(sellGem(emptyCavern(), 'diamond').paid).toBe(0);
+  });
+})
+
+/**
+ * The hole THIS closes: a dug case gem showed a "sell it — 300p"
+ * button, the server refused to cash it with a silent { paid: 0 },
+ * and the screen said "Sold the Garnet for 0" with a happy chime while
+ * the stone vanished from view. She wrote a letter: "when I get some
+ * thing I don't pay can you tell me what is going on?"
+ */
+describe('a refused sale must not eat the stone', () => {
+  it('a case gem cannot be cashed, and stays in her hand', () => {
+    const holding = { ...emptyCavern(), currentFind: 'garnet' };
+    const out = sellGem(holding, 'garnet');
+    expect(out.paid).toBe(0);
+    expect(out.state.currentFind).toBe('garnet');
+    expect(holdsFind(out.state, 'garnet')).toBe(true);
+  });
+
+  it('a case gem in the case cannot be cashed either, and stays put', () => {
+    const cased = { ...emptyCavern(), kept: { diamond: 1 } };
+    const out = sellKept(cased, 'diamond');
+    expect(out.paid).toBe(0);
+    expect(out.state.kept.diamond).toBe(1);
+  });
+
+  it('a refused sell leaves the stone re-presentable, not lost', () => {
+    // The interior re-presents cavern.currentFind on load; a refusal
+    // must therefore never clear it.
+    const holding = { ...emptyCavern(), currentFind: 'ruby' };
+    const afterRefusal = sellGem(holding, 'ruby').state;
+    expect(afterRefusal.currentFind).toBe('ruby');
+    // ...and keeping it afterward still works.
+    expect(keepGem(afterRefusal, 'ruby').kept.ruby).toBe(1);
   });
 })

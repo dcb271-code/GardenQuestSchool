@@ -30,7 +30,7 @@ import { playSparkle, playHarvest } from '@/lib/audio/sfx';
 import {
   getGem, gemsOnShelf, scratchTestFor, type GemData,
 } from '@/lib/world/gemCatalog';
-import { coinsToPrice, type CavernState } from '@/lib/world/cavern';
+import { coinsToPrice, isSellableForCoins, type CavernState } from '@/lib/world/cavern';
 import DisplayCase from './DisplayCase';
 import GemSpecimen from '@/components/child/garden/GemSpecimen';
 
@@ -65,15 +65,20 @@ export default function CrystalCavernInterior({
   // not be presented as luck — she worked for it.
   const [foundReason, setFoundReason] = useState<'dug' | 'earned'>('dug');
 
-  // Stones the cavern owes her for mastering a skill, waiting here so
-  // the keep-or-sell choice is still hers. Shown one at a time.
+  // Stones waiting on her decision, shown one at a time. The stone in
+  // her hand comes first — a dug find used to live only in component
+  // state, so closing the page (or a refused sell) made it vanish for
+  // good while the server still held it. Then the stones the cavern
+  // owes her for mastering a skill.
   useEffect(() => {
     if (found) return;
+    const held = cavern.currentFind ? getGem(cavern.currentFind) : undefined;
+    if (held) { setFound(held); setFoundReason('dug'); playSparkle(); return; }
     const next = (cavern.pending ?? [])[0];
     if (!next) return;
     const gem = getGem(next);
     if (gem) { setFound(gem); setFoundReason('earned'); playSparkle(); }
-  }, [cavern.pending, found]);
+  }, [cavern.currentFind, cavern.pending, found]);
   const [foundCreature, setFoundCreature] = useState<string | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
@@ -128,6 +133,14 @@ export default function CrystalCavernInterior({
       });
       const d = await res.json();
       if (d.cavern) setCavern(d.cavern);
+      if (d.error) {
+        // The server said no. If the stone is still in her hand the
+        // effect above re-presents it from cavern.currentFind — it
+        // must never just disappear.
+        setMessage(d.error);
+        window.setTimeout(() => setMessage(null), 6000);
+        return;
+      }
       if (choice === 'sell') {
         playHarvest();
         setMessage(`Sold the ${gem.name} for ${coinsToPrice(d.paid ?? 0)}.`);
@@ -586,27 +599,47 @@ export default function CrystalCavernInterior({
                   ? `You could scratch it with ${scratchTestFor(found)}.`
                   : 'Nothing you own will scratch it.'}
               </p>
-              <div className="flex gap-2 mt-4">
-                <button
-                  onClick={() => decide('keep')}
-                  className="flex-1 rounded-xl px-3 font-bold text-sm"
-                  style={{ background: '#fffaf2', border: '2px solid #6b8e5a',
-                           color: '#3f2614', minHeight: 52 }}
-                >
-                  keep it<br />
-                  <span className="text-[11px] font-normal">for the case</span>
-                </button>
-                <button
-                  onClick={() => decide('sell')}
-                  className="flex-1 rounded-xl px-3 font-bold text-sm"
-                  style={{ background: '#6b8e5a', color: '#fffaf2', minHeight: 52 }}
-                >
-                  sell it<br />
-                  <span className="text-[11px] font-normal">
-                    {coinsToPrice(found.valuePerGram)}
-                  </span>
-                </button>
-              </div>
+              {isSellableForCoins(found.code) ? (
+                <div className="flex gap-2 mt-4">
+                  <button
+                    onClick={() => decide('keep')}
+                    className="flex-1 rounded-xl px-3 font-bold text-sm"
+                    style={{ background: '#fffaf2', border: '2px solid #6b8e5a',
+                             color: '#3f2614', minHeight: 52 }}
+                  >
+                    keep it<br />
+                    <span className="text-[11px] font-normal">for the case</span>
+                  </button>
+                  <button
+                    onClick={() => decide('sell')}
+                    className="flex-1 rounded-xl px-3 font-bold text-sm"
+                    style={{ background: '#6b8e5a', color: '#fffaf2', minHeight: 52 }}
+                  >
+                    sell it<br />
+                    <span className="text-[11px] font-normal">
+                      {coinsToPrice(found.valuePerGram)}
+                    </span>
+                  </button>
+                </div>
+              ) : (
+                /* A case gem has no coin price, so the screen must not
+                   offer one. The server refused these sales already;
+                   the button that promised 300p and paid nothing is
+                   what her letter was about. */
+                <div className="mt-4">
+                  <p className="text-xs italic text-center mb-2" style={{ color: '#6b6255' }}>
+                    Too precious for coins. One day it can be traded for
+                    a Great Work.
+                  </p>
+                  <button
+                    onClick={() => decide('keep')}
+                    className="w-full rounded-xl px-3 font-bold text-sm"
+                    style={{ background: '#6b8e5a', color: '#fffaf2', minHeight: 52 }}
+                  >
+                    into the case
+                  </button>
+                </div>
+              )}
             </motion.div>
           </motion.div>
         )}
