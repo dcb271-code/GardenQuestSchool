@@ -205,9 +205,11 @@ function EntryHall({
           <stop offset="0%" stopColor="#4A3826" />
           <stop offset="100%" stopColor="#6E5236" />
         </linearGradient>
-        <linearGradient id="spill-fire" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="#E8913A" stopOpacity="0.5" />
-          <stop offset="100%" stopColor="#E8913A" stopOpacity="0" />
+        <linearGradient id="firelight-vert" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#2E2216" />
+          <stop offset="55%" stopColor="#5A3418" />
+          <stop offset="82%" stopColor="#9A5A24" />
+          <stop offset="100%" stopColor="#D97E30" />
         </linearGradient>
         <linearGradient id="oak-round" x1="0" y1="0" x2="1" y2="0">
           <stop offset="0%" stopColor={OAK_DARK} />
@@ -249,29 +251,6 @@ function EntryHall({
           frame the way it really does when you walk in */}
       <Staircase reducedMotion={reducedMotion} />
 
-      {/* the reading room is behind your left shoulder — its door
-          jamb just enters the frame, and firelight leaks past it
-          onto the steps. Painted in FRONT of the stairs: the first
-          version put a glow pool where the flight actually stands,
-          and the steps swallowed every tap. */}
-      <g onClick={onReadingRoom} style={{ cursor: 'pointer' }} role="button"
-         aria-label="Go to the reading room">
-        <rect x={0} y={240} width={160} height={860} fill="transparent" />
-        <rect x={38} y={240} width={64} height={860} fill="url(#spill-fire)" />
-        {!reducedMotion && (
-          <motion.rect x={38} y={240} width={64} height={860} fill="#F2A93B"
-                       animate={{ opacity: [0.05, 0.14, 0.05] }}
-                       transition={{ duration: 2.6, repeat: Infinity }} />
-        )}
-        <rect x={0} y={228} width={38} height={872} fill={TRIM} />
-        <rect x={32} y={228} width={6} height={872} fill="#8A5A30" />
-        <rect x={44} y={744} width={130} height={30} rx={15} fill="#FFF8E8" opacity={0.94}
-              stroke="#C9B88E" strokeWidth={1.5} />
-        <text x={109} y={764} textAnchor="middle" fontSize={13} fontWeight={700} fill="#3f2614">
-          ← reading room
-        </text>
-      </g>
-
       {/* the hallway back to the kitchen — a real hallway with a lamp
           at the end, and an honest sign on a string across it */}
       <g>
@@ -299,9 +278,9 @@ function EntryHall({
       {/* framed flower art — the paper-flower pictures from the real
           entry, hung on the pier between hallway and doors */}
       <g>
-        <rect x={484} y={296} width={64} height={84} fill={OAK} stroke={OAK_DARK} strokeWidth={2} rx={2} />
-        <rect x={491} y={303} width={50} height={70} fill="#F9F1E4" />
-        {[[506, 326, 9], [526, 344, 7], [510, 354, 6]].map(([cx, cy, r], i) => (
+        <rect x={526} y={296} width={64} height={84} fill={OAK} stroke={OAK_DARK} strokeWidth={2} rx={2} />
+        <rect x={533} y={303} width={50} height={70} fill="#F9F1E4" />
+        {[[548, 326, 9], [568, 344, 7], [552, 354, 6]].map(([cx, cy, r], i) => (
           <g key={i}>
             <circle cx={cx} cy={cy} r={r} fill="#E8B4C0" />
             <circle cx={cx} cy={cy} r={(r as number) * 0.55} fill="#F4D6DC" />
@@ -310,9 +289,9 @@ function EntryHall({
       </g>
 
       {/* coat hooks — one per child, on the pier by the door */}
-      <rect x={470} y={418} width={112} height={11} fill={OAK} rx={3} />
+      <rect x={492} y={418} width={132} height={11} fill={OAK} rx={3} />
       {coatNames.map((name, i) => {
-        const x = 486 + i * (80 / Math.max(coatNames.length - 1, 1));
+        const x = 510 + i * (96 / Math.max(coatNames.length - 1, 1));
         const mine = name === learnerName;
         return (
           <g key={name}>
@@ -336,30 +315,28 @@ function EntryHall({
         );
       })}
 
-      {/* the double front doors she came in through, garden in the
-          glass, a transom over the top */}
-      <g>
-        <rect x={584} y={250} width={116} height={46} fill={TRIM} />
-        {[594, 646].map(x => (
-          <rect key={x} x={x} y={258} width={44} height={30} fill="#CFE4EE" stroke={OAK_DARK} strokeWidth={1.5} />
-        ))}
-        <rect x={584} y={292} width={116} height={528} fill={TRIM} rx={3} />
-        {[593, 647].map(x => (
-          <g key={x}>
-            <rect x={x} y={304} width={48} height={504} fill={OAK} stroke={OAK_DARK} strokeWidth={2} rx={2} />
-            <rect x={x + 6} y={314} width={36} height={214} fill="#CFE4EE" stroke={OAK_DARK} strokeWidth={1.5} />
-            <rect x={x + 6} y={314} width={36} height={214} fill="url(#garden-through-glass)" opacity={0.8} />
-            <rect x={x + 6} y={546} width={36} height={168} fill={OAK_LIGHT} stroke={OAK_DARK} strokeWidth={1.5} rx={2} />
-            <circle cx={x === 593 ? x + 42 : x + 6} cy={560} r={4.5} fill="#C9A227" />
-          </g>
-        ))}
+      {/* the reading room, through the doorway off the right edge */}
+      <g onClick={onReadingRoom} style={{ cursor: 'pointer' }} role="button"
+         aria-label="Go to the reading room">
+        <rect x={596} y={300} width={104} height={800} fill="transparent" />
+        <rect x={630} y={326} width={70} height={490} fill={TRIM} rx={3} />
+        <rect x={646} y={340} width={54} height={462} fill="url(#firelight-vert)" />
+        {!reducedMotion && (
+          <motion.rect x={646} y={640} width={54} height={162} fill="#E8913A"
+                       animate={{ opacity: [0.12, 0.24, 0.12] }}
+                       transition={{ duration: 2.4, repeat: Infinity }} />
+        )}
+        <rect x={548} y={744} width={142} height={30} rx={15} fill="#FFF8E8" opacity={0.94}
+              stroke="#C9B88E" strokeWidth={1.5} />
+        <text x={619} y={764} textAnchor="middle" fontSize={13} fontWeight={700} fill="#3f2614">
+          reading room →
+        </text>
       </g>
-      <ellipse cx={634} cy={874} rx={72} ry={22} fill="#4A4038" opacity={0.8} />
 
-      {/* a potted fern by the door — somebody waters it */}
+      {/* a potted fern between hallway and coats — somebody waters it */}
       <g>
-        <path d="M 536 856 L 566 856 L 561 896 L 541 896 Z" fill="#A5553F" stroke="#7A3A2C" strokeWidth={2} />
-        <path d="M 551 854 Q 536 828 522 826 M 551 854 Q 551 820 545 810 M 551 854 Q 564 826 578 820 M 551 854 Q 570 838 582 840"
+        <path d="M 468 856 L 498 856 L 493 896 L 473 896 Z" fill="#A5553F" stroke="#7A3A2C" strokeWidth={2} />
+        <path d="M 483 854 Q 468 828 454 826 M 483 854 Q 483 820 477 810 M 483 854 Q 496 826 510 820 M 483 854 Q 502 838 514 840"
               fill="none" stroke="#5F7F4A" strokeWidth={4} strokeLinecap="round" />
       </g>
 
