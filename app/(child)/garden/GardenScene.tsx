@@ -1281,8 +1281,25 @@ export default function GardenScene({
           </g>
 
           {/* COZY HOUSE — off to the left, anchoring the house-path entrance.
-              Painted BEFORE the trees so foliage can overlap naturally. */}
-          <CozyHouse x={100} y={500} size={140} />
+              Painted BEFORE the trees so foliage can overlap naturally.
+              The front door works now: tapping the house goes inside.
+              She asked three times, the last time as an argument —
+              every animal's home opens except her own. */}
+          <g
+            style={{ cursor: 'pointer', touchAction: 'manipulation' }}
+            onClick={() => router.push(`/garden/house?learner=${learnerId}`)}
+            role="button"
+            aria-label="Home — go inside"
+            tabIndex={0}
+          >
+            <rect x={20} y={420} width={160} height={175} fill="transparent" />
+            <CozyHouse x={100} y={500} size={140} />
+            <rect x={72} y={582} width={56} height={17} rx={8}
+                  fill="rgba(255,250,242,0.94)" stroke="#C94C3E" strokeWidth={1} />
+            <text x={100} y={594} textAnchor="middle" fontSize={9} fontWeight={700} fill="#3f2614">
+              home
+            </text>
+          </g>
           {/* Chimney smoke — 3 soft puffs drifting up from chimney top ~(146, 430) */}
           {!calmAmbient && (
             <g pointerEvents="none">
