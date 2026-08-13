@@ -155,6 +155,13 @@ export default function HouseScene({
 
 /* ── the entry hall ─────────────────────────────────────────────── */
 
+// Composed the way you actually walk in: the staircase climbs away to
+// the LEFT and out of frame, the hallway ahead runs back to the
+// kitchen, the reading room is behind your left shoulder — only its
+// firelight reaches into the frame — and the front doors you came
+// through are on the right. The bench sits left, in front of the
+// stairs, where it really is.
+
 function EntryHall({
   coatNames, learnerName, reducedMotion, onReadingRoom,
 }: {
@@ -166,47 +173,41 @@ function EntryHall({
   const colors = coatColorsFor(coatNames);
   return (
     <svg viewBox="0 0 700 1100" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
-      {/* wall and floor */}
-      <rect x={0} y={0} width={700} height={840} fill={WALL} />
-      <rect x={0} y={820} width={700} height={280} fill={FLOOR} />
-      {[880, 940, 1000, 1060].map(y => (
-        <line key={y} x1={0} y1={y} x2={700} y2={y} stroke={FLOOR_LINE} strokeWidth={2} opacity={0.5} />
-      ))}
-      {[120, 300, 480, 660].map((x, i) => (
-        <line key={x} x1={x - i * 14} y1={820} x2={x + 10} y2={1100} stroke={FLOOR_LINE} strokeWidth={1.5} opacity={0.35} />
-      ))}
-      {/* baseboard and picture rail — the trim this house wears everywhere */}
-      <rect x={0} y={800} width={700} height={22} fill={TRIM} />
-      <rect x={0} y={240} width={700} height={8} fill={TRIM} opacity={0.65} />
-
-      {/* pendant lamp — the scalloped shade from the photos */}
-      <line x1={350} y1={0} x2={350} y2={70} stroke="#4A3A28" strokeWidth={3} />
-      <path d="M 305 70 Q 316 58 328 70 Q 339 58 350 70 Q 361 58 372 70 Q 384 58 395 70 L 388 108 Q 350 122 312 108 Z"
-            fill="#F7EFD9" stroke="#C9B88E" strokeWidth={2} />
-      <ellipse cx={350} cy={112} rx={40} ry={10} fill="#F7E6B8" opacity={0.5} />
-
-      {/* the double front doors, glass showing the garden she came from */}
-      <rect x={34} y={252} width={192} height={568} fill={TRIM} rx={4} />
-      {[46, 134].map(x => (
-        <g key={x}>
-          <rect x={x} y={266} width={76} height={540} fill={OAK} stroke={OAK_DARK} strokeWidth={2} rx={2} />
-          <rect x={x + 8} y={278} width={60} height={240} fill="#CFE4EE" stroke={OAK_DARK} strokeWidth={2} />
-          <rect x={x + 8} y={278} width={60} height={240} fill="url(#garden-through-glass)" opacity={0.8} />
-          <rect x={x + 8} y={532} width={60} height={190} fill={OAK_LIGHT} stroke={OAK_DARK} strokeWidth={1.5} rx={2} />
-          <circle cx={x === 46 ? x + 66 : x + 10} cy={560} r={5} fill="#C9A227" />
-        </g>
-      ))}
       <defs>
+        <linearGradient id="hall-wall" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#F1E2C8" />
+          <stop offset="45%" stopColor="#EAD7B6" />
+          <stop offset="100%" stopColor="#D9BE97" />
+        </linearGradient>
+        <linearGradient id="hall-floor" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#BC7C42" />
+          <stop offset="100%" stopColor="#93582A" />
+        </linearGradient>
+        <radialGradient id="lamp-glow" cx="0.5" cy="0.32" r="0.75">
+          <stop offset="0%" stopColor="#FFF3CF" stopOpacity="0.55" />
+          <stop offset="55%" stopColor="#FFE9B8" stopOpacity="0.18" />
+          <stop offset="100%" stopColor="#FFE9B8" stopOpacity="0" />
+        </radialGradient>
+        <linearGradient id="corner-left" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="#5A3B1F" stopOpacity="0.28" />
+          <stop offset="100%" stopColor="#5A3B1F" stopOpacity="0" />
+        </linearGradient>
+        <linearGradient id="corner-right" x1="1" y1="0" x2="0" y2="0">
+          <stop offset="0%" stopColor="#5A3B1F" stopOpacity="0.28" />
+          <stop offset="100%" stopColor="#5A3B1F" stopOpacity="0" />
+        </linearGradient>
         <linearGradient id="garden-through-glass" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor="#CFE4EE" />
           <stop offset="55%" stopColor="#A9C6A0" />
           <stop offset="100%" stopColor="#7FA86B" />
         </linearGradient>
-        <linearGradient id="firelight" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#2E2216" />
-          <stop offset="55%" stopColor="#4A2E18" />
-          <stop offset="82%" stopColor="#8F5424" />
-          <stop offset="100%" stopColor="#D97E30" />
+        <linearGradient id="hallway-depth" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#4A3826" />
+          <stop offset="100%" stopColor="#6E5236" />
+        </linearGradient>
+        <linearGradient id="spill-fire" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="#E8913A" stopOpacity="0.5" />
+          <stop offset="100%" stopColor="#E8913A" stopOpacity="0" />
         </linearGradient>
         <linearGradient id="oak-round" x1="0" y1="0" x2="1" y2="0">
           <stop offset="0%" stopColor={OAK_DARK} />
@@ -214,144 +215,250 @@ function EntryHall({
           <stop offset="100%" stopColor={OAK_DARK} />
         </linearGradient>
       </defs>
-      {/* door mat */}
-      <ellipse cx={130} cy={880} rx={95} ry={26} fill="#4A4038" opacity={0.85} />
 
-      {/* the way to the reading room — warm with firelight, and NOT
-          behind the stairs: the first render put this doorway back
-          there and it read as a black void with a clipped label */}
+      {/* ceiling, wall, floor — warm, lit from the lamp */}
+      <rect x={0} y={0} width={700} height={56} fill="#F7EEDC" />
+      <rect x={0} y={52} width={700} height={10} fill={TRIM} opacity={0.5} />
+      <rect x={0} y={60} width={700} height={764} fill="url(#hall-wall)" />
+      <rect x={0} y={820} width={700} height={280} fill="url(#hall-floor)" />
+      {[884, 948, 1012, 1076].map(y => (
+        <line key={y} x1={0} y1={y} x2={700} y2={y} stroke={FLOOR_LINE} strokeWidth={2} opacity={0.4} />
+      ))}
+      {[150, 340, 530].map((x, i) => (
+        <line key={x} x1={x} y1={820} x2={x + 26 - i * 26} y2={1100} stroke={FLOOR_LINE} strokeWidth={1.5} opacity={0.3} />
+      ))}
+      {/* picture rail and baseboard */}
+      <rect x={0} y={238} width={700} height={7} fill={TRIM} opacity={0.55} />
+      <rect x={0} y={800} width={700} height={22} fill={TRIM} />
+      <rect x={0} y={822} width={700} height={8} fill="#3F2A16" opacity={0.25} />
+      {/* lamplight on the wall */}
+      <rect x={0} y={0} width={700} height={840} fill="url(#lamp-glow)" pointerEvents="none" />
+
+      {/* pendant lamp — the scalloped shade from the photos */}
+      <line x1={350} y1={0} x2={350} y2={84} stroke="#4A3A28" strokeWidth={3} />
+      <path d="M 303 84 Q 315 71 327 84 Q 338 71 350 84 Q 362 71 373 84 Q 385 71 397 84 L 389 124 Q 350 139 311 124 Z"
+            fill="#F9F1DC" stroke="#C9B88E" strokeWidth={2} />
+      <ellipse cx={350} cy={128} rx={42} ry={11} fill="#FFEDB8" opacity={0.65} />
+      {!reducedMotion && [0, 1, 2].map(i => (
+        <motion.circle key={i} cx={318 + i * 34} cy={190 + i * 26} r={2.2} fill="#F7E6B8"
+                       animate={{ opacity: [0, 0.8, 0], y: [0, -14, -26] }}
+                       transition={{ duration: 5 + i * 1.3, repeat: Infinity, delay: i * 1.1 }} />
+      ))}
+
+      {/* THE STAIRCASE — the hero of the hall, climbing left and out of
+          frame the way it really does when you walk in */}
+      <Staircase reducedMotion={reducedMotion} />
+
+      {/* the reading room is behind your left shoulder — its door
+          jamb just enters the frame, and firelight leaks past it
+          onto the steps. Painted in FRONT of the stairs: the first
+          version put a glow pool where the flight actually stands,
+          and the steps swallowed every tap. */}
       <g onClick={onReadingRoom} style={{ cursor: 'pointer' }} role="button"
          aria-label="Go to the reading room">
-        <rect x={240} y={332} width={152} height={478} fill={TRIM} rx={3} />
-        <rect x={252} y={346} width={128} height={464} fill="url(#firelight)" />
+        <rect x={0} y={240} width={160} height={860} fill="transparent" />
+        <rect x={38} y={240} width={64} height={860} fill="url(#spill-fire)" />
         {!reducedMotion && (
-          <motion.rect x={252} y={640} width={128} height={170} fill="#E8913A"
-                       animate={{ opacity: [0.12, 0.24, 0.12] }}
-                       transition={{ duration: 2.4, repeat: Infinity }} />
+          <motion.rect x={38} y={240} width={64} height={860} fill="#F2A93B"
+                       animate={{ opacity: [0.05, 0.14, 0.05] }}
+                       transition={{ duration: 2.6, repeat: Infinity }} />
         )}
-        <rect x={258} y={744} width={116} height={30} rx={15} fill="#FFF8E8" opacity={0.92} />
-        <text x={316} y={764} textAnchor="middle" fontSize={13} fontWeight={700} fill="#3f2614">
-          reading room
+        <rect x={0} y={228} width={38} height={872} fill={TRIM} />
+        <rect x={32} y={228} width={6} height={872} fill="#8A5A30" />
+        <rect x={44} y={744} width={130} height={30} rx={15} fill="#FFF8E8" opacity={0.94}
+              stroke="#C9B88E" strokeWidth={1.5} />
+        <text x={109} y={764} textAnchor="middle" fontSize={13} fontWeight={700} fill="#3f2614">
+          ← reading room
         </text>
       </g>
 
-      {/* coat hooks — one per child, the family's own hallway */}
-      <rect x={412} y={318} width={172} height={12} fill={OAK} rx={3} />
+      {/* the hallway back to the kitchen — a real hallway with a lamp
+          at the end, and an honest sign on a string across it */}
+      <g>
+        <rect x={318} y={344} width={150} height={470} fill={TRIM} rx={3} />
+        <polygon points="330,356 352,432 352,782 330,810" fill="#5A4630" />
+        <polygon points="456,356 434,432 434,782 456,810" fill="#5A4630" />
+        <rect x={352} y={432} width={82} height={350} fill="url(#hallway-depth)" />
+        <polygon points="330,810 352,782 434,782 456,810" fill="#8A5A30" />
+        {/* the lamp at the end of the hall, and the red bench under it */}
+        <line x1={393} y1={432} x2={393} y2={466} stroke="#2E2216" strokeWidth={2} />
+        <circle cx={393} cy={474} r={9} fill="#FFE9A8" opacity={0.95} />
+        <ellipse cx={393} cy={500} rx={30} ry={40} fill="#FFE9A8" opacity={0.14} />
+        <rect x={362} y={716} width={62} height={26} rx={4} fill="#8F3A32" />
+        {[368, 412].map(x => <rect key={x} x={x} y={742} width={7} height={22} fill="#6E2A24" />)}
+        {/* the sign on its string */}
+        <path d="M 330 520 Q 393 545 456 520" fill="none" stroke="#8A7A5E" strokeWidth={2} />
+        <rect x={338} y={536} width={110} height={44} rx={6} fill="#F7EFD9" stroke="#C9B88E" strokeWidth={2}
+              transform="rotate(-2 393 558)" />
+        <text x={393} y={555} textAnchor="middle" fontSize={11} fontWeight={700} fill="#6B5C42"
+              transform="rotate(-2 393 558)">the kitchen</text>
+        <text x={393} y={570} textAnchor="middle" fontSize={10} fontStyle="italic" fill="#8A7A5E"
+              transform="rotate(-2 393 558)">not built yet</text>
+      </g>
+
+      {/* framed flower art — the paper-flower pictures from the real
+          entry, hung on the pier between hallway and doors */}
+      <g>
+        <rect x={484} y={296} width={64} height={84} fill={OAK} stroke={OAK_DARK} strokeWidth={2} rx={2} />
+        <rect x={491} y={303} width={50} height={70} fill="#F9F1E4" />
+        {[[506, 326, 9], [526, 344, 7], [510, 354, 6]].map(([cx, cy, r], i) => (
+          <g key={i}>
+            <circle cx={cx} cy={cy} r={r} fill="#E8B4C0" />
+            <circle cx={cx} cy={cy} r={(r as number) * 0.55} fill="#F4D6DC" />
+          </g>
+        ))}
+      </g>
+
+      {/* coat hooks — one per child, on the pier by the door */}
+      <rect x={470} y={418} width={112} height={11} fill={OAK} rx={3} />
       {coatNames.map((name, i) => {
-        const x = 440 + i * (120 / Math.max(coatNames.length - 1, 1));
+        const x = 486 + i * (80 / Math.max(coatNames.length - 1, 1));
         const mine = name === learnerName;
         return (
           <g key={name}>
-            <circle cx={x} cy={336} r={4} fill={OAK_DARK} />
+            <circle cx={x} cy={434} r={3.5} fill={OAK_DARK} />
             <motion.g
-              style={{ originX: `${x}px`, originY: '336px' }}
+              style={{ originX: `${x}px`, originY: '434px' }}
               animate={mine && !reducedMotion ? { rotate: [1.6, -1.6, 1.6] } : undefined}
               transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
             >
-              {/* a child's coat: hood, body, sleeves */}
-              <path d={`M ${x - 4} 340 Q ${x} 332 ${x + 4} 340 L ${x + 6} 348 L ${x - 6} 348 Z`}
+              <path d={`M ${x - 3.5} 438 Q ${x} 431 ${x + 3.5} 438 L ${x + 5} 445 L ${x - 5} 445 Z`}
                     fill={colors[name]} opacity={0.9} />
-              <path d={`M ${x - 16} 348 Q ${x} 340 ${x + 16} 348 L ${x + 13} 408 Q ${x} 414 ${x - 13} 408 Z`}
+              <path d={`M ${x - 13} 445 Q ${x} 438 ${x + 13} 445 L ${x + 11} 498 Q ${x} 503 ${x - 11} 498 Z`}
                     fill={colors[name]} stroke="#00000022" strokeWidth={1} />
-              <line x1={x} y1={352} x2={x} y2={406} stroke="#00000033" strokeWidth={1.5} />
+              <line x1={x} y1={449} x2={x} y2={496} stroke="#00000033" strokeWidth={1.4} />
             </motion.g>
-            <rect x={x - 26} y={422} width={52} height={17} rx={8.5} fill="#FFFFFF" opacity={0.85} />
-            <text x={x} y={434} textAnchor="middle" fontSize={11} fontWeight={700} fill="#3f2614">
+            <rect x={x - 23} y={508} width={46} height={16} rx={8} fill="#FFFFFF" opacity={0.85} />
+            <text x={x} y={520} textAnchor="middle" fontSize={10} fontWeight={700} fill="#3f2614">
               {name}
             </text>
           </g>
         );
       })}
 
-      {/* where the kitchen will go — honest, not padlocked */}
-      <rect x={606} y={318} width={82} height={140} fill="none" stroke={TRIM}
-            strokeWidth={2} strokeDasharray="7 6" rx={3} opacity={0.5} />
-      <text x={647} y={370} textAnchor="middle" fontSize={11} fill="#8A7A5E">the</text>
-      <text x={647} y={385} textAnchor="middle" fontSize={11} fill="#8A7A5E">kitchen</text>
-      <text x={647} y={408} textAnchor="middle" fontSize={10} fontStyle="italic" fill="#9A8C76">not built</text>
-      <text x={647} y={422} textAnchor="middle" fontSize={10} fontStyle="italic" fill="#9A8C76">yet</text>
-
-      {/* THE STAIRCASE — the hall's hero. Rises right, turns at a
-          landing, quartersawn oak with turned balusters. */}
-      <Staircase reducedMotion={reducedMotion} />
-
-      {/* the cushioned bench in front of the stairs — the real detail:
-          the listing staged a table and lamp here, and the family put
-          a bench, which is the better fact */}
+      {/* the double front doors she came in through, garden in the
+          glass, a transom over the top */}
       <g>
-        <rect x={266} y={958} width={196} height={18} fill={OAK} rx={4} />
-        {[280, 434].map(x => (
+        <rect x={584} y={250} width={116} height={46} fill={TRIM} />
+        {[594, 646].map(x => (
+          <rect key={x} x={x} y={258} width={44} height={30} fill="#CFE4EE" stroke={OAK_DARK} strokeWidth={1.5} />
+        ))}
+        <rect x={584} y={292} width={116} height={528} fill={TRIM} rx={3} />
+        {[593, 647].map(x => (
+          <g key={x}>
+            <rect x={x} y={304} width={48} height={504} fill={OAK} stroke={OAK_DARK} strokeWidth={2} rx={2} />
+            <rect x={x + 6} y={314} width={36} height={214} fill="#CFE4EE" stroke={OAK_DARK} strokeWidth={1.5} />
+            <rect x={x + 6} y={314} width={36} height={214} fill="url(#garden-through-glass)" opacity={0.8} />
+            <rect x={x + 6} y={546} width={36} height={168} fill={OAK_LIGHT} stroke={OAK_DARK} strokeWidth={1.5} rx={2} />
+            <circle cx={x === 593 ? x + 42 : x + 6} cy={560} r={4.5} fill="#C9A227" />
+          </g>
+        ))}
+      </g>
+      <ellipse cx={634} cy={874} rx={72} ry={22} fill="#4A4038" opacity={0.8} />
+
+      {/* a potted fern by the door — somebody waters it */}
+      <g>
+        <path d="M 536 856 L 566 856 L 561 896 L 541 896 Z" fill="#A5553F" stroke="#7A3A2C" strokeWidth={2} />
+        <path d="M 551 854 Q 536 828 522 826 M 551 854 Q 551 820 545 810 M 551 854 Q 564 826 578 820 M 551 854 Q 570 838 582 840"
+              fill="none" stroke="#5F7F4A" strokeWidth={4} strokeLinecap="round" />
+      </g>
+
+      {/* the runner — the colorful one from the fireplace photo runs
+          through the hall here */}
+      <g>
+        <rect x={220} y={892} width={430} height={96} rx={10} fill="#D8C7B4" />
+        <rect x={230} y={900} width={410} height={80} rx={7} fill="#8F4A5A" />
+        {[0, 1, 2, 3, 4].map(i => (
+          <rect key={i} x={246 + i * 82} y={908} width={58} height={64} rx={5}
+                fill={['#4A8C8C', '#D9A441', '#7A5A8C', '#C96A5A', '#4A8C8C'][i]} opacity={0.85} />
+        ))}
+        {[0, 1, 2, 3, 4].map(i => (
+          <path key={i} d={`M ${275 + i * 82} 926 l 12 14 l -12 14 l -12 -14 Z`}
+                fill="#F2E6D0" opacity={0.7} />
+        ))}
+      </g>
+
+      {/* the cushioned bench — left, in front of the stairs, where it
+          really is (the listing staged a table; the family put a bench) */}
+      <g>
+        <ellipse cx={176} cy={1042} rx={110} ry={14} fill="#000" opacity={0.15} />
+        <rect x={84} y={958} width={188} height={18} fill={OAK} rx={4} />
+        {[96, 246].map(x => (
           <rect key={x} x={x} y={976} width={14} height={58} fill={OAK_DARK} rx={2} />
         ))}
-        <rect x={272} y={926} width={184} height={36} rx={14} fill="#B0533F" />
-        <line x1={318} y1={930} x2={318} y2={958} stroke="#8F3F30" strokeWidth={2} opacity={0.6} />
-        <line x1={410} y1={930} x2={410} y2={958} stroke="#8F3F30" strokeWidth={2} opacity={0.6} />
-        <rect x={282} y={912} width={52} height={26} rx={11} fill="#C97B5A" />
-        <rect x={396} y={912} width={52} height={26} rx={11} fill="#D9A441" />
-        {/* boots under the bench */}
+        <rect x={90} y={926} width={176} height={36} rx={14} fill="#B0533F" />
+        <line x1={134} y1={930} x2={134} y2={958} stroke="#8F3F30" strokeWidth={2} opacity={0.6} />
+        <line x1={222} y1={930} x2={222} y2={958} stroke="#8F3F30" strokeWidth={2} opacity={0.6} />
+        <rect x={100} y={912} width={52} height={26} rx={11} fill="#C97B5A" />
+        <rect x={208} y={912} width={52} height={26} rx={11} fill="#D9A441" />
         <g fill="#5A4632" stroke="#3F2E1E" strokeWidth={1.5}>
-          <path d="M 316 1030 l 0 -24 q 0 -6 7 -6 l 8 0 q 6 0 6 6 l 0 10 15 0 q 6 0 6 6 l 0 8 Z" />
-          <path d="M 368 1030 l 0 -24 q 0 -6 7 -6 l 8 0 q 6 0 6 6 l 0 10 15 0 q 6 0 6 6 l 0 8 Z" />
+          <path d="M 128 1030 l 0 -24 q 0 -6 7 -6 l 8 0 q 6 0 6 6 l 0 10 15 0 q 6 0 6 6 l 0 8 Z" />
+          <path d="M 182 1030 l 0 -24 q 0 -6 7 -6 l 8 0 q 6 0 6 6 l 0 10 15 0 q 6 0 6 6 l 0 8 Z" />
         </g>
       </g>
+
+      {/* corner shading, so the room has sides */}
+      <rect x={0} y={56} width={80} height={1044} fill="url(#corner-left)" pointerEvents="none" />
+      <rect x={620} y={56} width={80} height={1044} fill="url(#corner-right)" pointerEvents="none" />
     </svg>
   );
 }
 
 /**
- * The staircase, drawn as the photos show it: steps climbing right to
- * a landing, a heavy carved newel at the bottom, turned balusters
- * under a raked handrail.
+ * The staircase, mirrored to how you actually see it walking in: it
+ * climbs away to the LEFT and out of the top of the frame — upstairs
+ * exists, it just is not built yet, and the sign on the rail says so.
  */
 function Staircase({ reducedMotion }: { reducedMotion: boolean }) {
-  const STEPS = 7;
-  const x0 = 430, y0 = 950;         // front bottom of the first riser
-  const run = 38, rise = 44;
+  void reducedMotion;
+  const STEPS = 8;
+  const x0 = 300, y0 = 950;         // front bottom of the first riser
+  const run = 36, rise = 44;
   const steps = Array.from({ length: STEPS }, (_, i) => ({
-    x: x0 + i * run, y: y0 - i * rise,
+    x: x0 - i * run, y: y0 - i * rise,
   }));
-  const landingY = y0 - STEPS * rise;   // 642
   return (
     <g>
       {/* closed stringer under the flight */}
-      <path d={`M ${x0} ${y0 + 60} L ${x0 + STEPS * run + 44} ${landingY + 60}
-                L ${x0 + STEPS * run + 44} 1100 L ${x0} 1100 Z`}
-            fill={OAK_DARK} opacity={0.35} />
-      {/* the steps: riser then tread, back to front so edges overlap */}
+      <path d={`M ${x0 + 8} ${y0 + 58} L ${x0 - STEPS * run - 30} ${y0 - STEPS * rise + 58}
+                L ${x0 - STEPS * run - 30} 1100 L ${x0 + 8} 1100 Z`}
+            fill={OAK_DARK} opacity={0.3} />
+      {/* wainscot on the under-stair wall, like the real hall */}
+      <path d={`M 0 700 L 236 872 L 236 800 L 0 620 Z`} fill={OAK} opacity={0.25} />
+      {/* the steps: riser then tread, each running off-frame left */}
       {steps.map(({ x, y }, i) => (
         <g key={i}>
-          <rect x={x} y={y - rise} width={700 - x} height={rise} fill={OAK} />
-          <rect x={x} y={y - rise - 10} width={700 - x} height={12} fill={OAK_LIGHT}
+          <rect x={0} y={y - rise} width={x} height={rise} fill={OAK} />
+          <rect x={0} y={y - rise - 10} width={x} height={12} fill={OAK_LIGHT}
                 stroke={OAK_DARK} strokeWidth={1.5} rx={2} />
         </g>
       ))}
-      {/* landing */}
-      <rect x={steps[STEPS - 1].x + run} y={landingY - rise - 10} width={700 - steps[STEPS - 1].x - run}
-            height={rise + 12} fill={OAK_LIGHT} stroke={OAK_DARK} strokeWidth={1.5} />
 
-      {/* newel post, carved cap like the photos */}
-      <rect x={416} y={806} width={26} height={166} fill="url(#oak-round)" stroke={OAK_DARK} strokeWidth={2} rx={3} />
-      <rect x={410} y={790} width={38} height={22} fill={OAK} stroke={OAK_DARK} strokeWidth={2} rx={5} />
-      <circle cx={429} cy={784} r={9} fill={OAK_LIGHT} stroke={OAK_DARK} strokeWidth={2} />
+      {/* newel post at the foot, carved cap like the photos */}
+      <rect x={296} y={806} width={26} height={166} fill="url(#oak-round)" stroke={OAK_DARK} strokeWidth={2} rx={3} />
+      <rect x={290} y={790} width={38} height={22} fill={OAK} stroke={OAK_DARK} strokeWidth={2} rx={5} />
+      <circle cx={309} cy={784} r={9} fill={OAK_LIGHT} stroke={OAK_DARK} strokeWidth={2} />
 
-      {/* balusters and rail */}
+      {/* balusters and the raked rail */}
       {steps.map(({ x, y }, i) => (
         <g key={i}>
-          <rect x={x + 14} y={y - rise - 96} width={5} height={92} fill={OAK} rx={2} />
-          <circle cx={x + 16.5} cy={y - rise - 60} r={5} fill={OAK} />
+          <rect x={x - 19} y={y - rise - 96} width={5} height={92} fill={OAK} rx={2} />
+          <circle cx={x - 16.5} cy={y - rise - 60} r={5} fill={OAK} />
         </g>
       ))}
-      <line x1={424} y1={800} x2={430 + STEPS * run + 10} y2={800 - STEPS * rise}
+      <line x1={314} y1={800} x2={x0 - STEPS * run - 10} y2={800 - STEPS * rise}
             stroke={OAK_DARK} strokeWidth={11} strokeLinecap="round" />
-      <line x1={424} y1={796} x2={430 + STEPS * run + 10} y2={796 - STEPS * rise}
+      <line x1={314} y1={796} x2={x0 - STEPS * run - 10} y2={796 - STEPS * rise}
             stroke={OAK_LIGHT} strokeWidth={4} strokeLinecap="round" />
 
-      {/* the honest sign about upstairs, hanging from the rail near
-          the top of the flight */}
-      <line x1={626} y1={584} x2={626} y2={606} stroke="#8A7A5E" strokeWidth={2} />
-      <rect x={570} y={606} width={112} height={40} rx={6} fill="#F7EFD9" stroke="#C9B88E" strokeWidth={2} />
-      <text x={626} y={623} textAnchor="middle" fontSize={11} fontWeight={700} fill="#6B5C42">upstairs</text>
-      <text x={626} y={638} textAnchor="middle" fontSize={10} fontStyle="italic" fill="#8A7A5E">not built yet</text>
+      {/* the honest sign about upstairs, hanging from the rail */}
+      <line x1={150} y1={624} x2={150} y2={648} stroke="#8A7A5E" strokeWidth={2} />
+      <rect x={94} y={648} width={112} height={40} rx={6} fill="#F7EFD9" stroke="#C9B88E" strokeWidth={2}
+            transform="rotate(2 150 668)" />
+      <text x={150} y={665} textAnchor="middle" fontSize={11} fontWeight={700} fill="#6B5C42"
+            transform="rotate(2 150 668)">upstairs</text>
+      <text x={150} y={680} textAnchor="middle" fontSize={10} fontStyle="italic" fill="#8A7A5E"
+            transform="rotate(2 150 668)">not built yet</text>
     </g>
   );
 }
@@ -378,13 +485,54 @@ function ReadingRoom({
 
   return (
     <svg viewBox="0 0 700 1100" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
-      {/* wall, rail, floor */}
-      <rect x={0} y={0} width={700} height={900} fill={WALL} />
-      <rect x={0} y={240} width={700} height={8} fill={TRIM} opacity={0.65} />
+      <defs>
+        <linearGradient id="rr-wall" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#F0DFC2" />
+          <stop offset="50%" stopColor="#E9D4AF" />
+          <stop offset="100%" stopColor="#D8BB92" />
+        </linearGradient>
+        <linearGradient id="rr-floor" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#BC7C42" />
+          <stop offset="100%" stopColor="#93582A" />
+        </linearGradient>
+        <radialGradient id="rr-fireglow" cx="0.5" cy="0.72" r="0.75">
+          <stop offset="0%" stopColor="#F2A93B" stopOpacity="0.28" />
+          <stop offset="55%" stopColor="#E8913A" stopOpacity="0.1" />
+          <stop offset="100%" stopColor="#E8913A" stopOpacity="0" />
+        </radialGradient>
+        <linearGradient id="rr-corner-left" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="#5A3B1F" stopOpacity="0.26" />
+          <stop offset="100%" stopColor="#5A3B1F" stopOpacity="0" />
+        </linearGradient>
+        <linearGradient id="rr-corner-right" x1="1" y1="0" x2="0" y2="0">
+          <stop offset="0%" stopColor="#5A3B1F" stopOpacity="0.26" />
+          <stop offset="100%" stopColor="#5A3B1F" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      {/* ceiling, wall, rail, floor — warm, and lit by the fire */}
+      <rect x={0} y={0} width={700} height={56} fill="#F7EEDC" />
+      <rect x={0} y={52} width={700} height={10} fill={TRIM} opacity={0.5} />
+      <rect x={0} y={60} width={700} height={822} fill="url(#rr-wall)" />
+      <rect x={0} y={240} width={700} height={7} fill={TRIM} opacity={0.55} />
       <rect x={0} y={878} width={700} height={22} fill={TRIM} />
-      <rect x={0} y={896} width={700} height={204} fill={FLOOR} />
+      <rect x={0} y={896} width={700} height={204} fill="url(#rr-floor)" />
       {[950, 1010, 1070].map(y => (
-        <line key={y} x1={0} y1={y} x2={700} y2={y} stroke={FLOOR_LINE} strokeWidth={2} opacity={0.5} />
+        <line key={y} x1={0} y1={y} x2={700} y2={y} stroke={FLOOR_LINE} strokeWidth={2} opacity={0.4} />
+      ))}
+      <rect x={0} y={60} width={700} height={1040} fill="url(#rr-fireglow)" pointerEvents="none" />
+
+      {/* framed flower art from the entry photos, one each side */}
+      {[[64, 330], [572, 330]].map(([fx, fy], k) => (
+        <g key={k}>
+          <rect x={fx} y={fy} width={64} height={84} fill={OAK} stroke={OAK_DARK} strokeWidth={2} rx={2} />
+          <rect x={fx + 7} y={fy + 7} width={50} height={70} fill="#F9F1E4" />
+          {[[22, 30, 9], [38, 48, 7], [24, 58, 6]].map(([dx, dy, r], i) => (
+            <g key={i}>
+              <circle cx={fx + dx} cy={fy + dy} r={r} fill="#E8B4C0" />
+              <circle cx={fx + dx} cy={fy + dy} r={r * 0.55} fill="#F4D6DC" />
+            </g>
+          ))}
+        </g>
       ))}
 
       {/* back to the hall */}
@@ -416,10 +564,11 @@ function ReadingRoom({
             <stop offset="45%" stopColor={OAK_LIGHT} />
             <stop offset="100%" stopColor={OAK_DARK} />
           </linearGradient>
+          {/* a mirror in firelight is warm glass, not sky */}
           <linearGradient id="mirror-glass" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#D5E2E4" />
-            <stop offset="60%" stopColor="#BCCFD3" />
-            <stop offset="100%" stopColor="#A9BEC4" />
+            <stop offset="0%" stopColor="#D9CDB8" />
+            <stop offset="55%" stopColor="#C4B49E" />
+            <stop offset="100%" stopColor="#AE9C86" />
           </linearGradient>
           <radialGradient id="fire-glow" cx="0.5" cy="0.85" r="0.8">
             <stop offset="0%" stopColor="#F2A93B" />
@@ -469,9 +618,22 @@ function ReadingRoom({
             </>
           )}
         </g>
+        {/* raised panels on the frieze, so it reads as joinery
+            rather than a flat brown slab */}
+        {[214, 362].map(x => (
+          <rect key={x} x={x} y={556} width={124} height={72} fill="none"
+                stroke={OAK} strokeWidth={3} rx={4} opacity={0.8} />
+        ))}
         {/* brick surround and firebox */}
         <g>
           <rect x={222} y={644} width={256} height={220} fill={BRICK} stroke={MORTAR} strokeWidth={1} />
+          {/* real brick is not one color — a scatter of darker and
+              lighter ones keeps it from reading as wallpaper */}
+          {[[230, 664, '#8F4634'], [326, 684, '#B96A50'], [278, 724, '#8F4634'],
+            [422, 664, '#B96A50'], [374, 744, '#8F4634'], [230, 804, '#B96A50'],
+            [426, 784, '#8F4634'], [254, 844, '#B96A50'], [422, 844, '#8F4634']].map(([bx, by, c], i) => (
+            <rect key={i} x={bx as number} y={by as number} width={44} height={18} fill={c as string} opacity={0.55} />
+          ))}
           {[664, 684, 704, 724, 744, 764, 784, 804, 824, 844].map((y, r) => (
             <g key={y} stroke={MORTAR} strokeWidth={1.6} opacity={0.7}>
               <line x1={222} y1={y} x2={478} y2={y} />
@@ -534,6 +696,14 @@ function ReadingRoom({
       <g onClick={onLuna} style={{ cursor: 'pointer' }} role="button" aria-label="Visit Luna">
         <ellipse cx={432} cy={1030} rx={52} ry={10} fill="#000" opacity={0.16} />
         <SleepingLuna x={432} y={1006} reducedMotion={reducedMotion} />
+        {!reducedMotion && [0, 1].map(i => (
+          <motion.text key={i} x={478 + i * 14} y={962 - i * 18} fontSize={13 + i * 3}
+                       fill="#8A7A5E" fontStyle="italic"
+                       animate={{ opacity: [0, 0.8, 0], y: [0, -10, -18] }}
+                       transition={{ duration: 4, repeat: Infinity, delay: i * 1.6 }}>
+            z
+          </motion.text>
+        ))}
       </g>
 
       {/* the storybook basket — a finished chapter becomes a book */}
