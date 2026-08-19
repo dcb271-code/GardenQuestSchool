@@ -11,11 +11,16 @@
 // Pip teaches structure; the crow keeps memories. Said that way, in
 // the intro, because the division of labor is part of the lesson.
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { speak, stopSpeaking } from '@/lib/audio/tts';
-import { playPageTurn } from '@/lib/audio/sfx';
-import { CROW_SCENES, CROW_ALPHABET, type CrowScene } from '@/lib/packs/math/crowScenes';
+import { playPageTurn, playSparkle } from '@/lib/audio/sfx';
+import { CROW_SCENES, CROW_ALPHABET, getScene, type CrowScene } from '@/lib/packs/math/crowScenes';
+import {
+  buildCrowDeck, goldKeysOf,
+  type CrowCacheState, type CrowQuestion,
+} from '@/lib/packs/math/crowPractice';
+import { factKey } from '@/lib/packs/math/timesTable';
 
 const INK = '#3A2E1E';
 const PAPER = '#FFFDF6';
@@ -121,7 +126,7 @@ function Crow({ x, y, scale = 1 }: { x: number; y: number; scale?: number }) {
 
 const VB = '0 0 360 250';
 
-function SceneGrowingShell() {
+function SceneGrowingShell({ quiz = false }: { quiz?: boolean }) {
   return (
     <g>
       <rect x={0} y={200} width={360} height={50} fill={GRASS} />
@@ -136,17 +141,22 @@ function SceneGrowingShell() {
       <text x={252} y={238} textAnchor="middle" fontSize={13} fontWeight={700} fill={INK}>
         all curled up
       </text>
-      {/* the read, left to right */}
-      <text x={180} y={60} textAnchor="middle" fontSize={22} fontWeight={800} fill={INK}>
-        6 × 6
-      </text>
-      <rect x={140} y={74} width={80} height={30} rx={15} fill="#EFE0B0" stroke="#C9A227" strokeWidth={2} />
-      <text x={180} y={95} textAnchor="middle" fontSize={18} fontWeight={800} fill="#5A4520">36</text>
+      {/* the read, left to right — hidden in quiz mode: the answer
+          must come from the shells, not a label */}
+      {!quiz && (
+        <g>
+          <text x={180} y={60} textAnchor="middle" fontSize={22} fontWeight={800} fill={INK}>
+            6 × 6
+          </text>
+          <rect x={140} y={74} width={80} height={30} rx={15} fill="#EFE0B0" stroke="#C9A227" strokeWidth={2} />
+          <text x={180} y={95} textAnchor="middle" fontSize={18} fontWeight={800} fill="#5A4520">36</text>
+        </g>
+      )}
     </g>
   );
 }
 
-function SceneSnailMail() {
+function SceneSnailMail({ quiz = false }: { quiz?: boolean }) {
   const cell = 26, x0 = 78, y0 = 44;
   return (
     <g>
@@ -166,7 +176,7 @@ function SceneSnailMail() {
             <g key={n}>
               <rect x={x0 + c * cell} y={y0 + r * cell} width={cell} height={cell}
                     fill={last ? FLAG_RED : '#F4EDDC'} stroke="#C9BCA8" strokeWidth={1} />
-              {last && (
+              {last && !quiz && (
                 <text x={x0 + c * cell + cell / 2} y={y0 + r * cell + cell / 2 + 5}
                       textAnchor="middle" fontSize={13} fontWeight={800} fill="#FFF">42</text>
               )}
@@ -191,7 +201,7 @@ function SceneSnailMail() {
   );
 }
 
-function SceneHoneycomb() {
+function SceneHoneycomb({ quiz = false }: { quiz?: boolean }) {
   // Flat-top hexagons, 2 rows of 4 — eight rooms, six walls apiece,
   // every wall drawn thick enough to count.
   const R = 27;
@@ -224,13 +234,13 @@ function SceneHoneycomb() {
       <rect x={101} y={178} width={6} height={5} rx={2} fill="none" stroke={WOOD_DARK} strokeWidth={1.5} />
       <rect x={196} y={176} width={150} height={26} rx={13} fill={PAPER} stroke="#C9A227" strokeWidth={2} />
       <text x={271} y={194} textAnchor="middle" fontSize={13} fontWeight={800} fill={INK}>
-        8 rooms × 6 walls = 48
+        {quiz ? '8 rooms × 6 walls' : '8 rooms × 6 walls = 48'}
       </text>
     </g>
   );
 }
 
-function SceneStarQuilt() {
+function SceneStarQuilt({ quiz = false }: { quiz?: boolean }) {
   const cell = 22, x0 = 46, y0 = 42;
   const star = (cx: number, cy: number, r: number, fill: string) => {
     const pts = Array.from({ length: 10 }, (_, k) => {
@@ -265,15 +275,19 @@ function SceneStarQuilt() {
       <text x={257} y={158} textAnchor="middle" fontSize={11} fontWeight={700} fill={FLAG_RED}>
         one short!
       </text>
-      <rect x={220} y={196} width={122} height={28} rx={14} fill={PAPER} stroke="#C9A227" strokeWidth={2} />
-      <text x={281} y={215} textAnchor="middle" fontSize={14} fontWeight={800} fill={INK}>
-        50 − 1 = 49
-      </text>
+      {!quiz && (
+        <g>
+          <rect x={220} y={196} width={122} height={28} rx={14} fill={PAPER} stroke="#C9A227" strokeWidth={2} />
+          <text x={281} y={215} textAnchor="middle" fontSize={14} fontWeight={800} fill={INK}>
+            50 − 1 = 49
+          </text>
+        </g>
+      )}
     </g>
   );
 }
 
-function SceneFamousFence() {
+function SceneFamousFence({ quiz = false }: { quiz?: boolean }) {
   const posts = [
     { n: 5, x: 60 }, { n: 6, x: 140 }, { n: 7, x: 220 }, { n: 8, x: 300 },
   ];
@@ -303,15 +317,19 @@ function SceneFamousFence() {
       <text x={100} y={52} textAnchor="middle" fontSize={15} fontWeight={800} fill={INK}>
         read these two →
       </text>
-      <rect x={64} y={216} width={232} height={26} rx={13} fill={PAPER} stroke="#C9A227" strokeWidth={2} />
-      <text x={180} y={234} textAnchor="middle" fontSize={13} fontWeight={800} fill={INK}>
-        5, 6, 7, 8 → 56 = 7 × 8
-      </text>
+      {!quiz && (
+        <g>
+          <rect x={64} y={216} width={232} height={26} rx={13} fill={PAPER} stroke="#C9A227" strokeWidth={2} />
+          <text x={180} y={234} textAnchor="middle" fontSize={13} fontWeight={800} fill={INK}>
+            5, 6, 7, 8 → 56 = 7 × 8
+          </text>
+        </g>
+      )}
     </g>
   );
 }
 
-function SceneBeeAnatomy() {
+function SceneBeeAnatomy({ quiz = false }: { quiz?: boolean }) {
   // One big bee, side-on: six legs on the floor, four wings that
   // soar. Every leg and wing is drawn separately and numbered,
   // because countable is the whole point.
@@ -345,28 +363,40 @@ function SceneBeeAnatomy() {
         <path key={sx} d={`M ${sx} 88 Q ${sx + 6} 128 ${sx} 168`} fill="none"
               stroke={BEE_DARK} strokeWidth={9} strokeLinecap="round" />
       ))}
-      {/* six legs, numbered at the floor */}
-      {legX.map((lx, i) => (
-        <g key={lx}>
-          <path d={`M ${lx} 164 Q ${lx - 6} 186 ${lx - 2} 204`} fill="none"
-                stroke={BEE_DARK} strokeWidth={4.5} strokeLinecap="round" />
-          <text x={lx - 2} y={226} textAnchor="middle" fontSize={12} fontWeight={800} fill={INK}>
-            {i + 1}
-          </text>
-        </g>
-      ))}
+      {/* six legs, numbered at the floor. Each leg starts ON the
+          belly — computed from the ellipse edge, because a fixed
+          height left the outer legs floating in air — and bends at a
+          knee the way insect legs do. */}
+      {legX.map((lx, i) => {
+        const dx = (lx - 196) / 84;
+        const beltY = 128 + 44 * Math.sqrt(Math.max(0, 1 - dx * dx)) - 3;
+        const kneeX = lx - 7, kneeY = beltY + 20;
+        const footX = lx - 3, footY = 204;
+        return (
+          <g key={lx}>
+            <path d={`M ${lx} ${beltY} L ${kneeX} ${kneeY} L ${footX} ${footY}`}
+                  fill="none" stroke={BEE_DARK} strokeWidth={4.5}
+                  strokeLinecap="round" strokeLinejoin="round" />
+            <text x={footX} y={226} textAnchor="middle" fontSize={12} fontWeight={800} fill={INK}>
+              {i + 1}
+            </text>
+          </g>
+        );
+      })}
       <rect x={236} y={182} width={108} height={26} rx={13} fill={PAPER} stroke="#C9A227" strokeWidth={2} />
       <text x={290} y={200} textAnchor="middle" fontSize={13} fontWeight={800} fill={INK}>
         legs 6 · wings 4
       </text>
-      <text x={52} y={52} textAnchor="middle" fontSize={22} fontWeight={800} fill={INK}>
-        8×8
-      </text>
+      {!quiz && (
+        <text x={52} y={52} textAnchor="middle" fontSize={22} fontWeight={800} fill={INK}>
+          8×8
+        </text>
+      )}
     </g>
   );
 }
 
-const SCENE_ART: Record<string, () => JSX.Element> = {
+const SCENE_ART: Record<string, (props: { quiz?: boolean }) => JSX.Element> = {
   growing_shell: SceneGrowingShell,
   snail_mail: SceneSnailMail,
   honeycomb: SceneHoneycomb,
@@ -375,13 +405,13 @@ const SCENE_ART: Record<string, () => JSX.Element> = {
   bee_anatomy: SceneBeeAnatomy,
 };
 
-export function CrowSceneArt({ code }: { code: string }) {
+export function CrowSceneArt({ code, quiz = false }: { code: string; quiz?: boolean }) {
   const Art = SCENE_ART[code];
   if (!Art) return null;
   return (
     <svg viewBox={VB} className="w-full"
          style={{ display: 'block', background: '#FBF6EA', borderRadius: 8 }}>
-      <Art />
+      <Art quiz={quiz} />
     </svg>
   );
 }
@@ -419,13 +449,20 @@ function AlphabetCard() {
 /* ══ teach mode ═════════════════════════════════════════════════ */
 
 export default function CrowCache({
-  muted, onToggleMute,
+  learnerId, accuracy, initialCache = {}, muted, onToggleMute,
 }: {
+  learnerId: string;
+  /** factKey → correct/total, from the workshop's shared ledger. */
+  accuracy: Map<string, { correct: number; total: number }>;
+  initialCache?: CrowCacheState;
   muted: boolean;
   onToggleMute: () => void;
 }) {
-  // null = the wall; 'alphabet' = the character card; else scene code.
+  // null = the wall; 'alphabet' = the character card;
+  // 'practice' = the quiz; else a scene code.
   const [open, setOpen] = useState<string | null>(null);
+  const [cache, setCache] = useState<CrowCacheState>(initialCache);
+  const goldKeys = useMemo(() => goldKeysOf(cache), [cache]);
   const scene = CROW_SCENES.find(s => s.code === open) ?? null;
   const idx = scene ? CROW_SCENES.indexOf(scene) : -1;
 
@@ -460,6 +497,23 @@ export default function CrowCache({
               </button>
             </div>
 
+            {cache.featherAt && (
+              <div className="rounded-xl p-2 mb-3 flex items-center gap-2"
+                   style={{ background: '#2E2B33' }}>
+                <span className="text-xl" aria-hidden>🪶</span>
+                <p className="text-[12px] font-bold" style={{ color: '#F5D98F' }}>
+                  All six frames are gold. The crow left you its feather —
+                  it does not do that for everyone.
+                </p>
+              </div>
+            )}
+
+            <button onClick={() => { setOpen('practice'); playPageTurn(); }}
+                    className="w-full rounded-xl mb-3 font-bold text-sm"
+                    style={{ background: '#5A8C4A', color: '#FFF', minHeight: 52 }}>
+              🌰 Practice the pictures
+            </button>
+
             {/* the alphabet, then the six frames */}
             <button onClick={() => { setOpen('alphabet'); playPageTurn(); }}
                     className="w-full rounded-xl p-2 mb-3 text-left"
@@ -470,23 +524,42 @@ export default function CrowCache({
             </button>
 
             <div className="grid grid-cols-2 gap-3">
-              {CROW_SCENES.map(s => (
+              {CROW_SCENES.map(s => {
+                const gold = goldKeys.has(factKey(s.a, s.b));
+                return (
                 <button key={s.code}
                         onClick={() => { setOpen(s.code); playPageTurn(); }}
                         className="rounded-xl p-1.5 text-left"
-                        style={{ background: WOOD, border: `2px solid ${WOOD_DARK}` }}>
+                        style={{
+                          background: gold ? '#C9A227' : WOOD,
+                          border: `2px solid ${gold ? '#8A6534' : WOOD_DARK}`,
+                          boxShadow: gold ? '0 0 0 2px #F5D98F' : undefined,
+                        }}>
                   <CrowSceneArt code={s.code} />
                   <div className="flex items-baseline justify-between px-1 pt-1">
-                    <span className="text-[11px] font-bold" style={{ color: '#F4EDDC' }}>
-                      {s.title}
+                    <span className="text-[11px] font-bold"
+                          style={{ color: gold ? '#3A2E1E' : '#F4EDDC' }}>
+                      {gold ? '★ ' : ''}{s.title}
                     </span>
-                    <span className="text-[11px] font-bold" style={{ color: '#F5D98F' }}>
+                    <span className="text-[11px] font-bold"
+                          style={{ color: gold ? '#3A2E1E' : '#F5D98F' }}>
                       {s.a}×{s.b}
                     </span>
                   </div>
                 </button>
-              ))}
+                );
+              })}
             </div>
+          </motion.div>
+        ) : open === 'practice' ? (
+          <motion.div key="practice" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <CrowPractice
+              learnerId={learnerId}
+              accuracy={accuracy}
+              goldKeys={goldKeys}
+              onCache={setCache}
+              onDone={() => setOpen(null)}
+            />
           </motion.div>
         ) : open === 'alphabet' ? (
           <motion.div key="alpha" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -553,6 +626,199 @@ export default function CrowCache({
           </motion.div>
         )}
       </AnimatePresence>
+    </div>
+  );
+}
+
+/* ══ practice — both directions, hints that are pictures ════════ */
+
+function CrowPractice({
+  learnerId, accuracy, goldKeys, onCache, onDone,
+}: {
+  learnerId: string;
+  accuracy: Map<string, { correct: number; total: number }>;
+  goldKeys: Set<string>;
+  onCache: (c: CrowCacheState) => void;
+  onDone: () => void;
+}) {
+  const [seed] = useState(() => Math.floor(Math.random() * 0xffff) + 1);
+  const deck = useMemo(
+    () => buildCrowDeck(accuracy, goldKeys, seed),
+    // Deliberately frozen at mount: the deck must not reshuffle when
+    // a result comes back and the gold set changes mid-round.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [seed],
+  );
+  const [qi, setQi] = useState(0);
+  const [retries, setRetries] = useState(0);
+  const [picked, setPicked] = useState<number | null>(null);
+  const [showHint, setShowHint] = useState(false);
+  const [results, setResults] = useState<Array<{
+    factKey: string; kind: 'forward' | 'reverse'; correct: boolean; retries: number;
+  }>>([]);
+  const [outcome, setOutcome] = useState<{
+    firstTry: number; newlyGold: string[]; newFeather: boolean;
+  } | null>(null);
+  const [sending, setSending] = useState(false);
+  const q = deck[qi] ?? null;
+
+  const finish = async (all: typeof results) => {
+    if (sending) return;
+    setSending(true);
+    const firstTry = all.filter(r => r.correct).length;
+    try {
+      const res = await fetch('/api/crow/practice', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ learnerId, results: all }),
+      });
+      const d = await res.json();
+      if (d.cache) onCache(d.cache);
+      setOutcome({
+        firstTry,
+        newlyGold: d.newlyGold ?? [],
+        newFeather: !!d.newFeather,
+      });
+      if ((d.newlyGold ?? []).length > 0 || d.newFeather) playSparkle();
+    } catch {
+      // The round still happened; the wall just could not hear about
+      // it. Say so honestly.
+      setOutcome({ firstTry, newlyGold: [], newFeather: false });
+    } finally {
+      setSending(false);
+    }
+  };
+
+  const answer = (i: number) => {
+    if (!q || picked !== null || outcome) return;
+    if (i === q.correctIndex) {
+      setPicked(i);
+      playSparkle();
+      const rec = {
+        factKey: q.factKey, kind: q.kind,
+        correct: retries === 0, retries,
+      };
+      window.setTimeout(() => {
+        const all = [...results, rec];
+        setResults(all);
+        setPicked(null); setRetries(0); setShowHint(false);
+        if (qi + 1 < deck.length) setQi(qi + 1);
+        else finish(all);
+      }, 650);
+    } else {
+      // A miss costs nothing and fades the PICTURE in — recalling the
+      // scene is the act being practiced.
+      setRetries(r => r + 1);
+      setShowHint(true);
+    }
+  };
+
+  if (outcome) {
+    return (
+      <div className="rounded-2xl p-4 text-center" style={{ background: PAPER, border: `2px solid ${WOOD}` }}>
+        <h2 className="font-bold text-lg" style={{ color: INK }}>
+          {outcome.firstTry} of {deck.length} on the first try.
+        </h2>
+        {outcome.newlyGold.length > 0 && (
+          <div className="rounded-xl p-3 mt-3" style={{ background: '#F5D98F' }}>
+            <p className="text-[13px] font-bold" style={{ color: '#5A4520' }}>
+              ★ {outcome.newlyGold.map(k => k.replace('x', ' × ')).join(', ')}
+              {outcome.newlyGold.length === 1 ? ' held across days — its frame is GOLD now.' : ' held across days — their frames are GOLD now.'}
+            </p>
+          </div>
+        )}
+        {outcome.newFeather && (
+          <div className="rounded-xl p-3 mt-2 flex items-center gap-2" style={{ background: '#2E2B33' }}>
+            <span className="text-2xl" aria-hidden>🪶</span>
+            <p className="text-[13px] font-bold text-left" style={{ color: '#F5D98F' }}>
+              Every frame is gold. The crow looked at you for a long
+              moment — and left you its feather.
+            </p>
+          </div>
+        )}
+        <p className="text-[12px] italic mt-3" style={{ color: '#8A7A5E' }}>
+          A frame turns gold when its fact holds on different days —
+          come back tomorrow and see.
+        </p>
+        <button onClick={onDone}
+                className="w-full rounded-xl mt-3 font-bold text-sm"
+                style={{ background: '#5A8C4A', color: '#FFF', minHeight: 52 }}>
+          back to the wall
+        </button>
+      </div>
+    );
+  }
+
+  if (!q) return null;
+  return (
+    <div className="rounded-2xl p-4" style={{ background: PAPER, border: `2px solid ${WOOD}` }}>
+      <div className="flex items-center justify-between mb-3">
+        <span className="text-[11px] font-bold" style={{ color: '#8A7A5E' }}>
+          {qi + 1} of {deck.length}
+        </span>
+        <div className="flex gap-1">
+          {deck.map((_, i) => (
+            <span key={i} className="rounded-full"
+                  style={{ width: 7, height: 7,
+                           background: i < qi ? '#5A8C4A' : i === qi ? '#C9A227' : '#D8CEBA' }} />
+          ))}
+        </div>
+      </div>
+
+      {q.kind === 'forward' ? (
+        <>
+          <p className="text-2xl font-bold text-center my-3" style={{ color: INK }}>
+            {q.a} × {q.b} = ?
+          </p>
+          <div className="grid grid-cols-2 gap-2">
+            {q.choices.map((c, i) => (
+              <button key={i} onClick={() => answer(i)}
+                      className="rounded-xl font-bold text-xl"
+                      style={{
+                        background: picked === i ? '#5A8C4A' : '#F4EDDC',
+                        color: picked === i ? '#FFF' : INK,
+                        border: '1px solid #C9A227', minHeight: 60,
+                        touchAction: 'manipulation',
+                      }}>
+                {c}
+              </button>
+            ))}
+          </div>
+        </>
+      ) : (
+        <>
+          <p className="text-xl font-bold text-center my-3" style={{ color: INK }}>
+            <span className="text-3xl">{q.product}</span> — whose picture is this?
+          </p>
+          <div className="grid grid-cols-3 gap-2">
+            {q.choices.map((code, i) => (
+              <button key={code} onClick={() => answer(i)}
+                      className="rounded-xl p-1"
+                      style={{
+                        background: picked === i ? '#5A8C4A' : WOOD,
+                        border: `2px solid ${WOOD_DARK}`,
+                        touchAction: 'manipulation',
+                      }}>
+                <CrowSceneArt code={code} quiz />
+                <span className="block text-center text-[10px] font-bold py-0.5"
+                      style={{ color: '#F4EDDC' }}>
+                  {getScene(code)?.title}
+                </span>
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+
+      {showHint && (
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 0.75 }}
+                    className="mt-3 rounded-xl overflow-hidden"
+                    style={{ border: '2px dashed #C9A227' }}>
+          <CrowSceneArt code={q.sceneCode} quiz />
+          <p className="text-[11px] text-center py-1" style={{ color: '#8A7A5E' }}>
+            the crow taps its picture…
+          </p>
+        </motion.div>
+      )}
     </div>
   );
 }

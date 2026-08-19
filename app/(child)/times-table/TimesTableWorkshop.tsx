@@ -38,15 +38,18 @@ import {
   factKey, strategyFor, weakestFacts, type Fact,
 } from '@/lib/packs/math/timesTable';
 import CrowCache from './CrowCache';
+import type { CrowCacheState } from '@/lib/packs/math/crowPractice';
 
 type Tool = 'learn' | 'split' | 'practice' | 'cards' | 'chart' | 'crow';
 
 export default function TimesTableWorkshop({
-  learnerId, accuracy,
+  learnerId, accuracy, crowCache = {},
 }: {
   learnerId: string;
   /** factKey → [correct, total], already merged across mirrors. */
   accuracy: Record<string, [number, number]>;
+  /** The crow's gold-frame state, server-read. */
+  crowCache?: CrowCacheState;
 }) {
   const [tool, setTool] = useState<Tool>('learn');
   // One mute switch for all of Pip's tools, not one per screen.
@@ -117,7 +120,10 @@ export default function TimesTableWorkshop({
         {tool === 'practice' && <Practice queue={queue} muted={muted} onToggleMute={() => setMuted(m => !m)} />}
         {tool === 'cards'    && <Flashcards queue={queue} muted={muted} onToggleMute={() => setMuted(m => !m)} />}
         {tool === 'chart'    && <Chart accuracy={accMap} />}
-        {tool === 'crow'     && <CrowCache muted={muted} onToggleMute={() => setMuted(m => !m)} />}
+        {tool === 'crow'     && (
+          <CrowCache learnerId={learnerId} accuracy={accMap} initialCache={crowCache}
+                     muted={muted} onToggleMute={() => setMuted(m => !m)} />
+        )}
       </div>
     </div>
   );

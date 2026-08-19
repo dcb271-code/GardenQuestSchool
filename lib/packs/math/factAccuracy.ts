@@ -81,5 +81,27 @@ export async function multiplicationFactAccuracy(
     }
     if (data.length < 1000) break;
   }
+  // Crow practice writes null-item rows with the fact in the
+  // response (source: 'crow'). They count too — one ledger, so the
+  // chart, the queue and the crow's own ordering all agree.
+  for (let from = 0; ; from += 1000) {
+    const { data } = await db.from('attempt')
+      .select('outcome, response')
+      .eq('learner_id', learnerId)
+      .is('item_id', null)
+      .eq('response->>source', 'crow')
+      .range(from, from + 999);
+    if (!data || data.length === 0) break;
+    for (const a of data) {
+      const fact = (a.response as Record<string, unknown> | null)?.fact;
+      if (typeof fact !== 'string' || !/^\d+x\d+$/.test(fact)) continue;
+      const cur = acc.get(fact) ?? { correct: 0, total: 0 };
+      cur.total += 1;
+      if (a.outcome === 'correct') cur.correct += 1;
+      acc.set(fact, cur);
+    }
+    if (data.length < 1000) break;
+  }
+
   return acc;
 }

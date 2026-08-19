@@ -27,5 +27,10 @@ export default async function TimesTablePage({
   const accuracy: Record<string, [number, number]> = {};
   for (const [k, v] of Array.from(acc.entries())) accuracy[k] = [v.correct, v.total];
 
-  return <TimesTableWorkshop learnerId={learnerId} accuracy={accuracy} />;
+  // The crow's gold frames, straight off the garden blob.
+  const { data: wsRow } = await db
+    .from('world_state').select('garden').eq('learner_id', learnerId).maybeSingle();
+  const crowCache = ((wsRow?.garden as Record<string, any>)?.crow_cache ?? {});
+
+  return <TimesTableWorkshop learnerId={learnerId} accuracy={accuracy} crowCache={crowCache} />;
 }
