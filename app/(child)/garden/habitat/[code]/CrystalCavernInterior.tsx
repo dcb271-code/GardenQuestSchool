@@ -462,6 +462,55 @@ export default function CrystalCavernInterior({
           </text>
         </g>
 
+        {/* ── THE STUDY TABLE — the learning she commissioned ──────
+            A desk against the left wall with the field book open on
+            it. Tapping it opens /gems: four lessons on the seam
+            stones, generated from the same catalog the digging uses. */}
+        <g transform="translate(118, 336)"
+           style={{ cursor: 'pointer', touchAction: 'manipulation' }}
+           onClick={() => router.push(`/gems?learner=${learnerId}`)}
+           aria-label="The study table — learn the stones" role="button">
+          <rect x={-84} y={-70} width={168} height={188} fill="transparent" />
+          {!reducedMotion && (
+            <motion.rect x={-70} y={-56} width={140} height={132} rx={10}
+              fill="#FFE89A"
+              animate={{ opacity: [0.06, 0.18, 0.06] }}
+              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }} />
+          )}
+          {/* the desk: top, apron, two legs */}
+          <rect x={-66} y={26} width={132} height={12} rx={3}
+                fill="#8A6238" stroke="#4A3018" strokeWidth={2} />
+          <rect x={-58} y={38} width={10} height={54} fill="#6B4A28" stroke="#4A3018" strokeWidth={1.5} />
+          <rect x={48} y={38} width={10} height={54} fill="#6B4A28" stroke="#4A3018" strokeWidth={1.5} />
+          <ellipse cx={0} cy={96} rx={72} ry={9} fill="#000" opacity={0.28} />
+          {/* the open field book */}
+          <g transform="translate(-14, 6)">
+            <path d="M -34 12 Q -32 -4 0 -2 Q 32 -4 34 12 L 30 20 Q 0 12 -30 20 Z"
+                  fill="#F5EDDA" stroke="#8A7358" strokeWidth={2} strokeLinejoin="round" />
+            <line x1={0} y1={-2} x2={0} y2={16} stroke="#8A7358" strokeWidth={1.5} />
+            {[-24, -16].map(lx => (
+              <line key={lx} x1={lx} y1={4 + (lx === -24 ? 0 : 5)} x2={-6} y2={4 + (lx === -24 ? 0 : 5)}
+                    stroke="#B9A98A" strokeWidth={1.4} />
+            ))}
+            {[8, 16].map(lx => (
+              <line key={lx} x1={6} y1={lx === 8 ? 4 : 9} x2={24} y2={lx === 8 ? 4 : 9}
+                    stroke="#B9A98A" strokeWidth={1.4} />
+            ))}
+          </g>
+          {/* a specimen being studied, and the lens looking at it */}
+          <ellipse cx={38} cy={18} rx={9} ry={7} fill="#9B6FD4" stroke="#241D16" strokeWidth={1.5} />
+          <g transform="translate(46, -8) rotate(24)">
+            <circle cx={0} cy={0} r={9} fill="#CFE4EE" fillOpacity={0.5}
+                    stroke="#4A3018" strokeWidth={2.5} />
+            <line x1={0} y1={9} x2={0} y2={22} stroke="#4A3018" strokeWidth={3.5} strokeLinecap="round" />
+          </g>
+          <rect x={-64} y={104} width={128} height={20} rx={10}
+                fill="rgba(255,250,242,0.94)" stroke="#6b8e5a" strokeWidth={1.2} />
+          <text y={118} textAnchor="middle" fontSize={11} fontWeight={700} fill="#3f2614">
+            the study table
+          </text>
+        </g>
+
         {/* the creatures living further in */}
         {discoveredSpecies.map((sp, i) => {
           const { x, y } = slot(i);
