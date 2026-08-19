@@ -466,17 +466,13 @@ export default function CrystalCavernInterior({
             A desk against the left wall with the field book open on
             it. Tapping it opens /gems: four lessons on the seam
             stones, generated from the same catalog the digging uses. */}
-        <g transform="translate(118, 336)"
+        <g transform="translate(386, 764)"
            style={{ cursor: 'pointer', touchAction: 'manipulation' }}
            onClick={() => router.push(`/gems?learner=${learnerId}`)}
            aria-label="The study table — learn the stones" role="button">
           <rect x={-84} y={-70} width={168} height={188} fill="transparent" />
-          {!reducedMotion && (
-            <motion.rect x={-70} y={-56} width={140} height={132} rx={10}
-              fill="#FFE89A"
-              animate={{ opacity: [0.06, 0.18, 0.06] }}
-              transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }} />
-          )}
+          {/* no glow here — against the tunnel's dark it read as a
+              pale floating box, not light. The label is the invite. */}
           {/* the desk: top, apron, two legs */}
           <rect x={-66} y={26} width={132} height={12} rx={3}
                 fill="#8A6238" stroke="#4A3018" strokeWidth={2} />
