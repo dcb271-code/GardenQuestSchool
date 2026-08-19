@@ -56,9 +56,18 @@ async function main() {
     if (box.length === 0) continue;
 
     if (reply?.id) {
-      if (!box.some(x => x.id === reply.id)) continue;
+      const target = box.find(x => x.id === reply.id);
+      if (!target) continue;
       if (!reply.text) {
         console.error('Usage: npm run letters -- --reply <id> "your reply"');
+        process.exit(1);
+      }
+      // One reply slot per letter — a second reply OVERWRITES the
+      // first, silently, which has already eaten one reply she had
+      // not... luckily had already read. Refuse without --force.
+      if (target.reply && !process.argv.includes('--force')) {
+        console.error(`! ${reply.id} already has a reply (${target.repliedAt?.slice(0, 10)}).`);
+        console.error('  Replying again REPLACES it. Add --force if you mean to.');
         process.exit(1);
       }
       g.letters = replyTo(box, reply.id, reply.text, new Date().toISOString());

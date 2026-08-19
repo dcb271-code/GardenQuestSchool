@@ -76,7 +76,12 @@ export function markRepliesRead(box: Letterbox, nowIso: string): Letterbox {
 export function replyTo(
   box: Letterbox, id: string, reply: string, nowIso: string,
 ): Letterbox {
+  // A fresh reply is unread BY DEFINITION. Without clearing readAt, a
+  // second reply to the same letter inherits the first one's read
+  // mark and is born invisible — written, saved, and never flagged.
   return box.map(l =>
-    l.id === id ? { ...l, reply: reply.trim(), repliedAt: nowIso } : l,
+    l.id === id
+      ? { ...l, reply: reply.trim(), repliedAt: nowIso, readAt: undefined }
+      : l,
   );
 }
