@@ -18,6 +18,7 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import HabitatInteriorLayout from '@/components/child/garden/HabitatInteriorLayout';
 import LunaVisitModal from '@/components/child/garden/LunaVisitModal';
+import KitchenModal from '@/components/child/garden/KitchenModal';
 import GemSpecimen from '@/components/child/garden/GemSpecimen';
 import { SpeciesIllustration } from '@/components/child/garden/speciesIllustrations';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
@@ -39,7 +40,7 @@ const FLOOR_LINE = '#8F5A2E';
 const BRICK = '#A5553F';
 const MORTAR = '#D8C7B4';
 
-type Room = 'entry' | 'reading';
+type Room = 'entry' | 'reading' | 'kitchen';
 
 export default function HouseScene({
   learnerId, learnerName, coatNames, house: initialHouse, kept,
@@ -64,6 +65,7 @@ export default function HouseScene({
   const [picker, setPicker] = useState<'stone' | 'bird' | null>(null);
   const [openBook, setOpenBook] = useState<number | null>(null);
   const [lunaOpen, setLunaOpen] = useState(false);
+  const [cooking, setCooking] = useState(false);
   const [note, setNote] = useState<string | null>(null);
 
   const setMantel = async (slot: 'stone' | 'bird', code: string | null) => {
@@ -101,6 +103,13 @@ export default function HouseScene({
                 learnerName={learnerName}
                 reducedMotion={reducedMotion}
                 onReadingRoom={() => setRoom('reading')}
+                onKitchen={() => setRoom('kitchen')}
+              />
+            ) : room === 'kitchen' ? (
+              <KitchenRoom
+                reducedMotion={reducedMotion}
+                onBack={() => setRoom('entry')}
+                onCook={() => setCooking(true)}
               />
             ) : (
               <ReadingRoom
@@ -141,6 +150,15 @@ export default function HouseScene({
         />
       )}
 
+      {/* the family recipe book — the same kitchen as Bachan's
+          table, reached through her own back hallway */}
+      <KitchenModal
+        open={cooking}
+        learnerId={learnerId}
+        onClose={() => setCooking(false)}
+        onCooked={() => router.refresh()}
+      />
+
       {lunaOpen && (
         <LunaVisitModal
           learnerId={learnerId}
@@ -163,12 +181,13 @@ export default function HouseScene({
 // stairs, where it really is.
 
 function EntryHall({
-  coatNames, learnerName, reducedMotion, onReadingRoom,
+  coatNames, learnerName, reducedMotion, onReadingRoom, onKitchen,
 }: {
   coatNames: string[];
   learnerName: string;
   reducedMotion: boolean;
   onReadingRoom: () => void;
+  onKitchen: () => void;
 }) {
   const colors = coatColorsFor(coatNames);
   return (
@@ -251,9 +270,11 @@ function EntryHall({
           frame the way it really does when you walk in */}
       <Staircase reducedMotion={reducedMotion} />
 
-      {/* the hallway back to the kitchen — a real hallway with a lamp
-          at the end, and an honest sign on a string across it */}
-      <g>
+      {/* the hallway back to the kitchen — built now. The string and
+          the "not built yet" sign came down; warm light and a smell
+          of something cooking come up the hall instead. */}
+      <g onClick={onKitchen} style={{ cursor: 'pointer' }} role="button"
+         aria-label="Go to the kitchen">
         <rect x={318} y={344} width={150} height={470} fill={TRIM} rx={3} />
         <polygon points="330,356 352,432 352,782 330,810" fill="#5A4630" />
         <polygon points="456,356 434,432 434,782 456,810" fill="#5A4630" />
@@ -262,17 +283,19 @@ function EntryHall({
         {/* the lamp at the end of the hall, and the red bench under it */}
         <line x1={393} y1={432} x2={393} y2={466} stroke="#2E2216" strokeWidth={2} />
         <circle cx={393} cy={474} r={9} fill="#FFE9A8" opacity={0.95} />
-        <ellipse cx={393} cy={500} rx={30} ry={40} fill="#FFE9A8" opacity={0.14} />
+        <ellipse cx={393} cy={500} rx={30} ry={40} fill="#FFE9A8" opacity={0.22} />
+        {!reducedMotion && (
+          <motion.ellipse cx={393} cy={620} rx={40} ry={160} fill="#FFE9A8"
+                          animate={{ opacity: [0.06, 0.13, 0.06] }}
+                          transition={{ duration: 3, repeat: Infinity }} />
+        )}
         <rect x={362} y={716} width={62} height={26} rx={4} fill="#8F3A32" />
         {[368, 412].map(x => <rect key={x} x={x} y={742} width={7} height={22} fill="#6E2A24" />)}
-        {/* the sign on its string */}
-        <path d="M 330 520 Q 393 545 456 520" fill="none" stroke="#8A7A5E" strokeWidth={2} />
-        <rect x={338} y={536} width={110} height={44} rx={6} fill="#F7EFD9" stroke="#C9B88E" strokeWidth={2}
-              transform="rotate(-2 393 558)" />
-        <text x={393} y={555} textAnchor="middle" fontSize={11} fontWeight={700} fill="#6B5C42"
-              transform="rotate(-2 393 558)">the kitchen</text>
-        <text x={393} y={570} textAnchor="middle" fontSize={10} fontStyle="italic" fill="#8A7A5E"
-              transform="rotate(-2 393 558)">not built yet</text>
+        <rect x={334} y={744} width={118} height={30} rx={15} fill="#FFF8E8" opacity={0.94}
+              stroke="#C9B88E" strokeWidth={1.5} />
+        <text x={393} y={764} textAnchor="middle" fontSize={13} fontWeight={700} fill="#3f2614">
+          the kitchen
+        </text>
       </g>
 
       {/* framed flower art — the paper-flower pictures from the real
@@ -457,6 +480,208 @@ function Staircase({ reducedMotion }: { reducedMotion: boolean }) {
       <text x={150} y={680} textAnchor="middle" fontSize={10} fontStyle="italic" fill="#8A7A5E"
             transform="rotate(2 150 668)">not built yet</text>
     </g>
+  );
+}
+
+/* ── the kitchen ────────────────────────────────────────────────── */
+
+// Her real kitchen, from the photos: sage shaker cabinets, dark
+// veined granite, the white-and-gray starburst backsplash, a window
+// over the sink, the stainless refrigerator, and the peninsula with
+// the clear stools and teal cushions. The hallway at the back leads
+// to the white back door. Cooking opens the same recipe book as
+// Bachan's table — one kitchen system, two doors into it.
+
+function KitchenRoom({
+  reducedMotion, onBack, onCook,
+}: {
+  reducedMotion: boolean;
+  onBack: () => void;
+  onCook: () => void;
+}) {
+  const SAGE = '#C9D2BC';
+  const SAGE_DARK = '#A9B49A';
+  const GRANITE = '#4A4A46';
+  const GRANITE_VEIN = '#8A8A80';
+  return (
+    <svg viewBox="0 0 700 1100" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <linearGradient id="k-wall" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#F4E4D4" />
+          <stop offset="100%" stopColor="#E8D0BC" />
+        </linearGradient>
+        <linearGradient id="k-steel" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="#B8BCC0" />
+          <stop offset="45%" stopColor="#D8DCE0" />
+          <stop offset="100%" stopColor="#A8ACB0" />
+        </linearGradient>
+        <linearGradient id="k-corner-l" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor="#5A3B1F" stopOpacity="0.22" />
+          <stop offset="100%" stopColor="#5A3B1F" stopOpacity="0" />
+        </linearGradient>
+        <linearGradient id="k-corner-r" x1="1" y1="0" x2="0" y2="0">
+          <stop offset="0%" stopColor="#5A3B1F" stopOpacity="0.22" />
+          <stop offset="100%" stopColor="#5A3B1F" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+
+      {/* ceiling, blush walls from the photos, parquet floor */}
+      <rect x={0} y={0} width={700} height={56} fill="#F7EEDC" />
+      <rect x={0} y={52} width={700} height={10} fill={TRIM} opacity={0.4} />
+      <rect x={0} y={60} width={700} height={780} fill="url(#k-wall)" />
+      <rect x={0} y={820} width={700} height={280} fill="#D9B380" />
+      {/* parquet: brick-laid blocks */}
+      {[850, 900, 950, 1000, 1050].map((y, r) => (
+        <g key={y}>
+          <line x1={0} y1={y} x2={700} y2={y} stroke="#B98F58" strokeWidth={2} opacity={0.6} />
+          {[0, 1, 2, 3, 4, 5, 6].map(i => (
+            <line key={i} x1={i * 100 + (r % 2 ? 50 : 0)} y1={y} x2={i * 100 + (r % 2 ? 50 : 0)} y2={y + 50}
+                  stroke="#B98F58" strokeWidth={1.5} opacity={0.5} />
+          ))}
+        </g>
+      ))}
+
+      {/* back to the hall */}
+      <g onClick={onBack} style={{ cursor: 'pointer' }} role="button" aria-label="Back to the hall">
+        <rect x={16} y={26} width={128} height={38} rx={19} fill="#FFF8E8" opacity={0.92}
+              stroke="#C9B88E" strokeWidth={2} />
+        <text x={80} y={51} textAnchor="middle" fontSize={14} fontWeight={700} fill="#3f2614">
+          ← the hall
+        </text>
+      </g>
+
+      {/* the hallway to the white back door, off the right */}
+      <g>
+        <rect x={596} y={330} width={80} height={470} fill={TRIM} rx={3} />
+        <rect x={608} y={344} width={56} height={442} fill="#C9B49C" />
+        {/* the white door with its window, small with distance */}
+        <rect x={616} y={520} width={40} height={200} fill="#F6F2EA" stroke="#C9BCA8" strokeWidth={2} rx={2} />
+        <rect x={622} y={532} width={28} height={60} fill="#BFD8E4" stroke="#C9BCA8" strokeWidth={1.5} />
+        <circle cx={650} cy={630} r={2.5} fill="#8A7A5E" />
+      </g>
+
+      {/* upper cabinets: sage shaker with under-cabinet lights */}
+      {[[60, 200], [280, 150], [450, 130]].map(([x, w], i) => (
+        <g key={i}>
+          <rect x={x} y={210} width={w} height={150} fill={SAGE} stroke={SAGE_DARK} strokeWidth={2} rx={3} />
+          {Array.from({ length: Math.max(1, Math.round(w / 75)) }, (_, d) => (
+            <rect key={d} x={x + 10 + d * (w / Math.max(1, Math.round(w / 75)))} y={222}
+                  width={w / Math.max(1, Math.round(w / 75)) - 20} height={126}
+                  fill="none" stroke={SAGE_DARK} strokeWidth={2} rx={2} />
+          ))}
+          <rect x={x} y={356} width={w} height={6} fill="#FFF3CF" opacity={0.9} />
+        </g>
+      ))}
+
+      {/* the starburst backsplash */}
+      <rect x={60} y={366} width={520} height={128} fill="#F4F0E8" />
+      {[0, 1, 2, 3, 4, 5, 6, 7].map(cx => [0, 1].map(cy => {
+        const px = 95 + cx * 65, py = 398 + cy * 62;
+        return (
+          <g key={`${cx}-${cy}`} stroke="#8A8A94" strokeWidth={1.2} opacity={0.55}>
+            {[0, 45, 90, 135].map(a => (
+              <line key={a}
+                    x1={px - 12 * Math.cos(a * Math.PI / 180)} y1={py - 12 * Math.sin(a * Math.PI / 180)}
+                    x2={px + 12 * Math.cos(a * Math.PI / 180)} y2={py + 12 * Math.sin(a * Math.PI / 180)} />
+            ))}
+            <circle cx={px} cy={py} r={2} fill="#8A8A94" stroke="none" />
+          </g>
+        );
+      }))}
+
+      {/* window over the sink, garden beyond */}
+      <g>
+        <rect x={296} y={286} width={120} height={176} fill="#FFFFFF" stroke="#D8CEBA" strokeWidth={3} rx={2} />
+        <rect x={302} y={292} width={108} height={112} fill="#CFE4EE" />
+        <rect x={302} y={292} width={108} height={112} fill="url(#garden-through-glass2)" opacity={0.85} />
+        <line x1={356} y1={292} x2={356} y2={404} stroke="#FFFFFF" strokeWidth={3} />
+        <rect x={302} y={408} width={108} height={48} fill="#EDF4F7" opacity={0.5} />
+        <defs>
+          <linearGradient id="garden-through-glass2" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#CFE4EE" />
+            <stop offset="55%" stopColor="#A9C6A0" />
+            <stop offset="100%" stopColor="#7FA86B" />
+          </linearGradient>
+        </defs>
+      </g>
+
+      {/* counter run: granite, sink under the window, cooktop, base
+          cabinets, dishwasher, and the fridge on the left */}
+      <g>
+        <rect x={40} y={494} width={80} height={330} fill="url(#k-steel)" stroke="#8A8E92" strokeWidth={2} rx={6} />
+        <line x1={80} y1={500} x2={80} y2={690} stroke="#8A8E92" strokeWidth={2} />
+        <rect x={62} y={560} width={7} height={54} rx={3} fill="#8A8E92" />
+        <rect x={91} y={560} width={7} height={54} rx={3} fill="#8A8E92" />
+        <line x1={44} y1={700} x2={116} y2={700} stroke="#8A8E92" strokeWidth={2} />
+      </g>
+      <g>
+        <rect x={130} y={494} width={460} height={30} fill={GRANITE} rx={4} />
+        {[[150, 505], [230, 512], [330, 502], [430, 514], [520, 506]].map(([vx, vy], i) => (
+          <path key={i} d={`M ${vx} ${vy} q 24 ${i % 2 ? 6 : -6} 48 0`} fill="none"
+                stroke={GRANITE_VEIN} strokeWidth={1.5} opacity={0.6} />
+        ))}
+        {/* sink */}
+        <rect x={306} y={496} width={100} height={12} rx={4} fill="#B8BCC0" />
+        <path d="M 340 494 q 0 -26 18 -26 q 14 0 14 14" fill="none" stroke="#8A8E92" strokeWidth={5} strokeLinecap="round" />
+        {/* cooktop with grates */}
+        <rect x={452} y={496} width={110} height={16} rx={4} fill="#2A2A28" />
+        {[470, 502, 534].map(gx => (
+          <circle key={gx} cx={gx + 8} cy={504} r={6} fill="none" stroke="#6A6A64" strokeWidth={2} />
+        ))}
+        {/* base cabinets */}
+        <rect x={130} y={524} width={460} height={210} fill={SAGE} stroke={SAGE_DARK} strokeWidth={2} />
+        {[140, 250, 470].map(bx => (
+          <rect key={bx} x={bx} y={536} width={90} height={186} fill="none" stroke={SAGE_DARK} strokeWidth={2} rx={2} />
+        ))}
+        {[140, 250, 470].map(bx => (
+          <rect key={bx} x={bx + 30} y={548} width={30} height={5} rx={2.5} fill={SAGE_DARK} />
+        ))}
+        {/* dishwasher */}
+        <rect x={352} y={536} width={104} height={186} fill="url(#k-steel)" stroke="#8A8E92" strokeWidth={2} rx={3} />
+        <rect x={362} y={548} width={84} height={8} rx={4} fill="#8A8E92" />
+        <rect x={130} y={734} width={460} height={10} fill="#8A8A78" opacity={0.4} />
+      </g>
+
+      {/* THE PENINSULA — granite top, sage base, and the three clear
+          stools with teal cushions from the photo */}
+      <g>
+        <rect x={120} y={806} width={430} height={34} fill={GRANITE} rx={6} />
+        {[[150, 820], [280, 826], [420, 816]].map(([vx, vy], i) => (
+          <path key={i} d={`M ${vx} ${vy} q 30 ${i % 2 ? 7 : -7} 60 0`} fill="none"
+                stroke={GRANITE_VEIN} strokeWidth={1.5} opacity={0.6} />
+        ))}
+        <rect x={148} y={840} width={374} height={96} fill={SAGE} stroke={SAGE_DARK} strokeWidth={2} />
+        {[160, 300, 430].map(bx => (
+          <rect key={bx} x={bx} y={850} width={80} height={76} fill="none" stroke={SAGE_DARK} strokeWidth={2} rx={2} />
+        ))}
+        {/* stools: clear acrylic legs, teal seats */}
+        {[210, 335, 460].map((sx, i) => (
+          <g key={sx}>
+            <ellipse cx={sx} cy={1042} rx={30} ry={6} fill="#000" opacity={0.13} />
+            <g stroke="#C8D8DC" strokeWidth={4} opacity={0.8} strokeLinecap="round">
+              <line x1={sx - 22} y1={974} x2={sx - 26} y2={1040} />
+              <line x1={sx + 22} y1={974} x2={sx + 26} y2={1040} />
+              <line x1={sx - 24} y1={1012} x2={sx + 24} y2={1012} />
+            </g>
+            <rect x={sx - 28} y={952} width={56} height={24} rx={11} fill="#2E8B9A" />
+            <rect x={sx - 28} y={952} width={56} height={10} rx={5} fill="#3FA3B4" />
+          </g>
+        ))}
+      </g>
+
+      {/* cook something — the door into the family recipe book */}
+      <g onClick={onCook} style={{ cursor: 'pointer' }} role="button" aria-label="Cook something">
+        <rect x={210} y={640} width={250} height={56} rx={28} fill="#C9A227"
+              stroke="#8A6534" strokeWidth={2} />
+        <text x={335} y={675} textAnchor="middle" fontSize={19} fontWeight={700} fill="#2A2420">
+          🍲 cook something
+        </text>
+      </g>
+
+      {/* corner shading */}
+      <rect x={0} y={56} width={70} height={1044} fill="url(#k-corner-l)" pointerEvents="none" />
+      <rect x={630} y={56} width={70} height={1044} fill="url(#k-corner-r)" pointerEvents="none" />
+    </svg>
   );
 }
 

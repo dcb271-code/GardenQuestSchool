@@ -26,6 +26,7 @@ import EstimationDuelModal from '@/components/child/garden/EstimationDuelModal';
 import { getResearcherQuest, RESEARCHER_MIN_LEVEL } from '@/lib/world/researcherQuests';
 import { ESTIMATION_MIN_LEVEL } from '@/lib/world/estimationDuel';
 import { residentGreeting, type Resident } from '@/lib/world/residents';
+import { treatKindFor, canFeedToday, pantryCount } from '@/lib/world/treats';
 import { resolveClip, type AudioIndex } from '@/lib/birds/audioResolve';
 import { SpeciesIllustration } from '@/components/child/garden/speciesIllustrations';
 import KitchenModal from '@/components/child/garden/KitchenModal';
@@ -367,6 +368,7 @@ export default function GardenScene({
   learnerLevel = 2,
   researcherBadges = [],
   residents = [],
+  today = '',
   birdAudio = {},
   unreadLetterReplies = 0,
   moonGardenOpen = false,
@@ -394,6 +396,9 @@ export default function GardenScene({
   researcherBadges?: string[];
   /** Discovered creatures, placed beside the habitat they live in. */
   residents?: Resident[];
+  /** Her home-timezone day, for showing the treat offer only when
+      the animal has not eaten today. The server still enforces it. */
+  today?: string;
   /** Clips for bird residents, so tapping one plays its voice. */
   birdAudio?: AudioIndex;
   /** Replies she has not opened — puts a flag up on the letterbox. */
@@ -468,6 +473,9 @@ export default function GardenScene({
   const [researchHabitatCode, setResearchHabitatCode] = useState<string | null>(null);
   const [hodgeChoiceOpen, setHodgeChoiceOpen] = useState(false);
   const [tappedResident, setTappedResident] = useState<Resident | null>(null);
+  // A fed animal's true thing, shown as a card until dismissed.
+  const [fedFact, setFedFact] = useState<{ name: string; emoji: string; fact: string } | null>(null);
+  const [feeding, setFeeding] = useState(false);
   const [singingCode, setSingingCode] = useState<string | null>(null);
 
   /**
@@ -564,6 +572,31 @@ export default function GardenScene({
   });
 
   // Walk the sisters over first (1.2s), then start the session.
+  const feedResident = async (r: Resident) => {
+    if (feeding) return;
+    setFeeding(true);
+    try {
+      const res = await fetch('/api/shop', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ learnerId, action: 'feed', speciesCode: r.species.code }),
+      });
+      const d = await res.json();
+      if (d.shop) setShop(prev => ({ ...prev, ...d.shop }));
+      if (d.error) {
+        setFedFact({ name: r.species.commonName, emoji: r.species.emoji, fact: d.error });
+        return;
+      }
+      playSparkle();
+      setFedFact({ name: r.species.commonName, emoji: r.species.emoji, fact: d.fact });
+    } catch {
+      setFedFact({ name: r.species.commonName, emoji: r.species.emoji,
+                   fact: 'That did not go through. Your treat is safe.' });
+    } finally {
+      setFeeding(false);
+      setTappedResident(null);
+    }
+  };
+
   const walkThenStart = (s: MapStructure) => {
     setSistersTarget(walkOffsetFor(s));
     setSistersWalking(true);
@@ -1716,7 +1749,19 @@ export default function GardenScene({
               style={{ cursor: 'pointer', touchAction: 'manipulation' }}
               onClick={() => {
                 setTappedResident(r);
-                window.setTimeout(() => setTappedResident(null), 2600);
+                const kind = treatKindFor(r.species);
+                const offering = !!kind && pantryCount(shop, kind.code) > 0
+                  && canFeedToday(shop, r.species.code, today);
+                // A bubble with a button in it has to live long
+                // enough to be tapped.
+                window.setTimeout(() => {
+                  setTappedResident(cur => (cur === r && !offering ? null : cur));
+                }, 2600);
+                if (offering) {
+                  window.setTimeout(() => {
+                    setTappedResident(cur => (cur === r ? null : cur));
+                  }, 8000);
+                }
                 singResident(r);
               }}
               aria-label={residentGreeting(r)}
@@ -1755,23 +1800,47 @@ export default function GardenScene({
             </g>
           ))}
 
-          {/* name bubble for a tapped resident */}
-          {tappedResident && (
+          {/* name bubble for a tapped resident — and, when she is
+              carrying the right treat and the animal has not eaten
+              today, the offer to feed it */}
+          {tappedResident && (() => {
+            const kind = treatKindFor(tappedResident.species);
+            const offerTreat = !!kind
+              && pantryCount(shop, kind.code) > 0
+              && canFeedToday(shop, tappedResident.species.code, today);
+            return (
             <motion.g
-              pointerEvents="none"
               transform={`translate(${tappedResident.x}, ${tappedResident.y - 30})`}
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
             >
-              <rect x={-74} y={-16} width={148} height={20} rx={10}
-                    fill="rgba(255,250,242,0.96)" stroke="#6b8e5a" strokeWidth={1} />
-              <text x={0} y={-2} textAnchor="middle" fontSize={9} fontWeight={700} fill="#3f2614">
-                {singingCode === tappedResident.species.code
-                  ? `♪ ${tappedResident.species.commonName} ♪`
-                  : tappedResident.species.commonName}
-              </text>
+              <g pointerEvents="none">
+                <rect x={-74} y={-16} width={148} height={20} rx={10}
+                      fill="rgba(255,250,242,0.96)" stroke="#6b8e5a" strokeWidth={1} />
+                <text x={0} y={-2} textAnchor="middle" fontSize={9} fontWeight={700} fill="#3f2614">
+                  {singingCode === tappedResident.species.code
+                    ? `♪ ${tappedResident.species.commonName} ♪`
+                    : tappedResident.species.commonName}
+                </text>
+              </g>
+              {offerTreat && kind && (
+                <g
+                  transform="translate(0, 32)"
+                  style={{ cursor: 'pointer', touchAction: 'manipulation' }}
+                  onClick={(e) => { e.stopPropagation(); feedResident(tappedResident); }}
+                  role="button"
+                  aria-label={`Give the ${tappedResident.species.commonName} a treat`}
+                >
+                  <rect x={-56} y={-14} width={112} height={30} rx={15}
+                        fill="#6b8e5a" stroke="#3F2614" strokeWidth={1.5} />
+                  <text x={0} y={5} textAnchor="middle" fontSize={11} fontWeight={700} fill="#FFF8E8">
+                    {feeding ? '…' : `${kind.emoji} give a treat`}
+                  </text>
+                </g>
+              )}
             </motion.g>
-          )}
+            );
+          })()}
 
           {/* ── THE LETTERBOX ──────────────────────────────────
               A child writing to whoever builds this. Cecily asked for
@@ -2360,6 +2429,44 @@ export default function GardenScene({
         onClose={() => setCompanionOpen(false)}
         onChanged={loadCompanion}
       />
+
+      {/* a fed animal's true thing */}
+      <AnimatePresence>
+        {fedFact && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ background: 'rgba(20,14,8,0.7)' }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={() => setFedFact(null)}
+          >
+            <motion.div
+              initial={reducedMotion ? undefined : { scale: 0.92, y: 8 }}
+              animate={reducedMotion ? undefined : { scale: 1, y: 0 }}
+              className="rounded-2xl p-5 w-full"
+              style={{ background: '#FFFAF2', border: '2px solid #C9A227', maxWidth: 380 }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="text-center">
+                <span className="text-4xl" aria-hidden>{fedFact.emoji}</span>
+                <h2 className="font-bold text-base mt-1" style={{ color: '#3f2614' }}>
+                  {fedFact.name}
+                </h2>
+              </div>
+              <p className="text-sm mt-3 leading-relaxed" style={{ color: '#4a4034' }}>
+                {fedFact.fact}
+              </p>
+              <button
+                onClick={() => setFedFact(null)}
+                className="w-full rounded-xl mt-4 font-bold text-sm"
+                style={{ background: '#C9A227', color: '#2A2420', minHeight: 48,
+                         touchAction: 'manipulation' }}
+              >
+                done
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Bachan's kitchen — cook a recipe from the harvest basket */}
       <KitchenModal

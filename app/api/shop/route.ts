@@ -4,6 +4,9 @@ import { createServiceClient } from '@/lib/supabase/server';
 import { getShopItem, emptyShop, instanceIds, codeOf, snapToGrid,
          type ShopState } from '@/lib/world/shopCatalog';
 import { emptyCavern, spendKeptGem, type CavernState } from '@/lib/world/cavern';
+import { getTreatKind, feedAnimal, canFeedToday, pantryCount, treatKindFor } from '@/lib/world/treats';
+import { SPECIES_CATALOG } from '@/lib/world/speciesCatalog';
+import { todayKey } from '@/lib/learning/review';
 
 /**
  * Buying, placing and putting back.
@@ -22,9 +25,10 @@ export const revalidate = 0;
 
 const Body = z.object({
   learnerId: z.string().min(1),
-  action: z.enum(['buy', 'place', 'store']),
+  action: z.enum(['buy', 'place', 'store', 'buy_treat', 'feed']),
   itemCode: z.string().optional(),
   instanceId: z.string().optional(),
+  speciesCode: z.string().optional(),
   x: z.number().optional(),
   y: z.number().optional(),
 });
@@ -72,6 +76,55 @@ export async function POST(req: Request) {
     }
     cavern.coins -= item.price;
     shop.owned = [...shop.owned, item.code];
+  }
+
+  // ── treats ──────────────────────────────────────────────────────
+  // Bought into the pantry, not the shed: a treat is consumable and
+  // never placed. Feeding is capped one-per-animal-per-day on HER
+  // day, and every refusal is said in words — the silent {paid:0}
+  // lesson, kept.
+  if (body.action === 'buy_treat') {
+    const treat = body.itemCode ? getTreatKind(body.itemCode) : undefined;
+    if (!treat) return NextResponse.json({ error: 'no such treat' }, { status: 400 });
+    if (cavern.coins < treat.price) {
+      return NextResponse.json({
+        error: `That costs ${treat.price}c and you have ${cavern.coins}c.`,
+      }, { status: 400 });
+    }
+    cavern.coins -= treat.price;
+    shop.pantry = { ...(shop.pantry ?? {}), [treat.code]: (shop.pantry?.[treat.code] ?? 0) + 1 };
+  }
+
+  if (body.action === 'feed' && body.speciesCode) {
+    const species = SPECIES_CATALOG.find(sp => sp.code === body.speciesCode);
+    const treat = species ? treatKindFor(species) : null;
+    const today = todayKey();
+    if (!species || !treat) {
+      return NextResponse.json({ error: 'That animal does not want a treat.', shop });
+    }
+    if (!canFeedToday(shop, species.code, today)) {
+      return NextResponse.json({
+        error: `The ${species.commonName.toLowerCase()} has eaten today. Come back tomorrow.`,
+        shop,
+      });
+    }
+    if (pantryCount(shop, treat.code) <= 0) {
+      return NextResponse.json({
+        error: `A ${species.commonName.toLowerCase()} eats ${treat.name.toLowerCase()}, and you have none. The shop sells it.`,
+        shop,
+      });
+    }
+    const fed = feedAnimal(shop, species.code, today);
+    if (!fed) return NextResponse.json({ error: 'That did not work. Nothing was used.', shop });
+    Object.assign(shop, fed.state);
+    garden.shop = shop;
+    garden.cavern = { ...(garden.cavern as object ?? {}), coins: cavern.coins };
+    const { error: fe } = await db.from('world_state').upsert(
+      { learner_id: body.learnerId, garden, last_updated_at: new Date().toISOString() },
+      { onConflict: 'learner_id' },
+    );
+    if (fe) return NextResponse.json({ error: fe.message }, { status: 500 });
+    return NextResponse.json({ shop, coins: cavern.coins, fact: fed.fact, treat: fed.treat.code });
   }
 
   if (body.action === 'place' && body.instanceId) {

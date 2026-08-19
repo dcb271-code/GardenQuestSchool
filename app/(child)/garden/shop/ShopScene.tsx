@@ -24,6 +24,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import ShopItemArt from '@/components/child/garden/ShopItemArt';
 import { playHarvest } from '@/lib/audio/sfx';
 import { coinsToPrice } from '@/lib/world/cavern';
+import { TREAT_KINDS, pantryCount } from '@/lib/world/treats';
 import {
   SHOP_ITEMS, GREAT_WORKS, canAfford, canTradeFor, unplaced,
   type ShopItem, type ShopState,
@@ -62,6 +63,23 @@ export default function ShopScene({
       setShop(d.shop);
       if (d.kept) setKept(d.kept);
       setBought(item);
+      playHarvest();
+    } finally { setBusy(null); }
+  };
+
+  const buyTreat = async (treatCode: string) => {
+    if (busy) return;
+    setBusy(treatCode);
+    setMessage(null);
+    try {
+      const res = await fetch('/api/shop', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ learnerId, action: 'buy_treat', itemCode: treatCode }),
+      });
+      const d = await res.json();
+      if (d.error) { setMessage(d.error); return; }
+      setCoins(d.coins);
+      setShop(d.shop);
       playHarvest();
     } finally { setBusy(null); }
   };
@@ -268,6 +286,55 @@ export default function ShopScene({
                              touchAction: 'manipulation' }}
                   >
                     {busy === item.code ? '…' : owned > 0 ? 'built' : 'trade'}
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* ── TREATS — for the animals ─────────────────────────────
+            Consumable, a few pennies, carried in the pantry. Bought
+            here, given on the garden map by tapping an animal. */}
+        <div className="px-3 mt-6">
+          <h2 className="text-sm font-bold uppercase tracking-widest"
+              style={{ color: '#C9A227' }}>
+            Treats
+          </h2>
+          <p className="text-[11px] italic mb-2" style={{ color: '#8A7A5E' }}>
+            For the animals. Tap a creature in the garden to feed it —
+            one treat per animal per day, and it tells you something
+            true.
+          </p>
+          <div className="grid grid-cols-2 gap-2">
+            {TREAT_KINDS.map(t => {
+              const have = pantryCount(shop, t.code);
+              const afford = coins >= t.price;
+              return (
+                <div key={t.code} className="rounded-2xl p-3"
+                     style={{ background: '#F6EEDF', border: '1px solid #C9A227' }}>
+                  <div className="flex items-baseline gap-1.5">
+                    <span className="text-xl" aria-hidden>{t.emoji}</span>
+                    <h3 className="font-bold text-sm flex-1" style={{ color: '#3f2614' }}>{t.name}</h3>
+                    {have > 0 && (
+                      <span className="text-[10px] rounded-full px-1.5"
+                            style={{ background: '#5A8C4A', color: '#FFF' }}>
+                        {have}
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[11px] leading-snug mt-1 mb-2" style={{ color: '#6B5C42' }}>
+                    {t.blurb}
+                  </p>
+                  <button
+                    onClick={() => buyTreat(t.code)}
+                    disabled={!afford || busy === t.code}
+                    className="w-full rounded-xl font-bold text-sm disabled:opacity-45"
+                    style={{ background: afford ? '#C9A227' : '#D8CEBA',
+                             color: '#2A2420', minHeight: 44,
+                             touchAction: 'manipulation' }}
+                  >
+                    {busy === t.code ? '…' : coinsToPrice(t.price)}
                   </button>
                 </div>
               );

@@ -140,6 +140,12 @@ export interface ShopState {
    * benches can stand in different places.
    */
   placed: Record<string, PlacedItem>;
+  /** Treats she is carrying: treatCode -> count. See lib/world/treats. */
+  pantry?: Record<string, number>;
+  /** speciesCode -> ISO date last fed — the one-treat-a-day cap. */
+  animalsFed?: Record<string, string>;
+  /** speciesCode -> lifetime feeds, so the facts rotate. */
+  fedCount?: Record<string, number>;
 }
 
 export function emptyShop(): ShopState {

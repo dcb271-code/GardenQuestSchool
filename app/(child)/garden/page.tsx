@@ -89,9 +89,9 @@ export default async function GardenPage({
   // ambition. Defaults to 2 like the habitat/branch pages do.
   const learnerLevel = learner?.grade_level ?? 2;
 
-  // Stops that grow with the child (levelUpgrade) resolve to the
-  // harder sibling skill HERE, once, so progress counting, prereq
-  // text and the scene all agree on what the stop teaches her.
+  // Stops that grow with the child resolve to the harder sibling
+  // skill HERE, once, so progress counting, prereq text and the
+  // scene all agree on what the stop teaches her.
   const structures = GARDEN_STRUCTURES.map(s => {
     const r = resolveStructureSkill(s, learnerLevel);
     return { ...s, skillCode: r.skillCode, subLabel: r.subLabel };
@@ -439,6 +439,7 @@ export default async function GardenPage({
       learnerLevel={learnerLevel}
       researcherBadges={researcherBadges}
       residents={residents}
+      today={todayKey()}
       birdAudio={birdAudio}
       unreadLetterReplies={unreadLetterReplies}
       moonGardenOpen={moonGardenOpen}
