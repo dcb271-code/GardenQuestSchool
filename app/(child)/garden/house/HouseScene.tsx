@@ -485,12 +485,14 @@ function Staircase({ reducedMotion }: { reducedMotion: boolean }) {
 
 /* ── the kitchen ────────────────────────────────────────────────── */
 
-// Her real kitchen, from the photos: sage shaker cabinets, dark
-// veined granite, the white-and-gray starburst backsplash, a window
-// over the sink, the stainless refrigerator, and the peninsula with
-// the clear stools and teal cushions. The hallway at the back leads
-// to the white back door. Cooking opens the same recipe book as
-// Bachan's table — one kitchen system, two doors into it.
+// Her real kitchen, from the photos, drawn to real proportions this
+// time: a full French-door refrigerator (a fridge is one-third as
+// wide as it is tall, not a locker), a window that owns its stretch
+// of wall, sage shaker uppers either side of it, the starburst
+// backsplash, the sink under the window, the cooktop with the kettle
+// on, and the peninsula in the foreground with the three clear
+// stools. Nothing overlaps anything. Cooking opens the same recipe
+// book as Bachan's table — one kitchen system, two doors into it.
 
 function KitchenRoom({
   reducedMotion, onBack, onCook,
@@ -500,43 +502,60 @@ function KitchenRoom({
   onCook: () => void;
 }) {
   const SAGE = '#C9D2BC';
-  const SAGE_DARK = '#A9B49A';
-  const GRANITE = '#4A4A46';
-  const GRANITE_VEIN = '#8A8A80';
+  const SAGE_DARK = '#A2AE92';
+  const GRANITE = '#44443F';
+  const VEIN = '#8A8A80';
+  const STEEL = 'url(#k-steel)';
   return (
     <svg viewBox="0 0 700 1100" className="w-full h-full" preserveAspectRatio="xMidYMid meet">
       <defs>
         <linearGradient id="k-wall" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#F4E4D4" />
-          <stop offset="100%" stopColor="#E8D0BC" />
+          <stop offset="0%" stopColor="#F2E0D2" />
+          <stop offset="100%" stopColor="#E4CBB8" />
         </linearGradient>
         <linearGradient id="k-steel" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="#B8BCC0" />
-          <stop offset="45%" stopColor="#D8DCE0" />
-          <stop offset="100%" stopColor="#A8ACB0" />
+          <stop offset="0%" stopColor="#AEB4B8" />
+          <stop offset="42%" stopColor="#D4DADE" />
+          <stop offset="100%" stopColor="#9CA2A6" />
+        </linearGradient>
+        <linearGradient id="k-glass" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#CFE4EE" />
+          <stop offset="55%" stopColor="#A9C6A0" />
+          <stop offset="100%" stopColor="#7FA86B" />
         </linearGradient>
         <linearGradient id="k-corner-l" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="#5A3B1F" stopOpacity="0.22" />
+          <stop offset="0%" stopColor="#5A3B1F" stopOpacity="0.2" />
           <stop offset="100%" stopColor="#5A3B1F" stopOpacity="0" />
         </linearGradient>
         <linearGradient id="k-corner-r" x1="1" y1="0" x2="0" y2="0">
-          <stop offset="0%" stopColor="#5A3B1F" stopOpacity="0.22" />
+          <stop offset="0%" stopColor="#5A3B1F" stopOpacity="0.2" />
           <stop offset="100%" stopColor="#5A3B1F" stopOpacity="0" />
         </linearGradient>
+        <radialGradient id="k-lightpool" cx="0.5" cy="0" r="1">
+          <stop offset="0%" stopColor="#FFF3CF" stopOpacity="0.4" />
+          <stop offset="100%" stopColor="#FFF3CF" stopOpacity="0" />
+        </radialGradient>
       </defs>
 
-      {/* ceiling, blush walls from the photos, parquet floor */}
+      {/* ceiling with two warm can lights, blush wall, parquet floor */}
       <rect x={0} y={0} width={700} height={56} fill="#F7EEDC" />
-      <rect x={0} y={52} width={700} height={10} fill={TRIM} opacity={0.4} />
-      <rect x={0} y={60} width={700} height={780} fill="url(#k-wall)" />
-      <rect x={0} y={820} width={700} height={280} fill="#D9B380" />
-      {/* parquet: brick-laid blocks */}
-      {[850, 900, 950, 1000, 1050].map((y, r) => (
+      {[240, 500].map(x => (
+        <g key={x}>
+          <ellipse cx={x} cy={52} rx={16} ry={5} fill="#FFE9A8" />
+          <rect x={x - 60} y={56} width={120} height={200} fill="url(#k-lightpool)" pointerEvents="none" />
+        </g>
+      ))}
+      <rect x={0} y={52} width={700} height={8} fill={TRIM} opacity={0.4} />
+      <rect x={0} y={60} width={700} height={632} fill="url(#k-wall)" />
+      {/* floor: parquet in a brick lay, toe-kick shadow at the wall */}
+      <rect x={0} y={692} width={700} height={408} fill="#D9B380" />
+      <rect x={0} y={692} width={700} height={10} fill="#3F2A16" opacity={0.18} />
+      {[742, 792, 842, 892, 942, 992, 1042].map((y, r) => (
         <g key={y}>
-          <line x1={0} y1={y} x2={700} y2={y} stroke="#B98F58" strokeWidth={2} opacity={0.6} />
+          <line x1={0} y1={y} x2={700} y2={y} stroke="#B98F58" strokeWidth={2} opacity={0.5} />
           {[0, 1, 2, 3, 4, 5, 6].map(i => (
             <line key={i} x1={i * 100 + (r % 2 ? 50 : 0)} y1={y} x2={i * 100 + (r % 2 ? 50 : 0)} y2={y + 50}
-                  stroke="#B98F58" strokeWidth={1.5} opacity={0.5} />
+                  stroke="#B98F58" strokeWidth={1.5} opacity={0.4} />
           ))}
         </g>
       ))}
@@ -550,140 +569,194 @@ function KitchenRoom({
         </text>
       </g>
 
-      {/* the hallway to the white back door, off the right */}
+      {/* THE REFRIGERATOR — full French-door width, freezer drawer
+          below, standing from floor to just under its own cabinet */}
       <g>
-        <rect x={596} y={330} width={80} height={470} fill={TRIM} rx={3} />
-        <rect x={608} y={344} width={56} height={442} fill="#C9B49C" />
-        {/* the white door with its window, small with distance */}
-        <rect x={616} y={520} width={40} height={200} fill="#F6F2EA" stroke="#C9BCA8" strokeWidth={2} rx={2} />
-        <rect x={622} y={532} width={28} height={60} fill="#BFD8E4" stroke="#C9BCA8" strokeWidth={1.5} />
-        <circle cx={650} cy={630} r={2.5} fill="#8A7A5E" />
+        <rect x={44} y={200} width={136} height={88} fill={SAGE} stroke={SAGE_DARK} strokeWidth={2} rx={3} />
+        <rect x={54} y={210} width={116} height={68} fill="none" stroke={SAGE_DARK} strokeWidth={2} rx={2} />
+        <rect x={44} y={296} width={136} height={384} fill={STEEL} stroke="#8A8E92" strokeWidth={2.5} rx={8} />
+        {/* french doors, split handles in the middle */}
+        <line x1={112} y1={304} x2={112} y2={498} stroke="#8A8E92" strokeWidth={2} />
+        <rect x={98} y={330} width={9} height={120} rx={4.5} fill="#787C80" />
+        <rect x={117} y={330} width={9} height={120} rx={4.5} fill="#787C80" />
+        {/* freezer drawer */}
+        <line x1={50} y1={506} x2={174} y2={506} stroke="#8A8E92" strokeWidth={2} />
+        <rect x={74} y={524} width={76} height={9} rx={4.5} fill="#787C80" />
+        {/* water dispenser */}
+        <rect x={62} y={352} width={30} height={44} rx={4} fill="#5A5E62" opacity={0.85} />
       </g>
 
-      {/* upper cabinets: sage shaker with under-cabinet lights */}
-      {[[60, 200], [280, 150], [450, 130]].map(([x, w], i) => (
-        <g key={i}>
-          <rect x={x} y={210} width={w} height={150} fill={SAGE} stroke={SAGE_DARK} strokeWidth={2} rx={3} />
-          {Array.from({ length: Math.max(1, Math.round(w / 75)) }, (_, d) => (
-            <rect key={d} x={x + 10 + d * (w / Math.max(1, Math.round(w / 75)))} y={222}
-                  width={w / Math.max(1, Math.round(w / 75)) - 20} height={126}
-                  fill="none" stroke={SAGE_DARK} strokeWidth={2} rx={2} />
-          ))}
-          <rect x={x} y={356} width={w} height={6} fill="#FFF3CF" opacity={0.9} />
+      {/* UPPER CABINETS flanking the window — same height band */}
+      {[[196, 160], [492, 164]].map(([x, w]) => (
+        <g key={x}>
+          <rect x={x} y={200} width={w} height={156} fill={SAGE} stroke={SAGE_DARK} strokeWidth={2} rx={3} />
+          <rect x={x + 8} y={210} width={w / 2 - 12} height={136} fill="none" stroke={SAGE_DARK} strokeWidth={2} rx={2} />
+          <rect x={x + w / 2 + 4} y={210} width={w / 2 - 12} height={136} fill="none" stroke={SAGE_DARK} strokeWidth={2} rx={2} />
+          <circle cx={x + w / 2 - 8} cy={278} r={3} fill={SAGE_DARK} />
+          <circle cx={x + w / 2 + 12} cy={278} r={3} fill={SAGE_DARK} />
+          {/* under-cabinet light */}
+          <rect x={x + 4} y={356} width={w - 8} height={5} fill="#FFF3CF" opacity={0.9} />
         </g>
       ))}
 
-      {/* the starburst backsplash */}
-      <rect x={60} y={366} width={520} height={128} fill="#F4F0E8" />
-      {[0, 1, 2, 3, 4, 5, 6, 7].map(cx => [0, 1].map(cy => {
-        const px = 95 + cx * 65, py = 398 + cy * 62;
-        return (
-          <g key={`${cx}-${cy}`} stroke="#8A8A94" strokeWidth={1.2} opacity={0.55}>
-            {[0, 45, 90, 135].map(a => (
-              <line key={a}
-                    x1={px - 12 * Math.cos(a * Math.PI / 180)} y1={py - 12 * Math.sin(a * Math.PI / 180)}
-                    x2={px + 12 * Math.cos(a * Math.PI / 180)} y2={py + 12 * Math.sin(a * Math.PI / 180)} />
-            ))}
-            <circle cx={px} cy={py} r={2} fill="#8A8A94" stroke="none" />
+      {/* THE WINDOW — its own stretch of wall, garden beyond,
+          two potted herbs on the sill */}
+      <g>
+        <rect x={366} y={192} width={116} height={196} fill="#FFFFFF" stroke="#D8CEBA" strokeWidth={3} rx={3} />
+        <rect x={374} y={200} width={100} height={148} fill="url(#k-glass)" />
+        <line x1={424} y1={200} x2={424} y2={348} stroke="#FFFFFF" strokeWidth={4} />
+        <line x1={374} y1={274} x2={474} y2={274} stroke="#FFFFFF" strokeWidth={4} />
+        {/* sill with herb pots */}
+        <rect x={362} y={352} width={124} height={12} fill="#FFFFFF" stroke="#D8CEBA" strokeWidth={2} />
+        {[392, 442].map(hx => (
+          <g key={hx}>
+            <path d={`M ${hx - 9} 340 L ${hx + 9} 340 L ${hx + 6} 352 L ${hx - 6} 352 Z`}
+                  fill="#A5553F" stroke="#7A3A2C" strokeWidth={1.5} />
+            <path d={`M ${hx} 339 q -7 -9 -3 -16 M ${hx} 339 q 1 -12 6 -15 M ${hx} 339 q 7 -7 11 -6`}
+                  fill="none" stroke="#5F7F4A" strokeWidth={2.5} strokeLinecap="round" />
           </g>
-        );
-      }))}
-
-      {/* window over the sink, garden beyond */}
-      <g>
-        <rect x={296} y={286} width={120} height={176} fill="#FFFFFF" stroke="#D8CEBA" strokeWidth={3} rx={2} />
-        <rect x={302} y={292} width={108} height={112} fill="#CFE4EE" />
-        <rect x={302} y={292} width={108} height={112} fill="url(#garden-through-glass2)" opacity={0.85} />
-        <line x1={356} y1={292} x2={356} y2={404} stroke="#FFFFFF" strokeWidth={3} />
-        <rect x={302} y={408} width={108} height={48} fill="#EDF4F7" opacity={0.5} />
-        <defs>
-          <linearGradient id="garden-through-glass2" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#CFE4EE" />
-            <stop offset="55%" stopColor="#A9C6A0" />
-            <stop offset="100%" stopColor="#7FA86B" />
-          </linearGradient>
-        </defs>
+        ))}
       </g>
 
-      {/* counter run: granite, sink under the window, cooktop, base
-          cabinets, dishwasher, and the fridge on the left */}
+      {/* BACKSPLASH — the starburst tile, wall to wall under the
+          uppers, stopping clear of the window */}
       <g>
-        <rect x={40} y={494} width={80} height={330} fill="url(#k-steel)" stroke="#8A8E92" strokeWidth={2} rx={6} />
-        <line x1={80} y1={500} x2={80} y2={690} stroke="#8A8E92" strokeWidth={2} />
-        <rect x={62} y={560} width={7} height={54} rx={3} fill="#8A8E92" />
-        <rect x={91} y={560} width={7} height={54} rx={3} fill="#8A8E92" />
-        <line x1={44} y1={700} x2={116} y2={700} stroke="#8A8E92" strokeWidth={2} />
-      </g>
-      <g>
-        <rect x={130} y={494} width={460} height={30} fill={GRANITE} rx={4} />
-        {[[150, 505], [230, 512], [330, 502], [430, 514], [520, 506]].map(([vx, vy], i) => (
-          <path key={i} d={`M ${vx} ${vy} q 24 ${i % 2 ? 6 : -6} 48 0`} fill="none"
-                stroke={GRANITE_VEIN} strokeWidth={1.5} opacity={0.6} />
-        ))}
-        {/* sink */}
-        <rect x={306} y={496} width={100} height={12} rx={4} fill="#B8BCC0" />
-        <path d="M 340 494 q 0 -26 18 -26 q 14 0 14 14" fill="none" stroke="#8A8E92" strokeWidth={5} strokeLinecap="round" />
-        {/* cooktop with grates */}
-        <rect x={452} y={496} width={110} height={16} rx={4} fill="#2A2A28" />
-        {[470, 502, 534].map(gx => (
-          <circle key={gx} cx={gx + 8} cy={504} r={6} fill="none" stroke="#6A6A64" strokeWidth={2} />
-        ))}
-        {/* base cabinets */}
-        <rect x={130} y={524} width={460} height={210} fill={SAGE} stroke={SAGE_DARK} strokeWidth={2} />
-        {[140, 250, 470].map(bx => (
-          <rect key={bx} x={bx} y={536} width={90} height={186} fill="none" stroke={SAGE_DARK} strokeWidth={2} rx={2} />
-        ))}
-        {[140, 250, 470].map(bx => (
-          <rect key={bx} x={bx + 30} y={548} width={30} height={5} rx={2.5} fill={SAGE_DARK} />
-        ))}
-        {/* dishwasher */}
-        <rect x={352} y={536} width={104} height={186} fill="url(#k-steel)" stroke="#8A8E92" strokeWidth={2} rx={3} />
-        <rect x={362} y={548} width={84} height={8} rx={4} fill="#8A8E92" />
-        <rect x={130} y={734} width={460} height={10} fill="#8A8A78" opacity={0.4} />
-      </g>
-
-      {/* THE PENINSULA — granite top, sage base, and the three clear
-          stools with teal cushions from the photo */}
-      <g>
-        <rect x={120} y={806} width={430} height={34} fill={GRANITE} rx={6} />
-        {[[150, 820], [280, 826], [420, 816]].map(([vx, vy], i) => (
-          <path key={i} d={`M ${vx} ${vy} q 30 ${i % 2 ? 7 : -7} 60 0`} fill="none"
-                stroke={GRANITE_VEIN} strokeWidth={1.5} opacity={0.6} />
-        ))}
-        <rect x={148} y={840} width={374} height={96} fill={SAGE} stroke={SAGE_DARK} strokeWidth={2} />
-        {[160, 300, 430].map(bx => (
-          <rect key={bx} x={bx} y={850} width={80} height={76} fill="none" stroke={SAGE_DARK} strokeWidth={2} rx={2} />
-        ))}
-        {/* stools: clear acrylic legs, teal seats */}
-        {[210, 335, 460].map((sx, i) => (
-          <g key={sx}>
-            <ellipse cx={sx} cy={1042} rx={30} ry={6} fill="#000" opacity={0.13} />
-            <g stroke="#C8D8DC" strokeWidth={4} opacity={0.8} strokeLinecap="round">
-              <line x1={sx - 22} y1={974} x2={sx - 26} y2={1040} />
-              <line x1={sx + 22} y1={974} x2={sx + 26} y2={1040} />
-              <line x1={sx - 24} y1={1012} x2={sx + 24} y2={1012} />
+        <rect x={196} y={364} width={460} height={104} fill="#F4F0E8" />
+        {[0, 1, 2, 3, 4, 5, 6].map(cx => [0, 1].map(cy => {
+          const px = 228 + cx * 66, py = 392 + cy * 50;
+          if (px > 356 && px < 494 && py < 420) return null;
+          return (
+            <g key={`${cx}-${cy}`} stroke="#8A8A94" strokeWidth={1.2} opacity={0.5}>
+              {[0, 45, 90, 135].map(a => (
+                <line key={a}
+                      x1={px - 11 * Math.cos(a * Math.PI / 180)} y1={py - 11 * Math.sin(a * Math.PI / 180)}
+                      x2={px + 11 * Math.cos(a * Math.PI / 180)} y2={py + 11 * Math.sin(a * Math.PI / 180)} />
+              ))}
+              <circle cx={px} cy={py} r={2} fill="#8A8A94" stroke="none" />
             </g>
-            <rect x={sx - 28} y={952} width={56} height={24} rx={11} fill="#2E8B9A" />
-            <rect x={sx - 28} y={952} width={56} height={10} rx={5} fill="#3FA3B4" />
-          </g>
-        ))}
+          );
+        }))}
       </g>
 
-      {/* cook something — the door into the family recipe book */}
+      {/* COUNTER RUN — granite, sink under the window, kettle on the
+          cooktop, orchid standing on the counter */}
+      <g>
+        <rect x={190} y={468} width={470} height={26} fill={GRANITE} rx={4} />
+        {[[214, 478], [318, 486], [430, 476], [548, 484]].map(([vx, vy], i) => (
+          <path key={i} d={`M ${vx} ${vy} q 26 ${i % 2 ? 6 : -6} 52 0`} fill="none"
+                stroke={VEIN} strokeWidth={1.5} opacity={0.55} />
+        ))}
+        {/* sink: basin line and gooseneck faucet */}
+        <rect x={378} y={470} width={92} height={10} rx={4} fill="#AEB4B8" />
+        <path d="M 414 468 q 0 -30 20 -30 q 16 0 16 16" fill="none" stroke="#8A8E92"
+              strokeWidth={5} strokeLinecap="round" />
+        {/* cooktop: black glass, grates, and the kettle steaming */}
+        <rect x={522} y={464} width={122} height={12} rx={4} fill="#2A2A28" />
+        {[544, 582, 620].map(gx => (
+          <circle key={gx} cx={gx} cy={470} r={5.5} fill="none" stroke="#6A6A64" strokeWidth={2} />
+        ))}
+        <g>
+          <path d="M 566 462 q -2 -26 16 -26 q 18 0 16 26 Z" fill="#B0533F" stroke="#8F3F30" strokeWidth={2} />
+          <path d="M 566 448 q -10 -2 -10 8" fill="none" stroke="#8F3F30" strokeWidth={3} strokeLinecap="round" />
+          <path d="M 574 436 q 8 -7 16 0" fill="none" stroke="#8F3F30" strokeWidth={2.5} />
+          {!reducedMotion && [0, 1].map(i => (
+            <motion.path key={i} d={`M ${586 + i * 6} 430 q -4 -10 2 -18`}
+                         fill="none" stroke="#FFFFFF" strokeWidth={2.5} strokeLinecap="round"
+                         animate={{ opacity: [0, 0.7, 0], y: [-2, -12] }}
+                         transition={{ duration: 2.4, repeat: Infinity, delay: i * 1.1 }} />
+          ))}
+        </g>
+        {/* the orchid from the photo, on the counter left of the sink */}
+        <g>
+          <path d="M 252 468 L 276 468 L 272 448 L 256 448 Z" fill="#F4F0E8" stroke="#C9BCA8" strokeWidth={2}
+                transform="rotate(180 264 458)" />
+          <path d="M 264 448 q -3 -28 8 -40" fill="none" stroke="#5F7F4A" strokeWidth={2.5} />
+          {[[270, 410], [278, 400], [266, 396]].map(([ox, oy], i) => (
+            <g key={i}>
+              <circle cx={ox} cy={oy} r={6} fill="#C64B8C" />
+              <circle cx={ox} cy={oy} r={2.4} fill="#F4D6DC" />
+            </g>
+          ))}
+        </g>
+      </g>
+
+      {/* BASE CABINETS — doors and a drawer bank, dishwasher by the
+          sink, toe kick at the floor */}
+      <g>
+        <rect x={190} y={494} width={470} height={184} fill={SAGE} stroke={SAGE_DARK} strokeWidth={2} />
+        {/* drawer bank */}
+        {[0, 1, 2].map(d => (
+          <rect key={d} x={202} y={506 + d * 56} width={120} height={48} fill="none"
+                stroke={SAGE_DARK} strokeWidth={2} rx={2} />
+        ))}
+        {[0, 1, 2].map(d => (
+          <rect key={d} x={246} y={524 + d * 56} width={32} height={5} rx={2.5} fill={SAGE_DARK} />
+        ))}
+        {/* dishwasher under the sink run */}
+        <rect x={338} y={506} width={128} height={160} fill={STEEL} stroke="#8A8E92" strokeWidth={2} rx={3} />
+        <rect x={352} y={518} width={100} height={8} rx={4} fill="#787C80" />
+        {/* two doors on the right */}
+        {[482, 572].map(bx => (
+          <rect key={bx} x={bx} y={506} width={76} height={160} fill="none" stroke={SAGE_DARK} strokeWidth={2} rx={2} />
+        ))}
+        {[552, 578].map(hx => (
+          <circle key={hx} cx={hx} cy={586} r={3} fill={SAGE_DARK} />
+        ))}
+        <rect x={190} y={678} width={470} height={14} fill="#8A8A78" opacity={0.5} />
+      </g>
+
+      {/* cook something — on the clear floor between counter and
+          peninsula, where nothing else stands */}
       <g onClick={onCook} style={{ cursor: 'pointer' }} role="button" aria-label="Cook something">
-        <rect x={210} y={640} width={250} height={56} rx={28} fill="#C9A227"
+        <rect x={210} y={716} width={280} height={58} rx={29} fill="#C9A227"
               stroke="#8A6534" strokeWidth={2} />
-        <text x={335} y={675} textAnchor="middle" fontSize={19} fontWeight={700} fill="#2A2420">
+        <text x={350} y={753} textAnchor="middle" fontSize={19} fontWeight={700} fill="#2A2420">
           🍲 cook something
         </text>
       </g>
 
-      {/* corner shading */}
-      <rect x={0} y={56} width={70} height={1044} fill="url(#k-corner-l)" pointerEvents="none" />
-      <rect x={630} y={56} width={70} height={1044} fill="url(#k-corner-r)" pointerEvents="none" />
+      {/* THE PENINSULA — foreground, granite over sage, the fruit
+          bowl, and three clear stools with teal cushions at a size a
+          person could actually sit on */}
+      <g>
+        {/* fruit bowl stands ON the counter it sits behind */}
+        <g>
+          <path d="M 486 786 q 34 22 68 0 l -8 12 q -26 14 -52 0 Z" fill="#8A6534" />
+          {[[504, 782], [520, 776], [536, 782]].map(([fx, fy], i) => (
+            <circle key={i} cx={fx} cy={fy} r={9} fill={i === 1 ? '#E8913A' : '#C94C3E'} />
+          ))}
+        </g>
+        <rect x={96} y={796} width={508} height={32} fill={GRANITE} rx={6} />
+        {[[130, 808], [270, 816], [420, 806], [520, 814]].map(([vx, vy], i) => (
+          <path key={i} d={`M ${vx} ${vy} q 30 ${i % 2 ? 7 : -7} 60 0`} fill="none"
+                stroke={VEIN} strokeWidth={1.5} opacity={0.55} />
+        ))}
+        <rect x={120} y={828} width={460} height={92} fill={SAGE} stroke={SAGE_DARK} strokeWidth={2} />
+        {[136, 288, 440].map(bx => (
+          <rect key={bx} x={bx} y={838} width={124} height={72} fill="none" stroke={SAGE_DARK} strokeWidth={2} rx={2} />
+        ))}
+        {/* stools: wide teal cushions, clear acrylic legs, a footrest */}
+        {[190, 350, 510].map(sx => (
+          <g key={sx}>
+            <ellipse cx={sx} cy={1052} rx={40} ry={7} fill="#000" opacity={0.13} />
+            <g stroke="#C8D8DC" strokeWidth={5} opacity={0.85} strokeLinecap="round">
+              <line x1={sx - 30} y1={984} x2={sx - 36} y2={1048} />
+              <line x1={sx + 30} y1={984} x2={sx + 36} y2={1048} />
+              <line x1={sx - 33} y1={1020} x2={sx + 33} y2={1020} />
+            </g>
+            <rect x={sx - 38} y={954} width={76} height={32} rx={15} fill="#2E8B9A" />
+            <rect x={sx - 38} y={954} width={76} height={13} rx={6.5} fill="#3FA3B4" />
+          </g>
+        ))}
+      </g>
+
+      {/* corner shading, so the room has sides */}
+      <rect x={0} y={56} width={64} height={1044} fill="url(#k-corner-l)" pointerEvents="none" />
+      <rect x={636} y={56} width={64} height={1044} fill="url(#k-corner-r)" pointerEvents="none" />
     </svg>
   );
 }
+
 
 /* ── the reading room ───────────────────────────────────────────── */
 

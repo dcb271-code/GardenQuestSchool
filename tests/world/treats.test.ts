@@ -14,7 +14,7 @@ function speciesIn(habitat: string) {
 
 describe('what each animal eats', () => {
   it('every habitat with residents has a treat that suits it', () => {
-    const covered = new Set(TREAT_KINDS.flatMap(t => t.habitatCodes));
+    const covered = Array.from(new Set(TREAT_KINDS.flatMap(t => t.habitatCodes)));
     for (const habitat of covered) {
       const sp = SPECIES_CATALOG.find(s => s.habitatReqCodes.includes(habitat));
       if (sp) expect(treatKindFor(sp)).not.toBeNull();
