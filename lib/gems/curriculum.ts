@@ -56,6 +56,12 @@ export interface GemUnit {
   code: string;
   title: string;
   blurb: string;
+  /**
+   * Units that must be passed before this one opens. The case crew
+   * builds on the seam crew — the scratch test has to exist in her
+   * hands before "only a diamond scratches a ruby" means anything.
+   */
+  requiresUnits?: string[];
   teach: GemTeachPage[];
   /** The stones this unit may ask about. */
   gemCodes: string[];
@@ -431,6 +437,97 @@ export const GEM_UNITS: GemUnit[] = [
     rewardStone: 'calcite',
   },
 ];
+
+const SEAM_UNIT_CODES = [
+  'gem_rock_mineral', 'gem_scratch_test', 'gem_how_made', 'gem_spar_story',
+];
+
+// ── THE CASE CREW — phase two, the famous ones ──────────────────
+// These pay SEAM stones, deliberately: a lesson must never hand over
+// a Great-Work-grade gem. The reward rhymes with the lesson instead —
+// the one-mineral-many-colors unit pays quartz (one mineral, many
+// colors), and the diamond unit pays coal, which IS the joke.
+
+GEM_UNITS.push(
+  {
+    code: 'gem_corundum',
+    title: 'One Mineral, Two Names',
+    blurb: 'Ruby and sapphire are the same stone wearing different paint.',
+    requiresUnits: SEAM_UNIT_CODES,
+    teach: [
+      {
+        heading: 'The secret',
+        body:
+          'Ruby and sapphire are the SAME mineral. Its real name is corundum — aluminum and oxygen, cooked and squeezed deep underground for millions of years. If it comes out red, people call it a ruby. Any other color at all — blue, yellow, pink, green — and it is called a sapphire. Red is the only color that gets its own name.',
+        figure: { kind: 'shelf', gemCodes: ['ruby', 'sapphire'] },
+      },
+      {
+        heading: 'The paint is the difference',
+        body:
+          'The red in a ruby comes from a trace of chromium that slipped into the crystal while it grew. Iron and titanium make it blue instead. The strangest part: chromium — the very same element that makes rubies red — is what makes an EMERALD green. Same paint, different rock, completely different color.',
+        figure: { kind: 'specimen', gemCode: 'emerald' },
+      },
+      {
+        heading: 'The garden inside an emerald',
+        body:
+          'Nearly every emerald is full of tiny cracks and specks. Jewelers do not call them flaws — they call them the jardin, which is French for garden. But all those little cracks give an emerald somewhere to split, so it breaks far more easily than a ruby, even though both are hard.',
+      },
+      {
+        heading: 'You could dig one yourself',
+        body:
+          'There are no rubies under Kentucky — but a few hours away, in the Cowee Valley near Franklin, North Carolina, rubies, sapphires and garnets weather out of the mountains into the streams. You can rent a spot, wash a bucket of gravel, and check every pebble. People really do find them.',
+      },
+    ],
+    gemCodes: ['ruby', 'sapphire', 'emerald', 'garnet', 'quartz', 'fluorite'],
+    exerciseKinds: ['story', 'harder_which', 'origin_match'],
+    exerciseCount: 8,
+    outro:
+      'One mineral, two names, and one element painting rubies red and emeralds green. The hardness kings are next.',
+    rewardStone: 'quartz',
+  },
+  {
+    code: 'gem_kings',
+    title: 'The Hardness Kings',
+    blurb: 'The top of the scale — and the pencil-and-coal secret of the diamond.',
+    requiresUnits: SEAM_UNIT_CODES,
+    teach: [
+      {
+        heading: 'A ten',
+        body:
+          'Diamond is a 10 — the very top of the hardness scale. Nothing natural on Earth scratches a diamond except another diamond. Your whole test kit slides right off, which is itself a test: if ANYTHING you own can mark a clear stone, it is not a diamond.',
+        figure: { kind: 'specimen', gemCode: 'diamond' },
+      },
+      {
+        heading: 'Made of pencil and coal',
+        body:
+          'A diamond is pure carbon — exactly the same stuff as the coal in a Kentucky seam and the graphite in a pencil. Only the arrangement is different. Squeezed about 150 kilometers down, hot enough to melt rock, then carried up FAST by a volcano — slowly would not work — carbon comes out as the hardest thing in nature. Every natural diamond is at least a billion years old.',
+        figure: { kind: 'shelf', gemCodes: ['diamond', 'coal'] },
+      },
+      {
+        heading: 'The famous mistake',
+        body:
+          'The stone people most often mistake for a ruby is a garnet, and for hundreds of years plenty of famous "rubies" turned out to be garnets. The scratch test settles it: a ruby is a 9 and a garnet about 7 and a half, so a ruby scratches a garnet and a garnet cannot scratch back. The one-way rule catches the impostor every time.',
+        figure: { kind: 'specimen', gemCode: 'garnet' },
+      },
+      {
+        heading: 'Twelve faces, no jeweler',
+        body:
+          'A garnet grows with twelve flat faces all by itself — a shape called a rhombic dodecahedron. Nobody cuts those faces. It is the same lesson as the fluorite cube in your case: a mineral follows its recipe, and the recipe decides the shape.',
+      },
+    ],
+    gemCodes: ['diamond', 'ruby', 'garnet', 'quartz', 'coal', 'galena'],
+    exerciseKinds: ['scratch_test', 'harder_which', 'shape_spot', 'story'],
+    exerciseCount: 8,
+    outro:
+      'That is the whole case: what the famous stones are, what they are made of, and how the scratch test un-fools everyone. Your study table has no lessons left — for now.',
+    rewardStone: 'coal',
+  },
+);
+
+/** Is this unit open, given what she has already passed? */
+export function unitAvailable(unit: GemUnit, completed: string[]): boolean {
+  return !unit.requiresUnits || unit.requiresUnits.every(c => completed.includes(c));
+}
 
 export function getGemUnit(code: string): GemUnit | undefined {
   return GEM_UNITS.find(u => u.code === code);

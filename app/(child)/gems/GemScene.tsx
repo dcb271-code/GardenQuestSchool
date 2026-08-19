@@ -12,7 +12,7 @@ import GemSpecimen from '@/components/child/garden/GemSpecimen';
 import { getGem, HARDNESS_TESTS } from '@/lib/world/gemCatalog';
 import { playSparkle, playPageTurn, playHarvest } from '@/lib/audio/sfx';
 import {
-  GEM_UNITS, buildExercises, unitPassed,
+  GEM_UNITS, buildExercises, unitPassed, unitAvailable,
   type GemUnit, type GemExercise, type GemTeachPage,
 } from '@/lib/gems/curriculum';
 
@@ -137,12 +137,32 @@ export default function GemScene({
         {phase === 'list' && (
           <div className="space-y-3">
             <p className="text-xs italic" style={{ color: '#9A8C76' }}>
-              Four lessons on the stones under Kentucky. Finish one for
-              the first time and the seam pays you its stone.
+              Lessons on the stones — the seam under Kentucky first,
+              then the famous ones in the case. Finish one for the
+              first time and the seam pays you a stone.
             </p>
             {GEM_UNITS.map(u => {
               const done = completed.includes(u.code);
+              const open = unitAvailable(u, completed);
               const reward = getGem(u.rewardStone);
+              if (!open) {
+                // Honest, not padlocked-mysterious: it says exactly
+                // what opens it.
+                return (
+                  <div key={u.code} className="w-full rounded-2xl p-4 flex gap-3 items-center"
+                       style={{ background: '#3A3244', border: '2px dashed #6B5C6E', opacity: 0.85 }}>
+                    <div className="flex-1 min-w-0">
+                      <h2 className="font-bold text-sm" style={{ color: '#C9BCA4' }}>{u.title}</h2>
+                      <p className="text-[11px] leading-snug mt-0.5" style={{ color: '#9A8C76' }}>
+                        {u.blurb}
+                      </p>
+                      <p className="text-[10px] italic mt-1" style={{ color: '#8A7A8E' }}>
+                        opens when the seam lessons are all learned
+                      </p>
+                    </div>
+                  </div>
+                );
+              }
               return (
                 <button key={u.code} onClick={() => start(u)}
                         className="w-full rounded-2xl p-4 text-left flex gap-3 items-center"

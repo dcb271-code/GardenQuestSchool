@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
-  GEM_UNITS, buildExercises, getGemUnit, unitPassed,
+  GEM_UNITS, buildExercises, getGemUnit, unitPassed, unitAvailable,
 } from '@/lib/gems/curriculum';
 import { GEM_CATALOG, getGem, HARDNESS_TESTS } from '@/lib/world/gemCatalog';
 
@@ -111,6 +111,31 @@ describe('generated exercises', () => {
     for (const u of GEM_UNITS) {
       const prompts = buildExercises(u, 3).map(e => e.prompt);
       expect(new Set(prompts).size).toBe(prompts.length);
+    }
+  });
+});
+
+describe('the case crew opens after the seam', () => {
+  const SEAM = ['gem_rock_mineral', 'gem_scratch_test', 'gem_how_made', 'gem_spar_story'];
+
+  it('case units are locked until every seam unit is passed', () => {
+    const corundum = getGemUnit('gem_corundum')!;
+    expect(unitAvailable(corundum, [])).toBe(false);
+    expect(unitAvailable(corundum, SEAM.slice(0, 3))).toBe(false);
+    expect(unitAvailable(corundum, SEAM)).toBe(true);
+  });
+
+  it('seam units are always open', () => {
+    for (const code of SEAM) {
+      expect(unitAvailable(getGemUnit(code)!, [])).toBe(true);
+    }
+  });
+
+  it('every case gem is taught by a case unit', () => {
+    const caseCodes = GEM_CATALOG.filter(g => g.shelf === 'case').map(g => g.code);
+    const taught = new Set(GEM_UNITS.flatMap(u => u.gemCodes));
+    for (const code of caseCodes) {
+      expect(taught.has(code), `${code} is taught nowhere`).toBe(true);
     }
   });
 });
