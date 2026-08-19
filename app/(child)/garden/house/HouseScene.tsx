@@ -501,6 +501,12 @@ function KitchenRoom({
   onBack: () => void;
   onCook: () => void;
 }) {
+  // "Way can't I open the refrigerator door 🚪😔 or the curb door
+  // ether" — her letter, the day after the kitchen opened. Doors
+  // that look like doors should open, and there should be something
+  // true behind them.
+  const [fridgeOpen, setFridgeOpen] = useState(false);
+  const [cabinetOpen, setCabinetOpen] = useState(false);
   const SAGE = '#C9D2BC';
   const SAGE_DARK = '#A2AE92';
   const GRANITE = '#44443F';
@@ -570,34 +576,113 @@ function KitchenRoom({
       </g>
 
       {/* THE REFRIGERATOR — full French-door width, freezer drawer
-          below, standing from floor to just under its own cabinet */}
-      <g>
+          below. It OPENS, because she wrote a letter asking why a
+          door drawn as a door would not. Inside: cold light, shelves,
+          and the family's actual sort of food. */}
+      <g onClick={() => setFridgeOpen(o => !o)}
+         style={{ cursor: 'pointer', touchAction: 'manipulation' }}
+         role="button" aria-label={fridgeOpen ? 'Close the refrigerator' : 'Open the refrigerator'}>
         <rect x={44} y={200} width={136} height={88} fill={SAGE} stroke={SAGE_DARK} strokeWidth={2} rx={3} />
         <rect x={54} y={210} width={116} height={68} fill="none" stroke={SAGE_DARK} strokeWidth={2} rx={2} />
         <rect x={44} y={296} width={136} height={384} fill={STEEL} stroke="#8A8E92" strokeWidth={2.5} rx={8} />
-        {/* french doors, split handles in the middle */}
-        <line x1={112} y1={304} x2={112} y2={498} stroke="#8A8E92" strokeWidth={2} />
-        <rect x={98} y={330} width={9} height={120} rx={4.5} fill="#787C80" />
-        <rect x={117} y={330} width={9} height={120} rx={4.5} fill="#787C80" />
-        {/* freezer drawer */}
+        {!fridgeOpen ? (
+          <g>
+            {/* french doors, split handles in the middle */}
+            <line x1={112} y1={304} x2={112} y2={498} stroke="#8A8E92" strokeWidth={2} />
+            <rect x={98} y={330} width={9} height={120} rx={4.5} fill="#787C80" />
+            <rect x={117} y={330} width={9} height={120} rx={4.5} fill="#787C80" />
+            {/* water dispenser */}
+            <rect x={62} y={352} width={30} height={44} rx={4} fill="#5A5E62" opacity={0.85} />
+          </g>
+        ) : (
+          <g>
+            {/* the cold inside: shelves, milk, jam, eggs, leftovers */}
+            <rect x={50} y={302} width={124} height={200} rx={4} fill="#EAF2F6" />
+            <rect x={50} y={302} width={124} height={200} rx={4} fill="#CFE4EE" opacity={0.35} />
+            {[352, 404, 456].map(sy => (
+              <rect key={sy} x={52} y={sy} width={120} height={5} fill="#B8C8D0" />
+            ))}
+            {/* top shelf: the milk and a jam jar */}
+            <path d="M 64 318 L 82 318 L 82 350 L 64 350 Z M 66 318 L 80 318 L 78 308 L 68 308 Z"
+                  fill="#F8F8F4" stroke="#9AA8B0" strokeWidth={1.5} />
+            <rect x={92} y={326} width={20} height={24} rx={3} fill="#8F3A5A" stroke="#6E2A44" strokeWidth={1.5} />
+            <rect x={92} y={322} width={20} height={7} rx={2} fill="#C9A227" />
+            {/* middle shelf: eggs and a covered bowl */}
+            {[126, 138, 150].map(ex => (
+              <ellipse key={ex} cx={ex} cy={344} rx={6} ry={7.5} fill="#F5EBD8" stroke="#C9BCA8" strokeWidth={1.2} />
+            ))}
+            <path d="M 62 384 Q 84 366 106 384 L 104 402 L 64 402 Z" fill="#5F7F8C" stroke="#44606C" strokeWidth={1.5} />
+            {/* leftovers with a label nobody can read */}
+            <rect x={118} y={378} width={40} height={24} rx={3} fill="#E8DCC0" stroke="#B9A98A" strokeWidth={1.5} />
+            <line x1={124} y1={390} x2={150} y2={390} stroke="#8A7A5E" strokeWidth={2} />
+            {/* bottom shelf: the pickle jar and lettuce */}
+            <rect x={66} y={416} width={24} height={38} rx={4} fill="#7F9C5A" opacity={0.85} stroke="#5F7F4A" strokeWidth={1.5} />
+            <circle cx={122} cy={438} r={15} fill="#A9C68C" stroke="#5F7F4A" strokeWidth={2} />
+            {/* the doors, swung open at the sides */}
+            <rect x={20} y={300} width={22} height={200} rx={4} fill={STEEL} stroke="#8A8E92" strokeWidth={2} />
+            <rect x={182} y={300} width={22} height={200} rx={4} fill={STEEL} stroke="#8A8E92" strokeWidth={2} />
+          </g>
+        )}
+        {/* freezer drawer stays shut — one wonder at a time */}
         <line x1={50} y1={506} x2={174} y2={506} stroke="#8A8E92" strokeWidth={2} />
         <rect x={74} y={524} width={76} height={9} rx={4.5} fill="#787C80" />
-        {/* water dispenser */}
-        <rect x={62} y={352} width={30} height={44} rx={4} fill="#5A5E62" opacity={0.85} />
       </g>
 
-      {/* UPPER CABINETS flanking the window — same height band */}
-      {[[196, 160], [492, 164]].map(([x, w]) => (
-        <g key={x}>
-          <rect x={x} y={200} width={w} height={156} fill={SAGE} stroke={SAGE_DARK} strokeWidth={2} rx={3} />
-          <rect x={x + 8} y={210} width={w / 2 - 12} height={136} fill="none" stroke={SAGE_DARK} strokeWidth={2} rx={2} />
-          <rect x={x + w / 2 + 4} y={210} width={w / 2 - 12} height={136} fill="none" stroke={SAGE_DARK} strokeWidth={2} rx={2} />
-          <circle cx={x + w / 2 - 8} cy={278} r={3} fill={SAGE_DARK} />
-          <circle cx={x + w / 2 + 12} cy={278} r={3} fill={SAGE_DARK} />
-          {/* under-cabinet light */}
-          <rect x={x + 4} y={356} width={w - 8} height={5} fill="#FFF3CF" opacity={0.9} />
-        </g>
-      ))}
+      {/* UPPER CABINETS flanking the window. The LEFT one opens —
+          the "curb door" from her letter — onto the family's cups
+          and plates. */}
+      <g onClick={() => setCabinetOpen(o => !o)}
+         style={{ cursor: 'pointer', touchAction: 'manipulation' }}
+         role="button" aria-label={cabinetOpen ? 'Close the cupboard' : 'Open the cupboard'}>
+        <rect x={196} y={200} width={160} height={156} fill={SAGE} stroke={SAGE_DARK} strokeWidth={2} rx={3} />
+        {!cabinetOpen ? (
+          <g>
+            <rect x={204} y={210} width={68} height={136} fill="none" stroke={SAGE_DARK} strokeWidth={2} rx={2} />
+            <rect x={280} y={210} width={68} height={136} fill="none" stroke={SAGE_DARK} strokeWidth={2} rx={2} />
+            <circle cx={268} cy={278} r={3} fill={SAGE_DARK} />
+            <circle cx={288} cy={278} r={3} fill={SAGE_DARK} />
+          </g>
+        ) : (
+          <g>
+            {/* inside: two shelves of everyday dishes */}
+            <rect x={204} y={210} width={144} height={136} rx={2} fill="#F4EDDC" />
+            {[262, 314].map(sy => (
+              <rect key={sy} x={206} y={sy} width={140} height={5} fill="#C9BCA8" />
+            ))}
+            {/* stacked plates */}
+            {[0, 1, 2].map(i => (
+              <ellipse key={i} cx={234} cy={256 - i * 7} rx={22} ry={6}
+                       fill="#F8F4EA" stroke="#B9A98A" strokeWidth={1.5} />
+            ))}
+            {/* mugs, one of them hers */}
+            {[[288, '#4A7BA6'], [316, '#C96A5A']].map(([mx, c]) => (
+              <g key={mx as number}>
+                <rect x={(mx as number) - 11} y={236} width={22} height={22} rx={4}
+                      fill={c as string} stroke="#00000022" strokeWidth={1.5} />
+                <path d={`M ${(mx as number) + 11} 242 q 9 5 0 11`} fill="none"
+                      stroke={c as string} strokeWidth={3.5} />
+              </g>
+            ))}
+            {/* bowls below */}
+            {[232, 272, 312].map(bx => (
+              <path key={bx} d={`M ${bx - 16} 296 Q ${bx} 316 ${bx + 16} 296 L ${bx + 13} 308 Q ${bx} 320 ${bx - 13} 308 Z`}
+                    fill="#A9C6C0" stroke="#6E8E88" strokeWidth={1.5} transform={`translate(0, ${bx === 272 ? 2 : 0})`} />
+            ))}
+            {/* doors swung open at the sides */}
+            <rect x={178} y={204} width={16} height={148} rx={2} fill={SAGE} stroke={SAGE_DARK} strokeWidth={2} />
+            <rect x={358} y={204} width={16} height={148} rx={2} fill={SAGE} stroke={SAGE_DARK} strokeWidth={2} />
+          </g>
+        )}
+        <rect x={200} y={356} width={152} height={5} fill="#FFF3CF" opacity={0.9} />
+      </g>
+      <g>
+        <rect x={492} y={200} width={164} height={156} fill={SAGE} stroke={SAGE_DARK} strokeWidth={2} rx={3} />
+        <rect x={500} y={210} width={70} height={136} fill="none" stroke={SAGE_DARK} strokeWidth={2} rx={2} />
+        <rect x={578} y={210} width={70} height={136} fill="none" stroke={SAGE_DARK} strokeWidth={2} rx={2} />
+        <circle cx={566} cy={278} r={3} fill={SAGE_DARK} />
+        <circle cx={586} cy={278} r={3} fill={SAGE_DARK} />
+        <rect x={496} y={356} width={156} height={5} fill="#FFF3CF" opacity={0.9} />
+      </g>
 
       {/* THE WINDOW — its own stretch of wall, garden beyond,
           two potted herbs on the sill */}

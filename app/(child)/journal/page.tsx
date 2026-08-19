@@ -5,6 +5,7 @@ import { SPECIES_CATALOG } from '@/lib/world/speciesCatalog';
 import { resolveLearnerId } from '@/lib/learner/activeLearner';
 import SpeciesGrid from './SpeciesGrid';
 import { buildFloraJournal } from '@/lib/naturalist/floraJournal';
+import { arrivalOutlook, outlookMessage } from '@/lib/world/arrivalOutlook';
 import { FLORA_CATALOG } from '@/lib/world/floraCatalog';
 import { RECIPE_CATALOG, getRecipe } from '@/lib/world/recipeCatalog';
 import { flowerEmoji } from '@/lib/world/ikebana';
@@ -46,6 +47,23 @@ export default async function JournalPage({
     .select('species:species_id(code)')
     .eq('learner_id', learnerId!);
   const unlocked = new Set((journalRows ?? []).map((r: any) => r.species.code));
+
+  // The garden says "full" out loud. A full garden used to look
+  // exactly like a broken one, and it earned a worried letter.
+  const { data: builtRows } = await db
+    .from('habitat')
+    .select('habitat_type:habitat_type_id(code)')
+    .eq('learner_id', learnerId!);
+  const builtCodes = (builtRows ?? [])
+    .map((r: any) => r.habitat_type?.code).filter(Boolean);
+  const { data: wsRow } = await db
+    .from('world_state').select('garden').eq('learner_id', learnerId!).maybeSingle();
+  const wsGarden = (wsRow?.garden as Record<string, any>) ?? {};
+  const badges: string[] = Array.isArray(wsGarden.researcher_badges)
+    ? wsGarden.researcher_badges : [];
+  const fullMessage = outlookMessage(
+    arrivalOutlook(builtCodes, Array.from(unlocked) as string[], badges, SPECIES_CATALOG),
+  );
 
   // ── Trees & Flowers (Naturalist Grove) ──────────────────────────
   const { data: floraReviewRows } = await db
@@ -193,6 +211,15 @@ export default async function JournalPage({
           </div>
         )}
 
+        {fullMessage && (
+          <div className="rounded-2xl px-4 py-3 mb-3 flex gap-2 items-start"
+               style={{ background: '#EFE0B0', border: '1px solid #C9A227' }}>
+            <span className="text-xl" aria-hidden>🏡</span>
+            <p className="text-[13px] leading-snug font-display" style={{ color: '#5A4520' }}>
+              {fullMessage}
+            </p>
+          </div>
+        )}
         <SpeciesGrid unlockedCodes={Array.from(unlocked)} learnerId={learnerId ?? undefined} />
 
         {unlocked.size > 0 && (
