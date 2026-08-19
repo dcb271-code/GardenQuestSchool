@@ -337,10 +337,13 @@ function EntryHall({
         </text>
       </g>
 
-      {/* a potted fern between hallway and coats — somebody waters it */}
+      {/* the fern stands on plain floor in the far corner — it used
+          to sit exactly on the rug's top edge, balanced there like a
+          tightrope act, and it crowded the rug */}
       <g>
-        <path d="M 468 856 L 498 856 L 493 896 L 473 896 Z" fill="#A5553F" stroke="#7A3A2C" strokeWidth={2} />
-        <path d="M 483 854 Q 468 828 454 826 M 483 854 Q 483 820 477 810 M 483 854 Q 496 826 510 820 M 483 854 Q 502 838 514 840"
+        <ellipse cx={655} cy={1046} rx={26} ry={7} fill="#000" opacity={0.16} />
+        <path d="M 640 1004 L 670 1004 L 665 1044 L 645 1044 Z" fill="#A5553F" stroke="#7A3A2C" strokeWidth={2} />
+        <path d="M 655 1002 Q 640 976 626 974 M 655 1002 Q 655 968 649 958 M 655 1002 Q 668 974 682 968 M 655 1002 Q 674 986 686 988"
               fill="none" stroke="#5F7F4A" strokeWidth={4} strokeLinecap="round" />
       </g>
 
@@ -350,19 +353,19 @@ function EntryHall({
           standing against the seat. Fringe on both ends, because
           fringe is what says "rug" in one glance. */}
       <g>
-        <rect x={310} y={896} width={324} height={88} rx={8} fill="#8F4A5A" />
-        {[0, 1, 2, 3].map(i => (
-          <rect key={i} x={330 + i * 74} y={904} width={54} height={72} rx={5}
-                fill={['#4A8C8C', '#D9A441', '#7A5A8C', '#C96A5A'][i]} opacity={0.85} />
+        <rect x={330} y={900} width={250} height={84} rx={8} fill="#8F4A5A" />
+        {[0, 1, 2].map(i => (
+          <rect key={i} x={350 + i * 74} y={908} width={54} height={68} rx={5}
+                fill={['#4A8C8C', '#D9A441', '#C96A5A'][i]} opacity={0.85} />
         ))}
-        {[0, 1, 2, 3].map(i => (
-          <path key={i} d={`M ${357 + i * 74} 924 l 11 16 l -11 16 l -11 -16 Z`}
+        {[0, 1, 2].map(i => (
+          <path key={i} d={`M ${377 + i * 74} 926 l 11 16 l -11 16 l -11 -16 Z`}
                 fill="#F2E6D0" opacity={0.7} />
         ))}
-        {[0, 1, 2, 3, 4, 5].map(i => (
+        {[0, 1, 2, 3, 4].map(i => (
           <g key={i} stroke="#E8DCC8" strokeWidth={2.5} strokeLinecap="round">
-            <line x1={303} y1={904 + i * 14} x2={310} y2={902 + i * 14} />
-            <line x1={634} y1={902 + i * 14} x2={641} y2={904 + i * 14} />
+            <line x1={323} y1={910 + i * 14} x2={330} y2={908 + i * 14} />
+            <line x1={580} y1={908 + i * 14} x2={587} y2={910 + i * 14} />
           </g>
         ))}
       </g>
@@ -370,19 +373,24 @@ function EntryHall({
       {/* the cushioned bench — left, in front of the stairs, where it
           really is (the listing staged a table; the family put a bench) */}
       <g>
-        <ellipse cx={176} cy={1042} rx={110} ry={14} fill="#000" opacity={0.15} />
-        <rect x={84} y={958} width={188} height={18} fill={OAK} rx={4} />
-        {[96, 246].map(x => (
-          <rect key={x} x={x} y={976} width={14} height={58} fill={OAK_DARK} rx={2} />
+        {/* the shadow lands where the feet land — a shadow floating
+            below the legs is what made it float */}
+        <ellipse cx={148} cy={1000} rx={100} ry={10} fill="#000" opacity={0.14} />
+        {[62, 212].map(x => (
+          <ellipse key={x} cx={x + 7} cy={1000} rx={13} ry={4} fill="#000" opacity={0.22} />
         ))}
-        <rect x={90} y={926} width={176} height={36} rx={14} fill="#B0533F" />
-        <line x1={134} y1={930} x2={134} y2={958} stroke="#8F3F30" strokeWidth={2} opacity={0.6} />
-        <line x1={222} y1={930} x2={222} y2={958} stroke="#8F3F30" strokeWidth={2} opacity={0.6} />
-        <rect x={100} y={912} width={52} height={26} rx={11} fill="#C97B5A" />
-        <rect x={208} y={912} width={52} height={26} rx={11} fill="#D9A441" />
+        <rect x={56} y={924} width={188} height={18} fill={OAK} rx={4} />
+        {[62, 212].map(x => (
+          <rect key={x} x={x} y={942} width={14} height={58} fill={OAK_DARK} rx={2} />
+        ))}
+        <rect x={62} y={892} width={176} height={36} rx={14} fill="#B0533F" />
+        <line x1={106} y1={896} x2={106} y2={924} stroke="#8F3F30" strokeWidth={2} opacity={0.6} />
+        <line x1={194} y1={896} x2={194} y2={924} stroke="#8F3F30" strokeWidth={2} opacity={0.6} />
+        <rect x={72} y={878} width={52} height={26} rx={11} fill="#C97B5A" />
+        <rect x={180} y={878} width={52} height={26} rx={11} fill="#D9A441" />
         <g fill="#5A4632" stroke="#3F2E1E" strokeWidth={1.5}>
-          <path d="M 128 1030 l 0 -24 q 0 -6 7 -6 l 8 0 q 6 0 6 6 l 0 10 15 0 q 6 0 6 6 l 0 8 Z" />
-          <path d="M 182 1030 l 0 -24 q 0 -6 7 -6 l 8 0 q 6 0 6 6 l 0 10 15 0 q 6 0 6 6 l 0 8 Z" />
+          <path d="M 100 998 l 0 -24 q 0 -6 7 -6 l 8 0 q 6 0 6 6 l 0 10 15 0 q 6 0 6 6 l 0 8 Z" />
+          <path d="M 154 998 l 0 -24 q 0 -6 7 -6 l 8 0 q 6 0 6 6 l 0 10 15 0 q 6 0 6 6 l 0 8 Z" />
         </g>
       </g>
 
