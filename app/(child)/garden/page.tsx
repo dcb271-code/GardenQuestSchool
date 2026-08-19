@@ -3,7 +3,7 @@ import { getPlant } from '@/lib/world/plantCatalog';
 import { canFeed } from '@/lib/world/lunaTreats';
 import { emptyShop, type ShopState } from '@/lib/world/shopCatalog';
 import { todayKey } from '@/lib/learning/review';
-import { GARDEN_STRUCTURES } from '@/lib/world/gardenMap';
+import { GARDEN_STRUCTURES, resolveStructureSkill } from '@/lib/world/gardenMap';
 import { HABITAT_CATALOG } from '@/lib/world/habitatCatalog';
 import { SPECIES_CATALOG } from '@/lib/world/speciesCatalog';
 import { MATH_SKILLS } from '@/lib/packs/math/skills';
@@ -89,6 +89,14 @@ export default async function GardenPage({
   // ambition. Defaults to 2 like the habitat/branch pages do.
   const learnerLevel = learner?.grade_level ?? 2;
 
+  // Stops that grow with the child (levelUpgrade) resolve to the
+  // harder sibling skill HERE, once, so progress counting, prereq
+  // text and the scene all agree on what the stop teaches her.
+  const structures = GARDEN_STRUCTURES.map(s => {
+    const r = resolveStructureSkill(s, learnerLevel);
+    return { ...s, skillCode: r.skillCode, subLabel: r.subLabel };
+  });
+
   // Existing skill-progress query (we still use mastery for habitat gating)
   const { data: progress } = await db
     .from('skill_progress')
@@ -108,7 +116,7 @@ export default async function GardenPage({
 
   // Build skill structure progress via zone rules
   const prereqFallback = (structureCode: string) => {
-    const struct = GARDEN_STRUCTURES.find(s => s.code === structureCode);
+    const struct = structures.find(s => s.code === structureCode);
     if (!struct || !struct.skillCode) return 'more practice';
     const skill = allSkills.find(s => s.code === struct.skillCode);
     const unmet = skill
@@ -117,7 +125,7 @@ export default async function GardenPage({
     return unmet.length > 0 ? unmet.join(', ') : 'more practice';
   };
   const skillProgress = computeStructureProgress(
-    GARDEN_STRUCTURES,
+    structures,
     correctByCode,
     prereqFallback,
     mastered,
@@ -137,7 +145,7 @@ export default async function GardenPage({
   // (shown as a ghost on the map). Built = ecology quest done = full
   // illustration + arrivals possible.
   const structureStates: Record<string, StructureState> = {};
-  for (const s of GARDEN_STRUCTURES) {
+  for (const s of structures) {
     if (s.kind === 'skill') {
       const p = skillProgress[s.code];
       structureStates[s.code] = {
@@ -174,7 +182,7 @@ export default async function GardenPage({
         : [];
       const prereqHints: PrereqHint[] = unmetCodes.map(code => {
         const skillName = skillNameByCode.get(code) ?? code;
-        const localStruct = GARDEN_STRUCTURES.find(g => g.kind === 'skill' && g.skillCode === code);
+        const localStruct = structures.find(g => g.kind === 'skill' && g.skillCode === code);
         if (localStruct) {
           return {
             skillName,
@@ -240,7 +248,7 @@ export default async function GardenPage({
   // ─── Branch unlock state ─────────────────────────────────────────
   const isCompleted = (structureCode: string) =>
     isStructureCompletedForGating(
-      structureCode, GARDEN_STRUCTURES, correctByCode, mastered, ZONE_COMPLETION_TARGET,
+      structureCode, structures, correctByCode, mastered, ZONE_COMPLETION_TARGET,
     );
   const branchCodes: BranchCode[] = ['math_mountain', 'reading_forest'];
   const previouslyUnlocked = new Set<string>(

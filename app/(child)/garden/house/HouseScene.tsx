@@ -307,8 +307,12 @@ function EntryHall({
                     fill={colors[name]} stroke="#00000022" strokeWidth={1} />
               <line x1={x} y1={449} x2={x} y2={496} stroke="#00000033" strokeWidth={1.4} />
             </motion.g>
-            <rect x={x - 23} y={508} width={46} height={16} rx={8} fill="#FFFFFF" opacity={0.85} />
-            <text x={x} y={520} textAnchor="middle" fontSize={10} fontWeight={700} fill="#3f2614">
+            {/* four coats fit where three did only if the name
+                pills take turns standing on two rows */}
+            <rect x={x - 23} y={508 + (i % 2) * 20} width={46} height={16} rx={8}
+                  fill="#FFFFFF" opacity={0.85} />
+            <text x={x} y={520 + (i % 2) * 20} textAnchor="middle" fontSize={10}
+                  fontWeight={700} fill="#3f2614">
               {name}
             </text>
           </g>
@@ -341,17 +345,25 @@ function EntryHall({
       </g>
 
       {/* the runner — the colorful one from the fireplace photo runs
-          through the hall here */}
+          through the hall. It starts CLEAR of the bench: the two used
+          to overlap and the rug's blocks read as a shelf of cubes
+          standing against the seat. Fringe on both ends, because
+          fringe is what says "rug" in one glance. */}
       <g>
-        <rect x={220} y={892} width={430} height={96} rx={10} fill="#D8C7B4" />
-        <rect x={230} y={900} width={410} height={80} rx={7} fill="#8F4A5A" />
-        {[0, 1, 2, 3, 4].map(i => (
-          <rect key={i} x={246 + i * 82} y={908} width={58} height={64} rx={5}
-                fill={['#4A8C8C', '#D9A441', '#7A5A8C', '#C96A5A', '#4A8C8C'][i]} opacity={0.85} />
+        <rect x={310} y={896} width={324} height={88} rx={8} fill="#8F4A5A" />
+        {[0, 1, 2, 3].map(i => (
+          <rect key={i} x={330 + i * 74} y={904} width={54} height={72} rx={5}
+                fill={['#4A8C8C', '#D9A441', '#7A5A8C', '#C96A5A'][i]} opacity={0.85} />
         ))}
-        {[0, 1, 2, 3, 4].map(i => (
-          <path key={i} d={`M ${275 + i * 82} 926 l 12 14 l -12 14 l -12 -14 Z`}
+        {[0, 1, 2, 3].map(i => (
+          <path key={i} d={`M ${357 + i * 74} 924 l 11 16 l -11 16 l -11 -16 Z`}
                 fill="#F2E6D0" opacity={0.7} />
+        ))}
+        {[0, 1, 2, 3, 4, 5].map(i => (
+          <g key={i} stroke="#E8DCC8" strokeWidth={2.5} strokeLinecap="round">
+            <line x1={303} y1={904 + i * 14} x2={310} y2={902 + i * 14} />
+            <line x1={634} y1={902 + i * 14} x2={641} y2={904 + i * 14} />
+          </g>
         ))}
       </g>
 

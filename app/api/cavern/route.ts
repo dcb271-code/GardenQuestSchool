@@ -86,10 +86,16 @@ export async function POST(req: Request) {
         cavern: { ...state, canDigToday: false, digsLeftToday: 0 },
       });
     }
-    Object.assign(state, recordDig(state, today));
-
+    // Roll for a creature BEFORE recording the dig. Meeting an animal
+    // costs nothing: it used to eat the dig and start the cooldown,
+    // and "if I find a animal it will not let me go dig" arrived in
+    // the letterbox. She was right — a child who meets the salamander
+    // instead of a stone has not mined anything yet. Free digs are
+    // bounded by the creature list: four, ever, per child.
     const roll = Math.random();
     const creature = creatureForDig(state.creaturesFound, roll);
+    if (!creature) Object.assign(state, recordDig(state, today));
+
     if (creature) {
       creatureCode = creature;
       state.creaturesFound = [...state.creaturesFound, creature];

@@ -18,6 +18,17 @@ export interface MapStructure {
   code: string;           // unique id
   kind: 'skill' | 'habitat' | 'gate' | 'character';
   skillCode?: string;     // for skill-entries
+  /**
+   * A stop that grows with the child. Cecily's letter: "I wont flower
+   * in the meadow be harder because I think it's too easy" — she was
+   * right, and the reason is structural: the garden map is the early
+   * map, so its stops carry Level-1 skills forever while the child
+   * moves on. A stop with an upgrade serves the harder sibling skill
+   * once the learner reaches minLevel, instead of paying Level-3 work
+   * rates for Level-1 answers — the exact farming shape this world
+   * keeps having to close.
+   */
+  levelUpgrade?: { minLevel: number; skillCode: string; subLabel: string };
   habitatCode?: string;   // for habitats (matches HABITAT_CATALOG code)
   // gates carry the destination branch code so the page knows where
   // to navigate when tapped + unlocked.
@@ -181,6 +192,10 @@ export const GARDEN_STRUCTURES: MapStructure[] = [
     themeEmoji: '🌸',
     x: 1000, y: 330, size: 60,
     zone: 'math',
+    // The flower in the meadow. Same stop, bigger numbers, once the
+    // small ones are beneath her.
+    levelUpgrade: { minLevel: 3, skillCode: 'math.number_bond.within_20',
+                    subLabel: 'number bonds to 20' },
   },
 
   // --- Bunny Glade (SW) ---
@@ -318,4 +333,19 @@ export const GARDEN_STRUCTURES: MapStructure[] = [
 
 export function getStructureByCode(code: string): MapStructure | undefined {
   return GARDEN_STRUCTURES.find(s => s.code === code);
+}
+
+/**
+ * The skill this stop teaches THIS child. Everything that reads a
+ * structure's skill — starting a session, counting progress, showing
+ * the sublabel — must go through here, or the upgraded stop would
+ * launch the harder skill while its star still counted the easy one.
+ */
+export function resolveStructureSkill(
+  s: MapStructure, learnerLevel: number,
+): { skillCode: string | undefined; subLabel: string | undefined } {
+  if (s.levelUpgrade && learnerLevel >= s.levelUpgrade.minLevel) {
+    return { skillCode: s.levelUpgrade.skillCode, subLabel: s.levelUpgrade.subLabel };
+  }
+  return { skillCode: s.skillCode, subLabel: s.subLabel };
 }

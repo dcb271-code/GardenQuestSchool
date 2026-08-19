@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { GARDEN_STRUCTURES, MAP_WIDTH, MAP_HEIGHT } from '@/lib/world/gardenMap';
+import { GARDEN_STRUCTURES, MAP_WIDTH, MAP_HEIGHT, resolveStructureSkill } from '@/lib/world/gardenMap';
 import { PLOTS } from '@/lib/world/plotLayout';
 import type { MapStructure } from '@/lib/world/gardenMap';
 import { HABITAT_CATALOG } from '@/lib/world/habitatCatalog';
@@ -421,6 +421,13 @@ export default function GardenScene({
     enabled: !!settings.gardenSoundtrack,
     volume: settings.soundtrackVolume ?? 0.10,
   });
+  // Stops that grow with the child resolve to their harder sibling
+  // skill here, matching the server page's progress counting.
+  const structures = useMemo(() => GARDEN_STRUCTURES.map(st => {
+    const r = resolveStructureSkill(st, learnerLevel);
+    return { ...st, skillCode: r.skillCode, subLabel: r.subLabel };
+  }), [learnerLevel]);
+
   const [arrival, setArrival] = useState<SpeciesData | null>(pendingArrival);
   const [selected, setSelected] = useState<MapStructure | null>(null);
   // When a locked-habitat lock-message points at a structure on the
@@ -434,11 +441,11 @@ export default function GardenScene({
 
   // Beds, habitats and paths she must not stand a bench on top of.
   const arrangeObstacles = useMemo(() => ([
-    ...GARDEN_STRUCTURES.map(st => ({
+    ...structures.map(st => ({
       x: st.x, y: st.y, w: (st.size ?? 60) * 1.1, h: (st.size ?? 60) * 1.1,
     })),
     ...PLOTS.map(pl => ({ x: pl.x, y: pl.y, w: 96, h: 96 })),
-  ]), []);
+  ]), [structures]);
 
   const arrange = useArrange({
     learnerId, shop, obstacles: arrangeObstacles,
@@ -1399,7 +1406,7 @@ export default function GardenScene({
               raster-heavy shimmer/pulse layers. */}
           <AmbientLayer reducedMotion={reducedMotion} />
 
-          {GARDEN_STRUCTURES.map(s => {
+          {structures.map(s => {
             // Gates → native SVG <g> with click handler. We tried
             // <foreignObject> + an HTML LockedGate component first but
             // touch events are unreliable inside foreignObject on iPad
