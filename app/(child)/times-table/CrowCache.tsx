@@ -1,0 +1,558 @@
+'use client';
+
+// The Crow's Picture Cache — teach mode (phase 1 of the spec).
+//
+// Six framed scenes on a wall, one per stubborn fact. Every scene
+// obeys the derivability rule: the answer is countable in the
+// picture, true of the animal's body, built from the characters'
+// shapes, or arithmetic itself. The crow keeps them because corvids
+// really do cache thousands of seeds and remember every spot.
+//
+// Pip teaches structure; the crow keeps memories. Said that way, in
+// the intro, because the division of labor is part of the lesson.
+
+import { useEffect, useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { speak, stopSpeaking } from '@/lib/audio/tts';
+import { playPageTurn } from '@/lib/audio/sfx';
+import { CROW_SCENES, CROW_ALPHABET, type CrowScene } from '@/lib/packs/math/crowScenes';
+
+const INK = '#3A2E1E';
+const PAPER = '#FFFDF6';
+const WOOD = '#8A6238';
+const WOOD_DARK = '#5E4020';
+const GRASS = '#A9C68C';
+const SHELL = '#B08247';
+const SHELL_DARK = '#6E4520';
+const BEE_GOLD = '#E8B93A';
+const BEE_DARK = '#3A3226';
+const FLAG_RED = '#C94C3E';
+
+function speakRhyme(text: string) {
+  return speak(text, { rate: 0.92, pitch: 1.1 });
+}
+
+/* ══ the characters ═════════════════════════════════════════════ */
+
+/** A snail whose shell IS its digit — 3 for a young shell, 6 grown. */
+function Snail({ x, y, scale = 1, shellDigit }: {
+  x: number; y: number; scale?: number; shellDigit: 3 | 6;
+}) {
+  return (
+    <g transform={`translate(${x}, ${y}) scale(${scale})`}>
+      {/* body: a low foot with a lifted head and two eye-stalks */}
+      <path d="M -34 0 Q -30 -12 -12 -12 L 26 -12 Q 40 -12 44 -2 L 44 0 Z"
+            fill="#C9A87C" stroke={SHELL_DARK} strokeWidth={2} strokeLinejoin="round" />
+      <path d="M 34 -10 Q 44 -26 40 -34 M 42 -11 Q 52 -22 52 -30"
+            fill="none" stroke="#C9A87C" strokeWidth={5} strokeLinecap="round" />
+      <circle cx={40} cy={-35} r={3.5} fill={SHELL_DARK} />
+      <circle cx={52} cy={-31} r={3.5} fill={SHELL_DARK} />
+      {/* the shell: the digit itself, worn on the back */}
+      <text x={-2} y={-16} textAnchor="middle" fontSize={54} fontWeight={900}
+            fill={SHELL} stroke={SHELL_DARK} strokeWidth={2.5} paintOrder="stroke"
+            style={{ fontFamily: 'ui-rounded, "Comic Sans MS", system-ui, sans-serif' }}>
+        {shellDigit}
+      </text>
+    </g>
+  );
+}
+
+/** The letterbox flag — a 7 in profile, and proud of it. */
+function FlagCharacter({ x, y, scale = 1 }: { x: number; y: number; scale?: number }) {
+  return (
+    <g transform={`translate(${x}, ${y}) scale(${scale})`}>
+      <rect x={-3} y={-52} width={6} height={56} rx={3} fill={WOOD} stroke={WOOD_DARK} strokeWidth={1.5} />
+      <path d="M 3 -52 L 34 -46 L 3 -34 Z" fill={FLAG_RED} stroke="#8F3F30" strokeWidth={2} strokeLinejoin="round" />
+      {/* a face on the pennant, because it is a character */}
+      <circle cx={13} cy={-44} r={1.8} fill="#FFF" />
+      <path d="M 11 -40 Q 14 -38 17 -41" stroke="#FFF" strokeWidth={1.4} fill="none" strokeLinecap="round" />
+    </g>
+  );
+}
+
+/** The bee — two stacked circles: an 8 that flies. */
+function Bee({ x, y, scale = 1 }: { x: number; y: number; scale?: number }) {
+  return (
+    <g transform={`translate(${x}, ${y}) scale(${scale})`}>
+      <ellipse cx={-9} cy={-9} rx={10} ry={7} fill="#EAF2F6" opacity={0.85}
+               stroke="#B8C8D0" strokeWidth={1.2} transform="rotate(-30 -9 -9)" />
+      <ellipse cx={9} cy={-9} rx={10} ry={7} fill="#EAF2F6" opacity={0.85}
+               stroke="#B8C8D0" strokeWidth={1.2} transform="rotate(30 9 -9)" />
+      {/* head over body: the 8, upright */}
+      <circle cx={0} cy={-4} r={7} fill={BEE_GOLD} stroke={BEE_DARK} strokeWidth={2} />
+      <circle cx={0} cy={10} r={10} fill={BEE_GOLD} stroke={BEE_DARK} strokeWidth={2} />
+      <path d="M -9.5 6 L 9.5 6 M -10 12 L 10 12" stroke={BEE_DARK} strokeWidth={3} />
+      <circle cx={-2.5} cy={-5} r={1.5} fill={BEE_DARK} />
+      <circle cx={2.5} cy={-5} r={1.5} fill={BEE_DARK} />
+    </g>
+  );
+}
+
+/** The tadpole — a 9 with somewhere to be. Alphabet card only. */
+function Tadpole({ x, y, scale = 1 }: { x: number; y: number; scale?: number }) {
+  return (
+    <g transform={`translate(${x}, ${y}) scale(${scale})`}>
+      <circle cx={0} cy={-6} r={11} fill="#7A8C5A" stroke="#4A5C36" strokeWidth={2} />
+      <path d="M 8 2 Q 16 14 8 26 Q 4 32 -2 30" fill="none"
+            stroke="#7A8C5A" strokeWidth={7} strokeLinecap="round" />
+      <circle cx={-3.5} cy={-8} r={2} fill="#2E3820" />
+    </g>
+  );
+}
+
+/** The crow: all black, heavy bill, an eye that misses nothing. */
+function Crow({ x, y, scale = 1 }: { x: number; y: number; scale?: number }) {
+  return (
+    <g transform={`translate(${x}, ${y}) scale(${scale})`}>
+      <path d="M -26 6 Q -34 -18 -12 -26 Q 8 -33 18 -22 L 34 -18 Q 22 -14 18 -12 Q 20 6 4 12 L 8 22 M -4 12 L -4 22"
+            fill="#1E1B22" stroke="#0E0C12" strokeWidth={2} strokeLinejoin="round" />
+      {/* heavy straight bill */}
+      <path d="M 16 -22 L 36 -17 L 17 -13 Z" fill="#2E2B33" stroke="#0E0C12" strokeWidth={1.5} />
+      {/* folded wing line */}
+      <path d="M -22 -14 Q -2 -18 10 -6" fill="none" stroke="#3A3644" strokeWidth={2} />
+      <circle cx={8} cy={-20} r={3} fill="#0E0C12" />
+      <circle cx={9} cy={-21} r={1.1} fill="#EAE6F2" />
+    </g>
+  );
+}
+
+/* ══ the six scenes ═════════════════════════════════════════════ */
+/* One shared viewBox so frames and detail render the same art.    */
+
+const VB = '0 0 360 250';
+
+function SceneGrowingShell() {
+  return (
+    <g>
+      <rect x={0} y={200} width={360} height={50} fill={GRASS} />
+      <path d="M 0 200 Q 90 192 180 200 T 360 200" fill="none" stroke="#7FA86B" strokeWidth={3} />
+      {/* little snail, shell still a 3 — an unfinished 6 */}
+      <Snail x={100} y={196} scale={0.9} shellDigit={3} />
+      {/* grandma snail, fully curled */}
+      <Snail x={252} y={198} scale={1.25} shellDigit={6} />
+      <text x={100} y={238} textAnchor="middle" fontSize={13} fontWeight={700} fill={INK}>
+        still growing
+      </text>
+      <text x={252} y={238} textAnchor="middle" fontSize={13} fontWeight={700} fill={INK}>
+        all curled up
+      </text>
+      {/* the read, left to right */}
+      <text x={180} y={60} textAnchor="middle" fontSize={22} fontWeight={800} fill={INK}>
+        6 × 6
+      </text>
+      <rect x={140} y={74} width={80} height={30} rx={15} fill="#EFE0B0" stroke="#C9A227" strokeWidth={2} />
+      <text x={180} y={95} textAnchor="middle" fontSize={18} fontWeight={800} fill="#5A4520">36</text>
+    </g>
+  );
+}
+
+function SceneSnailMail() {
+  const cell = 26, x0 = 78, y0 = 44;
+  return (
+    <g>
+      <rect x={0} y={214} width={360} height={36} fill={GRASS} />
+      {/* the calendar — six rows of seven days IS the array */}
+      <rect x={x0 - 10} y={y0 - 26} width={cell * 7 + 20} height={cell * 6 + 38} rx={6}
+            fill={PAPER} stroke={WOOD} strokeWidth={3} />
+      <text x={x0 + (cell * 7) / 2} y={y0 - 8} textAnchor="middle" fontSize={13}
+            fontWeight={800} fill={INK} letterSpacing={2}>
+        SNAIL MAIL — 6 WEEKS
+      </text>
+      {Array.from({ length: 6 }, (_, r) =>
+        Array.from({ length: 7 }, (_, c) => {
+          const n = r * 7 + c + 1;
+          const last = n === 42;
+          return (
+            <g key={n}>
+              <rect x={x0 + c * cell} y={y0 + r * cell} width={cell} height={cell}
+                    fill={last ? FLAG_RED : '#F4EDDC'} stroke="#C9BCA8" strokeWidth={1} />
+              {last && (
+                <text x={x0 + c * cell + cell / 2} y={y0 + r * cell + cell / 2 + 5}
+                      textAnchor="middle" fontSize={13} fontWeight={800} fill="#FFF">42</text>
+              )}
+            </g>
+          );
+        }),
+      )}
+      {/* week count down the side, so the six is countable too */}
+      {Array.from({ length: 6 }, (_, r) => (
+        <text key={r} x={x0 - 16} y={y0 + r * cell + 18} textAnchor="middle"
+              fontSize={10} fontWeight={700} fill="#8A7A5E">{r + 1}</text>
+      ))}
+      {/* the snail on its way, envelope on its back */}
+      <Snail x={56} y={242} scale={0.72} shellDigit={6} />
+      <rect x={78} y={216} width={22} height={15} rx={2} fill={PAPER} stroke={WOOD} strokeWidth={1.5} />
+      <path d="M 78 216 L 89 225 L 100 216" fill="none" stroke={WOOD} strokeWidth={1.5} />
+      {/* the letterbox waiting, flag up */}
+      <rect x={306} y={196} width={34} height={22} rx={5} fill="#6b8e5a" stroke={WOOD_DARK} strokeWidth={2} />
+      <rect x={319} y={218} width={6} height={26} fill={WOOD} />
+      <FlagCharacter x={344} y={214} scale={0.62} />
+    </g>
+  );
+}
+
+function SceneHoneycomb() {
+  // Flat-top hexagons, 2 rows of 4 — eight rooms, six walls apiece,
+  // every wall drawn thick enough to count.
+  const R = 27;
+  const hex = (cx: number, cy: number, i: number) => {
+    const pts = Array.from({ length: 6 }, (_, k) => {
+      const ang = (Math.PI / 180) * (60 * k - 30);
+      return `${cx + R * Math.cos(ang)},${cy + R * Math.sin(ang)}`;
+    }).join(' ');
+    return (
+      <g key={i}>
+        <polygon points={pts} fill="#F2C94C" opacity={0.55}
+                 stroke="#8A6534" strokeWidth={4} strokeLinejoin="round" />
+        <text x={cx} y={cy + 5} textAnchor="middle" fontSize={13} fontWeight={800} fill="#8A6534">
+          {i + 1}
+        </text>
+      </g>
+    );
+  };
+  const row1 = [0, 1, 2, 3].map(i => hex(88 + i * 56, 78, i));
+  const row2 = [0, 1, 2, 3].map(i => hex(116 + i * 56, 126, i + 4));
+  return (
+    <g>
+      <rect x={0} y={206} width={360} height={44} fill={GRASS} />
+      {row1}{row2}
+      <Bee x={318} y={62} scale={1.1} />
+      {/* the snail arriving with its suitcase — the house animal
+          visiting the apartment building */}
+      <Snail x={64} y={204} scale={0.85} shellDigit={6} />
+      <rect x={94} y={182} width={20} height={15} rx={2} fill="#B0533F" stroke={WOOD_DARK} strokeWidth={1.5} />
+      <rect x={101} y={178} width={6} height={5} rx={2} fill="none" stroke={WOOD_DARK} strokeWidth={1.5} />
+      <rect x={196} y={176} width={150} height={26} rx={13} fill={PAPER} stroke="#C9A227" strokeWidth={2} />
+      <text x={271} y={194} textAnchor="middle" fontSize={13} fontWeight={800} fill={INK}>
+        8 rooms × 6 walls = 48
+      </text>
+    </g>
+  );
+}
+
+function SceneStarQuilt() {
+  const cell = 22, x0 = 46, y0 = 42;
+  const star = (cx: number, cy: number, r: number, fill: string) => {
+    const pts = Array.from({ length: 10 }, (_, k) => {
+      const ang = (Math.PI / 5) * k - Math.PI / 2;
+      const rad = k % 2 === 0 ? r : r * 0.44;
+      return `${cx + rad * Math.cos(ang)},${cy + rad * Math.sin(ang)}`;
+    }).join(' ');
+    return pts;
+  };
+  return (
+    <g>
+      {/* the quilt: 7 rows of 7 stars, held up by the two flags */}
+      <rect x={x0 - 12} y={y0 - 12} width={cell * 7 + 24} height={cell * 7 + 24} rx={8}
+            fill="#2E4A7A" stroke={WOOD} strokeWidth={3} />
+      {Array.from({ length: 7 }, (_, r) =>
+        Array.from({ length: 7 }, (_, c) => (
+          <polygon key={`${r}-${c}`}
+                   points={star(x0 + c * cell + cell / 2, y0 + r * cell + cell / 2, 7.5, '')}
+                   fill="#F5D98F" />
+        )),
+      )}
+      <FlagCharacter x={x0 - 20} y={y0 + 92} scale={0.85} />
+      <FlagCharacter x={x0 + cell * 7 + 18} y={y0 + 92} scale={0.85} />
+      {/* the real flag, and the one star that will not fit */}
+      <rect x={286} y={36} width={6} height={196} fill={WOOD} />
+      <rect x={292} y={40} width={58} height={38} rx={3} fill="#F4EDDC" stroke={WOOD_DARK} strokeWidth={2} />
+      <text x={321} y={56} textAnchor="middle" fontSize={13} fontWeight={800} fill="#2E4A7A">50</text>
+      <text x={321} y={71} textAnchor="middle" fontSize={10} fontWeight={700} fill="#2E4A7A">stars</text>
+      <polygon points={star(257, 122, 18, '')} fill="#FBF6EA" stroke={FLAG_RED}
+               strokeWidth={2.5} strokeLinejoin="round" />
+      <text x={257} y={128} textAnchor="middle" fontSize={13} fontWeight={800} fill={FLAG_RED}>?</text>
+      <text x={257} y={158} textAnchor="middle" fontSize={11} fontWeight={700} fill={FLAG_RED}>
+        one short!
+      </text>
+      <rect x={220} y={196} width={122} height={28} rx={14} fill={PAPER} stroke="#C9A227" strokeWidth={2} />
+      <text x={281} y={215} textAnchor="middle" fontSize={14} fontWeight={800} fill={INK}>
+        50 − 1 = 49
+      </text>
+    </g>
+  );
+}
+
+function SceneFamousFence() {
+  const posts = [
+    { n: 5, x: 60 }, { n: 6, x: 140 }, { n: 7, x: 220 }, { n: 8, x: 300 },
+  ];
+  return (
+    <g>
+      <rect x={0} y={196} width={360} height={54} fill={GRASS} />
+      {/* the answer glow: the two posts you READ */}
+      <rect x={34} y={70} width={132} height={130} rx={12} fill="#F5D98F" opacity={0.4} />
+      {/* rails behind the posts */}
+      <rect x={30} y={112} width={300} height={10} fill={WOOD} stroke={WOOD_DARK} strokeWidth={1.5} />
+      <rect x={30} y={152} width={300} height={10} fill={WOOD} stroke={WOOD_DARK} strokeWidth={1.5} />
+      {posts.map(p => (
+        <g key={p.n}>
+          <rect x={p.x - 11} y={84} width={22} height={118} rx={4}
+                fill="#A97C48" stroke={WOOD_DARK} strokeWidth={2} />
+          <path d={`M ${p.x - 11} 84 L ${p.x} 72 L ${p.x + 11} 84 Z`}
+                fill="#A97C48" stroke={WOOD_DARK} strokeWidth={2} strokeLinejoin="round" />
+          <circle cx={p.x} cy={134} r={14} fill={PAPER} stroke={WOOD_DARK} strokeWidth={2} />
+          <text x={p.x} y={141} textAnchor="middle" fontSize={18} fontWeight={900} fill={INK}>
+            {p.n}
+          </text>
+        </g>
+      ))}
+      {/* the flag stands ON post 7, the bee hovers AT post 8 */}
+      <FlagCharacter x={220} y={72} scale={0.9} />
+      <Bee x={300} y={46} scale={1.0} />
+      <text x={100} y={52} textAnchor="middle" fontSize={15} fontWeight={800} fill={INK}>
+        read these two →
+      </text>
+      <rect x={64} y={216} width={232} height={26} rx={13} fill={PAPER} stroke="#C9A227" strokeWidth={2} />
+      <text x={180} y={234} textAnchor="middle" fontSize={13} fontWeight={800} fill={INK}>
+        5, 6, 7, 8 → 56 = 7 × 8
+      </text>
+    </g>
+  );
+}
+
+function SceneBeeAnatomy() {
+  // One big bee, side-on: six legs on the floor, four wings that
+  // soar. Every leg and wing is drawn separately and numbered,
+  // because countable is the whole point.
+  const legX = [136, 162, 188, 214, 240, 266];
+  return (
+    <g>
+      <rect x={0} y={206} width={360} height={44} fill={GRASS} />
+      {/* four wings, two pairs, numbered */}
+      {/* four wings fanning from two roots ON the bee's back —
+          detached wings read as clouds, and clouds are not anatomy */}
+      {[
+        { root: [172, 92], rot: -64, n: 1 }, { root: [184, 88], rot: -30, n: 2 },
+        { root: [208, 88], rot: 10, n: 3 }, { root: [220, 92], rot: 44, n: 4 },
+      ].map(w => (
+        <g key={w.n} transform={`rotate(${w.rot} ${w.root[0]} ${w.root[1]})`}>
+          <ellipse cx={w.root[0]} cy={w.root[1] - 26} rx={12} ry={28} fill="#EAF2F6" opacity={0.9}
+                   stroke="#8FA8B4" strokeWidth={2} />
+          <text x={w.root[0]} y={w.root[1] - 34} textAnchor="middle" fontSize={12}
+                fontWeight={800} fill="#44606C">
+            {w.n}
+          </text>
+        </g>
+      ))}
+      {/* the body: head, thorax, striped abdomen */}
+      <circle cx={96} cy={122} r={22} fill={BEE_GOLD} stroke={BEE_DARK} strokeWidth={3} />
+      <circle cx={90} cy={116} r={4} fill={BEE_DARK} />
+      <path d="M 84 100 Q 76 88 68 86 M 100 98 Q 98 84 104 78" fill="none"
+            stroke={BEE_DARK} strokeWidth={2.5} strokeLinecap="round" />
+      <ellipse cx={196} cy={128} rx={84} ry={44} fill={BEE_GOLD} stroke={BEE_DARK} strokeWidth={3} />
+      {[158, 196, 234].map(sx => (
+        <path key={sx} d={`M ${sx} 88 Q ${sx + 6} 128 ${sx} 168`} fill="none"
+              stroke={BEE_DARK} strokeWidth={9} strokeLinecap="round" />
+      ))}
+      {/* six legs, numbered at the floor */}
+      {legX.map((lx, i) => (
+        <g key={lx}>
+          <path d={`M ${lx} 164 Q ${lx - 6} 186 ${lx - 2} 204`} fill="none"
+                stroke={BEE_DARK} strokeWidth={4.5} strokeLinecap="round" />
+          <text x={lx - 2} y={226} textAnchor="middle" fontSize={12} fontWeight={800} fill={INK}>
+            {i + 1}
+          </text>
+        </g>
+      ))}
+      <rect x={236} y={182} width={108} height={26} rx={13} fill={PAPER} stroke="#C9A227" strokeWidth={2} />
+      <text x={290} y={200} textAnchor="middle" fontSize={13} fontWeight={800} fill={INK}>
+        legs 6 · wings 4
+      </text>
+      <text x={52} y={52} textAnchor="middle" fontSize={22} fontWeight={800} fill={INK}>
+        8×8
+      </text>
+    </g>
+  );
+}
+
+const SCENE_ART: Record<string, () => JSX.Element> = {
+  growing_shell: SceneGrowingShell,
+  snail_mail: SceneSnailMail,
+  honeycomb: SceneHoneycomb,
+  star_quilt: SceneStarQuilt,
+  famous_fence: SceneFamousFence,
+  bee_anatomy: SceneBeeAnatomy,
+};
+
+export function CrowSceneArt({ code }: { code: string }) {
+  const Art = SCENE_ART[code];
+  if (!Art) return null;
+  return (
+    <svg viewBox={VB} className="w-full"
+         style={{ display: 'block', background: '#FBF6EA', borderRadius: 8 }}>
+      <Art />
+    </svg>
+  );
+}
+
+/* ══ the alphabet card ══════════════════════════════════════════ */
+
+function AlphabetCard() {
+  return (
+    <svg viewBox={VB} className="w-full" style={{ display: 'block', background: '#FBF6EA', borderRadius: 8 }}>
+      <rect x={0} y={206} width={360} height={44} fill={GRASS} />
+      {/* each citizen stands in front of its own ghost digit */}
+      {[
+        { d: 6, x: 56 }, { d: 7, x: 142 }, { d: 8, x: 228 }, { d: 9, x: 314 },
+      ].map(({ d, x }) => (
+        <text key={d} x={x} y={150} textAnchor="middle" fontSize={110} fontWeight={900}
+              fill={INK} opacity={0.08}>{d}</text>
+      ))}
+      <Snail x={52} y={196} scale={0.95} shellDigit={6} />
+      <FlagCharacter x={142} y={196} scale={1.3} />
+      <Bee x={228} y={170} scale={1.5} />
+      <Tadpole x={314} y={170} scale={1.5} />
+      {[
+        ['the Snail', 56], ['the Flag', 142], ['the Bee', 228], ['the Tadpole', 314],
+      ].map(([name, x]) => (
+        <text key={name as string} x={x as number} y={236} textAnchor="middle"
+              fontSize={12} fontWeight={700} fill={INK}>{name}</text>
+      ))}
+      <text x={180} y={34} textAnchor="middle" fontSize={15} fontWeight={800} fill={INK}>
+        Four neighbors, four numbers
+      </text>
+    </svg>
+  );
+}
+
+/* ══ teach mode ═════════════════════════════════════════════════ */
+
+export default function CrowCache({
+  muted, onToggleMute,
+}: {
+  muted: boolean;
+  onToggleMute: () => void;
+}) {
+  // null = the wall; 'alphabet' = the character card; else scene code.
+  const [open, setOpen] = useState<string | null>(null);
+  const scene = CROW_SCENES.find(s => s.code === open) ?? null;
+  const idx = scene ? CROW_SCENES.indexOf(scene) : -1;
+
+  // Speak the rhyme when a scene opens. Stop when it closes — a crow
+  // that keeps talking over the next picture is a bug, not a bird.
+  useEffect(() => {
+    if (scene && !muted) speakRhyme(scene.rhyme);
+    return () => stopSpeaking();
+  }, [scene, muted]);
+
+  return (
+    <div>
+      <AnimatePresence mode="wait">
+        {open === null ? (
+          <motion.div key="wall" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            {/* the crow and its claim */}
+            <div className="rounded-2xl p-3 flex items-center gap-3 mb-3"
+                 style={{ background: '#EADFC6' }}>
+              <svg viewBox="-36 -38 76 64" width={76} height={64} className="shrink-0">
+                <Crow x={0} y={0} scale={1.15} />
+              </svg>
+              <p className="text-[13px] leading-snug" style={{ color: INK }}>
+                <b>Pip cuts numbers up. I remember the ones that won't cut.</b>{' '}
+                A crow never forgets where it hid a seed — and I hid six
+                pictures. That is all there are. Learn my pictures and the
+                hard corner of the table is yours.
+              </p>
+              <button onClick={onToggleMute} aria-label={muted ? 'Turn sound on' : 'Turn sound off'}
+                      className="rounded-full shrink-0 text-lg"
+                      style={{ width: 44, height: 44, background: PAPER }}>
+                {muted ? '🔇' : '🔊'}
+              </button>
+            </div>
+
+            {/* the alphabet, then the six frames */}
+            <button onClick={() => { setOpen('alphabet'); playPageTurn(); }}
+                    className="w-full rounded-xl p-2 mb-3 text-left"
+                    style={{ background: '#F4EDDC', border: `2px solid ${WOOD}` }}>
+              <span className="text-[12px] font-bold px-1" style={{ color: INK }}>
+                First: meet the four neighbors →
+              </span>
+            </button>
+
+            <div className="grid grid-cols-2 gap-3">
+              {CROW_SCENES.map(s => (
+                <button key={s.code}
+                        onClick={() => { setOpen(s.code); playPageTurn(); }}
+                        className="rounded-xl p-1.5 text-left"
+                        style={{ background: WOOD, border: `2px solid ${WOOD_DARK}` }}>
+                  <CrowSceneArt code={s.code} />
+                  <div className="flex items-baseline justify-between px-1 pt-1">
+                    <span className="text-[11px] font-bold" style={{ color: '#F4EDDC' }}>
+                      {s.title}
+                    </span>
+                    <span className="text-[11px] font-bold" style={{ color: '#F5D98F' }}>
+                      {s.a}×{s.b}
+                    </span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        ) : open === 'alphabet' ? (
+          <motion.div key="alpha" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                      className="rounded-2xl p-3" style={{ background: PAPER, border: `2px solid ${WOOD}` }}>
+            <AlphabetCard />
+            <div className="mt-2 space-y-1">
+              {CROW_ALPHABET.map(c => (
+                <p key={c.digit} className="text-[13px]" style={{ color: INK }}>
+                  <b>{c.digit} is {c.name}</b> — {c.why}.
+                </p>
+              ))}
+            </div>
+            <button onClick={() => setOpen(null)}
+                    className="w-full rounded-xl mt-3 font-bold text-sm"
+                    style={{ background: '#5A8C4A', color: '#FFF', minHeight: 48 }}>
+              to the pictures →
+            </button>
+          </motion.div>
+        ) : scene && (
+          <motion.div key={scene.code} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                      className="rounded-2xl p-3" style={{ background: PAPER, border: `2px solid ${WOOD}` }}>
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="font-bold text-base" style={{ color: INK }}>
+                {scene.title} — <span style={{ color: '#5A8C4A' }}>{scene.a} × {scene.b} = {scene.product}</span>
+              </h2>
+              <button onClick={() => { if (!muted && scene) speakRhyme(scene.rhyme); }}
+                      aria-label="Say the rhyme again"
+                      className="rounded-full shrink-0 text-lg"
+                      style={{ width: 44, height: 44, background: '#EADFC6' }}>
+                🔊
+              </button>
+            </div>
+            <CrowSceneArt code={scene.code} />
+            <p className="text-[15px] font-bold leading-relaxed mt-3 px-1" style={{ color: INK }}>
+              “{scene.rhyme}”
+            </p>
+            <p className="text-[13px] leading-relaxed mt-2 px-1" style={{ color: '#6B5C42' }}>
+              {scene.derivation}
+            </p>
+            {scene.caution && (
+              <p className="text-[13px] leading-relaxed mt-2 rounded-lg p-2"
+                 style={{ background: '#EFE0B0', color: '#5A4520' }}>
+                ⚠️ {scene.caution}
+              </p>
+            )}
+            <p className="text-[12px] italic mt-2 px-1" style={{ color: '#8A7A5E' }}>
+              And remember: {scene.b} × {scene.a} is the same picture.
+              Six pictures cover the whole hard corner.
+            </p>
+            <div className="flex gap-2 mt-3">
+              <button onClick={() => { setOpen(null); }}
+                      className="flex-1 rounded-xl font-bold text-sm"
+                      style={{ background: '#EADFC6', color: INK, minHeight: 48 }}>
+                ← the wall
+              </button>
+              {idx + 1 < CROW_SCENES.length && (
+                <button onClick={() => { setOpen(CROW_SCENES[idx + 1].code); playPageTurn(); }}
+                        className="flex-1 rounded-xl font-bold text-sm"
+                        style={{ background: '#5A8C4A', color: '#FFF', minHeight: 48 }}>
+                  next picture →
+                </button>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}

@@ -37,8 +37,9 @@ import { LearnTable, Practice, Flashcards } from './PipTools';
 import {
   factKey, strategyFor, weakestFacts, type Fact,
 } from '@/lib/packs/math/timesTable';
+import CrowCache from './CrowCache';
 
-type Tool = 'learn' | 'split' | 'practice' | 'cards' | 'chart';
+type Tool = 'learn' | 'split' | 'practice' | 'cards' | 'chart' | 'crow';
 
 export default function TimesTableWorkshop({
   learnerId, accuracy,
@@ -94,6 +95,7 @@ export default function TimesTableWorkshop({
             ['practice', '🌰 Practice'],
             ['cards', '🃏 Cards'],
             ['chart', '▦ Table'],
+            ['crow', '🪶 Crow'],
           ] as const).map(([k, label]) => (
             <button
               key={k}
@@ -115,6 +117,7 @@ export default function TimesTableWorkshop({
         {tool === 'practice' && <Practice queue={queue} muted={muted} onToggleMute={() => setMuted(m => !m)} />}
         {tool === 'cards'    && <Flashcards queue={queue} muted={muted} onToggleMute={() => setMuted(m => !m)} />}
         {tool === 'chart'    && <Chart accuracy={accMap} />}
+        {tool === 'crow'     && <CrowCache muted={muted} onToggleMute={() => setMuted(m => !m)} />}
       </div>
     </div>
   );
