@@ -101,3 +101,23 @@ export function sceneForFact(a: number, b: number): CrowScene | undefined {
 export function getScene(code: string): CrowScene | undefined {
   return CROW_SCENES.find(s => s.code === code);
 }
+
+/* ── the nines: the finger trick ────────────────────────────────── */
+
+export const FINGER_TRICK = {
+  title: 'The Nines — Fold a Finger',
+  rhyme:
+    "Ten fingers up, fold one down — tens on the left, ones on the right, the answer's found.",
+  intro:
+    'Every nine lives on your own two hands. Hold all ten fingers up, and to multiply a number by nine, fold THAT finger down. The fingers left of the fold are the tens. The fingers right of it are the ones. The tadpole hides behind one finger — and the answer is just standing there.',
+  outro:
+    'This works for every single nine — no pictures to remember, because you carry the trick with you. Try it on your real hands right now.',
+} as const;
+
+/**
+ * Fold finger n (1–10): fingers left of it are tens, right of it are
+ * ones. True for every n because 9n = 10(n−1) + (10−n).
+ */
+export function nineFold(n: number): { left: number; right: number; product: number } {
+  return { left: n - 1, right: 10 - n, product: 9 * n };
+}

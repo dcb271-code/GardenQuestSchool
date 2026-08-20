@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
-  CROW_SCENES, CROW_ALPHABET, sceneForFact, getScene,
+  CROW_SCENES, CROW_ALPHABET, sceneForFact, getScene, nineFold, FINGER_TRICK,
 } from '@/lib/packs/math/crowScenes';
 
 /**
@@ -81,5 +81,22 @@ describe('the alphabet', () => {
   it('getScene finds real scenes and rejects nonsense', () => {
     expect(getScene('star_quilt')?.product).toBe(49);
     expect(getScene('tortured_feelers')).toBeUndefined();
+  });
+});
+
+describe('the finger trick', () => {
+  it('is true for every nine — 9n = 10(n-1) + (10-n)', () => {
+    for (let n = 1; n <= 10; n++) {
+      const f = nineFold(n);
+      expect(f.left * 10 + f.right).toBe(9 * n);
+      expect(f.product).toBe(9 * n);
+      expect(f.left).toBe(n - 1);
+      expect(f.right).toBe(10 - n);
+    }
+  });
+
+  it('carries its rhyme and its go-try-it ending', () => {
+    expect(FINGER_TRICK.rhyme.toLowerCase()).toContain('fold one down');
+    expect(FINGER_TRICK.outro.toLowerCase()).toContain('real hands');
   });
 });

@@ -15,7 +15,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { speak, stopSpeaking } from '@/lib/audio/tts';
 import { playPageTurn, playSparkle } from '@/lib/audio/sfx';
-import { CROW_SCENES, CROW_ALPHABET, getScene, type CrowScene } from '@/lib/packs/math/crowScenes';
+import { CROW_SCENES, CROW_ALPHABET, getScene, nineFold, FINGER_TRICK, type CrowScene } from '@/lib/packs/math/crowScenes';
 import {
   buildCrowDeck, goldKeysOf,
   type CrowCacheState, type CrowQuestion,
@@ -550,6 +550,26 @@ export default function CrowCache({
                 );
               })}
             </div>
+
+            {/* the nines live on her hands, not on the wall */}
+            <button onClick={() => { setOpen('nines'); playPageTurn(); }}
+                    className="w-full rounded-xl mt-3 p-3 text-left flex items-center gap-3"
+                    style={{ background: '#2E4A7A', border: `2px solid ${WOOD_DARK}` }}>
+              <span className="text-3xl" aria-hidden>🖐️🖐️</span>
+              <span>
+                <span className="block text-[13px] font-bold" style={{ color: '#F4EDDC' }}>
+                  {FINGER_TRICK.title}
+                </span>
+                <span className="block text-[11px]" style={{ color: '#A9C0E0' }}>
+                  every ×9, carried with you — no picture needed
+                </span>
+              </span>
+            </button>
+          </motion.div>
+        ) : open === 'nines' ? (
+          <motion.div key="nines" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+                      className="rounded-2xl p-3" style={{ background: PAPER, border: `2px solid ${WOOD}` }}>
+            <FingerTrick muted={muted} onBack={() => setOpen(null)} />
           </motion.div>
         ) : open === 'practice' ? (
           <motion.div key="practice" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
@@ -819,6 +839,117 @@ function CrowPractice({
           </p>
         </motion.div>
       )}
+    </div>
+  );
+}
+
+/* ══ the nines — the finger trick, on interactive hands ═════════ */
+
+function FingerTrick({ muted, onBack }: { muted: boolean; onBack: () => void }) {
+  // Which finger (1–10) is folded. Starts unfolded: the first thing
+  // she does is choose, which is the trick itself.
+  const [folded, setFolded] = useState<number | null>(null);
+  const fold = folded ? nineFold(folded) : null;
+
+  useEffect(() => {
+    if (!muted) speak(FINGER_TRICK.rhyme, { rate: 0.92, pitch: 1.1 });
+    return () => stopSpeaking();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Finger geometry: two hands, five fingers each, heights like a
+  // real hand (short pinky, tall middle). Numbered 1–10 left to
+  // right, thumbs innermost — the counting order the trick needs.
+  const H = [46, 62, 72, 66, 40];               // pinky → thumb, left hand
+  const fingers = Array.from({ length: 10 }, (_, i) => {
+    const n = i + 1;
+    const hand = i < 5 ? 0 : 1;
+    const withinHand = i % 5;
+    const x = 34 + i * 30 + hand * 22;
+    const h = hand === 0 ? H[withinHand] : H[4 - withinHand];
+    return { n, x, h, hand };
+  });
+
+  return (
+    <div>
+      <h2 className="font-bold text-base mb-1" style={{ color: INK }}>
+        {FINGER_TRICK.title}
+      </h2>
+      <p className="text-[13px] leading-relaxed mb-2" style={{ color: '#6B5C42' }}>
+        {FINGER_TRICK.intro}
+      </p>
+
+      <svg viewBox="0 0 360 240" className="w-full"
+           style={{ display: 'block', background: '#FBF6EA', borderRadius: 8 }}>
+        {/* palms */}
+        <ellipse cx={106} cy={196} rx={78} ry={34} fill="#E8C9A8" stroke="#B08247" strokeWidth={2.5} />
+        <ellipse cx={278} cy={196} rx={78} ry={34} fill="#E8C9A8" stroke="#B08247" strokeWidth={2.5} />
+
+        {fingers.map(f => {
+          const isFolded = folded === f.n;
+          const tens = folded !== null && f.n < folded;
+          const ones = folded !== null && f.n > folded;
+          const baseY = 178;
+          return (
+            <g key={f.n}
+               onClick={() => setFolded(cur => (cur === f.n ? null : f.n))}
+               style={{ cursor: 'pointer', touchAction: 'manipulation' }}
+               role="button" aria-label={`Fold finger ${f.n}`}>
+              <rect x={f.x - 14} y={baseY - 90} width={28} height={96} fill="transparent" />
+              {/* the tadpole hides behind the folded finger */}
+              {isFolded && <Tadpole x={f.x} y={baseY - 44} scale={1.0} />}
+              <rect x={f.x - 10} y={baseY - (isFolded ? 22 : f.h)}
+                    width={20} height={isFolded ? 22 : f.h} rx={9}
+                    fill={tens ? '#A9C68C' : ones ? '#F5D98F' : '#E8C9A8'}
+                    stroke={isFolded ? '#8F3F30' : '#B08247'} strokeWidth={2.5} />
+              {/* knuckle curl on the folded stub */}
+              {isFolded && (
+                <path d={`M ${f.x - 10} ${baseY - 22} Q ${f.x} ${baseY - 34} ${f.x + 10} ${baseY - 22}`}
+                      fill="none" stroke="#8F3F30" strokeWidth={2.5} />
+              )}
+              <text x={f.x} y={baseY - (isFolded ? 4 : f.h - 16)} textAnchor="middle"
+                    fontSize={13} fontWeight={800}
+                    fill={isFolded ? '#8F3F30' : INK}>
+                {f.n}
+              </text>
+            </g>
+          );
+        })}
+
+        {/* the read-out, under the hands */}
+        {fold && folded !== null ? (
+          <g>
+            <rect x={22} y={216} width={110} height={20} rx={10} fill="#A9C68C" />
+            <text x={77} y={230} textAnchor="middle" fontSize={12} fontWeight={800} fill="#2E3820">
+              tens: {fold.left}
+            </text>
+            <rect x={228} y={216} width={110} height={20} rx={10} fill="#F5D98F" />
+            <text x={283} y={230} textAnchor="middle" fontSize={12} fontWeight={800} fill="#5A4520">
+              ones: {fold.right}
+            </text>
+            <rect x={138} y={212} width={84} height={28} rx={14} fill={INK} />
+            <text x={180} y={231} textAnchor="middle" fontSize={14} fontWeight={800} fill="#F5D98F">
+              {folded} × 9 = {fold.product}
+            </text>
+          </g>
+        ) : (
+          <text x={180} y={230} textAnchor="middle" fontSize={13} fontWeight={700} fill="#8A7A5E">
+            tap any finger to fold it
+          </text>
+        )}
+      </svg>
+
+      <p className="text-[15px] font-bold leading-relaxed mt-3 px-1" style={{ color: INK }}>
+        “{FINGER_TRICK.rhyme}”
+      </p>
+      <p className="text-[13px] leading-relaxed mt-2 px-1" style={{ color: '#6B5C42' }}>
+        {FINGER_TRICK.outro}
+      </p>
+      <button onClick={onBack}
+              className="w-full rounded-xl mt-3 font-bold text-sm"
+              style={{ background: '#EADFC6', color: INK, minHeight: 48 }}>
+        ← the wall
+      </button>
     </div>
   );
 }
