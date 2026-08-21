@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   TREAT_KINDS, treatKindFor, feedAnimal, canFeedToday, pantryCount, factFor,
+  isKnown, validateAnimalName, KNOWN_FEED_DAYS,
 } from '@/lib/world/treats';
 import { SPECIES_CATALOG } from '@/lib/world/speciesCatalog';
 
@@ -73,5 +74,30 @@ describe('feeding', () => {
     expect(factFor(bird, 0)).toBe(bird.funFact);
     expect(factFor(bird, 1)).toBe(bird.description);
     expect(factFor(bird, 2)).toBe(bird.funFact);
+  });
+});
+
+describe('knowing an animal', () => {
+  const bird = SPECIES_CATALOG.find(s => s.habitatReqCodes.includes('bird_feeder'))!;
+  it('three distinct feed-days make it known; same-day feeds do not stack', () => {
+    let state: import('@/lib/world/treats').TreatsState = { pantry: { treat_seed_cake: 10 } };
+    state = feedAnimal(state, bird.code, '2026-08-20')!.state;
+    expect(isKnown(state, bird.code)).toBe(false);
+    // a second feed the same day is refused anyway, but the day list
+    // must not double-count regardless
+    expect(state.feedDays![bird.code]).toEqual(['2026-08-20']);
+    state = feedAnimal(state, bird.code, '2026-08-21')!.state;
+    expect(isKnown(state, bird.code)).toBe(false);
+    state = feedAnimal(state, bird.code, '2026-08-22')!.state;
+    expect(isKnown(state, bird.code)).toBe(true);
+    expect(KNOWN_FEED_DAYS).toBe(3);
+  });
+
+  it('names are cleaned and refused in words', () => {
+    expect(validateAnimalName('  Clover  ')).toEqual({ name: 'Clover' });
+    expect('error' in validateAnimalName('')).toBe(true);
+    expect('error' in validateAnimalName('   ')).toBe(true);
+    expect('error' in validateAnimalName('a'.repeat(21))).toBe(true);
+    expect(validateAnimalName('Mr. Hop-a-lot 2')).toEqual({ name: 'Mr. Hop-a-lot 2' });
   });
 });

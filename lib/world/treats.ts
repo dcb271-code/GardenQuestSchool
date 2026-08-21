@@ -74,6 +74,19 @@ export interface TreatsState {
   animalsFed?: Record<string, string>;
   /** speciesCode -> lifetime feeds, so the facts rotate. */
   fedCount?: Record<string, number>;
+  /**
+   * speciesCode -> distinct days fed. Three days and the animal is
+   * KNOWN — it will want a name from her. Same spaced-days shape as
+   * the crow's gold frames.
+   */
+  feedDays?: Record<string, string[]>;
+}
+
+/** Days of feeding before an animal knows her and can be named. */
+export const KNOWN_FEED_DAYS = 3;
+
+export function isKnown(state: TreatsState, speciesCode: string): boolean {
+  return ((state.feedDays ?? {})[speciesCode] ?? []).length >= KNOWN_FEED_DAYS;
 }
 
 export function canFeedToday(state: TreatsState, speciesCode: string, today: string): boolean {
@@ -114,14 +127,30 @@ export function feedAnimal(
   if (pantry[treat.code] <= 0) delete pantry[treat.code];
   const fedCount = ((state.fedCount ?? {})[speciesCode] ?? 0);
 
+  const days = (state.feedDays ?? {})[speciesCode] ?? [];
   return {
     state: {
       ...state,
       pantry,
       animalsFed: { ...(state.animalsFed ?? {}), [speciesCode]: today },
       fedCount: { ...(state.fedCount ?? {}), [speciesCode]: fedCount + 1 },
+      feedDays: {
+        ...(state.feedDays ?? {}),
+        [speciesCode]: days.includes(today) ? days : [...days, today],
+      },
     },
     fact: factFor(species, fedCount),
     treat,
   };
+}
+
+/**
+ * Validate a name she typed for a known animal. Returns the cleaned
+ * name, or a refusal IN WORDS — never a silent no.
+ */
+export function validateAnimalName(raw: string): { name: string } | { error: string } {
+  const name = raw.replace(/[\u0000-\u001f\u007f]/g, '').trim();
+  if (name.length === 0) return { error: 'A name needs at least one letter.' };
+  if (name.length > 20) return { error: 'That name is longer than the animal. Twenty letters at most.' };
+  return { name };
 }

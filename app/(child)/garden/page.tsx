@@ -440,6 +440,7 @@ export default async function GardenPage({
       researcherBadges={researcherBadges}
       residents={residents}
       today={todayKey()}
+      animalNames={((worldStateRow?.garden as Record<string, any> | null)?.animal_names ?? {})}
       birdAudio={birdAudio}
       unreadLetterReplies={unreadLetterReplies}
       moonGardenOpen={moonGardenOpen}

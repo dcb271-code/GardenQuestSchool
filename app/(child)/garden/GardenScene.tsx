@@ -26,7 +26,7 @@ import EstimationDuelModal from '@/components/child/garden/EstimationDuelModal';
 import { getResearcherQuest, RESEARCHER_MIN_LEVEL } from '@/lib/world/researcherQuests';
 import { ESTIMATION_MIN_LEVEL } from '@/lib/world/estimationDuel';
 import { residentGreeting, type Resident } from '@/lib/world/residents';
-import { treatKindFor, canFeedToday, pantryCount } from '@/lib/world/treats';
+import { treatKindFor, canFeedToday, pantryCount, isKnown } from '@/lib/world/treats';
 import { resolveClip, type AudioIndex } from '@/lib/birds/audioResolve';
 import { SpeciesIllustration } from '@/components/child/garden/speciesIllustrations';
 import KitchenModal from '@/components/child/garden/KitchenModal';
@@ -369,6 +369,7 @@ export default function GardenScene({
   researcherBadges = [],
   residents = [],
   today = '',
+  animalNames = {},
   birdAudio = {},
   unreadLetterReplies = 0,
   moonGardenOpen = false,
@@ -399,6 +400,8 @@ export default function GardenScene({
   /** Her home-timezone day, for showing the treat offer only when
       the animal has not eaten today. The server still enforces it. */
   today?: string;
+  /** Names she has given known animals: speciesCode -> name. */
+  animalNames?: Record<string, string>;
   /** Clips for bird residents, so tapping one plays its voice. */
   birdAudio?: AudioIndex;
   /** Replies she has not opened — puts a flag up on the letterbox. */
@@ -476,6 +479,11 @@ export default function GardenScene({
   // A fed animal's true thing, shown as a card until dismissed.
   const [fedFact, setFedFact] = useState<{ name: string; emoji: string; fact: string } | null>(null);
   const [feeding, setFeeding] = useState(false);
+  const [names, setNames] = useState<Record<string, string>>(animalNames);
+  const [naming, setNaming] = useState<Resident | null>(null);
+  const [nameDraft, setNameDraft] = useState('');
+  const [nameNote, setNameNote] = useState<string | null>(null);
+  const [adopting, setAdopting] = useState(false);
   const [singingCode, setSingingCode] = useState<string | null>(null);
 
   /**
@@ -572,6 +580,62 @@ export default function GardenScene({
   });
 
   // Walk the sisters over first (1.2s), then start the session.
+  const adoptResident = async (r: Resident) => {
+    if (adopting) return;
+    setAdopting(true);
+    try {
+      const res = await fetch('/api/companion/adopt', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          learnerId, speciesCode: r.species.code,
+          // If she has already named this animal, the friend keeps
+          // that name — one animal, one name.
+          ...(names[r.species.code] ? { nickname: names[r.species.code] } : {}),
+        }),
+      });
+      const d = await res.json();
+      if (d.error) {
+        setFedFact({ name: r.species.commonName, emoji: r.species.emoji, fact: d.error });
+        return;
+      }
+      playSparkle();
+      const shown = names[r.species.code] ?? r.species.commonName;
+      setFedFact({
+        name: shown, emoji: r.species.emoji,
+        fact: `${shown} is your garden friend now. It has moved to the grass by the house — visit it to feed it from your harvest and play.`,
+      });
+      // Refetch so the friend appears without a reload — through the
+      // same loader the page uses, so the payload shape stays right.
+      loadCompanion();
+    } catch {
+      setFedFact({ name: r.species.commonName, emoji: r.species.emoji,
+                   fact: 'That did not go through. Nothing changed.' });
+    } finally {
+      setAdopting(false);
+      setTappedResident(null);
+    }
+  };
+
+  const submitName = async () => {
+    if (!naming) return;
+    try {
+      const res = await fetch('/api/shop', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          learnerId, action: 'name_animal',
+          speciesCode: naming.species.code, animalName: nameDraft,
+        }),
+      });
+      const d = await res.json();
+      if (d.error) { setNameNote(d.error); return; }
+      playSparkle();
+      setNames(d.animalNames ?? names);
+      setNaming(null); setNameDraft(''); setNameNote(null);
+    } catch {
+      setNameNote('That did not go through. Your name is still here — try again.');
+    }
+  };
+
   const feedResident = async (r: Resident) => {
     if (feeding) return;
     setFeeding(true);
@@ -1736,6 +1800,7 @@ export default function GardenScene({
             companion={companion}
             reducedMotion={reducedMotion}
             onTap={() => setCompanionOpen(true)}
+            walkTarget={sistersTarget}
           />
 
           {/* RESIDENTS — creatures she has discovered, living beside
@@ -1749,19 +1814,11 @@ export default function GardenScene({
               style={{ cursor: 'pointer', touchAction: 'manipulation' }}
               onClick={() => {
                 setTappedResident(r);
-                const kind = treatKindFor(r.species);
-                const offering = !!kind && pantryCount(shop, kind.code) > 0
-                  && canFeedToday(shop, r.species.code, today);
-                // A bubble with a button in it has to live long
-                // enough to be tapped.
+                // The bubble now always carries at least one button
+                // (friend or name), so it always earns the long stay.
                 window.setTimeout(() => {
-                  setTappedResident(cur => (cur === r && !offering ? null : cur));
-                }, 2600);
-                if (offering) {
-                  window.setTimeout(() => {
-                    setTappedResident(cur => (cur === r ? null : cur));
-                  }, 8000);
-                }
+                  setTappedResident(cur => (cur === r ? null : cur));
+                }, 8000);
                 singResident(r);
               }}
               aria-label={residentGreeting(r)}
@@ -1800,27 +1857,43 @@ export default function GardenScene({
             </g>
           ))}
 
-          {/* name bubble for a tapped resident — and, when she is
-              carrying the right treat and the animal has not eaten
-              today, the offer to feed it */}
+          {/* name bubble for a tapped resident — her name for it if
+              she has given one, the treat offer, and (new) making it
+              her garden friend or naming it once it knows her */}
           {tappedResident && (() => {
+            const code = tappedResident.species.code;
             const kind = treatKindFor(tappedResident.species);
             const offerTreat = !!kind
               && pantryCount(shop, kind.code) > 0
-              && canFeedToday(shop, tappedResident.species.code, today);
+              && canFeedToday(shop, code, today);
+            const given = names[code];
+            const shown = given
+              ? `${given} — ${tappedResident.species.commonName}`
+              : tappedResident.species.commonName;
+            const known = isKnown(shop, code);
+            const offerName = known && !given;
+            const offerFriend = companion?.speciesCode !== code;
+            // Row 2 lays out whichever of the two half-width offers
+            // apply, side by side.
+            const row2: Array<'friend' | 'name'> = [];
+            if (offerFriend) row2.push('friend');
+            if (offerName) row2.push('name');
+            // Plain outer g carries the position; the motion.g
+            // inside animates ONLY opacity. Animating y here would
+            // replace the transform attribute and pin the bubble to
+            // the map's origin — which it silently did until a proof
+            // render finally caught it.
             return (
+            <g transform={`translate(${tappedResident.x}, ${tappedResident.y - 30})`}>
             <motion.g
-              transform={`translate(${tappedResident.x}, ${tappedResident.y - 30})`}
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
             >
               <g pointerEvents="none">
-                <rect x={-74} y={-16} width={148} height={20} rx={10}
+                <rect x={-84} y={-16} width={168} height={20} rx={10}
                       fill="rgba(255,250,242,0.96)" stroke="#6b8e5a" strokeWidth={1} />
                 <text x={0} y={-2} textAnchor="middle" fontSize={9} fontWeight={700} fill="#3f2614">
-                  {singingCode === tappedResident.species.code
-                    ? `♪ ${tappedResident.species.commonName} ♪`
-                    : tappedResident.species.commonName}
+                  {singingCode === code ? `♪ ${shown} ♪` : shown}
                 </text>
               </g>
               {offerTreat && kind && (
@@ -1838,7 +1911,34 @@ export default function GardenScene({
                   </text>
                 </g>
               )}
+              {row2.map((what, i) => {
+                const w = row2.length === 2 ? 92 : 130;
+                const x = row2.length === 2 ? (i === 0 ? -48 : 48) : 0;
+                return (
+                  <g key={what}
+                     transform={`translate(${x}, ${offerTreat ? 68 : 32})`}
+                     style={{ cursor: 'pointer', touchAction: 'manipulation' }}
+                     onClick={(e) => {
+                       e.stopPropagation();
+                       if (what === 'friend') adoptResident(tappedResident);
+                       else { setNaming(tappedResident); setNameDraft(''); setNameNote(null); }
+                     }}
+                     role="button"
+                     aria-label={what === 'friend'
+                       ? `Make the ${tappedResident.species.commonName} your garden friend`
+                       : `Name the ${tappedResident.species.commonName}`}>
+                    <rect x={-w / 2} y={-14} width={w} height={30} rx={15}
+                          fill={what === 'friend' ? '#C9A227' : '#4A7BA6'}
+                          stroke="#3F2614" strokeWidth={1.5} />
+                    <text x={0} y={5} textAnchor="middle" fontSize={11} fontWeight={700}
+                          fill={what === 'friend' ? '#2A2420' : '#FFF8E8'}>
+                      {what === 'friend' ? (adopting ? '…' : '💛 my friend') : '✏️ name it'}
+                    </text>
+                  </g>
+                );
+              })}
             </motion.g>
+            </g>
             );
           })()}
 
@@ -2463,6 +2563,63 @@ export default function GardenScene({
               >
                 done
               </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* naming a known animal */}
+      <AnimatePresence>
+        {naming && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ background: 'rgba(20,14,8,0.7)' }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={() => setNaming(null)}
+          >
+            <motion.div
+              initial={reducedMotion ? undefined : { scale: 0.92, y: 8 }}
+              animate={reducedMotion ? undefined : { scale: 1, y: 0 }}
+              className="rounded-2xl p-5 w-full"
+              style={{ background: '#FFFAF2', border: '2px solid #C9A227', maxWidth: 380 }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div className="text-center">
+                <span className="text-4xl" aria-hidden>{naming.species.emoji}</span>
+                <h2 className="font-bold text-base mt-1" style={{ color: '#3f2614' }}>
+                  The {naming.species.commonName.toLowerCase()} knows you now.
+                </h2>
+                <p className="text-sm mt-1" style={{ color: '#6b6255' }}>
+                  You have fed it three different days. What do you call it?
+                </p>
+              </div>
+              <input
+                value={nameDraft}
+                onChange={e => setNameDraft(e.target.value)}
+                maxLength={20}
+                autoFocus
+                className="w-full rounded-xl mt-3 px-3 text-base font-bold"
+                style={{ border: '2px solid #C9A227', minHeight: 52, color: '#3f2614',
+                         background: '#FFFDF6' }}
+                placeholder="its name"
+                aria-label="The animal's name"
+              />
+              {nameNote && (
+                <p className="text-xs mt-2 rounded-lg p-2"
+                   style={{ background: '#4A2A1A', color: '#F0C4A8' }}>{nameNote}</p>
+              )}
+              <div className="flex gap-2 mt-3">
+                <button onClick={() => setNaming(null)}
+                        className="flex-1 rounded-xl font-bold text-sm"
+                        style={{ background: '#EFE7D8', color: '#3f2614', minHeight: 48 }}>
+                  not yet
+                </button>
+                <button onClick={submitName}
+                        className="flex-1 rounded-xl font-bold text-sm"
+                        style={{ background: '#6b8e5a', color: '#fffaf2', minHeight: 48 }}>
+                  that's its name
+                </button>
+              </div>
             </motion.div>
           </motion.div>
         )}

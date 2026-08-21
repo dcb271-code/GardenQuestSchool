@@ -4,7 +4,7 @@ import { createServiceClient } from '@/lib/supabase/server';
 import { getShopItem, emptyShop, instanceIds, codeOf, snapToGrid,
          type ShopState } from '@/lib/world/shopCatalog';
 import { emptyCavern, spendKeptGem, type CavernState } from '@/lib/world/cavern';
-import { getTreatKind, feedAnimal, canFeedToday, pantryCount, treatKindFor } from '@/lib/world/treats';
+import { getTreatKind, feedAnimal, canFeedToday, pantryCount, treatKindFor, isKnown, validateAnimalName } from '@/lib/world/treats';
 import { SPECIES_CATALOG } from '@/lib/world/speciesCatalog';
 import { todayKey } from '@/lib/learning/review';
 
@@ -25,10 +25,11 @@ export const revalidate = 0;
 
 const Body = z.object({
   learnerId: z.string().min(1),
-  action: z.enum(['buy', 'place', 'store', 'buy_treat', 'feed']),
+  action: z.enum(['buy', 'place', 'store', 'buy_treat', 'feed', 'name_animal']),
   itemCode: z.string().optional(),
   instanceId: z.string().optional(),
   speciesCode: z.string().optional(),
+  animalName: z.string().optional(),
   x: z.number().optional(),
   y: z.number().optional(),
 });
@@ -125,6 +126,32 @@ export async function POST(req: Request) {
     );
     if (fe) return NextResponse.json({ error: fe.message }, { status: 500 });
     return NextResponse.json({ shop, coins: cavern.coins, fact: fed.fact, treat: fed.treat.code });
+  }
+
+  // ── naming a known animal ───────────────────────────────────────
+  // Three distinct feed-days and the animal is known; a known animal
+  // can carry the name she gives it. Checked HERE: a client cannot
+  // name a stranger.
+  if (body.action === 'name_animal' && body.speciesCode) {
+    const species = SPECIES_CATALOG.find(sp => sp.code === body.speciesCode);
+    if (!species) return NextResponse.json({ error: 'no such animal' }, { status: 400 });
+    if (!isKnown(shop, species.code)) {
+      return NextResponse.json({
+        error: `The ${species.commonName.toLowerCase()} does not know you well enough yet. Feed it on three different days.`,
+        shop,
+      });
+    }
+    const checked = validateAnimalName(body.animalName ?? '');
+    if ('error' in checked) return NextResponse.json({ error: checked.error, shop });
+    const names = (garden.animal_names as Record<string, string>) ?? {};
+    garden.animal_names = { ...names, [species.code]: checked.name };
+    garden.shop = shop;
+    const { error: ne } = await db.from('world_state').upsert(
+      { learner_id: body.learnerId, garden, last_updated_at: new Date().toISOString() },
+      { onConflict: 'learner_id' },
+    );
+    if (ne) return NextResponse.json({ error: ne.message }, { status: 500 });
+    return NextResponse.json({ shop, animalNames: garden.animal_names });
   }
 
   if (body.action === 'place' && body.instanceId) {

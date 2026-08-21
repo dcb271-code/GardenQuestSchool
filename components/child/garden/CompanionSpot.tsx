@@ -10,11 +10,13 @@ import { SpeciesIllustration } from './speciesIllustrations';
 import type { CompanionStatus } from '@/app/api/companion/route';
 
 export default function CompanionSpot({
-  companion, reducedMotion, onTap,
+  companion, reducedMotion, onTap, walkTarget = null,
 }: {
   companion: CompanionStatus | null;
   reducedMotion: boolean;
   onTap: () => void;
+  /** Where the sisters are headed; the friend trails behind. */
+  walkTarget?: { x: number; y: number } | null;
 }) {
   if (!companion) return null;
   const label = companion.nickname ?? companion.speciesName;
@@ -45,9 +47,19 @@ export default function CompanionSpot({
     </>
   );
 
+  // Follow the walkers when they walk (spec: the friend walks with
+  // her). The outer motion.g carries ONLY animated x/y — mixing a
+  // static transform attribute with framer-motion on the same SVG
+  // node is the bug that once threw the sleeping cat into a corner.
+  const home = { x: 275, y: 645 };
+  const spot = walkTarget ? { x: walkTarget.x - 42, y: walkTarget.y + 18 } : home;
   return (
-    <g
-      transform="translate(275, 645)"
+    <motion.g
+      initial={false}
+      animate={{ x: spot.x, y: spot.y }}
+      transition={reducedMotion
+        ? { duration: 0 }
+        : { type: 'spring', stiffness: 28, damping: 12, mass: 1.2 }}
       style={{ cursor: 'pointer', touchAction: 'manipulation' }}
       onClick={onTap}
       role="button"
@@ -65,6 +77,6 @@ export default function CompanionSpot({
           {body}
         </motion.g>
       )}
-    </g>
+    </motion.g>
   );
 }
