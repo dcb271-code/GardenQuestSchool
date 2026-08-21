@@ -17,7 +17,7 @@
 
 import { config } from 'dotenv';
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
-import { replyTo, type Letterbox } from '../lib/world/letters';
+import { replyTo, addBuilderLetter, type Letterbox } from '../lib/world/letters';
 
 config({ path: '.env.local' });
 
@@ -32,7 +32,9 @@ function parseArgs() {
   const unanswered = a.includes('--unanswered');
   const i = a.indexOf('--reply');
   const reply = i >= 0 ? { id: a[i + 1], text: a[i + 2] } : null;
-  return { unanswered, reply };
+  const si = a.indexOf('--send');
+  const send = si >= 0 ? { firstName: a[si + 1], text: a[si + 2] } : null;
+  return { unanswered, reply, send };
 }
 
 async function main() {
@@ -43,7 +45,33 @@ async function main() {
     process.exit(1);
   }
   const db = createClient(url, key, { auth: { persistSession: false } });
-  const { unanswered, reply } = parseArgs();
+  const { unanswered, reply, send } = parseArgs();
+
+  // A letter FROM the builder, unprompted. Used for news that cannot
+  // wait for her next letter; raises the flag like a reply.
+  if (send) {
+    if (!send.firstName || !send.text) {
+      console.error('Usage: npm run letters -- --send <FirstName> "your letter"');
+      process.exit(1);
+    }
+    const { data: target } = await db
+      .from('learner').select('id, first_name').eq('first_name', send.firstName).maybeSingle();
+    if (!target) { console.error(`no learner called ${send.firstName}`); process.exit(1); }
+    const tid = String(target.id);
+    const tg = await garden(db, tid);
+    const tbox = (tg.letters as Letterbox) ?? [];
+    const added = addBuilderLetter(tbox, send.text, new Date().toISOString());
+    if (!added) { console.error('empty letter — nothing sent'); process.exit(1); }
+    tg.letters = added.box;
+    const { error } = await db.from('world_state').upsert(
+      { learner_id: tid, garden: tg, last_updated_at: new Date().toISOString() },
+      { onConflict: 'learner_id' },
+    );
+    console.log(error
+      ? `! send failed: ${error.message}`
+      : `✓ letter ${added.letter.id} delivered to ${target.first_name} — the flag is up`);
+    return;
+  }
 
   const { data: learners } = await db.from('learner').select('*');
   let found = 0;

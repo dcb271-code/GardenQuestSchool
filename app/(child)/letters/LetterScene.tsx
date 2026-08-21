@@ -152,10 +152,22 @@ export default function LetterScene({
         {loaded && letters.length > 0 && (
           <>
             <h2 className="text-sm font-bold mt-7 mb-2" style={{ color: '#3f2614' }}>
-              Letters you have sent
+              Letters sent and received
             </h2>
             <div className="space-y-3">
-              {letters.map(l => (
+              {letters.map(l => l.from === 'builder' ? (
+                /* a letter FROM the garden-builder — its own paper,
+                   sealed-looking, so news reads as news */
+                <div key={l.id} className="rounded-2xl p-3"
+                     style={{ background: 'rgba(107,142,90,0.13)', border: '2px solid #6b8e5a' }}>
+                  <div className="text-xs font-bold mb-1" style={{ color: '#4a6b3a' }}>
+                    📯 a letter from the garden-builder · {l.sentAt.slice(0, 10)}
+                  </div>
+                  <p className="text-sm whitespace-pre-wrap" style={{ color: '#3f2614' }}>
+                    {l.text}
+                  </p>
+                </div>
+              ) : (
                 <div key={l.id} className="rounded-2xl p-3"
                      style={{ background: 'rgba(255,253,245,0.92)', border: '1px solid #d8c9a8' }}>
                   <div className="text-xs mb-1" style={{ color: '#8a7c62' }}>
