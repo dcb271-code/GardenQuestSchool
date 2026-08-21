@@ -22,6 +22,7 @@
 // reason as above.
 
 import { MATH_SKILLS } from '@/lib/packs/math/skills';
+import { READING_SKILLS } from '@/lib/packs/reading/skills';
 
 export interface RecommendedCandidate {
   skillCode: string;
@@ -72,6 +73,11 @@ const SIGNPOST_FALLBACK: RecommendedCandidate[] = [
 ];
 
 const MATH_LEVEL_BY_CODE = new Map(MATH_SKILLS.map(s => [s.code, s.level]));
+const READING_LEVEL_BY_CODE = new Map(READING_SKILLS.map(s => [s.code, s.level]));
+
+function skillLevelOf(code: string): number {
+  return MATH_LEVEL_BY_CODE.get(code) ?? READING_LEVEL_BY_CODE.get(code) ?? 0;
+}
 
 /** Level 3+ learners get Hodge's most ambitious pick. */
 export const HODGE_AMBITIOUS_MIN_LEVEL = 3;
@@ -91,7 +97,17 @@ export function partitionRecommendations(
         }, null)
       : mathCandidates[0] ?? null;
   const nanaFromEngine = candidates.find(c => c.skillCode.startsWith('reading.'));
-  const signpostFromEngine = candidates.slice(0, SIGNPOST_ARMS);
+  // The signpost was engine-order, which let a Level-3 learner's
+  // comfort loops crowd out her frontier — 27 of 60 recent sessions
+  // on one fact family while 21 harder skills sat untouched. At
+  // Level 3+ the arms sort hardest-first, so the way FORWARD is what
+  // the signpost points at. Below that, engine order stands.
+  const signpostFromEngine =
+    learnerLevel >= HODGE_AMBITIOUS_MIN_LEVEL
+      ? [...candidates]
+          .sort((a, b) => skillLevelOf(b.skillCode) - skillLevelOf(a.skillCode))
+          .slice(0, SIGNPOST_ARMS)
+      : candidates.slice(0, SIGNPOST_ARMS);
 
   const hodgeFallback =
     learnerLevel >= HODGE_AMBITIOUS_MIN_LEVEL ? HODGE_FALLBACK_L3 : HODGE_FALLBACK;

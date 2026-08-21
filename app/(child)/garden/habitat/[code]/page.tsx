@@ -9,7 +9,7 @@
 import { notFound } from 'next/navigation';
 import { createServiceClient } from '@/lib/supabase/server';
 import { resolveLearnerId } from '@/lib/learner/activeLearner';
-import { hasHabitatInterior, HABITAT_INTERIORS } from '@/lib/world/habitatInteriors';
+import { hasHabitatInterior, HABITAT_INTERIORS, resolveInteriorSkill } from '@/lib/world/habitatInteriors';
 import { SPECIES_CATALOG } from '@/lib/world/speciesCatalog';
 import { HABITAT_CATALOG } from '@/lib/world/habitatCatalog';
 import { birdAudioUrl } from '@/lib/birds/photoStorage';
@@ -78,7 +78,16 @@ export default async function HabitatInteriorPage({
   const discoveredSpecies = allHabitatSpecies.filter(s => discoveredCodes.has(s.code));
   const undiscoveredCount = allHabitatSpecies.length - discoveredSpecies.length;
 
-  const cfg = HABITAT_INTERIORS[code];
+  const rawCfg = HABITAT_INTERIORS[code];
+  // Interiors grow with the child: resolve the themed skill for THIS
+  // learner before any component sees it.
+  const { data: levelRow } = await db
+    .from('learner').select('grade_level').eq('id', learnerId).maybeSingle();
+  const learnerLevelForSkill = levelRow?.grade_level ?? 2;
+  const cfg = {
+    ...rawCfg,
+    ...resolveInteriorSkill(rawCfg, learnerLevelForSkill),
+  };
 
   if (code === 'bunny_burrow') {
     const { data: learnerRow } = await db
