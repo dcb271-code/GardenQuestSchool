@@ -17,12 +17,13 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import type { SpeciesData } from '@/lib/world/speciesCatalog';
 import { SpeciesIllustration } from '@/components/child/garden/speciesIllustrations';
 import HabitatInteriorLayout from '@/components/child/garden/HabitatInteriorLayout';
+import NectarRound from './NectarRound';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
 import { resolveClip, type AudioIndex } from '@/lib/birds/audioResolve';
 
@@ -46,6 +47,7 @@ export default function BirdFeederInterior({
   const { settings } = useAccessibilitySettings();
   const reducedMotion = settings.reducedMotion;
   const [starting, setStarting] = useState(false);
+  const [nectarOpen, setNectarOpen] = useState(false);
   const [singing, setSinging] = useState<string | null>(null);
 
   const startSkill = async () => {
@@ -119,6 +121,38 @@ export default function BirdFeederInterior({
         <rect x={0} y={286} width={VB_W} height={VB_H - 286} fill="#8FAE79" />
         <path d={`M 0 286 Q 220 300 460 290 T ${VB_W} 296 L ${VB_W} 320 L 0 320 Z`}
               fill="#7C9A6B" opacity={0.6} />
+
+        {/* THE NECTAR FEEDER — red, glass, hanging from its hook:
+            the hummingbird's. Tapping it starts a nectar round. */}
+        <g transform="translate(220, 120)"
+           style={{ cursor: 'pointer', touchAction: 'manipulation' }}
+           onClick={() => setNectarOpen(true)}
+           role="button" aria-label="The nectar feeder — race with the hummingbird">
+          <rect x={-44} y={-44} width={88} height={190} fill="transparent" />
+          <path d="M 0 -40 Q 22 -40 22 -18 L 6 -18 L 6 0 L -6 0 L -6 -18 L -22 -18 Q -22 -40 0 -40"
+                fill="none" stroke="#5A3B1F" strokeWidth={3} />
+          <rect x={-20} y={0} width={40} height={54} rx={8}
+                fill="#D9E6EE" stroke="#8FA8B4" strokeWidth={2} />
+          <rect x={-16} y={22} width={32} height={28} rx={6} fill="#C94C3E" opacity={0.75} />
+          <ellipse cx={0} cy={60} rx={26} ry={10} fill="#C94C3E" stroke="#8F3F30" strokeWidth={2} />
+          {[-14, 0, 14].map(fx => (
+            <circle key={fx} cx={fx} cy={60} r={3.2} fill="#F5D98F" stroke="#8F3F30" strokeWidth={1} />
+          ))}
+          {/* the hummingbird, hovering — the only bird here that can */}
+          <g transform="translate(38, 34)">
+            <ellipse cx={0} cy={0} rx={9} ry={6} fill="#5F7F4A" stroke="#3F5A32" strokeWidth={1.5} />
+            <circle cx={8} cy={-4} r={4.5} fill="#5F7F4A" stroke="#3F5A32" strokeWidth={1.5} />
+            <path d="M 12 -3 L 24 -1" stroke="#2E2216" strokeWidth={1.8} strokeLinecap="round" />
+            <path d="M 6 -2 Q 9 0 8 2 Q 6 1 6 -2" fill="#C94C3E" />
+            <path d="M -2 -4 Q -10 -16 -2 -18 Q 4 -12 2 -4 Z" fill="#A9C68C" opacity={0.85} />
+            <path d="M -4 -2 Q -14 -10 -8 -16 Q 0 -10 -1 -2 Z" fill="#8FAE79" opacity={0.7} />
+            <path d="M -8 2 Q -16 6 -18 4" stroke="#3F5A32" strokeWidth={1.5} fill="none" />
+          </g>
+          <rect x={-42} y={104} width={84} height={18} rx={9} fill="rgba(255,250,242,0.94)" />
+          <text y={117} textAnchor="middle" fontSize={10} fontWeight={700} fill="#3f2614">
+            nectar race
+          </text>
+        </g>
 
         {/* THE FEEDER on its pole */}
         <g transform="translate(640, 150)">
@@ -238,6 +272,10 @@ export default function BirdFeederInterior({
           </text>
         </g>
       </svg>
+
+      {nectarOpen && (
+        <NectarRound learnerId={learnerId} onClose={() => setNectarOpen(false)} />
+      )}
     </HabitatInteriorLayout>
   );
 }

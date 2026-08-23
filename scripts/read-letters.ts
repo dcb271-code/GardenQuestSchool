@@ -109,7 +109,8 @@ async function main() {
       return;
     }
 
-    const shown = unanswered ? box.filter(x => !x.reply) : box;
+    // Builder letters are FROM us — they are never 'awaiting a reply'.
+    const shown = unanswered ? box.filter(x => !x.reply && x.from !== 'builder') : box;
     if (shown.length === 0) continue;
     found += shown.length;
 

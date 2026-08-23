@@ -221,6 +221,32 @@ export default function AntHillInterior({
           </text>
         </g>
 
+        {/* THE CARRYING LANES — the colony's second lesson. A
+            bundle-carrying ant marks the door. */}
+        <g
+          transform="translate(160, 540)"
+          style={{ cursor: 'pointer', touchAction: 'manipulation' }}
+          onClick={() => router.push(`/carry?learner=${learnerId}`)}
+          role="button"
+          aria-label="The Carrying Lanes — help the ants carry tens"
+        >
+          <circle r={46} fill="transparent" />
+          {/* an ant with a "10" bundle on its back */}
+          <circle cx={0} cy={-14} r={11} fill="#D9A441" stroke="#8A6534" strokeWidth={2} />
+          <text x={0} y={-10} textAnchor="middle" fontSize={10} fontWeight={900} fill="#5E4020">10</text>
+          <ellipse cx={-2} cy={0} rx={8} ry={5} fill="#5E3A28" />
+          <circle cx={6} cy={-2} r={3.6} fill="#5E3A28" />
+          <circle cx={-10} cy={0} r={4} fill="#5E3A28" />
+          {[-7, -1, 5].map(lx => (
+            <path key={lx} d={`M ${lx} 4 L ${lx - 2} 9`} stroke="#5E3A28" strokeWidth={1.6} strokeLinecap="round" />
+          ))}
+          <rect x={-64} y={24} width={128} height={19} rx={9}
+                fill="rgba(255,250,242,0.94)" stroke="#6b8e5a" strokeWidth={1} />
+          <text y={37} textAnchor="middle" fontSize={10} fontWeight={700} fill="#3f2614">
+            the carrying lanes
+          </text>
+        </g>
+
         {/* RESIDENTS along the lower tunnels */}
         {discoveredSpecies.map((sp, i) => {
           const { x, y } = slot(i);

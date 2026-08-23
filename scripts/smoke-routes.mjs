@@ -40,6 +40,7 @@ const ROUTES = [
   '/garden/habitat/owl_box',
   '/garden/house',
   '/gems',
+  '/carry',
   '/garden/tunnels',
   '/garden/shop',
   '/times-table',

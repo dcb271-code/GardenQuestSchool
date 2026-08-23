@@ -1371,6 +1371,27 @@ export function buildMathItems(skillId: (code: string) => string | undefined): R
     }
   }
 
+  // add within 10000 — the ant colony's 4-digit lanes
+  {
+    const r = rng(93);
+    const pairs: Array<[number, number]> = [];
+    for (let a = 1200; a <= 6800; a += 173) {
+      for (let b = 1100; b <= 9999 - a; b += 217) {
+        pairs.push([a, b]);
+      }
+    }
+    // Mix: some clean, most with at least one carry — the carry is
+    // the skill.
+    for (const [a, b] of shuffle(pairs, r).slice(0, 60)) {
+      push('math.add.within_10000', 'EquationTap', {
+        type: 'EquationTap',
+        equation: `${a} + ${b} = ?`,
+        choices: mkChoices(a + b, r, 100),
+        promptText: `${a} + ${b} — column by column.`,
+      }, { correct: a + b }, 1650 + Math.floor((a + b) / 1000) * 6);
+    }
+  }
+
   // subtract within 1000
   {
     const r = rng(81);
