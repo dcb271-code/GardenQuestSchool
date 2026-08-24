@@ -34,7 +34,13 @@ function parseArgs() {
   const reply = i >= 0 ? { id: a[i + 1], text: a[i + 2] } : null;
   const si = a.indexOf('--send');
   const send = si >= 0 ? { firstName: a[si + 1], text: a[si + 2] } : null;
-  return { unanswered, reply, send };
+  // Ids are per-learner and COLLIDE across children ("2026-08-07-1"
+  // exists for both sisters). --to scopes the reply to one child;
+  // without it the first matching box wins, which nearly overwrote
+  // Cecily's cavern reply with a letter meant for Esme.
+  const ti = a.indexOf('--to');
+  const to = ti >= 0 ? a[ti + 1] : null;
+  return { unanswered, reply, send, to };
 }
 
 async function main() {
@@ -45,7 +51,7 @@ async function main() {
     process.exit(1);
   }
   const db = createClient(url, key, { auth: { persistSession: false } });
-  const { unanswered, reply, send } = parseArgs();
+  const { unanswered, reply, send, to } = parseArgs();
 
   // A letter FROM the builder, unprompted. Used for news that cannot
   // wait for her next letter; raises the flag like a reply.
@@ -84,6 +90,7 @@ async function main() {
     if (box.length === 0) continue;
 
     if (reply?.id) {
+      if (to && name.toLowerCase() !== to.toLowerCase()) continue;
       const target = box.find(x => x.id === reply.id);
       if (!target) continue;
       if (!reply.text) {
