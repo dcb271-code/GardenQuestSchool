@@ -1420,19 +1420,53 @@ export default function GardenScene({
             {/* moved clear of the sister-walkers' home spot, which
                 stood exactly on top of the first parking place */}
             <rect x={-40} y={-46} width={90} height={94} fill="transparent" />
-            {/* bike, leaning */}
-            <g transform="scale(1.25) rotate(-6)">
-              <circle cx={-16} cy={8} r={9} fill="none" stroke="#3A3226" strokeWidth={2.5} />
-              <circle cx={10} cy={8} r={9} fill="none" stroke="#3A3226" strokeWidth={2.5} />
-              <path d="M -16 8 L -6 -6 L 10 8 M -6 -6 L 4 -6 M -2 -8 L -9 -8 M 10 8 L 6 -8 L 2 -8"
-                    stroke="#C94C3E" strokeWidth={2.5} fill="none" strokeLinecap="round" />
+            {/* the red bike, drawn as an OBJECT: solid tires with
+                rims and spokes, a real frame, a seat, a basket. The
+                first version was bare strokes and read as a
+                constellation against the grass. */}
+            <g transform="translate(-6, 0) rotate(-5)">
+              {/* ground shadow */}
+              <ellipse cx={0} cy={20} rx={30} ry={4.5} fill="#000" opacity={0.15} />
+              {/* wheels: tire, rim, hub, spokes */}
+              {[-17, 13].map(wx => (
+                <g key={wx}>
+                  <circle cx={wx} cy={8} r={11.5} fill="#2E2A24" />
+                  <circle cx={wx} cy={8} r={8} fill="#F3EBDD" />
+                  <path d={`M ${wx} 0.5 L ${wx} 15.5 M ${wx - 7.5} 8 L ${wx + 7.5} 8 M ${wx - 5.3} 2.7 L ${wx + 5.3} 13.3 M ${wx - 5.3} 13.3 L ${wx + 5.3} 2.7`}
+                        stroke="#B9AE9A" strokeWidth={1.3} />
+                  <circle cx={wx} cy={8} r={2.4} fill="#5E4020" />
+                </g>
+              ))}
+              {/* frame: two solid red tubes and the seat tube */}
+              <path d="M -17 8 L -4 -7 L 13 8 M -4 -7 L 8 -7 L 13 8 M -17 8 L -8 -9"
+                    stroke="#C94C3E" strokeWidth={4} fill="none" strokeLinecap="round" strokeLinejoin="round" />
+              {/* fenders */}
+              <path d="M -27 4 A 11.5 11.5 0 0 1 -13 -3" stroke="#C94C3E" strokeWidth={3.5} fill="none" strokeLinecap="round" />
+              <path d="M 3.5 -1 A 11.5 11.5 0 0 1 23 4" stroke="#C94C3E" strokeWidth={3.5} fill="none" strokeLinecap="round" />
+              {/* seat, post and handlebars with grips */}
+              <rect x={-14} y={-15} width={13} height={5} rx={2.5} fill="#5E4020" />
+              <path d="M 13 8 L 16 -10" stroke="#C94C3E" strokeWidth={3.5} strokeLinecap="round" />
+              <path d="M 16 -10 Q 21 -13 22 -8" stroke="#3A3226" strokeWidth={3} fill="none" strokeLinecap="round" />
+              {/* the basket, woven */}
+              <path d="M 15 -8 L 27 -8 L 25.5 2 L 16.5 2 Z" fill="#D9B380" stroke="#8A6534" strokeWidth={1.8} strokeLinejoin="round" />
+              <path d="M 17 -4.5 L 26 -4.5 M 16.5 -1 L 25.8 -1 M 19 -8 L 18.5 2 M 23 -8 L 22.8 2"
+                    stroke="#8A6534" strokeWidth={1} opacity={0.7} />
             </g>
-            {/* scooter, smaller, propped on the bike */}
-            <g transform="translate(32, 6) scale(1.25) rotate(8)">
-              <circle cx={-8} cy={12} r={4.5} fill="none" stroke="#3A3226" strokeWidth={2} />
-              <circle cx={8} cy={12} r={4.5} fill="none" stroke="#3A3226" strokeWidth={2} />
-              <path d="M -8 12 L 8 10 M 8 10 L 12 -12 M 8 -12 L 16 -12"
-                    stroke="#4A7BA6" strokeWidth={2.5} fill="none" strokeLinecap="round" />
+            {/* the blue scooter, propped beside it: solid deck, thick
+                stem, T-bar with grips */}
+            <g transform="translate(34, 4) rotate(7)">
+              <ellipse cx={2} cy={19} rx={16} ry={3} fill="#000" opacity={0.15} />
+              {[-8, 11].map(wx => (
+                <g key={wx}>
+                  <circle cx={wx} cy={14} r={5.5} fill="#2E2A24" />
+                  <circle cx={wx} cy={14} r={2.6} fill="#B9AE9A" />
+                </g>
+              ))}
+              <rect x={-12} y={9} width={22} height={4.5} rx={2.2} fill="#4A7BA6" stroke="#2E4A6E" strokeWidth={1.4} />
+              <path d="M 11 12 L 15 -14" stroke="#4A7BA6" strokeWidth={4} strokeLinecap="round" />
+              <path d="M 9 -14 L 21 -14" stroke="#4A7BA6" strokeWidth={4} strokeLinecap="round" />
+              <circle cx={8} cy={-14} r={2.4} fill="#C94C3E" />
+              <circle cx={22} cy={-14} r={2.4} fill="#C94C3E" />
             </g>
             {/* no label pill — every position in this pocket collides
                 with a neighbor, and a bright red bike explains itself
