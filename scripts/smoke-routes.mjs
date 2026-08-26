@@ -41,6 +41,7 @@ const ROUTES = [
   '/garden/house',
   '/gems',
   '/carry',
+  '/town/art-store',
   '/garden/tunnels',
   '/garden/shop',
   '/times-table',
