@@ -1228,27 +1228,58 @@ function ReadingRoom({
  * this is the SVG-transform version of it.
  */
 function SleepingLuna({ x, y, reducedMotion }: { x: number; y: number; reducedMotion: boolean }) {
+  const FUR = '#E89B6F';
+  const FUR_DARK = '#A86844';
+  const CREAM = '#F5DBC5';
   const body = (
     <g>
-      <ellipse cx={0} cy={0} rx={44} ry={26} fill="#8A8A94" stroke="#5A5A64" strokeWidth={2} />
-      {/* tail curled around */}
-      <path d="M 40 8 Q 58 18 40 28 Q 12 40 -20 26" fill="none" stroke="#5A5A64" strokeWidth={9} strokeLinecap="round" />
-      <path d="M 40 8 Q 58 18 40 28 Q 12 40 -20 26" fill="none" stroke="#8A8A94" strokeWidth={5.5} strokeLinecap="round" />
-      {/* head tucked toward paws */}
-      <circle cx={-28} cy={-6} r={17} fill="#8A8A94" stroke="#5A5A64" strokeWidth={2} />
-      <path d="M -40 -18 l -3 -9 l 9 4 Z" fill="#8A8A94" stroke="#5A5A64" strokeWidth={1.5} />
-      <path d="M -26 -21 l 0 -9 l 8 6 Z" fill="#8A8A94" stroke="#5A5A64" strokeWidth={1.5} />
-      {/* closed eye, quiet whiskers */}
-      <path d="M -36 -6 Q -32 -3 -28 -6" stroke="#3A3A44" strokeWidth={1.6} fill="none" strokeLinecap="round" />
-      <line x1={-44} y1={0} x2={-52} y2={-1} stroke="#5A5A64" strokeWidth={1} />
-      <line x1={-44} y1={3} x2={-52} y2={4} stroke="#5A5A64" strokeWidth={1} />
+      {/* the curled body: a plump crescent, flattened where it meets
+          the rug */}
+      <path d="M -38 6 Q -42 -22 -18 -30 Q 8 -38 28 -24 Q 44 -12 40 4 Q 38 14 24 17 L -26 17 Q -36 15 -38 6 Z"
+            fill={FUR} stroke={FUR_DARK} strokeWidth={2.5} strokeLinejoin="round" />
+      {/* back stripes */}
+      <path d="M -12 -29 Q -10 -18 -14 -10 M 4 -32 Q 7 -21 4 -12 M 20 -26 Q 24 -17 22 -9"
+            fill="none" stroke={FUR_DARK} strokeWidth={3.5} strokeLinecap="round" opacity={0.75} />
+      {/* the tail: wrapped around the front, ringed, tip by the chin */}
+      <path d="M 38 2 Q 50 12 34 19 Q 8 26 -20 20 Q -34 17 -33 8"
+            fill="none" stroke={FUR} strokeWidth={9} strokeLinecap="round" />
+      <path d="M -8 22.5 Q -14 22.8 -20 21.5 M 14 23 Q 8 24 2 23.5"
+            fill="none" stroke={FUR_DARK} strokeWidth={8} strokeLinecap="round" opacity={0.6} />
+      <circle cx={-31} cy={9} r={4.5} fill={FUR_DARK} />
+      {/* the head, resting on the paws, tucked into the curl */}
+      <g transform="translate(-16, -6) rotate(-8)">
+        {/* ears first, behind the head */}
+        <path d="M -12 -13 L -16 -24 L -4 -18 Z" fill={FUR} stroke={FUR_DARK} strokeWidth={2} strokeLinejoin="round" />
+        <path d="M 4 -17 L 12 -26 L 14 -13 Z" fill={FUR} stroke={FUR_DARK} strokeWidth={2} strokeLinejoin="round" />
+        <path d="M -11.5 -15 L -13.5 -20.5 L -7.5 -17.5 Z" fill="#F5BFAE" />
+        <path d="M 6 -17.5 L 10.5 -22.5 L 11.5 -15.5 Z" fill="#F5BFAE" />
+        <circle cx={0} cy={-4} r={14.5} fill={FUR} stroke={FUR_DARK} strokeWidth={2.5} />
+        {/* forehead stripes */}
+        <path d="M -5 -16 L -5 -11 M 0 -17.5 L 0 -12 M 5 -16 L 5 -11"
+              stroke={FUR_DARK} strokeWidth={2.2} strokeLinecap="round" opacity={0.75} />
+        {/* cheeks and chin, cream */}
+        <ellipse cx={0} cy={3} rx={9} ry={6.5} fill={CREAM} opacity={0.9} />
+        {/* closed eyes: two content little arcs */}
+        <path d="M -9 -4 Q -6 -1.5 -3 -4 M 3 -4 Q 6 -1.5 9 -4"
+              fill="none" stroke={FUR_DARK} strokeWidth={2} strokeLinecap="round" />
+        {/* nose and mouth */}
+        <path d="M -1.8 1 L 1.8 1 L 0 3.4 Z" fill="#E88A93" />
+        <path d="M 0 3.4 Q 0 5.5 -2.5 6 M 0 3.4 Q 0 5.5 2.5 6"
+              fill="none" stroke={FUR_DARK} strokeWidth={1.4} strokeLinecap="round" />
+        {/* whiskers */}
+        <path d="M -12 1 L -20 -0.5 M -12 3.5 L -20 4 M 12 1 L 20 -0.5 M 12 3.5 L 20 4"
+              stroke={FUR_DARK} strokeWidth={1.1} strokeLinecap="round" opacity={0.8} />
+      </g>
+      {/* front paws tucked under the chin */}
+      <ellipse cx={-14} cy={12} rx={7} ry={4.5} fill={FUR} stroke={FUR_DARK} strokeWidth={2} />
+      <path d="M -17 12.5 L -17 15 M -12 12.5 L -12 15" stroke={FUR_DARK} strokeWidth={1.3} />
     </g>
   );
   if (reducedMotion) return <g transform={`translate(${x}, ${y})`}>{body}</g>;
   return (
     <g transform={`translate(${x}, ${y})`}>
       <motion.g
-        animate={{ scale: [1, 1.025, 1] }}
+        animate={{ scale: [1, 1.02, 1] }}
         transition={{ duration: 3.4, repeat: Infinity, ease: 'easeInOut' }}
       >
         {body}

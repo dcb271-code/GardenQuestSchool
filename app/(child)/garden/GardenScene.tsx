@@ -1410,33 +1410,34 @@ export default function GardenScene({
               The road to town: tap to choose where to go. The store
               is not ON the map because the map is full; you ride. */}
           <g
-            transform="translate(196, 612)"
+            transform="translate(216, 664)"
             style={{ cursor: 'pointer', touchAction: 'manipulation' }}
             onClick={() => setRideOpen(true)}
             role="button"
             aria-label="The bike and scooter — ride to town"
             tabIndex={0}
           >
-            <rect x={-34} y={-40} width={78} height={64} fill="transparent" />
+            {/* moved clear of the sister-walkers' home spot, which
+                stood exactly on top of the first parking place */}
+            <rect x={-40} y={-46} width={90} height={94} fill="transparent" />
             {/* bike, leaning */}
-            <g transform="rotate(-6)">
+            <g transform="scale(1.25) rotate(-6)">
               <circle cx={-16} cy={8} r={9} fill="none" stroke="#3A3226" strokeWidth={2.5} />
               <circle cx={10} cy={8} r={9} fill="none" stroke="#3A3226" strokeWidth={2.5} />
               <path d="M -16 8 L -6 -6 L 10 8 M -6 -6 L 4 -6 M -2 -8 L -9 -8 M 10 8 L 6 -8 L 2 -8"
                     stroke="#C94C3E" strokeWidth={2.5} fill="none" strokeLinecap="round" />
             </g>
             {/* scooter, smaller, propped on the bike */}
-            <g transform="translate(26, 4) rotate(8)">
+            <g transform="translate(32, 6) scale(1.25) rotate(8)">
               <circle cx={-8} cy={12} r={4.5} fill="none" stroke="#3A3226" strokeWidth={2} />
               <circle cx={8} cy={12} r={4.5} fill="none" stroke="#3A3226" strokeWidth={2} />
               <path d="M -8 12 L 8 10 M 8 10 L 12 -12 M 8 -12 L 16 -12"
                     stroke="#4A7BA6" strokeWidth={2.5} fill="none" strokeLinecap="round" />
             </g>
-            <rect x={-30} y={26} width={70} height={16} rx={8}
-                  fill="rgba(255,250,242,0.94)" stroke="#C9A227" strokeWidth={1} />
-            <text x={5} y={38} textAnchor="middle" fontSize={9} fontWeight={700} fill="#3f2614">
-              ride to town
-            </text>
+            {/* no label pill — every position in this pocket collides
+                with a neighbor, and a bright red bike explains itself
+                to a child better than a word does. The sheet that
+                opens on tap says the rest. */}
           </g>
 
           {/* Chimney smoke — 3 soft puffs drifting up from chimney top ~(146, 430) */}
