@@ -2712,7 +2712,11 @@ export default function GardenScene({
         )}
       </AnimatePresence>
 
-      {/* the ride itself — wheels, wind, a hill */}
+      {/* the ride itself: the bike stays center, the world rolls
+          past, and ONLY THE SPOKES spin — each wheel's spokes rotate
+          inside a group whose origin IS the axle, because animating
+          whole positioned wheels is how the first version tore the
+          bike apart mid-ride. */}
       <AnimatePresence>
         {riding && (
           <motion.div
@@ -2720,30 +2724,97 @@ export default function GardenScene({
             style={{ background: '#CBDDE8' }}
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
           >
-            <svg viewBox="0 0 360 200" className="w-full" style={{ maxWidth: 480 }}>
-              <path d="M 0 150 Q 90 110 180 140 T 360 130 L 360 200 L 0 200 Z" fill="#8FAE79" />
-              <motion.g initial={{ x: -60 }} animate={{ x: 400 }}
-                        transition={{ duration: 1.6, ease: 'easeInOut' }}>
-                <g transform="translate(0, 118)">
-                  <motion.g animate={{ rotate: 360 }}
-                            transition={{ duration: 0.5, repeat: Infinity, ease: 'linear' }}
-                            style={{ originX: '-16px', originY: '8px' }}>
-                    <circle cx={-16} cy={8} r={10} fill="none" stroke="#3A3226" strokeWidth={2.5} />
-                    <line x1={-16} y1={0} x2={-16} y2={16} stroke="#3A3226" strokeWidth={1.5} />
-                  </motion.g>
-                  <motion.g animate={{ rotate: 360 }}
-                            transition={{ duration: 0.5, repeat: Infinity, ease: 'linear' }}
-                            style={{ originX: '12px', originY: '8px' }}>
-                    <circle cx={12} cy={8} r={10} fill="none" stroke="#3A3226" strokeWidth={2.5} />
-                    <line x1={12} y1={0} x2={12} y2={16} stroke="#3A3226" strokeWidth={1.5} />
-                  </motion.g>
-                  <path d="M -16 8 L -5 -8 L 12 8 M -5 -8 L 7 -8 M 12 8 L 8 -10 L 3 -10"
-                        stroke="#C94C3E" strokeWidth={3} fill="none" strokeLinecap="round" />
-                  {/* the rider: a bob of hair and a grin implied */}
-                  <circle cx={-1} cy={-18} r={7} fill="#C9A87C" stroke="#6E4520" strokeWidth={1.5} />
-                  <path d="M -5 -14 Q -1 -26 6 -20" fill="none" stroke="#6E4520" strokeWidth={2} />
-                  <path d="M -20 -2 L -30 -4 M -22 4 L -33 3" stroke="#FFF" strokeWidth={2}
-                        strokeLinecap="round" opacity={0.8} />
+            <svg viewBox="0 0 360 220" className="w-full" style={{ maxWidth: 480 }}>
+              {/* sky travelers, drifting slowly the other way */}
+              <motion.g initial={{ x: 0 }} animate={{ x: -180 }}
+                        transition={{ duration: 1.7, ease: 'linear' }}>
+                {[60, 260, 460].map(cx => (
+                  <g key={cx}>
+                    <ellipse cx={cx} cy={44} rx={26} ry={10} fill="#FFFFFF" opacity={0.85} />
+                    <ellipse cx={cx + 16} cy={38} rx={16} ry={8} fill="#FFFFFF" opacity={0.85} />
+                  </g>
+                ))}
+              </motion.g>
+              {/* the ground and the things rushing past on it */}
+              <rect x={0} y={150} width={360} height={70} fill="#8FAE79" />
+              <rect x={0} y={148} width={360} height={5} fill="#7C9A6B" />
+              <motion.g initial={{ x: 60 }} animate={{ x: -560 }}
+                        transition={{ duration: 1.7, ease: 'linear' }}>
+                {[0, 170, 340, 510, 680].map((bx, i) => (
+                  <g key={bx} transform={`translate(${bx}, 150)`}>
+                    {i % 2 === 0 ? (
+                      <g>
+                        <ellipse cx={0} cy={-8} rx={16} ry={11} fill="#6B8E5A" />
+                        <ellipse cx={12} cy={-4} rx={11} ry={8} fill="#7C9A6B" />
+                      </g>
+                    ) : (
+                      <g>
+                        <rect x={-2.5} y={-26} width={5} height={26} fill="#8A6238" />
+                        <circle cx={0} cy={-32} r={13} fill="#6B8E5A" />
+                      </g>
+                    )}
+                  </g>
+                ))}
+              </motion.g>
+
+              {/* the bike, center stage, gently bobbing */}
+              <motion.g
+                animate={{ y: [0, -2.5, 0] }}
+                transition={{ duration: 0.5, repeat: Infinity, ease: 'easeInOut' }}
+              >
+                <g transform="translate(180, 138)">
+                  {/* wheels: static tire and rim; spokes spin around
+                      the axle, which is the local origin */}
+                  {[-21, 21].map(wx => (
+                    <g key={wx} transform={`translate(${wx}, 12)`}>
+                      <circle r={12} fill="#2E2A24" />
+                      <circle r={8.5} fill="#F3EBDD" />
+                      <motion.g animate={{ rotate: 360 }}
+                                transition={{ duration: 0.45, repeat: Infinity, ease: 'linear' }}>
+                        <path d="M 0 -8 L 0 8 M -8 0 L 8 0 M -5.7 -5.7 L 5.7 5.7 M -5.7 5.7 L 5.7 -5.7"
+                              stroke="#B9AE9A" strokeWidth={1.3} />
+                      </motion.g>
+                      <circle r={2.6} fill="#5E4020" />
+                    </g>
+                  ))}
+                  {/* frame — same geometry as the parked bike */}
+                  <circle cx={0} cy={14} r={3.6} fill="#3A3226" />
+                  <path d="M -21 12 L 0 14" stroke="#C94C3E" strokeWidth={4} strokeLinecap="round" />
+                  <path d="M 0 14 L -7 -14" stroke="#C94C3E" strokeWidth={4} strokeLinecap="round" />
+                  <path d="M -21 12 L -7 -12" stroke="#C94C3E" strokeWidth={3.2} strokeLinecap="round" />
+                  <path d="M -6 -10 Q 6 -2 15 -12" stroke="#C94C3E" strokeWidth={4} fill="none" strokeLinecap="round" />
+                  <path d="M 15 -12 L 0 14" stroke="#C94C3E" strokeWidth={4} strokeLinecap="round" />
+                  <path d="M 15 -12 L 21 12" stroke="#C94C3E" strokeWidth={3.4} strokeLinecap="round" />
+                  <rect x={-14} y={-20} width={14} height={5.5} rx={2.7} fill="#5E4020" />
+                  <path d="M 15 -12 L 17 -20" stroke="#C94C3E" strokeWidth={3.4} strokeLinecap="round" />
+                  <path d="M 17 -20 Q 12 -24 8 -21" stroke="#3A3226" strokeWidth={3} fill="none" strokeLinecap="round" />
+                  {/* THE RIDER, actually riding: seated on the seat,
+                      leaning to the bars, legs to the pedals */}
+                  <g>
+                    {/* torso leaning forward */}
+                    <path d="M -7 -18 Q 2 -30 12 -24" stroke="#E8913A" strokeWidth={7} fill="none" strokeLinecap="round" />
+                    {/* arm to the handlebar */}
+                    <path d="M 6 -26 L 15 -20" stroke="#E8913A" strokeWidth={4} strokeLinecap="round" />
+                    {/* one visible leg, BENT: thigh forward off the
+                        seat, knee, shin down to the pedal, a shoe.
+                        (The far leg hides behind the frame, where far
+                        legs live.) Two straight hip-to-pedal strokes
+                        merged into a tan table leg — hence the knee. */}
+                    <path d="M -7 -16 Q 3 -12 6 -4" stroke="#4A7BA6" strokeWidth={5.5} fill="none" strokeLinecap="round" />
+                    <path d="M 6 -4 Q 7 6 6 15" stroke="#4A7BA6" strokeWidth={4.5} fill="none" strokeLinecap="round" />
+                    <rect x={2} y={15} width={9} height={4} rx={2} fill="#5E4020" />
+                    {/* head with a bob of hair, hair streaming back */}
+                    <circle cx={14} cy={-33} r={7.5} fill="#C9A87C" stroke="#6E4520" strokeWidth={1.8} />
+                    <path d="M 10 -38 Q 14 -42 19 -37 Q 21 -34 19 -31" fill="#6E4520" />
+                    <path d="M 9 -37 Q 2 -39 -2 -36" stroke="#6E4520" strokeWidth={2.5} fill="none" strokeLinecap="round" />
+                    <circle cx={16.5} cy={-33.5} r={1} fill="#3A2E1E" />
+                  </g>
+                  {/* the basket, packed for town */}
+                  <path d="M 18 -18 L 31 -18 L 29.5 -8 L 19.5 -8 Z"
+                        fill="#D9B380" stroke="#8A6534" strokeWidth={1.8} strokeLinejoin="round" />
+                  {/* wind */}
+                  <path d="M -34 -18 L -46 -19 M -36 -8 L -50 -8 M -33 2 L -44 3"
+                        stroke="#FFFFFF" strokeWidth={2.2} strokeLinecap="round" opacity={0.8} />
                 </g>
               </motion.g>
             </svg>
@@ -2755,7 +2826,7 @@ export default function GardenScene({
         )}
       </AnimatePresence>
 
-      {/* naming a known animal */}
+      {/* naming a known animal */}      {/* naming a known animal */}
       <AnimatePresence>
         {naming && (
           <motion.div
