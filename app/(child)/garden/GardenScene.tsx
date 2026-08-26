@@ -1420,36 +1420,56 @@ export default function GardenScene({
             {/* moved clear of the sister-walkers' home spot, which
                 stood exactly on top of the first parking place */}
             <rect x={-40} y={-46} width={90} height={94} fill="transparent" />
-            {/* the red bike, drawn as an OBJECT: solid tires with
-                rims and spokes, a real frame, a seat, a basket. The
-                first version was bare strokes and read as a
-                constellation against the grass. */}
-            <g transform="translate(-6, 0) rotate(-5)">
-              {/* ground shadow */}
-              <ellipse cx={0} cy={20} rx={30} ry={4.5} fill="#000" opacity={0.15} />
-              {/* wheels: tire, rim, hub, spokes */}
-              {[-17, 13].map(wx => (
+            {/* the red bike, drawn with real bicycle geometry: a
+                wide wheelbase, a tall head tube and seat post, a
+                step-through frame, a crank with a pedal, and the
+                basket. The previous frame was vertically squished
+                and read as a crash. */}
+            <g transform="translate(-8, -4) rotate(-4)">
+              <ellipse cx={0} cy={24} rx={34} ry={5} fill="#000" opacity={0.15} />
+              {/* wheels: tire, rim, spokes, hub */}
+              {[-21, 21].map(wx => (
                 <g key={wx}>
-                  <circle cx={wx} cy={8} r={11.5} fill="#2E2A24" />
-                  <circle cx={wx} cy={8} r={8} fill="#F3EBDD" />
-                  <path d={`M ${wx} 0.5 L ${wx} 15.5 M ${wx - 7.5} 8 L ${wx + 7.5} 8 M ${wx - 5.3} 2.7 L ${wx + 5.3} 13.3 M ${wx - 5.3} 13.3 L ${wx + 5.3} 2.7`}
+                  <circle cx={wx} cy={12} r={12} fill="#2E2A24" />
+                  <circle cx={wx} cy={12} r={8.5} fill="#F3EBDD" />
+                  <path d={`M ${wx} 4 L ${wx} 20 M ${wx - 8} 12 L ${wx + 8} 12 M ${wx - 5.7} 6.3 L ${wx + 5.7} 17.7 M ${wx - 5.7} 17.7 L ${wx + 5.7} 6.3`}
                         stroke="#B9AE9A" strokeWidth={1.3} />
-                  <circle cx={wx} cy={8} r={2.4} fill="#5E4020" />
+                  <circle cx={wx} cy={12} r={2.6} fill="#5E4020" />
                 </g>
               ))}
-              {/* frame: two solid red tubes and the seat tube */}
-              <path d="M -17 8 L -4 -7 L 13 8 M -4 -7 L 8 -7 L 13 8 M -17 8 L -8 -9"
-                    stroke="#C94C3E" strokeWidth={4} fill="none" strokeLinecap="round" strokeLinejoin="round" />
-              {/* fenders */}
-              <path d="M -27 4 A 11.5 11.5 0 0 1 -13 -3" stroke="#C94C3E" strokeWidth={3.5} fill="none" strokeLinecap="round" />
-              <path d="M 3.5 -1 A 11.5 11.5 0 0 1 23 4" stroke="#C94C3E" strokeWidth={3.5} fill="none" strokeLinecap="round" />
-              {/* seat, post and handlebars with grips */}
-              <rect x={-14} y={-15} width={13} height={5} rx={2.5} fill="#5E4020" />
-              <path d="M 13 8 L 16 -10" stroke="#C94C3E" strokeWidth={3.5} strokeLinecap="round" />
-              <path d="M 16 -10 Q 21 -13 22 -8" stroke="#3A3226" strokeWidth={3} fill="none" strokeLinecap="round" />
-              {/* the basket, woven */}
-              <path d="M 15 -8 L 27 -8 L 25.5 2 L 16.5 2 Z" fill="#D9B380" stroke="#8A6534" strokeWidth={1.8} strokeLinejoin="round" />
-              <path d="M 17 -4.5 L 26 -4.5 M 16.5 -1 L 25.8 -1 M 19 -8 L 18.5 2 M 23 -8 L 22.8 2"
+              {/* crank and pedal at the bottom bracket */}
+              <circle cx={0} cy={14} r={3.6} fill="#3A3226" />
+              <path d="M 0 14 L 6 18" stroke="#3A3226" strokeWidth={2.2} strokeLinecap="round" />
+              <rect x={4} y={17} width={7} height={2.6} rx={1.3} fill="#3A3226" />
+              {/* the frame: chainstay, seat tube, step-through curve,
+                  fork — each tube going where a real one goes */}
+              <path d="M -21 12 L 0 14"
+                    stroke="#C94C3E" strokeWidth={4} strokeLinecap="round" />
+              <path d="M 0 14 L -7 -14"
+                    stroke="#C94C3E" strokeWidth={4} strokeLinecap="round" />
+              <path d="M -21 12 L -7 -12"
+                    stroke="#C94C3E" strokeWidth={3.2} strokeLinecap="round" />
+              <path d="M -6 -10 Q 6 -2 15 -12"
+                    stroke="#C94C3E" strokeWidth={4} fill="none" strokeLinecap="round" />
+              <path d="M 15 -12 L 0 14"
+                    stroke="#C94C3E" strokeWidth={4} strokeLinecap="round" />
+              <path d="M 15 -12 L 21 12"
+                    stroke="#C94C3E" strokeWidth={3.4} strokeLinecap="round" />
+              {/* seat on its post */}
+              <rect x={-14} y={-20} width={14} height={5.5} rx={2.7} fill="#5E4020" />
+              {/* head tube up to handlebars, bar sweeping back, grip */}
+              <path d="M 15 -12 L 17 -20" stroke="#C94C3E" strokeWidth={3.4} strokeLinecap="round" />
+              <path d="M 17 -20 Q 12 -24 8 -21" stroke="#3A3226" strokeWidth={3} fill="none" strokeLinecap="round" />
+              <circle cx={8} cy={-21} r={2} fill="#5E4020" />
+              {/* fenders hugging the wheels */}
+              <path d="M -32 8 A 12 12 0 0 1 -21 -1.5 A 12 12 0 0 1 -11.5 3"
+                    stroke="#C94C3E" strokeWidth={3.2} fill="none" strokeLinecap="round" />
+              <path d="M 11 4 A 12 12 0 0 1 21 -1.5 A 12 12 0 0 1 31.5 7"
+                    stroke="#C94C3E" strokeWidth={3.2} fill="none" strokeLinecap="round" />
+              {/* the basket, hanging from the head tube */}
+              <path d="M 18 -18 L 31 -18 L 29.5 -8 L 19.5 -8 Z"
+                    fill="#D9B380" stroke="#8A6534" strokeWidth={1.8} strokeLinejoin="round" />
+              <path d="M 19.5 -14.7 L 30 -14.7 M 19 -11.3 L 29.7 -11.3 M 22 -18 L 21.7 -8 M 26.5 -18 L 26.4 -8"
                     stroke="#8A6534" strokeWidth={1} opacity={0.7} />
             </g>
             {/* the blue scooter, propped beside it: solid deck, thick
