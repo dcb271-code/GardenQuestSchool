@@ -26,6 +26,11 @@ export default async function ArtStorePage({
   const garden = (row?.garden as Record<string, any>) ?? {};
   const gallery: ArtGallery = Array.isArray(garden.art_gallery) ? garden.art_gallery : [];
   const baseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
+  const ownedFrames: string[] = Array.isArray(garden.art_frames) ? garden.art_frames : [];
+  const coins: number = (garden.cavern as any)?.coins ?? 0;
 
-  return <ArtStoreScene learnerId={learnerId} initialGallery={gallery} baseUrl={baseUrl} />;
+  return (
+    <ArtStoreScene learnerId={learnerId} initialGallery={gallery} baseUrl={baseUrl}
+                   initialOwnedFrames={ownedFrames} initialCoins={coins} />
+  );
 }

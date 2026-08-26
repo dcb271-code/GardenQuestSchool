@@ -83,3 +83,63 @@ export function removePiece(
   const removed = gallery.find(p => p.id === id) ?? null;
   return { gallery: gallery.filter(p => p.id !== id), removed };
 }
+
+/* ── frames (phase 2) — the showing-off the store sells ─────────── */
+
+export interface FrameData {
+  code: string;
+  name: string;
+  /** Pennies, from the one purse. Plain is free and always there. */
+  price: number;
+  blurb: string;
+}
+
+export const FRAME_CATALOG: FrameData[] = [
+  { code: 'starry', name: 'Starry frame', price: 20,
+    blurb: 'Deep blue with little gold stars. Night-sky pictures love it.' },
+  { code: 'gold', name: 'Gold frame', price: 40,
+    blurb: 'A double gold border, like the fancy paintings in a museum.' },
+  { code: 'flowered', name: 'Flowered frame', price: 60,
+    blurb: 'Painted roses in the corners. Bachan would approve.' },
+];
+
+export function getFrame(code: string): FrameData | undefined {
+  return FRAME_CATALOG.find(f => f.code === code);
+}
+
+/** Set a frame on one of her pieces. 'plain' always allowed;
+ *  a store frame only if it is in her owned list. */
+export function setFrame(
+  gallery: ArtGallery, id: string, frame: string, owned: string[],
+): { gallery: ArtGallery } | { error: string } {
+  const piece = gallery.find(p => p.id === id);
+  if (!piece) return { error: 'That picture is not in your gallery.' };
+  if (frame !== 'plain' && !owned.includes(frame)) {
+    const f = getFrame(frame);
+    return { error: f
+      ? `You do not have the ${f.name.toLowerCase()} yet. The store sells it.`
+      : 'No such frame.' };
+  }
+  return {
+    gallery: gallery.map(p =>
+      p.id === id ? { ...p, ...(frame === 'plain' ? { frame: undefined } : { frame }) } : p),
+  };
+}
+
+/* ── hanging (phase 2) — the reading-room wall ──────────────────── */
+
+export type HungPictures = { left?: string; right?: string };
+
+export function hangPicture(
+  gallery: ArtGallery, hung: HungPictures, slot: 'left' | 'right', id: string | null,
+): { hung: HungPictures } | { error: string } {
+  if (id === null) {
+    const next = { ...hung };
+    delete next[slot];
+    return { hung: next };
+  }
+  if (!gallery.some(p => p.id === id)) {
+    return { error: 'That picture is not in your gallery.' };
+  }
+  return { hung: { ...hung, [slot]: id } };
+}

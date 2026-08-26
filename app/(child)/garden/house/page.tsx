@@ -51,6 +51,9 @@ export default async function HousePage({
     ...Array.from({ length: Math.max(adventure.episode - 1, 0) }, (_, i) => i + 1),
   ])).sort((a, b) => a - b);
   const lunaState = (garden.luna ?? {}) as { lastFed?: string };
+  const artGallery = Array.isArray(garden.art_gallery) ? garden.art_gallery : [];
+  const artHung = (garden.art_hung ?? {}) as { left?: string; right?: string };
+  const artBaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
 
   // Every child's coat hangs by the door, whoever is signed in — it
   // is the family's hall, not a profile screen.
@@ -71,6 +74,9 @@ export default async function HousePage({
       completedEpisodes={completedEpisodes}
       choices={adventure.choices ?? {}}
       lunaCanFeedToday={canFeed(lunaState, todayKey())}
+      artGallery={artGallery}
+      artHung={artHung}
+      artBaseUrl={artBaseUrl}
     />
   );
 }

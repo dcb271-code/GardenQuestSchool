@@ -3,8 +3,10 @@ import { z } from 'zod';
 import { createServiceClient } from '@/lib/supabase/server';
 import {
   ART_BUCKET, addPiece, removePiece, validateTitle, decodePngDataUrl,
-  type ArtGallery,
+  getFrame, setFrame, hangPicture,
+  type ArtGallery, type HungPictures,
 } from '@/lib/world/artStore';
+import { emptyCavern, type CavernState } from '@/lib/world/cavern';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -18,10 +20,12 @@ export const revalidate = 0;
 
 const Body = z.object({
   learnerId: z.string().min(1),
-  action: z.enum(['save', 'delete']),
+  action: z.enum(['save', 'delete', 'buy_frame', 'set_frame', 'hang']),
   dataUrl: z.string().max(2_200_000).optional(),
   title: z.string().max(120).optional(),
-  id: z.string().optional(),
+  id: z.string().nullable().optional(),
+  frame: z.string().optional(),
+  slot: z.enum(['left', 'right']).optional(),
 });
 
 async function ensureBucket(db: ReturnType<typeof createServiceClient>) {
@@ -65,6 +69,57 @@ export async function POST(req: Request) {
     );
     if (we) return NextResponse.json({ error: we.message }, { status: 500 });
     return NextResponse.json({ gallery: out.gallery, saved: out.piece });
+  }
+
+  // ── frames and hanging (phase 2) ─────────────────────────────
+  if (body.action === 'buy_frame') {
+    const frame = body.frame ? getFrame(body.frame) : undefined;
+    if (!frame) return NextResponse.json({ error: 'no such frame' }, { status: 400 });
+    const owned: string[] = Array.isArray(garden.art_frames) ? garden.art_frames : [];
+    if (owned.includes(frame.code)) {
+      return NextResponse.json({ error: `You already have the ${frame.name.toLowerCase()}.`, ownedFrames: owned });
+    }
+    const cavern: CavernState = { ...emptyCavern(), ...((garden.cavern as CavernState) ?? {}) };
+    if (cavern.coins < frame.price) {
+      return NextResponse.json({ error: `That costs ${frame.price}c and you have ${cavern.coins}c.` });
+    }
+    cavern.coins -= frame.price;
+    garden.cavern = { ...(garden.cavern as object ?? {}), coins: cavern.coins };
+    garden.art_frames = [...owned, frame.code];
+    const { error: fe } = await db.from('world_state').upsert(
+      { learner_id: body.learnerId, garden, last_updated_at: new Date().toISOString() },
+      { onConflict: 'learner_id' },
+    );
+    if (fe) return NextResponse.json({ error: fe.message }, { status: 500 });
+    return NextResponse.json({ ownedFrames: garden.art_frames, coins: cavern.coins });
+  }
+
+  if (body.action === 'set_frame') {
+    if (!body.id || !body.frame) return NextResponse.json({ error: 'which picture, which frame?' }, { status: 400 });
+    const owned: string[] = Array.isArray(garden.art_frames) ? garden.art_frames : [];
+    const out = setFrame(gallery, body.id, body.frame, owned);
+    if ('error' in out) return NextResponse.json({ error: out.error, gallery });
+    garden.art_gallery = out.gallery;
+    const { error: se } = await db.from('world_state').upsert(
+      { learner_id: body.learnerId, garden, last_updated_at: new Date().toISOString() },
+      { onConflict: 'learner_id' },
+    );
+    if (se) return NextResponse.json({ error: se.message }, { status: 500 });
+    return NextResponse.json({ gallery: out.gallery });
+  }
+
+  if (body.action === 'hang') {
+    if (!body.slot) return NextResponse.json({ error: 'which wall spot?' }, { status: 400 });
+    const hung: HungPictures = (garden.art_hung as HungPictures) ?? {};
+    const out = hangPicture(gallery, hung, body.slot, body.id ?? null);
+    if ('error' in out) return NextResponse.json({ error: out.error, hung });
+    garden.art_hung = out.hung;
+    const { error: he } = await db.from('world_state').upsert(
+      { learner_id: body.learnerId, garden, last_updated_at: new Date().toISOString() },
+      { onConflict: 'learner_id' },
+    );
+    if (he) return NextResponse.json({ error: he.message }, { status: 500 });
+    return NextResponse.json({ hung: out.hung });
   }
 
   // delete — her art, her call, and the object goes too so storage

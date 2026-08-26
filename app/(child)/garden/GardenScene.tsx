@@ -481,6 +481,8 @@ export default function GardenScene({
   const [feeding, setFeeding] = useState(false);
   const [names, setNames] = useState<Record<string, string>>(animalNames);
   const [naming, setNaming] = useState<Resident | null>(null);
+  const [rideOpen, setRideOpen] = useState(false);
+  const [riding, setRiding] = useState(false);
   const [nameDraft, setNameDraft] = useState('');
   const [nameNote, setNameNote] = useState<string | null>(null);
   const [adopting, setAdopting] = useState(false);
@@ -1404,6 +1406,39 @@ export default function GardenScene({
               home
             </text>
           </g>
+          {/* THE RIDE — a bike and a scooter leaning by the house.
+              The road to town: tap to choose where to go. The store
+              is not ON the map because the map is full; you ride. */}
+          <g
+            transform="translate(196, 612)"
+            style={{ cursor: 'pointer', touchAction: 'manipulation' }}
+            onClick={() => setRideOpen(true)}
+            role="button"
+            aria-label="The bike and scooter — ride to town"
+            tabIndex={0}
+          >
+            <rect x={-34} y={-40} width={78} height={64} fill="transparent" />
+            {/* bike, leaning */}
+            <g transform="rotate(-6)">
+              <circle cx={-16} cy={8} r={9} fill="none" stroke="#3A3226" strokeWidth={2.5} />
+              <circle cx={10} cy={8} r={9} fill="none" stroke="#3A3226" strokeWidth={2.5} />
+              <path d="M -16 8 L -6 -6 L 10 8 M -6 -6 L 4 -6 M -2 -8 L -9 -8 M 10 8 L 6 -8 L 2 -8"
+                    stroke="#C94C3E" strokeWidth={2.5} fill="none" strokeLinecap="round" />
+            </g>
+            {/* scooter, smaller, propped on the bike */}
+            <g transform="translate(26, 4) rotate(8)">
+              <circle cx={-8} cy={12} r={4.5} fill="none" stroke="#3A3226" strokeWidth={2} />
+              <circle cx={8} cy={12} r={4.5} fill="none" stroke="#3A3226" strokeWidth={2} />
+              <path d="M -8 12 L 8 10 M 8 10 L 12 -12 M 8 -12 L 16 -12"
+                    stroke="#4A7BA6" strokeWidth={2.5} fill="none" strokeLinecap="round" />
+            </g>
+            <rect x={-30} y={26} width={70} height={16} rx={8}
+                  fill="rgba(255,250,242,0.94)" stroke="#C9A227" strokeWidth={1} />
+            <text x={5} y={38} textAnchor="middle" fontSize={9} fontWeight={700} fill="#3f2614">
+              ride to town
+            </text>
+          </g>
+
           {/* Chimney smoke — 3 soft puffs drifting up from chimney top ~(146, 430) */}
           {!calmAmbient && (
             <g pointerEvents="none">
@@ -2564,6 +2599,103 @@ export default function GardenScene({
                 done
               </button>
             </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* where do you want to ride? */}
+      <AnimatePresence>
+        {rideOpen && !riding && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            style={{ background: 'rgba(20,14,8,0.7)' }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            onClick={() => setRideOpen(false)}
+          >
+            <motion.div
+              initial={reducedMotion ? undefined : { scale: 0.92, y: 8 }}
+              animate={reducedMotion ? undefined : { scale: 1, y: 0 }}
+              className="rounded-2xl p-5 w-full"
+              style={{ background: '#FFFAF2', border: '2px solid #C9A227', maxWidth: 380 }}
+              onClick={e => e.stopPropagation()}
+            >
+              <h2 className="font-bold text-lg text-center" style={{ color: '#3f2614' }}>
+                🚲 Where do you want to ride?
+              </h2>
+              <button
+                onClick={() => {
+                  if (reducedMotion) { router.push(`/town/art-store?learner=${learnerId}`); return; }
+                  setRiding(true);
+                  window.setTimeout(() => router.push(`/town/art-store?learner=${learnerId}`), 1700);
+                }}
+                className="w-full rounded-xl mt-4 p-3 text-left flex items-center gap-3"
+                style={{ background: '#F6EEDF', border: '2px solid #C9A227', minHeight: 60 }}>
+                <span className="text-2xl" aria-hidden>🎨</span>
+                <span>
+                  <span className="block font-bold text-sm" style={{ color: '#3f2614' }}>
+                    The Art Store
+                  </span>
+                  <span className="block text-[11px]" style={{ color: '#8A7A5E' }}>
+                    paints, frames, and your own wall
+                  </span>
+                </span>
+              </button>
+              <div className="w-full rounded-xl mt-2 p-3 flex items-center gap-3"
+                   style={{ border: '2px dashed #D8CEBA', minHeight: 52 }}>
+                <span className="text-xl" aria-hidden>🛣️</span>
+                <span className="text-[12px] italic" style={{ color: '#9A8C76' }}>
+                  more roads someday
+                </span>
+              </div>
+              <button onClick={() => setRideOpen(false)}
+                      className="w-full rounded-xl mt-3 font-bold text-sm"
+                      style={{ background: '#EFE7D8', color: '#3f2614', minHeight: 48 }}>
+                stay home
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* the ride itself — wheels, wind, a hill */}
+      <AnimatePresence>
+        {riding && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center"
+            style={{ background: '#CBDDE8' }}
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+          >
+            <svg viewBox="0 0 360 200" className="w-full" style={{ maxWidth: 480 }}>
+              <path d="M 0 150 Q 90 110 180 140 T 360 130 L 360 200 L 0 200 Z" fill="#8FAE79" />
+              <motion.g initial={{ x: -60 }} animate={{ x: 400 }}
+                        transition={{ duration: 1.6, ease: 'easeInOut' }}>
+                <g transform="translate(0, 118)">
+                  <motion.g animate={{ rotate: 360 }}
+                            transition={{ duration: 0.5, repeat: Infinity, ease: 'linear' }}
+                            style={{ originX: '-16px', originY: '8px' }}>
+                    <circle cx={-16} cy={8} r={10} fill="none" stroke="#3A3226" strokeWidth={2.5} />
+                    <line x1={-16} y1={0} x2={-16} y2={16} stroke="#3A3226" strokeWidth={1.5} />
+                  </motion.g>
+                  <motion.g animate={{ rotate: 360 }}
+                            transition={{ duration: 0.5, repeat: Infinity, ease: 'linear' }}
+                            style={{ originX: '12px', originY: '8px' }}>
+                    <circle cx={12} cy={8} r={10} fill="none" stroke="#3A3226" strokeWidth={2.5} />
+                    <line x1={12} y1={0} x2={12} y2={16} stroke="#3A3226" strokeWidth={1.5} />
+                  </motion.g>
+                  <path d="M -16 8 L -5 -8 L 12 8 M -5 -8 L 7 -8 M 12 8 L 8 -10 L 3 -10"
+                        stroke="#C94C3E" strokeWidth={3} fill="none" strokeLinecap="round" />
+                  {/* the rider: a bob of hair and a grin implied */}
+                  <circle cx={-1} cy={-18} r={7} fill="#C9A87C" stroke="#6E4520" strokeWidth={1.5} />
+                  <path d="M -5 -14 Q -1 -26 6 -20" fill="none" stroke="#6E4520" strokeWidth={2} />
+                  <path d="M -20 -2 L -30 -4 M -22 4 L -33 3" stroke="#FFF" strokeWidth={2}
+                        strokeLinecap="round" opacity={0.8} />
+                </g>
+              </motion.g>
+            </svg>
+            <p className="absolute bottom-16 w-full text-center font-bold text-sm"
+               style={{ color: '#3f2614' }}>
+              riding to town…
+            </p>
           </motion.div>
         )}
       </AnimatePresence>

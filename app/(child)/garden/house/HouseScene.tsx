@@ -29,6 +29,8 @@ import { getEpisode } from '@/lib/world/lunaAdventure';
 import {
   storybookPages, coatColorsFor, type HouseState, type BookPage,
 } from '@/lib/world/house';
+import { publicStorageUrl } from '@/lib/storage/publicUrl';
+import { ART_BUCKET, type ArtGallery, type ArtPiece } from '@/lib/world/artStore';
 
 const WALL = '#F4F0E7';
 const TRIM = '#6B4226';
@@ -45,6 +47,7 @@ type Room = 'entry' | 'reading' | 'kitchen';
 export default function HouseScene({
   learnerId, learnerName, coatNames, house: initialHouse, kept,
   lifeListCodes, completedEpisodes, choices, lunaCanFeedToday,
+  artGallery = [], artHung: initialHung = {}, artBaseUrl = '',
 }: {
   learnerId: string;
   learnerName: string;
@@ -55,6 +58,9 @@ export default function HouseScene({
   completedEpisodes: number[];
   choices: Record<string, string>;
   lunaCanFeedToday: boolean;
+  artGallery?: ArtGallery;
+  artHung?: { left?: string; right?: string };
+  artBaseUrl?: string;
 }) {
   const router = useRouter();
   const { settings } = useAccessibilitySettings();
@@ -67,6 +73,30 @@ export default function HouseScene({
   const [lunaOpen, setLunaOpen] = useState(false);
   const [cooking, setCooking] = useState(false);
   const [note, setNote] = useState<string | null>(null);
+  const [hung, setHung] = useState<{ left?: string; right?: string }>(initialHung);
+  const [hangSlot, setHangSlot] = useState<'left' | 'right' | null>(null);
+
+  const artUrl = (id: string | undefined) => {
+    const piece = artGallery.find(p => p.id === id);
+    return piece ? publicStorageUrl(artBaseUrl, ART_BUCKET, piece.path) : null;
+  };
+
+  const hang = async (slot: 'left' | 'right', id: string | null) => {
+    try {
+      const res = await fetch('/api/art', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ learnerId, action: 'hang', slot, id }),
+      });
+      const d = await res.json();
+      if (d.hung) setHung(d.hung);
+      if (d.error) { setNote(d.error); window.setTimeout(() => setNote(null), 4000); }
+      else if (id) playSparkle();
+      setHangSlot(null);
+    } catch {
+      setNote('That did not go through. Nothing was moved.');
+      window.setTimeout(() => setNote(null), 4000);
+    }
+  };
 
   const setMantel = async (slot: 'stone' | 'bird', code: string | null) => {
     try {
@@ -120,6 +150,8 @@ export default function HouseScene({
                 onLuna={() => setLunaOpen(true)}
                 onBook={(ep) => { setOpenBook(ep); playPageTurn(); }}
                 onSlot={(slot) => setPicker(slot)}
+                hungUrls={{ left: artUrl(hung.left), right: artUrl(hung.right) }}
+                onWall={(slot) => setHangSlot(slot)}
               />
             )}
           </motion.div>
@@ -130,6 +162,54 @@ export default function HouseScene({
              style={{ background: '#3A2A20', color: '#F0DFAE' }}>{note}</p>
         )}
       </div>
+
+      {hangSlot && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
+             style={{ background: 'rgba(20,14,8,0.7)' }} onClick={() => setHangSlot(null)}>
+          <div className="rounded-2xl p-4 w-full" onClick={e => e.stopPropagation()}
+               style={{ background: '#FFFAF2', border: '2px solid #C9A227', maxWidth: 420 }}>
+            <h2 className="font-bold text-base" style={{ color: '#3f2614' }}>
+              A picture for the wall
+            </h2>
+            <p className="text-xs mt-0.5 mb-3" style={{ color: '#8A7A5E' }}>
+              From your wall at the art store — pictures you painted yourself.
+            </p>
+            {artGallery.length === 0 ? (
+              <p className="text-sm italic py-4" style={{ color: '#6b6255' }}>
+                Nothing painted yet. Ride to the art store — the bike is
+                by the house and the paint is free.
+              </p>
+            ) : (
+              <div className="grid grid-cols-3 gap-2 max-h-72 overflow-y-auto">
+                {artGallery.map((p: ArtPiece) => (
+                  <button key={p.id} onClick={() => hang(hangSlot, p.id)}
+                          className="rounded-lg p-1"
+                          style={{ background: hung[hangSlot] === p.id ? '#EFE0B0' : '#F6EEDF',
+                                   border: '1px solid #C9A227' }}>
+                    <img src={publicStorageUrl(artBaseUrl, ART_BUCKET, p.path)}
+                         alt={p.title ?? 'painting'}
+                         className="w-full rounded-sm block" style={{ background: '#FFFDF6' }} />
+                  </button>
+                ))}
+              </div>
+            )}
+            <div className="flex gap-2 mt-3">
+              {hung[hangSlot] && (
+                <button onClick={() => hang(hangSlot, null)}
+                        className="flex-1 rounded-xl font-bold text-sm"
+                        style={{ background: '#EFE7D8', color: '#3f2614', minHeight: 48 }}>
+                  take it down
+                </button>
+              )}
+              <button onClick={() => setHangSlot(null)}
+                      className="flex-1 rounded-xl font-bold text-sm"
+                      style={{ background: '#C9A227', color: '#2A2420', minHeight: 48 }}>
+                done
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {picker && (
         <MantelPicker
@@ -847,6 +927,7 @@ function KitchenRoom({
 
 function ReadingRoom({
   house, completedEpisodes, reducedMotion, onBack, onLuna, onBook, onSlot,
+  hungUrls, onWall,
 }: {
   house: HouseState;
   completedEpisodes: number[];
@@ -855,6 +936,8 @@ function ReadingRoom({
   onLuna: () => void;
   onBook: (episode: number) => void;
   onSlot: (slot: 'stone' | 'bird') => void;
+  hungUrls: { left: string | null; right: string | null };
+  onWall: (slot: 'left' | 'right') => void;
 }) {
   const stone = house.mantelStone ? getGem(house.mantelStone) : undefined;
   const bird = house.mantelBird ? getBird(house.mantelBird) : undefined;
@@ -901,19 +984,32 @@ function ReadingRoom({
       ))}
       <rect x={0} y={60} width={700} height={1040} fill="url(#rr-fireglow)" pointerEvents="none" />
 
-      {/* framed flower art from the entry photos, one each side */}
-      {[[64, 330], [572, 330]].map(([fx, fy], k) => (
-        <g key={k}>
-          <rect x={fx} y={fy} width={64} height={84} fill={OAK} stroke={OAK_DARK} strokeWidth={2} rx={2} />
-          <rect x={fx + 7} y={fy + 7} width={50} height={70} fill="#F9F1E4" />
-          {[[22, 30, 9], [38, 48, 7], [24, 58, 6]].map(([dx, dy, r], i) => (
-            <g key={i}>
-              <circle cx={fx + dx} cy={fy + dy} r={r} fill="#E8B4C0" />
-              <circle cx={fx + dx} cy={fy + dy} r={r * 0.55} fill="#F4D6DC" />
-            </g>
-          ))}
-        </g>
-      ))}
+      {/* HER pictures flank the mantel now — the walls belong to
+          the family's own art. Empty slots invite; filled slots show
+          what she painted at the store. */}
+      {([['left', 64], ['right', 572]] as const).map(([slot, fx]) => {
+        const url = hungUrls[slot];
+        return (
+          <g key={slot}
+             onClick={() => onWall(slot)}
+             style={{ cursor: 'pointer', touchAction: 'manipulation' }}
+             role="button"
+             aria-label={url ? 'Change this picture' : 'Hang a picture here'}>
+            <rect x={fx - 6} y={324} width={76} height={96} fill="transparent" />
+            <rect x={fx} y={330} width={64} height={84} fill={OAK} stroke={OAK_DARK} strokeWidth={2} rx={2} />
+            {url ? (
+              <image href={url} x={fx + 6} y={336} width={52} height={72}
+                     preserveAspectRatio="xMidYMid slice" />
+            ) : (
+              <g>
+                <rect x={fx + 7} y={337} width={50} height={70} fill="#F9F1E4"
+                      stroke="#C9B88E" strokeWidth={2} strokeDasharray="5 4" />
+                <text x={fx + 32} y={378} textAnchor="middle" fontSize={18} fill="#9A8C76">+</text>
+              </g>
+            )}
+          </g>
+        );
+      })}
 
       {/* back to the hall */}
       <g onClick={onBack} style={{ cursor: 'pointer' }} role="button" aria-label="Back to the hall">
