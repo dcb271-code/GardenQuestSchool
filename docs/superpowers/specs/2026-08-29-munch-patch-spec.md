@@ -30,9 +30,11 @@ The ride sheet in `GardenScene.tsx` currently has one live
 destination (the Art Store) and a dashed "more roads someday" row.
 The barn makes that promise true:
 
-- New row on the destination sheet: **🛑🎪 The Play Barn** — "games
-  in the hayloft" — above the dashed row, which stays (there are
-  still more roads someday).
+- New row on the destination sheet: **The Play Barn** — "games in
+  the hayloft" — above the dashed row, which stays (there are still
+  more roads someday). Its row icon is a small bespoke SVG barn
+  (see art direction; the art store row's current emoji is
+  grandfathered, not precedent).
 - The riding interstitial is currently hardcoded to push
   `/town/art-store` after its 1700ms ride. Refactor: `ride(dest:
   string)` takes the destination route; the interstitial itself is
@@ -112,7 +114,7 @@ Level comes from `learner.grade_level` (levels 1–5; the column keeps
 its old name), fetched the way `app/(child)/garden/page.tsx` does.
 A child sees every crate at or below their level **plus exactly one
 stretch crate** from the next level up, labeled with a little
-sprout 🌱 — the same hardest-first-within-reach philosophy as the
+drawn sprout — the same hardest-first-within-reach philosophy as the
 L3+ signpost, without locking anything. The V1 catalog tops out at
 L3, so L3+ children see the full catalog and no sprout — the
 sprout appears only where a harder crate exists to offer.
@@ -328,12 +330,23 @@ via TTS). Reading Forest theming. Also parked: a second groundhog
 at higher levels, prize-veggie kitchen integration, more barn
 stalls.
 
-## Open questions for the owner
+## Art direction (owner ruling, 2026-08-29)
 
-1. Prize-veggie art: drawn SVG catalog (like species art) or emoji
-   + name in V1? (Spec assumes drawn — the shelf is a trophy case
-   and deserves it — but it is the largest art line-item.)
-2. Should Otto's announcement come from a SISTER instead of the
-   builder? Cecily now can. We cannot write it for her — but the
-   builder's letter to Cecily could mention the barn is new and
-   Otto has not seen it, and let nature take its course.
+**Never emojis. Always bespoke SVGs — and view them, and check
+them twice.** This settles former open question 1 and goes further:
+every visual in this feature is drawn — the prize veggies (the
+shelf is a trophy case and deserves it), the crate labels, the
+sprout marker on the stretch crate, the barn row's icon on the
+destination sheet, the bunny, the groundhog, the blech face. No
+emoji anywhere in the feature's child-facing art. "Check them
+twice" is process, not sentiment: every new illustration gets a
+proof-render LOOK when first drawn, and a SECOND look after any
+revision, before it ships — the two-pass rule that already caught
+the wrecked bike and the gray cat.
+
+## Open question for the owner
+
+Should Otto's announcement come from a SISTER instead of the
+builder? Cecily now can. We cannot write it for her — but the
+builder's letter to Cecily could mention the barn is new and Otto
+has not seen it, and let nature take its course.
