@@ -5,7 +5,7 @@
 // throws warm light across the back wall; an OLD BLACK BEAR lies
 // stretched out asleep beside the embers; CAVE PICTOGRAPHS in ochre
 // adorn the back wall (deer, sun, handprint, spiral); MINERAL VEINS
-// streak through the rock; STALACTITES drip from above, STALAGMITES
+// vein through the rock; STALACTITES drip from above, STALAGMITES
 // rise from below; BIOLUMINESCENT MUSHROOMS glow in the dark corners;
 // a small RIVER POOL exits at the right where the river that emerges
 // from the cave-mouth on the Math Mountain map originates.

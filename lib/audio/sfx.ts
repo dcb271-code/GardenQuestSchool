@@ -245,3 +245,26 @@ export function playHarvest() {
     o.start(now + i * 0.06); o.stop(now + i * 0.06 + 0.72);
   });
 }
+
+// A quick vegetable chomp for the Munch Patch — two low thumps close
+// together, like a bite through something crisp.
+export function playCrunch() {
+  const ctx = getCtx();
+  if (!ctx) return;
+  const now = ctx.currentTime;
+  const thumps = [[190, 0], [130, 0.07]] as const;
+  for (const [f, at] of thumps) {
+    const o = ctx.createOscillator();
+    o.type = 'square';
+    o.frequency.setValueAtTime(f, now + at);
+    const filter = ctx.createBiquadFilter();
+    filter.type = 'lowpass';
+    filter.frequency.value = 800;
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0, now + at);
+    g.gain.linearRampToValueAtTime(0.4, now + at + 0.004);
+    g.gain.exponentialRampToValueAtTime(0.001, now + at + 0.09);
+    o.connect(filter).connect(g).connect(ctx.destination);
+    o.start(now + at); o.stop(now + at + 0.1);
+  }
+}

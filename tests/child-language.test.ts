@@ -23,7 +23,12 @@ const FORBIDDEN_PATTERNS: Array<RegExp> = [
   /\b(your|the)\s+coins?\s+(balance|total|count|wallet)\b/i,
   /\bcoin\s+(store|shop|economy|wallet|balance|reward)\b/i,
   /\bcurrency\b/i,
-  /daily\s*streak/i,
+  // Any streak talk, not just "daily streak" — tightened with the
+  // Munch Patch (spec 2026-08-29), whose tally card is exactly where
+  // "a three-round streak!" would creep in. Exact word only: the
+  // birds keep their streaked bark and streaky flanks — plumage is
+  // naturalist vocabulary, and gamification is always the bare noun.
+  /\bstreak\b/i,
   /\bgood\s*job\b/i,
   /\bgreat\s*job\b/i,
   /level\s*up/i,

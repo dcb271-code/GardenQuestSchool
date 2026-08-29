@@ -190,7 +190,7 @@ export function Practice({ queue, muted, onToggleMute }: {
   const { say, available } = usePipVoice(muted);
   const [i, setI] = useState(0);
   const [picked, setPicked] = useState<number | null>(null);
-  const [streak, setStreak] = useState(0);
+  const [inARow, setInARow] = useState(0);
 
   const fact = queue[i % queue.length];
   const answer = fact.a * fact.b;
@@ -219,11 +219,11 @@ export function Practice({ queue, muted, onToggleMute }: {
     setPicked(n);
     if (n === answer) {
       playSparkle();
-      setStreak(s => s + 1);
+      setInARow(s => s + 1);
       await say('Yes. Straight in the larder.');
       setTimeout(() => setI(v => v + 1), 400);
     } else {
-      setStreak(0);
+      setInARow(0);
       // The answer AND the route. Never just "no".
       await say(`${fact.a} times ${fact.b} is ${answer}. ${strategy.explain}`);
     }
@@ -233,7 +233,7 @@ export function Practice({ queue, muted, onToggleMute }: {
     <div className="rounded-2xl p-4" style={{ background: '#FFF', border: '1px solid #E0D4B8' }}>
       <div className="flex items-center justify-between">
         <span className="text-[11px]" style={{ color: '#8A7A5E' }}>
-          {streak > 1 ? `${streak} in a row` : 'the ones you find hardest'}
+          {inARow > 1 ? `${inARow} in a row` : 'the ones you find hardest'}
         </span>
         <MuteToggle muted={muted} onToggle={onToggleMute} available={available} />
       </div>

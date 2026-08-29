@@ -482,7 +482,9 @@ export default function GardenScene({
   const [names, setNames] = useState<Record<string, string>>(animalNames);
   const [naming, setNaming] = useState<Resident | null>(null);
   const [rideOpen, setRideOpen] = useState(false);
-  const [riding, setRiding] = useState(false);
+  // Which road the ride is taking — the interstitial itself is
+  // destination-agnostic (same bike, same rolling world).
+  const [riding, setRiding] = useState<string | null>(null);
   const [nameDraft, setNameDraft] = useState('');
   const [nameNote, setNameNote] = useState<string | null>(null);
   const [adopting, setAdopting] = useState(false);
@@ -2677,24 +2679,45 @@ export default function GardenScene({
               <h2 className="font-bold text-lg text-center" style={{ color: '#3f2614' }}>
                 🚲 Where do you want to ride?
               </h2>
-              <button
-                onClick={() => {
-                  if (reducedMotion) { router.push(`/town/art-store?learner=${learnerId}`); return; }
-                  setRiding(true);
-                  window.setTimeout(() => router.push(`/town/art-store?learner=${learnerId}`), 1700);
-                }}
-                className="w-full rounded-xl mt-4 p-3 text-left flex items-center gap-3"
-                style={{ background: '#F6EEDF', border: '2px solid #C9A227', minHeight: 60 }}>
-                <span className="text-2xl" aria-hidden>🎨</span>
-                <span>
-                  <span className="block font-bold text-sm" style={{ color: '#3f2614' }}>
-                    The Art Store
+              {([
+                { path: '/town/art-store', name: 'The Art Store',
+                  blurb: 'paints, frames, and your own wall', icon: 'art' },
+                { path: '/town/play-barn', name: 'The Play Barn',
+                  blurb: 'games in the hayloft', icon: 'barn' },
+              ] as const).map(dest => (
+                <button
+                  key={dest.path}
+                  onClick={() => {
+                    const to = `${dest.path}?learner=${learnerId}`;
+                    if (reducedMotion) { router.push(to); return; }
+                    setRiding(to);
+                    window.setTimeout(() => router.push(to), 1700);
+                  }}
+                  className="w-full rounded-xl mt-4 p-3 text-left flex items-center gap-3"
+                  style={{ background: '#F6EEDF', border: '2px solid #C9A227', minHeight: 60 }}>
+                  {dest.icon === 'art' ? (
+                    <span className="text-2xl" aria-hidden>🎨</span>
+                  ) : (
+                    // the barn, drawn — new rows get bespoke SVG icons
+                    <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden>
+                      <path d="M 4 28 V 14 L 16 5 L 28 14 V 28 Z" fill="#A6402E" />
+                      <path d="M 2 15 L 16 4 L 30 15 L 28.6 12 L 16 2 L 3.4 12 Z" fill="#7A2E20" />
+                      <rect x="12" y="18" width="8" height="10" fill="#5E2A1E" />
+                      <path d="M 12 18 L 20 28 M 20 18 L 12 28" stroke="#8E4432" strokeWidth="1.4" />
+                      <rect x="14.6" y="9" width="2.8" height="4" fill="#F2E9D8" />
+                      <path d="M 4 28 h 24" stroke="#7A5A38" strokeWidth="2" />
+                    </svg>
+                  )}
+                  <span>
+                    <span className="block font-bold text-sm" style={{ color: '#3f2614' }}>
+                      {dest.name}
+                    </span>
+                    <span className="block text-[11px]" style={{ color: '#8A7A5E' }}>
+                      {dest.blurb}
+                    </span>
                   </span>
-                  <span className="block text-[11px]" style={{ color: '#8A7A5E' }}>
-                    paints, frames, and your own wall
-                  </span>
-                </span>
-              </button>
+                </button>
+              ))}
               <div className="w-full rounded-xl mt-2 p-3 flex items-center gap-3"
                    style={{ border: '2px dashed #D8CEBA', minHeight: 52 }}>
                 <span className="text-xl" aria-hidden>🛣️</span>
