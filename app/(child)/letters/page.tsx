@@ -18,10 +18,15 @@ export default async function LettersPage({
   if (!learnerId) {
     return <div className="p-6">No learner found.</div>;
   }
-  const { data: learner } = await db
-    .from('learner').select('first_name').eq('id', learnerId).maybeSingle();
+  const { data: learners } = await db
+    .from('learner').select('id, first_name').order('first_name');
+  const me = (learners ?? []).find(l => l.id === learnerId);
+  const siblings = (learners ?? [])
+    .filter(l => l.id !== learnerId)
+    .map(l => ({ id: l.id as string, name: l.first_name as string }));
 
   return (
-    <LetterScene learnerId={learnerId} firstName={learner?.first_name ?? 'me'} />
+    <LetterScene learnerId={learnerId} firstName={me?.first_name ?? 'me'}
+                 siblings={siblings} />
   );
 }

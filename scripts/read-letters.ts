@@ -116,8 +116,9 @@ async function main() {
       return;
     }
 
-    // Builder letters are FROM us — they are never 'awaiting a reply'.
-    const shown = unanswered ? box.filter(x => !x.reply && x.from !== 'builder') : box;
+    // Letters FROM anyone (the builder, a sibling) are not awaiting
+    // the builder's reply — only the child's own letters are.
+    const shown = unanswered ? box.filter(x => !x.reply && !x.from) : box;
     if (shown.length === 0) continue;
     found += shown.length;
 

@@ -24,13 +24,20 @@ import { playSparkle } from '@/lib/audio/sfx';
 import { MAX_LETTER_LENGTH, type Letter } from '@/lib/world/letters';
 
 export default function LetterScene({
-  learnerId, firstName,
-}: { learnerId: string; firstName: string }) {
+  learnerId, firstName, siblings = [],
+}: {
+  learnerId: string;
+  firstName: string;
+  siblings?: Array<{ id: string; name: string }>;
+}) {
   const { settings } = useAccessibilitySettings();
   const reduced = settings.reducedMotion;
   const [letters, setLetters] = useState<Letter[]>([]);
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
+  // '' = the garden-builder; otherwise a sibling's learner id.
+  const [recipient, setRecipient] = useState('');
+  const recipientName = siblings.find(sb => sb.id === recipient)?.name ?? null;
   const [justSent, setJustSent] = useState(false);
   const [loaded, setLoaded] = useState(false);
   const speech = useSpeechRecognition();
@@ -60,11 +67,14 @@ export default function LetterScene({
       const res = await fetch('/api/letters', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ learnerId, text: body }),
+        body: JSON.stringify({
+          learnerId, text: body,
+          ...(recipient ? { to: recipient } : {}),
+        }),
       });
       const d = await res.json();
-      if (d.letters) {
-        setLetters(d.letters);
+      if (d.letters || d.delivered) {
+        if (d.letters) setLetters(d.letters);
         setText('');
         setJustSent(true);
         playSparkle();
@@ -96,6 +106,31 @@ export default function LetterScene({
           wondering about. Real letters, read by a real someone.
         </p>
 
+        {/* who gets this letter — the builder, or a sibling. Faces
+            over words, because the youngest writer cannot read. */}
+        {siblings.length > 0 && (
+          <div className="flex gap-2 mb-2 flex-wrap">
+            <button onClick={() => setRecipient('')}
+                    className="rounded-full px-3 py-1.5 text-xs font-bold"
+                    style={{ background: recipient === '' ? '#6b8e5a' : '#fffaf2',
+                             color: recipient === '' ? '#fffaf2' : '#3f2614',
+                             border: '2px solid #6b8e5a', minHeight: 40,
+                             touchAction: 'manipulation' }}>
+              🏡 the garden-builder
+            </button>
+            {siblings.map(sb => (
+              <button key={sb.id} onClick={() => setRecipient(sb.id)}
+                      className="rounded-full px-3 py-1.5 text-xs font-bold"
+                      style={{ background: recipient === sb.id ? '#C9A227' : '#fffaf2',
+                               color: '#3f2614',
+                               border: '2px solid #C9A227', minHeight: 40,
+                               touchAction: 'manipulation' }}>
+                💌 {sb.name}
+              </button>
+            ))}
+          </div>
+        )}
+
         <div className="rounded-2xl p-3"
              style={{ background: '#fffdf5', border: '1px solid #d8c9a8',
                       boxShadow: '0 1px 0 #e8dcc0 inset' }}>
@@ -103,7 +138,7 @@ export default function LetterScene({
             ref={boxRef}
             value={text}
             onChange={e => setText(e.target.value.slice(0, MAX_LETTER_LENGTH))}
-            placeholder={`Dear garden-builder,\n\n`}
+            placeholder={`Dear ${recipientName ?? 'garden-builder'},\n\n`}
             rows={7}
             className="w-full bg-transparent outline-none resize-none text-base leading-relaxed"
             style={{ color: '#3f2614', fontFamily: 'inherit' }}
@@ -145,7 +180,9 @@ export default function LetterScene({
             className="text-sm font-bold text-center mt-3"
             style={{ color: '#6b8e5a' }}
           >
-            ✉️ posted. It may take a few days to be read.
+            {recipientName
+              ? `✉️ delivered! It is in ${recipientName}'s letterbox right now — their flag is up.`
+              : '✉️ posted. It may take a few days to be read.'}
           </motion.p>
         )}
 
@@ -155,7 +192,31 @@ export default function LetterScene({
               Letters sent and received
             </h2>
             <div className="space-y-3">
-              {letters.map(l => l.from === 'builder' ? (
+              {letters.map(l => l.from && l.from !== 'builder' ? (
+                /* a letter from a SIBLING — rose paper, and a way to
+                   write straight back */
+                <div key={l.id} className="rounded-2xl p-3"
+                     style={{ background: 'rgba(232,180,192,0.18)', border: '2px solid #C97B8A' }}>
+                  <div className="text-xs font-bold mb-1" style={{ color: '#8A4A5A' }}>
+                    💌 a letter from {l.from} · {l.sentAt.slice(0, 10)}
+                  </div>
+                  <p className="text-sm whitespace-pre-wrap" style={{ color: '#3f2614' }}>
+                    {l.text}
+                  </p>
+                  <button
+                    onClick={() => {
+                      const sb = siblings.find(x => x.name === l.from);
+                      if (sb) setRecipient(sb.id);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                      boxRef.current?.focus();
+                    }}
+                    className="rounded-xl px-3 py-2 mt-2 text-xs font-bold"
+                    style={{ background: '#C97B8A', color: '#fffaf2', minHeight: 40,
+                             touchAction: 'manipulation' }}>
+                    ✏️ write back
+                  </button>
+                </div>
+              ) : l.from === 'builder' ? (
                 /* a letter FROM the garden-builder — its own paper,
                    sealed-looking, so news reads as news */
                 <div key={l.id} className="rounded-2xl p-3"

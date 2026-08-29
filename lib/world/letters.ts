@@ -31,12 +31,12 @@ export interface Letter {
   /** Set once she has seen the reply, so the badge can clear. */
   readAt?: string;
   /**
-   * 'builder' marks a letter the garden-builder sent UNPROMPTED —
-   * news that could not wait for her next letter. Its `text` is the
-   * builder's message; it expects no reply and its unread state
-   * raises the flag exactly like a reply does.
+   * Who sent this letter INTO the box. Absent = the child's own
+   * letter to the garden-builder. 'builder' = a green-paper letter
+   * from the builder. Any other value = a SIBLING's first name —
+   * kid-to-kid mail. Received letters raise the flag until read.
    */
-  from?: 'builder';
+  from?: string;
 }
 
 export type Letterbox = Letter[];
@@ -71,13 +71,13 @@ export function addLetter(
 
 /** Replies she has not opened yet. Drives the badge on the letterbox. */
 export function unreadReplies(box: Letterbox): Letter[] {
-  return box.filter(l => (l.reply || l.from === 'builder') && !l.readAt);
+  return box.filter(l => (l.reply || l.from) && !l.readAt);
 }
 
 /** Mark every delivered reply as seen. */
 export function markRepliesRead(box: Letterbox, nowIso: string): Letterbox {
   return box.map(l =>
-    (l.reply || l.from === 'builder') && !l.readAt ? { ...l, readAt: nowIso } : l,
+    (l.reply || l.from) && !l.readAt ? { ...l, readAt: nowIso } : l,
   );
 }
 
@@ -95,6 +95,24 @@ export function addBuilderLetter(
     text: trimmed.slice(0, MAX_LETTER_LENGTH),
     sentAt: sentAtIso,
     from: 'builder',
+  };
+  return { box: [letter, ...box], letter };
+}
+
+/**
+ * A letter from one sibling to another, landing in the RECIPIENT's
+ * box. Kid-to-kid mail: same paper, a different hand.
+ */
+export function addSiblingLetter(
+  box: Letterbox, text: string, fromName: string, sentAtIso: string,
+): { box: Letterbox; letter: Letter } | null {
+  const trimmed = text.trim();
+  if (!trimmed) return null;
+  const letter: Letter = {
+    id: letterId(sentAtIso, box),
+    text: trimmed.slice(0, MAX_LETTER_LENGTH),
+    sentAt: sentAtIso,
+    from: fromName,
   };
   return { box: [letter, ...box], letter };
 }

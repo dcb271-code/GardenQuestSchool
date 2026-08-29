@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createServiceClient } from '@/lib/supabase/server';
 import {
-  addLetter, markRepliesRead, MAX_LETTER_LENGTH, type Letterbox,
+  addLetter, addSiblingLetter, markRepliesRead, MAX_LETTER_LENGTH, type Letterbox,
 } from '@/lib/world/letters';
 
 /**
@@ -18,6 +18,9 @@ export const revalidate = 0;
 const Body = z.object({
   learnerId: z.string().min(1),
   text: z.string().min(1).max(MAX_LETTER_LENGTH),
+  /** A sibling's learner id — the letter goes to THEIR box. Absent:
+   *  the letter goes to the garden-builder, as ever. */
+  to: z.string().optional(),
 });
 
 async function loadGarden(db: ReturnType<typeof createServiceClient>, learnerId: string) {
@@ -29,6 +32,31 @@ async function loadGarden(db: ReturnType<typeof createServiceClient>, learnerId:
 export async function POST(req: Request) {
   const body = Body.parse(await req.json());
   const db = createServiceClient();
+
+  // ── kid-to-kid mail: the letter lands in the SIBLING's box ──────
+  if (body.to && body.to !== body.learnerId) {
+    const { data: sender } = await db
+      .from('learner').select('first_name').eq('id', body.learnerId).maybeSingle();
+    const { data: recipient } = await db
+      .from('learner').select('id, first_name').eq('id', body.to).maybeSingle();
+    if (!sender || !recipient) {
+      return NextResponse.json({ error: 'That letterbox does not exist.' }, { status: 400 });
+    }
+    const theirGarden = await loadGarden(db, recipient.id as string);
+    const theirBox = (theirGarden.letters as Letterbox) ?? [];
+    const added = addSiblingLetter(
+      theirBox, body.text, sender.first_name as string, new Date().toISOString(),
+    );
+    if (!added) return NextResponse.json({ error: 'empty letter' }, { status: 400 });
+    theirGarden.letters = added.box;
+    const { error } = await db.from('world_state').upsert(
+      { learner_id: recipient.id, garden: theirGarden, last_updated_at: new Date().toISOString() },
+      { onConflict: 'learner_id' },
+    );
+    if (error) return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ delivered: true, toName: recipient.first_name });
+  }
+
   const garden = await loadGarden(db, body.learnerId);
   const box = (garden.letters as Letterbox) ?? [];
 
