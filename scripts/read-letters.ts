@@ -34,6 +34,16 @@ function parseArgs() {
   const reply = i >= 0 ? { id: a[i + 1], text: a[i + 2] } : null;
   const si = a.indexOf('--send');
   const send = si >= 0 ? { firstName: a[si + 1], text: a[si + 2] } : null;
+  // A reply that IS a flag means the arguments were ordered wrong
+  // (--reply <id> --to <name> "text" hands the child the literal
+  // string "--to" — which happened, once, on a raised flag).
+  for (const [what, text] of [['--reply', reply?.text], ['--send', send?.text]] as const) {
+    if (text?.startsWith('--')) {
+      console.error(`! the ${what} text looks like a flag ("${text}").`);
+      console.error('  Put the letter text immediately after the id/name, flags after.');
+      process.exit(1);
+    }
+  }
   // Ids are per-learner and COLLIDE across children ("2026-08-07-1"
   // exists for both sisters). --to scopes the reply to one child;
   // without it the first matching box wins, which nearly overwrote
