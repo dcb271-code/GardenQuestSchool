@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
+import { requireParent } from '@/lib/auth/parentGate';
 import { z } from 'zod';
 import {
   baselineEloFor,
@@ -41,6 +42,11 @@ const AddBody = z.object({
 });
 
 export async function POST(req: Request) {
+  // Making a new profile is a grown-up action. Enforced here, at the
+  // route, because a hidden button is not a gate — see parentGate.ts.
+  const gate = requireParent();
+  if (gate) return gate;
+
   const body = AddBody.parse(await req.json());
   const level = (body.level ?? body.gradeLevel ?? 2) as LearnerLevel;
   const db = createServiceClient();

@@ -5,7 +5,6 @@ import PinPad from './PinPad';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import ProfileTile from '@/components/child/ProfileTile';
-import AddLearnerModal from '@/components/child/AddLearnerModal';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
 
 const avatarMap: Record<string, string> = {
@@ -25,8 +24,7 @@ interface Learner {
 export default function PickerClient({ learners: initial }: { learners: Learner[] }) {
   const { settings, update } = useAccessibilitySettings();
   const reducedMotion = settings.reducedMotion;
-  const [learners, setLearners] = useState<Learner[]>(initial);
-  const [addOpen, setAddOpen] = useState(false);
+  const [learners] = useState<Learner[]>(initial);
   // The profile whose PIN we are currently asking for.
   const [asking, setAsking] = useState<Learner | null>(null);
 
@@ -106,26 +104,27 @@ export default function PickerClient({ learners: initial }: { learners: Learner[
             }}
             transition={{ duration: 0.55, ease: [0.22, 0.9, 0.34, 1] }}
           >
-            <button
-              type="button"
-              onClick={() => setAddOpen(true)}
+            {/* A new profile is a GROWN-UP action, so this tile is a
+                door to the parent page rather than the maker itself.
+                It used to open the maker directly, and in September
+                2026 a seven-year-old used it to add two people to the
+                family — one of whom quietly swallowed a letter meant
+                for her sister. The API refuses ungated creation now;
+                this is the matching honesty in the UI. */}
+            <Link
+              href="/auth"
               className="flex flex-col items-center justify-center w-40 h-40 bg-white/70 rounded-3xl border-4 border-dashed border-ochre/70 hover:scale-105 active:scale-95 transition-transform shadow-md opacity-75 hover:opacity-95"
               style={{ touchAction: 'manipulation' }}
-              aria-label="add a new explorer"
+              aria-label="add a new explorer — a grown-up signs in first"
             >
               <div className="text-6xl text-bark/60">+</div>
-              <div className="mt-2 font-display italic text-[18px] text-bark/70">add</div>
-            </button>
+              <div className="mt-2 font-display italic text-[15px] text-bark/70 leading-tight px-2">
+                add<br />
+                <span className="text-[12px] text-bark/50">a grown-up does this</span>
+              </div>
+            </Link>
           </motion.div>
         </motion.div>
-
-        <AddLearnerModal
-          open={addOpen}
-          onClose={() => setAddOpen(false)}
-          onCreated={(l) => {
-            setLearners(prev => [...prev, l]);
-          }}
-        />
 
         <motion.div
           className="flex gap-5 justify-center pt-6 flex-wrap font-display italic text-[15px] text-bark/50"

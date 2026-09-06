@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createServiceClient } from '@/lib/supabase/server';
 import { checkLearnerDelete } from '@/lib/learner/deleteGuards';
+import { requireParent } from '@/lib/auth/parentGate';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -33,6 +34,10 @@ export async function PATCH(
   req: Request,
   { params }: { params: { id: string } }
 ) {
+  // Renaming a profile or moving its level is a grown-up action.
+  const gate = requireParent();
+  if (gate) return gate;
+
   const body = PatchBody.parse(await req.json());
   if (Object.keys(body).length === 0) {
     return NextResponse.json({ error: 'no fields to update' }, { status: 400 });
@@ -81,6 +86,12 @@ export async function DELETE(
   req: Request,
   { params }: { params: { id: string } },
 ) {
+  // The most destructive route in the app — a profile is a child's
+  // whole garden, years of it. Grown-ups only, on top of the
+  // type-the-name confirmation the guards already require.
+  const gate = requireParent();
+  if (gate) return gate;
+
   const body = DeleteBody.parse(await req.json().catch(() => ({})));
   const db = createServiceClient();
 
