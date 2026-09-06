@@ -4,13 +4,17 @@
 // below. Every pixel of chrome is icon-first — the primary artist is
 // five and does not read yet.
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { motion, AnimatePresence } from 'framer-motion';
 import { publicStorageUrl } from '@/lib/storage/publicUrl';
 import {
   ART_BUCKET, FRAME_CATALOG, type ArtGallery, type ArtPiece,
 } from '@/lib/world/artStore';
 import { coinsToPrice } from '@/lib/world/cavern';
+import {
+  knockDue, knockWords, type StudioErrand,
+} from '@/lib/world/studioNudge';
 import Easel from './Easel';
 
 /** What each frame looks like on a picture. Plain is honest wood. */
@@ -29,18 +33,44 @@ export function frameStyle(code?: string): React.CSSProperties {
 
 export default function ArtStoreScene({
   learnerId, initialGallery, baseUrl, initialOwnedFrames, initialCoins,
+  firstName = 'you', errand = null,
 }: {
   learnerId: string;
   initialGallery: ArtGallery;
   baseUrl: string;
   initialOwnedFrames: string[];
   initialCoins: number;
+  firstName?: string;
+  errand?: StudioErrand | null;
 }) {
   const [gallery, setGallery] = useState<ArtGallery>(initialGallery);
   const [confirmDelete, setConfirmDelete] = useState<ArtPiece | null>(null);
   const [ownedFrames, setOwnedFrames] = useState<string[]>(initialOwnedFrames);
   const [coins, setCoins] = useState(initialCoins);
   const [note, setNote] = useState<string | null>(null);
+
+  // ── the knock at the door ──────────────────────────────────────
+  // Time is counted, never SHOWN: no countdown, no clock, no lockout
+  // (see lib/world/studioNudge.ts). A knock waits for a pause between
+  // strokes rather than interrupting one, and can always be waved off.
+  const [minutes, setMinutes] = useState(0);
+  const [knocksShown, setKnocksShown] = useState(0);
+  const [knock, setKnock] = useState<number | null>(null);
+
+  useEffect(() => {
+    const started = Date.now();
+    const t = window.setInterval(
+      () => setMinutes((Date.now() - started) / 60000), 15000);
+    return () => window.clearInterval(t);
+  }, []);
+
+  useEffect(() => {
+    if (knock !== null) return;
+    const due = knockDue(minutes, knocksShown);
+    if (due !== null) setKnock(due);
+  }, [minutes, knocksShown, knock]);
+
+  const words = knock !== null ? knockWords(knock, errand, firstName) : null;
 
   const buyFrame = async (code: string) => {
     try {
@@ -84,6 +114,59 @@ export default function ArtStoreScene({
 
   return (
     <div className="min-h-screen" style={{ background: '#F3E7D8' }}>
+      {/* the knock — a visitor at the studio door, never a system
+          alarm. It sits at the BOTTOM so it cannot cover the canvas,
+          and both buttons are real choices. */}
+      <AnimatePresence>
+        {words && (
+          <motion.div
+            className="fixed left-0 right-0 bottom-0 z-50 p-3"
+            initial={{ y: 120 }} animate={{ y: 0 }} exit={{ y: 120 }}
+            transition={{ type: 'spring', stiffness: 220, damping: 26 }}
+          >
+            <div className="mx-auto rounded-2xl p-3 flex items-start gap-3"
+                 style={{ maxWidth: 560, background: '#FFFAF2',
+                          border: '2px solid #C9A227',
+                          boxShadow: '0 6px 24px rgba(40,28,16,0.28)' }}>
+              {/* a hand knocking on a door, drawn */}
+              <svg width="44" height="44" viewBox="0 0 44 44" aria-hidden className="shrink-0">
+                <rect x="4" y="6" width="24" height="34" rx="2" fill="#B0713C"
+                      stroke="#6E4520" strokeWidth="2" />
+                <circle cx="23" cy="24" r="1.8" fill="#C9A227" />
+                <path d="M 34 20 q 5 -3 7 1 q 1 3 -2 5 l -6 3 q -4 1 -5 -2 q -1 -3 2 -4 Z"
+                      fill="#F2D2B8" stroke="#8A6238" strokeWidth="1.4" />
+                <path d="M 31 15 l 2 3 M 36 13 l 1 3.4 M 41 15 l -1.6 3"
+                      stroke="#C9A227" strokeWidth="1.6" strokeLinecap="round" />
+              </svg>
+              <div className="flex-1">
+                <p className="font-bold text-sm" style={{ color: '#3A2E1E' }}>
+                  {words.title}
+                </p>
+                <p className="text-sm mt-0.5" style={{ color: '#4A3B24' }}>
+                  {words.body}
+                </p>
+                <div className="flex gap-2 mt-2">
+                  <Link
+                    href={errand?.href ?? `/garden?learner=${learnerId}`}
+                    className="rounded-xl px-4 font-bold text-sm flex items-center"
+                    style={{ background: '#5A8C4A', color: '#FFF', minHeight: 44,
+                             touchAction: 'manipulation' }}>
+                    {words.goLabel}
+                  </Link>
+                  <button
+                    onClick={() => { setKnocksShown(n => n + 1); setKnock(null); }}
+                    className="rounded-xl px-4 font-bold text-sm"
+                    style={{ background: '#EFE7D8', color: '#3A2E1E', minHeight: 44,
+                             touchAction: 'manipulation' }}>
+                    {words.stayLabel}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="max-w-2xl mx-auto p-4 pb-16">
         {/* the storefront: striped awning over a window of easels */}
         <svg viewBox="0 0 360 84" className="w-full mb-2" style={{ display: 'block' }}>
