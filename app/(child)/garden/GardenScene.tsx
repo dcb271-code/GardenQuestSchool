@@ -11,6 +11,7 @@ import { HABITAT_CATALOG } from '@/lib/world/habitatCatalog';
 import { SPECIES_CATALOG } from '@/lib/world/speciesCatalog';
 import type { SpeciesData } from '@/lib/world/speciesCatalog';
 import ArrivalCard from '@/components/child/garden/ArrivalCard';
+import { LetterboxGroup } from '@/components/child/garden/LetterboxArt';
 import LunaWanderer from '@/components/child/garden/LunaWanderer';
 import LunaVisitModal from '@/components/child/garden/LunaVisitModal';
 import {
@@ -372,6 +373,7 @@ export default function GardenScene({
   animalNames = {},
   birdAudio = {},
   unreadLetterReplies = 0,
+  letterboxStyle = { color: 'green' },
   moonGardenOpen = false,
   lunaCanFeedToday = true,
   shop: initialShop = { owned: [], placed: {} },
@@ -406,6 +408,7 @@ export default function GardenScene({
   birdAudio?: AudioIndex;
   /** Replies she has not opened — puts a flag up on the letterbox. */
   unreadLetterReplies?: number;
+  letterboxStyle?: { color: string; emblem?: string };
   /** A moon-quadrant flower is actually in bloom tonight. */
   moonGardenOpen?: boolean;
   /** Luna has not had her treat yet today. */
@@ -2059,25 +2062,11 @@ export default function GardenScene({
             tabIndex={0}
           >
             <rect x={-40} y={-52} width={80} height={92} fill="transparent" />
-            <ellipse cx={0} cy={34} rx={16} ry={4} fill="#000" opacity={0.18} />
-            {/* post */}
-            <rect x={-4} y={-6} width={8} height={40} rx={2}
-                  fill="#8B5A2B" stroke="#5A3B1F" strokeWidth={1.6} />
-            {/* box */}
-            <rect x={-19} y={-32} width={38} height={28} rx={4}
-                  fill="#6b8e5a" stroke="#3F2614" strokeWidth={2} />
-            <path d="M -19 -22 L 0 -12 L 19 -22" fill="none"
-                  stroke="#3F2614" strokeWidth={1.4} opacity={0.55} />
-            <rect x={-13} y={-38} width={26} height={7} rx={3}
-                  fill="#5C7E4F" stroke="#3F2614" strokeWidth={1.4} />
-            {/* the flag — up when a reply is waiting */}
-            <g transform={`translate(19, ${unreadLetterReplies > 0 ? -38 : -18})`}>
-              <rect x={-1.5} y={-10} width={3} height={16} rx={1}
-                    fill="#8B5A2B" stroke="#5A3B1F" strokeWidth={1} />
-              <path d="M 1.5 -10 L 13 -6.5 L 1.5 -3 Z"
-                    fill={unreadLetterReplies > 0 ? '#C94C3E' : '#B9B0A1'}
-                    stroke="#3F2614" strokeWidth={1.2} strokeLinejoin="round" />
-            </g>
+            {/* her box, in her own paint — the shared LetterboxGroup
+                keeps this and the letters screen identical */}
+            <LetterboxGroup colorCode={letterboxStyle.color}
+                            emblem={letterboxStyle.emblem}
+                            flagUp={unreadLetterReplies > 0} />
             {unreadLetterReplies > 0 && !reducedMotion && (
               <motion.circle
                 cx={0} cy={-18} r={26} fill="none" stroke="#C94C3E" strokeWidth={2}

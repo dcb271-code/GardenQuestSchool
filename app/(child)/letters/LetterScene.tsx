@@ -22,13 +22,19 @@ import { useSpeechRecognition } from '@/lib/audio/useSpeechRecognition';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
 import { playSparkle } from '@/lib/audio/sfx';
 import { MAX_LETTER_LENGTH, type Letter } from '@/lib/world/letters';
+import {
+  LETTERBOX_COLORS, LETTERBOX_EMBLEMS, getLetterboxColor,
+  type LetterboxStyle,
+} from '@/lib/world/letterbox';
+import { LetterboxArt, EmblemArt } from '@/components/child/garden/LetterboxArt';
 
 export default function LetterScene({
-  learnerId, firstName, siblings = [],
+  learnerId, firstName, siblings = [], ownBox = { color: 'green' },
 }: {
   learnerId: string;
   firstName: string;
-  siblings?: Array<{ id: string; name: string }>;
+  siblings?: Array<{ id: string; name: string; box?: LetterboxStyle }>;
+  ownBox?: LetterboxStyle;
 }) {
   const { settings } = useAccessibilitySettings();
   const reduced = settings.reducedMotion;
@@ -42,6 +48,29 @@ export default function LetterScene({
   const [loaded, setLoaded] = useState(false);
   const speech = useSpeechRecognition();
   const boxRef = useRef<HTMLTextAreaElement>(null);
+
+  // The paint job on HER letterbox. Optimistic — the swatch takes
+  // effect on tap, and a failed save says so in words and reverts.
+  const [box, setBox] = useState<LetterboxStyle>(ownBox);
+  const [painting, setPainting] = useState(false);
+  const [paintNote, setPaintNote] = useState<string | null>(null);
+
+  const paint = async (color: string, emblem: string | null) => {
+    const before = box;
+    setBox({ color, ...(emblem ? { emblem } : {}) });
+    setPaintNote(null);
+    try {
+      const res = await fetch('/api/letterbox', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ learnerId, color, emblem }),
+      });
+      const d = await res.json();
+      if (d.error) { setBox(before); setPaintNote(d.error); }
+    } catch {
+      setBox(before);
+      setPaintNote('The paint did not stick. Try again in a bit.');
+    }
+  };
 
   useEffect(() => {
     fetch(`/api/letters?learner=${learnerId}&open=1`)
@@ -96,10 +125,76 @@ export default function LetterScene({
           style={{ minWidth: 40, minHeight: 40, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
           ←
         </Link>
-        <h1 className="font-bold" style={{ color: '#3f2614' }}>The Letterbox</h1>
+        <h1 className="font-bold flex-1" style={{ color: '#3f2614' }}>The Letterbox</h1>
+        {/* her box, as it looks on the map — tap to repaint */}
+        <button onClick={() => setPainting(p => !p)}
+                aria-label={painting ? 'done painting' : 'paint your letterbox'}
+                className="rounded-xl flex items-center gap-1 px-2"
+                style={{ background: painting ? '#C9A227' : '#fffaf2',
+                         border: '2px solid #C9A227', minHeight: 48,
+                         touchAction: 'manipulation' }}>
+          <LetterboxArt colorCode={box.color} emblem={box.emblem} flagUp={false} size={34} />
+          <svg width="18" height="18" viewBox="0 0 20 20" aria-hidden>
+            {/* a little paintbrush, drawn */}
+            <path d="M 3 17 q -1 -3 2 -4 q 3 -1 3 2 q 0 3 -5 2 Z" fill="#8A6238" />
+            <path d="M 7 13 L 15 3 q 1.6 -1.4 2.8 0 q 1 1.4 -0.6 2.6 L 9 15 Z"
+                  fill={painting ? '#3f2614' : '#C9A227'} />
+          </svg>
+        </button>
       </header>
 
       <main className="px-4 pb-12 max-w-xl mx-auto">
+        {/* the paint panel — six paints, six emblems, all free */}
+        {painting && (
+          <div className="rounded-2xl p-3 mb-3"
+               style={{ background: '#fffdf5', border: '2px solid #C9A227' }}>
+            <p className="text-xs font-bold mb-2" style={{ color: '#3f2614' }}>
+              Paint your letterbox — it changes in the garden too.
+            </p>
+            <div className="flex gap-1.5 flex-wrap">
+              {LETTERBOX_COLORS.map(c => (
+                <button key={c.code} onClick={() => paint(c.code, box.emblem ?? null)}
+                        aria-label={c.name}
+                        className="rounded-xl"
+                        style={{ padding: 2, background: '#fffaf2',
+                                 border: box.color === c.code
+                                   ? '3px solid #3f2614' : '2px solid #d8c9a8',
+                                 touchAction: 'manipulation' }}>
+                  <LetterboxArt colorCode={c.code} flagUp={false} size={40} />
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-1.5 flex-wrap mt-2 items-center">
+              <button onClick={() => paint(box.color, null)}
+                      aria-label="no emblem — plain door"
+                      className="rounded-full text-[10px] font-bold"
+                      style={{ width: 44, height: 44, background: '#fffaf2',
+                               color: '#8a7c62',
+                               border: !box.emblem ? '3px solid #3f2614' : '2px solid #d8c9a8',
+                               touchAction: 'manipulation' }}>
+                plain
+              </button>
+              {LETTERBOX_EMBLEMS.map(e => (
+                <button key={e} onClick={() => paint(box.color, e)}
+                        aria-label={`${e} emblem`}
+                        className="rounded-full"
+                        style={{ width: 44, height: 44,
+                                 background: getLetterboxColor(box.color).body,
+                                 border: box.emblem === e
+                                   ? '3px solid #3f2614' : '2px solid #d8c9a8',
+                                 touchAction: 'manipulation' }}>
+                  <svg width="36" height="36" viewBox="-9 -9 18 18" style={{ margin: '0 auto' }}>
+                    <EmblemArt code={e} />
+                  </svg>
+                </button>
+              ))}
+            </div>
+            {paintNote && (
+              <p className="text-xs mt-2" style={{ color: '#A2385A' }}>{paintNote}</p>
+            )}
+          </div>
+        )}
+
         <p className="text-sm mb-3" style={{ color: '#4a4034' }}>
           This goes to the person who builds your garden. Tell them what you
           want in it, what you like, what is broken, or what you have been
@@ -120,12 +215,15 @@ export default function LetterScene({
             </button>
             {siblings.map(sb => (
               <button key={sb.id} onClick={() => setRecipient(sb.id)}
-                      className="rounded-full px-3 py-1.5 text-xs font-bold"
+                      className="rounded-full pl-1.5 pr-3 py-1 text-xs font-bold flex items-center gap-1"
                       style={{ background: recipient === sb.id ? '#C9A227' : '#fffaf2',
                                color: '#3f2614',
                                border: '2px solid #C9A227', minHeight: 40,
                                touchAction: 'manipulation' }}>
-                💌 {sb.name}
+                {/* their real letterbox, so the box says whose it is */}
+                <LetterboxArt colorCode={sb.box?.color ?? 'green'}
+                              emblem={sb.box?.emblem} flagUp={false} size={26} />
+                {sb.name}
               </button>
             ))}
           </div>

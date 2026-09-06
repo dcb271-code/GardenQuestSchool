@@ -25,6 +25,7 @@ import { hasHabitatInterior } from '@/lib/world/habitatInteriors';
 import { getCumulativeCorrect, correctCountsBySkill } from '@/lib/world/cumulativeProgress';
 import { placeResidents } from '@/lib/world/residents';
 import { unreadReplies, type Letterbox } from '@/lib/world/letters';
+import { resolveLetterboxStyle } from '@/lib/world/letterbox';
 import { birdAudioUrl } from '@/lib/birds/photoStorage';
 import type { AudioIndex } from '@/lib/birds/audioResolve';
 import type { VoiceKind } from '@/lib/world/birdCatalog';
@@ -401,6 +402,9 @@ export default async function GardenPage({
   const unreadLetterReplies = unreadReplies(
     ((worldStateRow?.garden as Record<string, unknown> | null)?.letters as Letterbox) ?? [],
   ).length;
+  const letterboxStyle = resolveLetterboxStyle(
+    (worldStateRow?.garden as Record<string, unknown> | null)?.letterbox,
+  );
 
   const cumulativeCorrect = await getCumulativeCorrect(db, learnerId);
 
@@ -443,6 +447,7 @@ export default async function GardenPage({
       animalNames={((worldStateRow?.garden as Record<string, any> | null)?.animal_names ?? {})}
       birdAudio={birdAudio}
       unreadLetterReplies={unreadLetterReplies}
+      letterboxStyle={letterboxStyle}
       moonGardenOpen={moonGardenOpen}
       lunaCanFeedToday={lunaCanFeedToday}
       shop={shopState}
