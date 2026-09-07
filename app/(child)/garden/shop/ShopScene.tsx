@@ -48,6 +48,9 @@ export default function ShopScene({
   const [bought, setBought] = useState<ShopItem | null>(null);
   const [message, setMessage] = useState<string | null>(null);
 
+  /** Treats in the pantry right now, across every kind. */
+  const carrying = TREAT_KINDS.reduce((n, t) => n + pantryCount(shop, t.code), 0);
+
   const buy = async (item: ShopItem) => {
     if (busy || !canAfford(coins, item)) return;
     setBusy(item.code);
@@ -306,6 +309,29 @@ export default function ShopScene({
             one treat per animal per day, and it tells you something
             true.
           </p>
+          {/* Carrying treats and not knowing it. This banner exists
+              because a child bought eleven of them, fed nothing, and
+              had to write a letter to ask what they were for — the
+              instruction above was there the whole time, in eleven-
+              point italic, which is to say it was not there at all. */}
+          {carrying > 0 && (
+            <div className="rounded-2xl p-3 mb-3 flex items-center gap-3"
+                 style={{ background: '#FFFAF2', border: '2px solid #5A8C4A' }}>
+              <svg width="40" height="40" viewBox="-12 -12 24 24" aria-hidden className="shrink-0">
+                <circle r={11} fill="#F6EEDF" stroke="#C9A227" strokeWidth={1.6} />
+                <path d="M -6 -1 h 12 a 6 6 0 0 1 -12 0 Z" fill="#B0713C" />
+                <ellipse cx={0} cy={-1.6} rx={6} ry={1.8} fill="#E8C05A" />
+                <circle cx={-2.2} cy={-2.8} r={1.3} fill="#8A6238" />
+                <circle cx={2} cy={-2.6} r={1.2} fill="#8A6238" />
+              </svg>
+              <p className="text-xs" style={{ color: '#3f2614' }}>
+                You are carrying <strong>{carrying}</strong>{' '}
+                {carrying === 1 ? 'treat' : 'treats'}. Go back to the garden:
+                every animal you can feed has a little bowl over its head.
+                Tap that animal.
+              </p>
+            </div>
+          )}
           <div className="grid grid-cols-2 gap-2">
             {TREAT_KINDS.map(t => {
               const have = pantryCount(shop, t.code);

@@ -450,6 +450,20 @@ export default function GardenScene({
   const [shop, setShop] = useState<ShopState>({ ...emptyShop(), ...initialShop });
   const [arranging, setArranging] = useState(startArranging);
 
+  // Animals she could feed right now — recomputed as the pantry
+  // empties, so a bowl disappears the moment its treat is used.
+  const feedableCodes = useMemo(() => {
+    const out = new Set<string>();
+    for (const r of residents) {
+      const kind = treatKindFor(r.species);
+      if (kind && pantryCount(shop, kind.code) > 0
+          && canFeedToday(shop, r.species.code, today)) {
+        out.add(r.species.code);
+      }
+    }
+    return out;
+  }, [residents, shop, today]);
+
   // Beds, habitats and paths she must not stand a bench on top of.
   const arrangeObstacles = useMemo(() => ([
     ...structures.map(st => ({
@@ -1902,6 +1916,10 @@ export default function GardenScene({
               the habitat that attracted them. Before this, finding a
               species changed nothing about the world; the garden looked
               identical whether she had found none or all of them. */}
+          {/* Which of them she could feed RIGHT NOW: she owns the right
+              treat and has not fed that animal today. Same three
+              conditions the bubble's offer uses, hoisted so the map can
+              show the invitation before she taps. */}
           {residents.map(r => (
             <g
               key={r.species.code}
@@ -1947,6 +1965,33 @@ export default function GardenScene({
                     {SpeciesIllustration({ code: r.species.code, size: 38 })
                       ?? <text x={19} y={24} textAnchor="middle" fontSize={24}>{r.species.emoji}</text>}
                   </g>
+                  {/* THE HUNGRY TELL. Feeding has always worked and has
+                      always been invisible: the only way to find it was
+                      to tap an animal and notice a button. Cecily bought
+                      eleven treats over three weeks, fed nothing, and
+                      wrote "I don't get to do anything with it will you
+                      please fix it or show me what to do with it".
+                      So the animal asks now — a little bowl over the
+                      head of anything she is actually carrying food for.
+                      Position lives on this plain g; only the bob
+                      animates inside. */}
+                  {feedableCodes.has(r.species.code) && (
+                    <g transform="translate(15, -22)">
+                      <motion.g
+                        animate={reducedMotion ? undefined : { y: [0, -2, 0] }}
+                        transition={reducedMotion ? undefined : {
+                          duration: 1.6, repeat: Infinity, ease: 'easeInOut',
+                        }}
+                      >
+                        <circle r={9} fill="#FFFAF2" stroke="#C9A227" strokeWidth={1.6} />
+                        {/* a little food bowl, drawn */}
+                        <path d="M -5 -1 h 10 a 5 5 0 0 1 -10 0 Z" fill="#B0713C" />
+                        <ellipse cx={0} cy={-1.4} rx={5} ry={1.5} fill="#E8C05A" />
+                        <circle cx={-1.8} cy={-2.4} r={1.1} fill="#8A6238" />
+                        <circle cx={1.6} cy={-2.2} r={1} fill="#8A6238" />
+                      </motion.g>
+                    </g>
+                  )}
                 </g>
               </motion.g>
             </g>
