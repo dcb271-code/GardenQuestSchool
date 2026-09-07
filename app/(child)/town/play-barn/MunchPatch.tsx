@@ -19,7 +19,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  makeBoard, whyWrong, pickEmptyIndex, BOARD_COLS, BOARD_ROWS,
+  makeBoard, whyWrong, pickEmptyIndex, fractionName,
+  BOARD_COLS, BOARD_ROWS,
   type MunchRule, type PrizeVeggie,
 } from '@/lib/packs/math/munch';
 import { getScene, CROW_SCENES, FINGER_TRICK } from '@/lib/packs/math/crowScenes';
@@ -58,6 +59,10 @@ export function ruleWords(rule: MunchRule): string {
     case 'sum_equals': return `Eat the sums that make ${rule.target}.`;
     case 'multiple_of':
       return `Eat the numbers you land on when you count by ${rule.k}s.`;
+    case 'equals_fraction':
+      return `Eat every fraction that is the same as ${fractionName(rule.p, rule.q)}.`;
+    case 'decimal_bigger':
+      return `Eat the numbers bigger than ${rule.pivot}.`;
   }
 }
 

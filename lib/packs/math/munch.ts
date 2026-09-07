@@ -35,7 +35,24 @@ export type MunchRule =
   | { type: 'eat_number'; target: number }
   | { type: 'bigger_than'; pivot: number }
   | { type: 'sum_equals'; target: number }
-  | { type: 'multiple_of'; k: number };
+  | { type: 'multiple_of'; k: number }
+  /** Equivalent fractions: eat every face equal to p/q. */
+  | { type: 'equals_fraction'; p: number; q: number }
+  /** Decimals: eat every face greater than pivot (one or two places). */
+  | { type: 'decimal_bigger'; pivot: number };
+
+/** Fraction targets we teach by name, because a child says them. */
+export const FRACTION_NAMES: Record<string, string> = {
+  '1/2': 'one half',
+  '1/3': 'one third',
+  '1/4': 'one quarter',
+  '2/3': 'two thirds',
+  '3/4': 'three quarters',
+};
+
+export function fractionName(p: number, q: number): string {
+  return FRACTION_NAMES[`${p}/${q}`] ?? `${p} out of ${q}`;
+}
 
 /** Attempt/ledger key: one rule, one name. */
 export function ruleKey(rule: MunchRule): string {
@@ -44,11 +61,15 @@ export function ruleKey(rule: MunchRule): string {
     case 'bigger_than': return `bigger_than_${rule.pivot}`;
     case 'sum_equals': return `sum_equals_${rule.target}`;
     case 'multiple_of': return `multiple_of_${rule.k}`;
+    case 'equals_fraction': return `equals_fraction_${rule.p}_${rule.q}`;
+    case 'decimal_bigger': return `decimal_bigger_${String(rule.pivot).replace('.', 'p')}`;
   }
 }
 
 const NUMERAL = /^\d{1,2}$/;
 const SUM = /^(\d{1,2})\+(\d{1,2})$/;
+const FRACTION = /^(\d{1,2})\/(\d{1,2})$/;
+const DECIMAL = /^\d{1,2}\.\d{1,2}$/;
 
 /**
  * The predicate — the single source of truth for "is this face a
@@ -59,6 +80,17 @@ export function checkFace(rule: MunchRule, face: string): boolean {
   if (rule.type === 'sum_equals') {
     const m = SUM.exec(face);
     return !!m && Number(m[1]) + Number(m[2]) === rule.target;
+  }
+  if (rule.type === 'equals_fraction') {
+    const m = FRACTION.exec(face);
+    // Cross-multiply so 3/6 === 1/2 exactly, with no float rounding.
+    return !!m && Number(m[2]) !== 0
+      && Number(m[1]) * rule.q === rule.p * Number(m[2]);
+  }
+  if (rule.type === 'decimal_bigger') {
+    if (!DECIMAL.test(face)) return false;
+    // Compare in hundredths — integers, so 0.3 vs 0.30 cannot drift.
+    return Math.round(Number(face) * 100) > Math.round(rule.pivot * 100);
   }
   if (!NUMERAL.test(face)) return false;
   const n = Number(face);
@@ -87,6 +119,51 @@ export function whyWrong(rule: MunchRule, face: string): string {
       const m = SUM.exec(face)!;
       const sum = Number(m[1]) + Number(m[2]);
       return `${m[1]} + ${m[2]} makes ${sum}, not ${rule.target}.`;
+    }
+    case 'equals_fraction': {
+      const m = FRACTION.exec(face);
+      if (!m) return `That one is not a fraction at all.`;
+      const a = Number(m[1]), b = Number(m[2]);
+      const name = fractionName(rule.p, rule.q);
+      if (b === 0) return `Nothing can be cut into 0 pieces.`;
+      // How many of THIS face's pieces the target would actually be —
+      // the derivation a child can check by counting the pieces.
+      const needed = (b * rule.p) / rule.q;
+      const more = a * rule.q > rule.p * b;
+      if (Number.isInteger(needed)) {
+        return `${name} of ${b} pieces is ${needed} pieces — so ${name} is ` +
+          `${needed}/${b}, not ${a}/${b}.`;
+      }
+      // Not a whole number of pieces. Talk in PIECES, not in more
+      // fractions — the first draft said "it lands between 8/17 and
+      // 9/17" about the face 8/17, using the wrong answer as its own
+      // landmark, which explains nothing.
+      const whole = Math.floor(needed);
+      return `${b} pieces cannot be split into ${name} evenly — ${name} of ` +
+        `${b} pieces is between ${whole} and ${whole + 1} pieces. So ${a}/${b} ` +
+        `is ${more ? 'more' : 'less'} than ${name}.`;
+    }
+    case 'decimal_bigger': {
+      if (!DECIMAL.test(face)) return `That one is not a decimal number.`;
+      // Line the two numbers up in tenths and hundredths, which is
+      // how you actually compare them, and where the mistake lives:
+      // 0.9 is bigger than 0.15, even though 15 is bigger than 9.
+      const cents = Math.round(Number(face) * 100);
+      const pivotCents = Math.round(rule.pivot * 100);
+      const t = Math.floor(cents / 10) % 10, h = cents % 10;
+      const pt = Math.floor(pivotCents / 10) % 10;
+      const ones = Math.floor(cents / 100), pOnes = Math.floor(pivotCents / 100);
+      if (ones !== pOnes) {
+        return `${face} starts with ${ones}, and ${rule.pivot} starts with ${pOnes} — ` +
+          `so ${face} is ${ones > pOnes ? 'more' : 'less'}.`;
+      }
+      if (t !== pt) {
+        const tenths = (n: number) => `${n} ${n === 1 ? 'tenth' : 'tenths'}`;
+        return `Count the tenths: ${face} has ${t}, and ${rule.pivot} has ${pt}. ` +
+          `${tenths(t)} is ${t > pt ? 'more' : 'less'} than ${tenths(pt)}.`;
+      }
+      return `Same tenths — so look at the hundredths: ${face} has ${h}, ` +
+        `and ${rule.pivot} has ${pivotCents % 10}.`;
     }
     case 'multiple_of': {
       // The skip-count chain, computed: true multiples bracketing
@@ -125,6 +202,15 @@ const swapDigits = (n: number): number =>
   n >= 10 ? (n % 10) * 10 + Math.floor(n / 10) : n;
 
 /**
+ * How far up the equivalents ladder a fraction crate climbs. Capped
+ * at denominator 36 so the pieces stay countable, and never below 9
+ * rungs — the board needs up to nine distinct correct faces.
+ */
+export function maxFractionStep(q: number): number {
+  return Math.max(9, Math.floor(36 / q));
+}
+
+/**
  * Grow one board: 6–9 correct tiles of 20, the rest DESIGNED traps.
  * Every tile — correct and distractor alike — is re-checked against
  * checkFace before it is planted; a template that produces a lie is
@@ -140,15 +226,20 @@ export function makeBoard(rule: MunchRule, seed: number): MunchBoard {
     : 9;
   const correctCount = between(rng, 6, Math.max(6, maxCorrect));
   const tiles: MunchTile[] = [];
-  const sumFaces = new Set<string>(); // sum faces must be unique as strings
+  // Expression faces must be unique as strings — two identical "4+7"
+  // or "2/4" tiles look like a printing mistake. Plain numerals may
+  // repeat, since a patch of 3s is the point of that crate.
+  const uniqueFaces = rule.type === 'sum_equals'
+    || rule.type === 'equals_fraction' || rule.type === 'decimal_bigger';
+  const seenFaces = new Set<string>();
 
   const plantCorrect = (): void => {
     for (let tries = 0; tries < 200; tries++) {
       const face = growCorrectFace(rule, rng);
       if (face === null) continue;
-      if (rule.type === 'sum_equals') {
-        if (sumFaces.has(face)) continue;
-        sumFaces.add(face);
+      if (uniqueFaces) {
+        if (seenFaces.has(face)) continue;
+        seenFaces.add(face);
       }
       if (!checkFace(rule, face)) continue; // the re-check law
       tiles.push({ face, correct: true });
@@ -161,9 +252,9 @@ export function makeBoard(rule: MunchRule, seed: number): MunchBoard {
     for (let tries = 0; tries < 200; tries++) {
       const face = growTrapFace(rule, rng);
       if (face === null) continue;
-      if (rule.type === 'sum_equals') {
-        if (sumFaces.has(face)) continue;
-        sumFaces.add(face);
+      if (uniqueFaces) {
+        if (seenFaces.has(face)) continue;
+        seenFaces.add(face);
       }
       if (checkFace(rule, face)) continue; // an accidental answer is a bug, not a trap
       tiles.push({ face, correct: false });
@@ -195,6 +286,18 @@ function growCorrectFace(rule: MunchRule, rng: () => number): string | null {
     }
     case 'multiple_of':
       return String(rule.k * between(rng, 1, 10));
+    case 'equals_fraction': {
+      // Equivalents a child can actually COUNT: 1/2 → 2/4, 3/6, 4/8.
+      // Allowing anything up to 99 produced boards of 45/60 and 21/28,
+      // which is arithmetic, not fraction sense.
+      const n = between(rng, 1, maxFractionStep(rule.q));
+      return `${rule.p * n}/${rule.q * n}`;
+    }
+    case 'decimal_bigger': {
+      const cents = Math.round(rule.pivot * 100);
+      const over = cents + between(rng, 1, Math.min(120, 999 - cents));
+      return (over / 100).toFixed(over % 10 === 0 ? 1 : 2);
+    }
   }
 }
 
@@ -238,6 +341,33 @@ function growTrapFace(rule: MunchRule, rng: () => number): string | null {
       if (n < 1 || n > 99) return null;
       return String(n);
     }
+    case 'equals_fraction': {
+      // The real fraction mistakes: same GAP instead of same ratio
+      // (1/2 → 2/3, 3/4), numerator or denominator off by one, and
+      // the flip (2/4 → 4/2). Every one is re-checked upstream, so a
+      // trap that lands on a true equivalent is thrown away.
+      const n = between(rng, 1, maxFractionStep(rule.q));
+      const a = rule.p * n, b = rule.q * n;
+      const kind = rng();
+      let fa: number, fb: number;
+      if (kind < 0.3) { fa = a + 1; fb = b; }
+      else if (kind < 0.55) { fa = a; fb = b + 1; }
+      else if (kind < 0.75) { fa = a + between(rng, 1, 2); fb = b + between(rng, 1, 2); }
+      else if (kind < 0.9) { fa = b; fb = a; }              // the flip
+      else { fa = between(rng, 1, 11); fb = between(rng, 2, 12); }
+      if (fa < 1 || fb < 2 || fa > 99 || fb > 99) return null;
+      return `${fa}/${fb}`;
+    }
+    case 'decimal_bigger': {
+      const cents = Math.round(rule.pivot * 100);
+      // Below the line, and heavy on the classic: a LONGER decimal
+      // that is smaller (0.45 < 0.5), which is the whole lesson.
+      const under = rng() < 0.45
+        ? cents - between(rng, 1, 9)                  // just under, two places
+        : Math.max(0, cents - between(rng, 1, Math.min(cents, 120)));
+      if (under < 0) return null;
+      return (under / 100).toFixed(under % 10 === 0 ? 1 : 2);
+    }
   }
 }
 
@@ -276,6 +406,27 @@ export const CRATES: MunchCrate[] = [
   {
     code: 'big_sums', label: 'Big sums that match', minLevel: 3,
     roll: s => ({ type: 'sum_equals', target: between(mulberry32(s), 41, 99) }),
+  },
+  // Fractions and decimals — the whole of her untouched math, aimed
+  // through the crate she already opens twenty times a day.
+  {
+    code: 'same_fraction', label: 'Fractions that are the same', minLevel: 3,
+    roll: s => {
+      const rng = mulberry32(s);
+      const [p, q] = pick(rng, [[1, 2], [1, 3], [1, 4], [2, 3], [3, 4]] as const);
+      return { type: 'equals_fraction', p, q };
+    },
+  },
+  {
+    code: 'bigger_decimals', label: 'Decimals: eat the bigger ones', minLevel: 3,
+    roll: s => {
+      const rng = mulberry32(s);
+      // Nothing below 0.25: with two-place faces there are only ten
+      // decimals under 0.10, which is not enough distinct traps to
+      // fill a board — the generator threw rather than repeat itself.
+      const cents = pick(rng, [25, 50, 75, 125, 150, 200] as const);
+      return { type: 'decimal_bigger', pivot: cents / 100 };
+    },
   },
 ];
 

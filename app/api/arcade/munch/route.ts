@@ -30,6 +30,15 @@ const Rule = z.discriminatedUnion('type', [
   z.object({ type: z.literal('bigger_than'), pivot: z.number().int().min(15).max(75) }),
   z.object({ type: z.literal('sum_equals'), target: z.number().int().min(8).max(99) }),
   z.object({ type: z.literal('multiple_of'), k: z.number().int().min(2).max(9) }),
+  z.object({
+    type: z.literal('equals_fraction'),
+    p: z.number().int().min(1).max(11),
+    q: z.number().int().min(2).max(12),
+  }),
+  z.object({
+    type: z.literal('decimal_bigger'),
+    pivot: z.number().min(0.25).max(9.99),
+  }),
 ]);
 
 const Body = z.object({
@@ -38,7 +47,10 @@ const Body = z.object({
   seed: z.number().int().min(0).max(2 ** 31 - 1),
   munches: z.array(z.object({
     tile: z.number().int().min(0).max(BOARD_SIZE - 1),
-    face: z.string().max(8),
+    // Fraction and decimal faces are longer than "4+7" — but the
+    // face is checked against the server's own board anyway, so this
+    // is only a size guard.
+    face: z.string().max(12),
   })).min(1).max(40),
 });
 

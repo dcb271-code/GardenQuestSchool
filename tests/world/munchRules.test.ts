@@ -26,6 +26,10 @@ const SAMPLE_RULES: MunchRule[] = [
   { type: 'sum_equals', target: 99 },
   ...([2, 3, 4, 5, 6, 7, 8, 9] as const).map(k =>
     ({ type: 'multiple_of', k } as MunchRule)),
+  ...([[1, 2], [1, 3], [1, 4], [2, 3], [3, 4]] as const).map(([p, q]) =>
+    ({ type: 'equals_fraction', p, q } as MunchRule)),
+  ...([0.5, 0.25, 0.75, 1.5, 2, 1.25] as const).map(pivot =>
+    ({ type: 'decimal_bigger', pivot } as MunchRule)),
 ];
 
 describe('makeBoard invariants (across many seeds)', () => {
@@ -66,6 +70,39 @@ describe('makeBoard invariants (across many seeds)', () => {
       expect(a.tiles.map(t => t.face).join('|'))
         .not.toEqual(c.tiles.map(t => t.face).join('|'));
     }
+  });
+
+  it('fraction boards hold only true equivalents, and the flip is a trap', () => {
+    for (const [p, q] of [[1, 2], [1, 4], [2, 3], [3, 4]] as const) {
+      const rule: MunchRule = { type: 'equals_fraction', p, q };
+      for (let seed = 1; seed <= 40; seed++) {
+        for (const tile of makeBoard(rule, seed * 71).tiles) {
+          const [a, b] = tile.face.split('/').map(Number);
+          // The only truth is cross-multiplication; no float compare.
+          expect(a * q === p * b).toBe(tile.correct);
+          expect(b).toBeGreaterThan(0);
+        }
+      }
+    }
+    // 2/4 is one half; 4/2 (the flip) is not — the classic mistake.
+    expect(checkFace({ type: 'equals_fraction', p: 1, q: 2 }, '2/4')).toBe(true);
+    expect(checkFace({ type: 'equals_fraction', p: 1, q: 2 }, '4/2')).toBe(false);
+    // ...but for 1/1-style symmetric cases there is no flip trap to fall for.
+    expect(checkFace({ type: 'equals_fraction', p: 3, q: 4 }, '9/12')).toBe(true);
+    expect(checkFace({ type: 'equals_fraction', p: 3, q: 4 }, '4/3')).toBe(false);
+  });
+
+  it('decimal boards compare by value, so a longer decimal can be smaller', () => {
+    const rule: MunchRule = { type: 'decimal_bigger', pivot: 0.5 };
+    for (let seed = 1; seed <= 40; seed++) {
+      for (const tile of makeBoard(rule, seed * 53).tiles) {
+        expect(Number(tile.face) > 0.5).toBe(tile.correct);
+      }
+    }
+    // The lesson itself: 0.45 has more digits than 0.5 and is smaller.
+    expect(checkFace(rule, '0.45')).toBe(false);
+    expect(checkFace(rule, '0.9')).toBe(true);
+    expect(checkFace(rule, '0.50')).toBe(false); // equal is not bigger
   });
 
   it('sum boards never repeat a face string', () => {
@@ -121,6 +158,43 @@ describe('whyWrong computes, never asserts', () => {
     }
   });
 
+  it('fraction card derives the answer from the pieces on the tile', () => {
+    // 3/8 under "one half": half of 8 pieces is 4, so half is 4/8.
+    expect(whyWrong({ type: 'equals_fraction', p: 1, q: 2 }, '3/8'))
+      .toBe('one half of 8 pieces is 4 pieces — so one half is 4/8, not 3/8.');
+    // An odd denominator cannot split evenly; the card says which side.
+    const odd = whyWrong({ type: 'equals_fraction', p: 1, q: 2 }, '3/5');
+    // ...in PIECES, and never using the wrong face as its own landmark.
+    expect(odd).toContain('between 2 and 3 pieces');
+    expect(odd).toMatch(/more than one half/);
+    expect(whyWrong({ type: 'equals_fraction', p: 1, q: 2 }, '2/5'))
+      .toMatch(/less than one half/);
+  });
+
+  it('decimal card compares place by place, never digit count', () => {
+    expect(whyWrong({ type: 'decimal_bigger', pivot: 0.5 }, '0.45'))
+      .toBe('Count the tenths: 0.45 has 4, and 0.5 has 5. 4 tenths is less than 5 tenths.');
+    // one tenth, not "1 tenths"
+    expect(whyWrong({ type: 'decimal_bigger', pivot: 0.5 }, '0.14'))
+      .toContain('1 tenth is less than 5 tenths');
+    expect(whyWrong({ type: 'decimal_bigger', pivot: 1.5 }, '0.9'))
+      .toMatch(/starts with 0.*starts with 1/);
+  });
+
+  it('every wrong face on a generated board gets a card that is not empty', () => {
+    for (const rule of SAMPLE_RULES) {
+      for (let seed = 1; seed <= 10; seed++) {
+        for (const tile of makeBoard(rule, seed * 991).tiles) {
+          if (tile.correct) continue;
+          const card = whyWrong(rule, tile.face);
+          expect(card.length).toBeGreaterThan(8);
+          expect(card).not.toContain('undefined');
+          expect(card).not.toContain('NaN');
+        }
+      }
+    }
+  });
+
   it('eat-number card names both numbers', () => {
     const card = whyWrong({ type: 'eat_number', target: 5 }, '6');
     expect(card).toContain('6');
@@ -153,7 +227,9 @@ describe('the crates', () => {
       for (let seed = 1; seed <= 25; seed++) {
         const rule = crate.roll(seed * 131);
         expect(() => makeBoard(rule, seed * 7919)).not.toThrow();
-        expect(ruleKey(rule)).toMatch(/^[a-z_]+_\d+$/);
+        // keys carry their parameters: multiple_of_6, equals_fraction_1_2,
+        // decimal_bigger_0p75
+        expect(ruleKey(rule)).toMatch(/^[a-z_]+_[\dp_]+$/);
       }
     }
   });
