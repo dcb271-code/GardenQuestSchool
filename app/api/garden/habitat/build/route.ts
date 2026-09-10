@@ -3,6 +3,7 @@ import { z } from 'zod';
 import { createServiceClient } from '@/lib/supabase/server';
 import { GARDEN_STRUCTURES } from '@/lib/world/gardenMap';
 import { HABITAT_CATALOG } from '@/lib/world/habitatCatalog';
+import { unmetPrereqs } from '@/lib/world/prereqs';
 import { grantVirtueGem } from '@/lib/engine/virtueGrants';
 
 export const dynamic = 'force-dynamic';
@@ -40,9 +41,27 @@ export async function POST(req: Request) {
       .map((p: any) => p.skill?.code)
       .filter(Boolean),
   );
-  const prereqsMet = habitat.prereqSkillCodes.every(c => mastered.has(c));
-  if (!prereqsMet) {
-    return NextResponse.json({ error: 'skill prereqs not met' }, { status: 403 });
+  // A skill she has OUTGROWN still counts: mastering something that
+  // stands on counting-to-fifty proves she can count to fifty, and
+  // the planner will never offer that lesson again once she is past
+  // it. Without this, a habitat can lock behind a key that no longer
+  // exists — see lib/world/prereqs.ts.
+  const { data: allSkills } = await db
+    .from('skill').select('code, prereq_skill_codes');
+  const unmet = unmetPrereqs(
+    habitat.prereqSkillCodes,
+    Array.from(mastered) as string[],
+    (allSkills ?? []).map((s: any) => ({
+      code: s.code as string,
+      prereqSkillCodes: (s.prereq_skill_codes ?? []) as string[],
+    })),
+  );
+  if (unmet.length > 0) {
+    // In words, to whoever is reading it — which is a child.
+    return NextResponse.json({
+      error: `This one is not ready for you yet. Keep going in your lessons and ${habitat.name} will open.`,
+      needs: unmet,
+    }, { status: 403 });
   }
 
   // Find the map structure for this habitat to get its position
