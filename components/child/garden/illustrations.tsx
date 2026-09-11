@@ -642,6 +642,70 @@ export function ButterflyBush({ x, y, size = 80 }: IllustrationProps) {
  * (a beak that floated free of its head). Pole, hopper, roof and bird
  * are each solid and visibly joined.
  */
+/**
+ * The owl box: a deep wooden box high on a trunk with a round hole —
+ * one of the very few homes a person can genuinely put up and have a
+ * wild animal move into, which is the point of the whole habitat.
+ * A screech-owl is the size of a soda can, so the hole is small and
+ * the box is tall.
+ */
+export function OwlBox({ x, y, size = 80 }: IllustrationProps) {
+  const r = size / 2;
+  // The box must be NARROWER than the trunk, or it covers the tree
+  // and the whole thing reads as a post with a chimney on it.
+  const w = r * 0.62;              // box width
+  const h = r * 0.98;              // box height — deep, not square
+  const boxTop = -r * 0.62;
+  const trunkHalf = r * 0.46;      // trunk shows on both sides of the box
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <ellipse cx={0} cy={r * 0.96} rx={r * 0.5} ry={r * 0.13} fill="#000" opacity={0.14} />
+
+      {/* THE TRUNK runs the full height and keeps going out of frame —
+          the first draft stopped it at the box, which made the whole
+          thing read as a mailbox on a post. */}
+      <path d={`M ${-trunkHalf - r * 0.1} ${r * 0.98}
+                Q ${-trunkHalf} ${r * 0.2} ${-trunkHalf} ${-r}
+                L ${trunkHalf} ${-r}
+                Q ${trunkHalf} ${r * 0.2} ${trunkHalf + r * 0.1} ${r * 0.98} Z`}
+            fill="#8B6938" stroke={STROKE} strokeWidth={2} />
+      {/* bark, on the parts of the trunk the box does not cover */}
+      <path d={`M ${-r * 0.38} ${r * 0.9} Q ${-r * 0.33} ${r * 0.4} ${-r * 0.36} ${-r * 0.94}
+                M ${r * 0.37} ${r * 0.86} Q ${r * 0.32} ${r * 0.3} ${r * 0.35} ${-r * 0.9}`}
+            stroke={STROKE_LIGHT} strokeWidth={1.4} fill="none" opacity={0.75} />
+
+      {/* a branch off the trunk ABOVE the box, with leaves hanging on it */}
+      <path d={`M ${trunkHalf - r * 0.04} ${-r * 0.86} q ${r * 0.3} ${-r * 0.12} ${r * 0.54} ${-r * 0.04}`}
+            stroke="#7A5A34" strokeWidth={r * 0.07} fill="none" strokeLinecap="round" />
+      {[0, 1, 2].map(i => (
+        <ellipse key={i} cx={r * (0.6 + i * 0.16)} cy={-r * (0.86 - i * 0.015)}
+                 rx={r * 0.12} ry={r * 0.065} fill="#6E8C52" stroke={STROKE} strokeWidth={1}
+                 transform={`rotate(${22 + i * 8} ${r * (0.6 + i * 0.16)} ${-r * (0.86 - i * 0.015)})`} />
+      ))}
+
+      {/* the box, mounted on the FRONT of the trunk */}
+      <rect x={-w / 2} y={boxTop} width={w} height={h} rx={2.5}
+            fill="#A87147" stroke={STROKE} strokeWidth={2} />
+      <path d={`M ${-w / 2} ${boxTop + h * 0.5} h ${w} M ${-w / 2} ${boxTop + h * 0.76} h ${w}`}
+            stroke={STROKE_LIGHT} strokeWidth={1.2} opacity={0.85} />
+      {/* a simple sloped lid, overhanging evenly on both sides */}
+      <polygon
+        points={`${-w * 0.66},${boxTop + 1} ${w * 0.66},${boxTop + 1}
+                 ${w * 0.58},${boxTop - r * 0.16} ${-w * 0.58},${boxTop - r * 0.16}`}
+        fill="#8B5A2B" stroke={STROKE} strokeWidth={2} strokeLinejoin="round" />
+      {/* the hole — small, dark, and the whole promise of the thing */}
+      <circle cx={0} cy={boxTop + h * 0.3} r={r * 0.2} fill="#2A2014"
+              stroke={STROKE} strokeWidth={1.6} />
+      {/* two eyes in the dark, because somebody is home */}
+      <circle cx={-r * 0.075} cy={boxTop + h * 0.29} r={r * 0.05} fill="#F5D98F" />
+      <circle cx={r * 0.075} cy={boxTop + h * 0.29} r={r * 0.05} fill="#F5D98F" />
+      {/* a perch under the hole */}
+      <rect x={-r * 0.055} y={boxTop + h * 0.52} width={r * 0.11} height={r * 0.14}
+            rx={2} fill="#7A5A34" stroke={STROKE} strokeWidth={1.2} />
+    </g>
+  );
+}
+
 export function BirdFeeder({ x, y, size = 80 }: IllustrationProps) {
   const r = size / 2;
   const w = r * 1.05;          // hopper width
@@ -2098,6 +2162,7 @@ export function StructureIllustration({
     case 'habitat_butterfly_bush':   return <ButterflyBush x={x} y={y} size={size * 1.1} />;
     case 'habitat_log_pile':         return <LogPile x={x} y={y} size={size * 1.05} />;
     case 'habitat_bird_feeder':      return <BirdFeeder x={x} y={y} size={size * 1.1} />;
+    case 'habitat_owl_box':          return <OwlBox x={x} y={y} size={size * 1.1} />;
     case 'reading_readaloud_log':    return <StoryLog x={x} y={y} size={size * 1.1} />;
     case 'reading_book_stump':       return <WordStump x={x} y={y} size={size * 1.05} />;
     case 'reading_blending_beach':   return <BlendingBeach x={x} y={y} size={size * 1.1} />;

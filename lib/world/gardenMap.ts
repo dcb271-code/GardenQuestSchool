@@ -268,6 +268,26 @@ export const GARDEN_STRUCTURES: MapStructure[] = [
     zone: 'meadow',
   },
   {
+    // THE OWL BOX had no placement at all from the day it shipped
+    // (2026-08-10): a catalog entry, an interior, two species and a
+    // researcher quest, and nowhere on any map to put it. So the
+    // journal advertised it, the build route answered "no map
+    // placement for habitat", and it could never be built by anyone.
+    // Cecily found it: "The jrinal is saying that there is a owl box".
+    //
+    // North-west, in the reading quadrant it belongs to — the
+    // roomiest spot on that side of the map, 119 units to the nearest
+    // neighbour's edge, measured the same way the bird feeder was.
+    code: 'habitat_owl_box',
+    kind: 'habitat',
+    habitatCode: 'owl_box',
+    label: 'Owl Box',
+    themeEmoji: '🦉',
+    x: 520, y: 240, size: 76,
+    zone: 'reading',
+  },
+
+  {
     // Open meadow, south-central — the most clearance available on the
     // whole map (133 units to its nearest neighbour's edge), which is
     // what a feeder wants: birds will not come down to a pole crowded
