@@ -126,16 +126,30 @@ export function setFrame(
   };
 }
 
-/* ── hanging (phase 2) — the reading-room wall ──────────────────── */
+/* ── hanging — the reading-room wall, and since phase 3 any wall ─ */
 
 export type HungPictures = { left?: string; right?: string };
 
-export function hangPicture(
-  gallery: ArtGallery, hung: HungPictures, slot: 'left' | 'right', id: string | null,
-): { hung: HungPictures } | { error: string } {
+/**
+ * Hang one of HER pictures on a slot, or `null` to take it down. One
+ * gallery-membership check for every wall in the house: the reading
+ * room's two slots and the bedroom's six both come through here, with
+ * the caller naming which slots its wall has. A slot the wall does
+ * not have is refused, so a typo never hangs a picture on the ceiling.
+ */
+export function hangPicture<S extends string = 'left' | 'right'>(
+  gallery: ArtGallery,
+  hung: Partial<Record<S, string>>,
+  slot: string,
+  id: string | null,
+  allowed: readonly string[] = ['left', 'right'],
+): { hung: Partial<Record<S, string>> } | { error: string } {
+  if (!allowed.includes(slot)) {
+    return { error: 'There is no spot on the wall by that name.' };
+  }
   if (id === null) {
     const next = { ...hung };
-    delete next[slot];
+    delete next[slot as S];
     return { hung: next };
   }
   if (!gallery.some(p => p.id === id)) {

@@ -16,7 +16,10 @@ import {
 } from '@/lib/world/lunaAdventure';
 import { canFeed } from '@/lib/world/lunaTreats';
 import { todayKey } from '@/lib/learning/review';
-import HouseScene from './HouseScene';
+import { getsABedroom, emptyRoom, type RoomState } from '@/lib/world/room';
+import type { MunchState } from '@/lib/packs/math/munch';
+import type { ArtGallery } from '@/lib/world/artStore';
+import HouseScene, { type DoorState } from './HouseScene';
 
 export const dynamic = 'force-dynamic';
 
@@ -54,6 +57,9 @@ export default async function HousePage({
   const artGallery = Array.isArray(garden.art_gallery) ? garden.art_gallery : [];
   const artHung = (garden.art_hung ?? {}) as { left?: string; right?: string };
   const artBaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? '';
+  const ownRoom: RoomState = { ...emptyRoom(), ...((garden.room as RoomState) ?? {}) };
+  const munch = ((garden.arcade as { munch?: MunchState } | undefined)?.munch) ?? {};
+  const prizeCodes = (munch.prizes ?? []).map(p => p.code);
 
   // Every child's coat hangs by the door, whoever is signed in — it
   // is the family's hall, not a profile screen.
@@ -62,6 +68,25 @@ export default async function HousePage({
   const coatNames = (learners ?? []).map(l => l.first_name as string);
   const learnerName =
     (learners ?? []).find(l => l.id === learnerId)?.first_name as string ?? '';
+
+  // Upstairs: one door per CHILD. The shared tablet profiles hang a
+  // coat but do not sleep here (lib/world/room.ts). Each sibling's
+  // room comes with just the pieces on their wall, so visiting shows
+  // their pictures without shipping their whole gallery.
+  const doorHolders = (learners ?? []).filter(l => getsABedroom(l.first_name as string));
+  const { data: gardens, error: ge } = doorHolders.length
+    ? await db.from('world_state').select('learner_id, garden')
+        .in('learner_id', doorHolders.map(l => l.id))
+    : { data: [], error: null };
+  if (ge) console.error('house: rooms fetch failed', ge.message);
+  const doors: DoorState[] = doorHolders.map(l => {
+    const g = ((gardens ?? []).find(r => r.learner_id === l.id)?.garden ?? {}) as Record<string, unknown>;
+    const r: RoomState = { ...emptyRoom(), ...((g.room as RoomState) ?? {}) };
+    const onWall = new Set(Object.values(r.hung ?? {}));
+    const gallery = (Array.isArray(g.art_gallery) ? g.art_gallery as ArtGallery : [])
+      .filter(p => onWall.has(p.id));
+    return { id: l.id as string, name: l.first_name as string, room: r, gallery };
+  });
 
   return (
     <HouseScene
@@ -77,6 +102,9 @@ export default async function HousePage({
       artGallery={artGallery}
       artHung={artHung}
       artBaseUrl={artBaseUrl}
+      room={ownRoom}
+      prizeCodes={prizeCodes}
+      doors={doors}
     />
   );
 }

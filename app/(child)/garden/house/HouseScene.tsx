@@ -1,7 +1,8 @@
 'use client';
 
-// The house: the entry hall and the reading room. Phase 1 of the
-// house spec.
+// The house: the entry hall, the reading room, the kitchen — and,
+// since phase 3, the stairs go somewhere: the landing and the
+// bedrooms (UpstairsLanding.tsx, Bedroom.tsx).
 //
 // Drawn from photos of the real house: the quartersawn-oak staircase
 // with its landing and carved newel, the double front doors, the
@@ -31,6 +32,13 @@ import {
 } from '@/lib/world/house';
 import { publicStorageUrl } from '@/lib/storage/publicUrl';
 import { ART_BUCKET, type ArtGallery, type ArtPiece } from '@/lib/world/artStore';
+import {
+  emptyRoom, resolveHung, resolveShelf, getQuilt, BEDROOM_SLOTS,
+  type RoomState, type WallName, type BedroomSlot, type ShelfItem, type QuiltCode,
+} from '@/lib/world/room';
+import UpstairsLanding from './UpstairsLanding';
+import Bedroom, { type HungFrame } from './Bedroom';
+import { QuiltPicker, ShelfPicker } from './RoomPickers';
 
 const WALL = '#F4F0E7';
 const TRIM = '#6B4226';
@@ -42,12 +50,22 @@ const FLOOR_LINE = '#8F5A2E';
 const BRICK = '#A5553F';
 const MORTAR = '#D8C7B4';
 
-type Room = 'entry' | 'reading' | 'kitchen';
+type Room = 'entry' | 'reading' | 'kitchen' | 'landing' | 'bedroom';
+
+/** A door on the landing: whose, and what is behind it. A sibling's
+ *  gallery arrives pre-filtered to the pieces on their wall. */
+export interface DoorState {
+  id: string;
+  name: string;
+  room: RoomState;
+  gallery: ArtGallery;
+}
 
 export default function HouseScene({
   learnerId, learnerName, coatNames, house: initialHouse, kept,
   lifeListCodes, completedEpisodes, choices, lunaCanFeedToday,
   artGallery = [], artHung: initialHung = {}, artBaseUrl = '',
+  room: initialRoom = {}, prizeCodes = [], doors = [],
 }: {
   learnerId: string;
   learnerName: string;
@@ -61,6 +79,9 @@ export default function HouseScene({
   artGallery?: ArtGallery;
   artHung?: { left?: string; right?: string };
   artBaseUrl?: string;
+  room?: RoomState;
+  prizeCodes?: string[];
+  doors?: DoorState[];
 }) {
   const router = useRouter();
   const { settings } = useAccessibilitySettings();
@@ -74,21 +95,28 @@ export default function HouseScene({
   const [cooking, setCooking] = useState(false);
   const [note, setNote] = useState<string | null>(null);
   const [hung, setHung] = useState<{ left?: string; right?: string }>(initialHung);
-  const [hangSlot, setHangSlot] = useState<'left' | 'right' | null>(null);
+  const [hangSlot, setHangSlot] = useState<{ wall: WallName; slot: string } | null>(null);
+  // Upstairs. Her own room is live state; a sibling's is read from
+  // the door list and never written — visiting is looking.
+  const [ownRoom, setOwnRoom] = useState<RoomState>({ ...emptyRoom(), ...initialRoom });
+  const [visiting, setVisiting] = useState<string | null>(null);
+  const [quiltOpen, setQuiltOpen] = useState(false);
+  const [shelfSpot, setShelfSpot] = useState<number | null>(null);
 
   const artUrl = (id: string | undefined) => {
     const piece = artGallery.find(p => p.id === id);
     return piece ? publicStorageUrl(artBaseUrl, ART_BUCKET, piece.path) : null;
   };
 
-  const hang = async (slot: 'left' | 'right', id: string | null) => {
+  const hang = async (wall: WallName, slot: string, id: string | null) => {
     try {
       const res = await fetch('/api/art', {
         method: 'POST', headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({ learnerId, action: 'hang', slot, id }),
+        body: JSON.stringify({ learnerId, action: 'hang', wall, slot, id }),
       });
       const d = await res.json();
-      if (d.hung) setHung(d.hung);
+      if (d.hung && wall === 'bedroom') setOwnRoom(r => ({ ...r, hung: d.hung }));
+      else if (d.hung) setHung(d.hung);
       if (d.error) { setNote(d.error); window.setTimeout(() => setNote(null), 4000); }
       else if (id) playSparkle();
       setHangSlot(null);
@@ -97,6 +125,42 @@ export default function HouseScene({
       window.setTimeout(() => setNote(null), 4000);
     }
   };
+
+  const chooseRoom = async (
+    body: { action: 'quilt'; quilt: QuiltCode } | { action: 'shelf'; spot: number; item: ShelfItem | null },
+  ) => {
+    try {
+      const res = await fetch('/api/house/room', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ learnerId, ...body }),
+      });
+      const d = await res.json();
+      if (d.room) setOwnRoom(d.room);
+      if (d.error) { setNote(d.error); window.setTimeout(() => setNote(null), 5000); return; }
+      playSparkle();
+      setQuiltOpen(false);
+      setShelfSpot(null);
+    } catch {
+      setNote('That did not go through. Nothing was moved.');
+      window.setTimeout(() => setNote(null), 5000);
+    }
+  };
+
+  // What the bedroom view shows: her own live room, or the sibling
+  // she is visiting. Dangling refs resolve to empty slots either way.
+  const visitingDoor = visiting ? doors.find(d => d.id === visiting) ?? null : null;
+  const shownRoom = visitingDoor ? visitingDoor.room : ownRoom;
+  const shownGallery = visitingDoor ? visitingDoor.gallery : artGallery;
+  const shownName = visitingDoor ? visitingDoor.name : learnerName;
+  const shownHung = (() => {
+    const pieces = resolveHung(shownRoom, shownGallery);
+    const out = {} as Record<BedroomSlot, HungFrame | null>;
+    for (const slot of BEDROOM_SLOTS) {
+      const p = pieces[slot];
+      out[slot] = p ? { url: publicStorageUrl(artBaseUrl, ART_BUCKET, p.path), frame: p.frame } : null;
+    }
+    return out;
+  })();
 
   const setMantel = async (slot: 'stone' | 'bird', code: string | null) => {
     try {
@@ -134,6 +198,28 @@ export default function HouseScene({
                 reducedMotion={reducedMotion}
                 onReadingRoom={() => setRoom('reading')}
                 onKitchen={() => setRoom('kitchen')}
+                onUpstairs={() => setRoom('landing')}
+              />
+            ) : room === 'landing' ? (
+              <UpstairsLanding
+                doors={doors}
+                learnerId={learnerId}
+                reducedMotion={reducedMotion}
+                onDoor={(id) => { setVisiting(id === learnerId ? null : id); setRoom('bedroom'); }}
+                onDown={() => setRoom('entry')}
+              />
+            ) : room === 'bedroom' ? (
+              <Bedroom
+                name={shownName}
+                mine={!visitingDoor}
+                quilt={getQuilt(shownRoom.quilt).code}
+                hung={shownHung}
+                shelf={resolveShelf(shownRoom)}
+                reducedMotion={reducedMotion}
+                onBack={() => { setVisiting(null); setRoom('landing'); }}
+                onWall={(slot) => setHangSlot({ wall: 'bedroom', slot })}
+                onQuilt={() => setQuiltOpen(true)}
+                onShelf={(spot) => setShelfSpot(spot)}
               />
             ) : room === 'kitchen' ? (
               <KitchenRoom
@@ -151,7 +237,7 @@ export default function HouseScene({
                 onBook={(ep) => { setOpenBook(ep); playPageTurn(); }}
                 onSlot={(slot) => setPicker(slot)}
                 hungUrls={{ left: artUrl(hung.left), right: artUrl(hung.right) }}
-                onWall={(slot) => setHangSlot(slot)}
+                onWall={(slot) => setHangSlot({ wall: 'reading', slot })}
               />
             )}
           </motion.div>
@@ -163,7 +249,11 @@ export default function HouseScene({
         )}
       </div>
 
-      {hangSlot && (
+      {hangSlot && (() => {
+        const hungHere = hangSlot.wall === 'bedroom'
+          ? ownRoom.hung?.[hangSlot.slot as BedroomSlot]
+          : hung[hangSlot.slot as 'left' | 'right'];
+        return (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4"
              style={{ background: 'rgba(20,14,8,0.7)' }} onClick={() => setHangSlot(null)}>
           <div className="rounded-2xl p-4 w-full" onClick={e => e.stopPropagation()}
@@ -182,9 +272,9 @@ export default function HouseScene({
             ) : (
               <div className="grid grid-cols-3 gap-2 max-h-72 overflow-y-auto">
                 {artGallery.map((p: ArtPiece) => (
-                  <button key={p.id} onClick={() => hang(hangSlot, p.id)}
+                  <button key={p.id} onClick={() => hang(hangSlot.wall, hangSlot.slot, p.id)}
                           className="rounded-lg p-1"
-                          style={{ background: hung[hangSlot] === p.id ? '#EFE0B0' : '#F6EEDF',
+                          style={{ background: hungHere === p.id ? '#EFE0B0' : '#F6EEDF',
                                    border: '1px solid #C9A227' }}>
                     <img src={publicStorageUrl(artBaseUrl, ART_BUCKET, p.path)}
                          alt={p.title ?? 'painting'}
@@ -194,8 +284,8 @@ export default function HouseScene({
               </div>
             )}
             <div className="flex gap-2 mt-3">
-              {hung[hangSlot] && (
-                <button onClick={() => hang(hangSlot, null)}
+              {hungHere && (
+                <button onClick={() => hang(hangSlot.wall, hangSlot.slot, null)}
                         className="flex-1 rounded-xl font-bold text-sm"
                         style={{ background: '#EFE7D8', color: '#3f2614', minHeight: 48 }}>
                   take it down
@@ -209,6 +299,27 @@ export default function HouseScene({
             </div>
           </div>
         </div>
+        );
+      })()}
+
+      {quiltOpen && (
+        <QuiltPicker
+          current={getQuilt(ownRoom.quilt).code}
+          onPick={(quilt) => chooseRoom({ action: 'quilt', quilt })}
+          onClose={() => setQuiltOpen(false)}
+        />
+      )}
+
+      {shelfSpot !== null && (
+        <ShelfPicker
+          spot={shelfSpot}
+          kept={kept}
+          lifeListCodes={lifeListCodes}
+          prizeCodes={prizeCodes}
+          current={ownRoom.shelf?.[shelfSpot] ?? null}
+          onPick={(item) => chooseRoom({ action: 'shelf', spot: shelfSpot, item })}
+          onClose={() => setShelfSpot(null)}
+        />
       )}
 
       {picker && (
@@ -261,13 +372,14 @@ export default function HouseScene({
 // stairs, where it really is.
 
 function EntryHall({
-  coatNames, learnerName, reducedMotion, onReadingRoom, onKitchen,
+  coatNames, learnerName, reducedMotion, onReadingRoom, onKitchen, onUpstairs,
 }: {
   coatNames: string[];
   learnerName: string;
   reducedMotion: boolean;
   onReadingRoom: () => void;
   onKitchen: () => void;
+  onUpstairs: () => void;
 }) {
   const colors = coatColorsFor(coatNames);
   return (
@@ -347,8 +459,9 @@ function EntryHall({
       ))}
 
       {/* THE STAIRCASE — the hero of the hall, climbing left and out of
-          frame the way it really does when you walk in */}
-      <Staircase reducedMotion={reducedMotion} />
+          frame the way it really does when you walk in. Since phase 3
+          it goes somewhere: tap it and you are on the landing. */}
+      <Staircase reducedMotion={reducedMotion} onUp={onUpstairs} />
 
       {/* the hallway back to the kitchen — built now. The string and
           the "not built yet" sign came down; warm light and a smell
@@ -506,10 +619,12 @@ function EntryHall({
 
 /**
  * The staircase, mirrored to how you actually see it walking in: it
- * climbs away to the LEFT and out of the top of the frame — upstairs
- * exists, it just is not built yet, and the sign on the rail says so.
+ * climbs away to the LEFT and out of the top of the frame. The sign
+ * on the rail said "upstairs — not built yet" for a month; the
+ * second line came down when the bedrooms opened, and the first line
+ * is now simply true.
  */
-function Staircase({ reducedMotion }: { reducedMotion: boolean }) {
+function Staircase({ reducedMotion, onUp }: { reducedMotion: boolean; onUp: () => void }) {
   void reducedMotion;
   const STEPS = 8;
   const x0 = 300, y0 = 950;         // front bottom of the first riser
@@ -518,7 +633,8 @@ function Staircase({ reducedMotion }: { reducedMotion: boolean }) {
     x: x0 - i * run, y: y0 - i * rise,
   }));
   return (
-    <g>
+    <g onClick={onUp} style={{ cursor: 'pointer', touchAction: 'manipulation' }} role="button"
+       aria-label="Go upstairs">
       {/* closed stringer under the flight */}
       <path d={`M ${x0 + 8} ${y0 + 58} L ${x0 - STEPS * run - 30} ${y0 - STEPS * rise + 58}
                 L ${x0 - STEPS * run - 30} 1100 L ${x0 + 8} 1100 Z`}
@@ -551,14 +667,12 @@ function Staircase({ reducedMotion }: { reducedMotion: boolean }) {
       <line x1={314} y1={796} x2={x0 - STEPS * run - 10} y2={796 - STEPS * rise}
             stroke={OAK_LIGHT} strokeWidth={4} strokeLinecap="round" />
 
-      {/* the honest sign about upstairs, hanging from the rail */}
+      {/* the sign about upstairs, hanging from the rail — true now */}
       <line x1={150} y1={624} x2={150} y2={648} stroke="#8A7A5E" strokeWidth={2} />
-      <rect x={94} y={648} width={112} height={40} rx={6} fill="#F7EFD9" stroke="#C9B88E" strokeWidth={2}
-            transform="rotate(2 150 668)" />
-      <text x={150} y={665} textAnchor="middle" fontSize={11} fontWeight={700} fill="#6B5C42"
-            transform="rotate(2 150 668)">upstairs</text>
-      <text x={150} y={680} textAnchor="middle" fontSize={10} fontStyle="italic" fill="#8A7A5E"
-            transform="rotate(2 150 668)">not built yet</text>
+      <rect x={94} y={648} width={112} height={34} rx={6} fill="#FFF8E8" stroke="#C9B88E" strokeWidth={2}
+            transform="rotate(2 150 665)" />
+      <text x={150} y={670} textAnchor="middle" fontSize={13} fontWeight={700} fill="#3f2614"
+            transform="rotate(2 150 665)">↑ upstairs</text>
     </g>
   );
 }

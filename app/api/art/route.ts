@@ -7,6 +7,9 @@ import {
   type ArtGallery, type HungPictures,
 } from '@/lib/world/artStore';
 import { emptyCavern, type CavernState } from '@/lib/world/cavern';
+import {
+  checkWallSlot, hangInBedroom, emptyRoom, type RoomState,
+} from '@/lib/world/room';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -25,7 +28,10 @@ const Body = z.object({
   title: z.string().max(120).optional(),
   id: z.string().nullable().optional(),
   frame: z.string().optional(),
-  slot: z.enum(['left', 'right']).optional(),
+  /** Which wall. Omitted means the reading room, so clients from
+   *  before upstairs existed keep working unchanged. */
+  wall: z.enum(['reading', 'bedroom']).optional(),
+  slot: z.string().optional(),
 });
 
 async function ensureBucket(db: ReturnType<typeof createServiceClient>) {
@@ -110,16 +116,35 @@ export async function POST(req: Request) {
 
   if (body.action === 'hang') {
     if (!body.slot) return NextResponse.json({ error: 'which wall spot?' }, { status: 400 });
+    const wall = body.wall ?? 'reading';
+    // A wall/slot mismatch is a mistake, refused in words — never a
+    // silent guess about which wall she meant.
+    const mismatch = checkWallSlot(wall, body.slot);
+    if (mismatch) return NextResponse.json({ error: mismatch.error }, { status: 400 });
+
+    if (wall === 'bedroom') {
+      const room: RoomState = { ...emptyRoom(), ...((garden.room as RoomState) ?? {}) };
+      const out = hangInBedroom(gallery, room, body.slot, body.id ?? null);
+      if ('error' in out) return NextResponse.json({ error: out.error, hung: room.hung ?? {}, wall });
+      garden.room = out.room;
+      const { error: be } = await db.from('world_state').upsert(
+        { learner_id: body.learnerId, garden, last_updated_at: new Date().toISOString() },
+        { onConflict: 'learner_id' },
+      );
+      if (be) return NextResponse.json({ error: be.message }, { status: 500 });
+      return NextResponse.json({ hung: out.room.hung ?? {}, wall });
+    }
+
     const hung: HungPictures = (garden.art_hung as HungPictures) ?? {};
     const out = hangPicture(gallery, hung, body.slot, body.id ?? null);
-    if ('error' in out) return NextResponse.json({ error: out.error, hung });
+    if ('error' in out) return NextResponse.json({ error: out.error, hung, wall });
     garden.art_hung = out.hung;
     const { error: he } = await db.from('world_state').upsert(
       { learner_id: body.learnerId, garden, last_updated_at: new Date().toISOString() },
       { onConflict: 'learner_id' },
     );
     if (he) return NextResponse.json({ error: he.message }, { status: 500 });
-    return NextResponse.json({ hung: out.hung });
+    return NextResponse.json({ hung: out.hung, wall });
   }
 
   // delete — her art, her call, and the object goes too so storage
