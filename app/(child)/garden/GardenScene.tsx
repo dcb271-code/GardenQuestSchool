@@ -15,7 +15,9 @@ import { LetterboxGroup } from '@/components/child/garden/LetterboxArt';
 import { LadybugLeafInvitation } from '@/components/child/level0/LadybugArt';
 import { BunnyBasketInvitation } from '@/components/child/level0/BasketArt';
 import { isLevelZero } from '@/lib/learner/baseline';
-import { LADYBUG, BASKET } from '@/lib/level0/words';
+import { LADYBUG, BASKET, LEVEL_ZERO_FOR_LATER } from '@/lib/level0/words';
+import { useReadAloud } from '@/lib/audio/useReadAloud';
+import ReadToMeButton from '@/components/child/ReadToMeButton';
 import LunaWanderer from '@/components/child/garden/LunaWanderer';
 import LunaVisitModal from '@/components/child/garden/LunaVisitModal';
 import {
@@ -589,6 +591,10 @@ export default function GardenScene({
   // A refusal from the server (Level 0 has no lessons) used to become
   // a push to /lesson/undefined. Now it is words under the button.
   const [startRefusal, setStartRefusal] = useState<string | null>(null);
+  // Level 0: lesson stops are for later, drawn dimmed; her games are
+  // the ladybug leaf and the bunny's baskets. The sheet SAYS so.
+  const levelZero = isLevelZero(learnerLevel);
+  const readAloud = useReadAloud();
   const startSkill = async (skillCode: string) => {
     setStarting(true);
     setStartRefusal(null);
@@ -707,6 +713,15 @@ export default function GardenScene({
 
   const onStructureTap = (s: MapStructure) => {
     const state = structureStates[s.code];
+    // Level 0: a lesson stop is for later, whatever its rows say — her
+    // sister's twenty correct answers would otherwise open "you
+    // mastered Word Stump!" or walk her straight into a lesson she
+    // cannot read. The sheet opens, and the words are SAID.
+    if (levelZero && s.kind === 'skill') {
+      setSelected(s);
+      readAloud.say('for-later', LEVEL_ZERO_FOR_LATER);
+      return;
+    }
     if (!state?.unlocked) {
       setSelected(s);
       return;
@@ -1871,6 +1886,7 @@ export default function GardenScene({
                 calm={calm}
                 justBuilt={justBuiltCode === s.code}
                 highlight={highlightCode === s.code}
+                forLater={levelZero && s.kind === 'skill'}
               />
             );
           })}
@@ -2455,7 +2471,19 @@ export default function GardenScene({
                   )}
                 </div>
 
-                {selected.kind === 'skill' && !structureStates[selected.code]?.unlocked && (() => {
+                {levelZero && selected.kind === 'skill' && (
+                  <div className="flex items-center gap-3">
+                    <p className="flex-1 text-sm text-left rounded-xl px-3 py-2"
+                       style={{ background: '#4A2A1A', color: '#F0C4A8' }}>
+                      {LEVEL_ZERO_FOR_LATER}
+                    </p>
+                    <ReadToMeButton reading={readAloud.readingKey === 'for-later'}
+                                    onToggle={() => readAloud.toggle('for-later', LEVEL_ZERO_FOR_LATER)}
+                                    size={56} />
+                  </div>
+                )}
+
+                {!levelZero && selected.kind === 'skill' && !structureStates[selected.code]?.unlocked && (() => {
                   // Garden stops are zone-ordered: the actionable next
                   // step is this zone's current "isNext" stop. Offer it
                   // as one tap into practice; fall back to prereq
@@ -2503,7 +2531,7 @@ export default function GardenScene({
                   );
                 })()}
 
-                {structureStates[selected.code]?.unlocked && selected.kind === 'skill' && selected.skillCode && (
+                {!levelZero && structureStates[selected.code]?.unlocked && selected.kind === 'skill' && selected.skillCode && (
                   <motion.button
                     onClick={() => startSkill(selected.skillCode!)}
                     disabled={starting}
@@ -2710,7 +2738,7 @@ export default function GardenScene({
 
       {/* First-ever visit welcome overlay — auto-dismisses after tap,
           stored in localStorage so it only ever appears once per learner. */}
-      <WelcomeOverlay learnerId={learnerId} firstName={firstName} />
+      <WelcomeOverlay learnerId={learnerId} firstName={firstName} levelZero={levelZero} />
 
       {/* Garden friend care window */}
       <CompanionModal
@@ -3099,6 +3127,7 @@ interface StructureStateProp {
 
 function Structure({
   struct, state, onTap, reducedMotion = false, calm = false, justBuilt = false, highlight = false,
+  forLater = false,
 }: {
   struct: MapStructure;
   state: StructureStateProp;
@@ -3106,21 +3135,28 @@ function Structure({
   reducedMotion?: boolean;
   calm?: boolean;
   justBuilt?: boolean;
+  // Level 0: a lesson stop this child cannot do yet. Drawn dimmed and
+  // quiet — no glow, no "come here" ring, no lock (a lock says "earn
+  // it"; this says "later"), no progress badges (any count on it is a
+  // sibling's history, which is honest to keep and confusing to show).
+  forLater?: boolean;
   // Set briefly (~6s) when the kid taps "show me" on a locked
   // habitat that points at this structure. Renders a strong
   // attention pulse so she can spot it on the map.
   highlight?: boolean;
 }) {
-  const { unlocked, completed, isNext, correctCount, target, built, unlocksLabel, mastered } = state;
-  const showProgressBadge = struct.kind === 'skill' && target > 0;
+  const { unlocked: unlockedState, completed, isNext: isNextState, correctCount, target, built, unlocksLabel, mastered } = state;
+  const unlocked = unlockedState && !forLater;
+  const isNext = isNextState && !forLater;
+  const showProgressBadge = struct.kind === 'skill' && target > 0 && !forLater;
   const isHabitat = struct.kind === 'habitat';
   // 3-tier progress recognition for skill structures:
   //   ≥10 correct → "10/10" first-milestone (existing progress badge stays
   //                  green and locked at 10/10 once she crosses 10)
   //   ≥20 correct OR mastered → +check ✓ (also unlocks the related habitat)
   //   ≥30 correct OR mastered → +star ⭐ (volume OR cross-session mastery)
-  const showCheckBadge = struct.kind === 'skill' && (correctCount >= 20 || !!mastered);
-  const showStarBadge  = struct.kind === 'skill' && (correctCount >= 30 || !!mastered);
+  const showCheckBadge = struct.kind === 'skill' && (correctCount >= 20 || !!mastered) && !forLater;
+  const showStarBadge  = struct.kind === 'skill' && (correctCount >= 30 || !!mastered) && !forLater;
   // Ghost state: skill prereqs met but ecology quest not done yet.
   // The illustration is shown faded with a build-me indicator.
   const isGhost = isHabitat && unlocked && !built;
@@ -3134,7 +3170,7 @@ function Structure({
       onClick={onTap}
       style={{ cursor: 'pointer', transformOrigin: `${struct.x}px ${struct.y}px` }}
       role="button"
-      aria-label={`${struct.label}${unlocked ? '' : ' (locked)'}${showProgressBadge ? ` ${correctCount} of ${target} complete` : ''}`}
+      aria-label={forLater ? `${struct.label} (for later)` : `${struct.label}${unlocked ? '' : ' (locked)'}${showProgressBadge ? ` ${correctCount} of ${target} complete` : ''}`}
       tabIndex={0}
     >
       {/* "Show me" highlight pulse — strong, brief, attention-grabbing.
@@ -3248,8 +3284,8 @@ function Structure({
         </g>
       )}
 
-      {/* Lock icon overlay on locked structures */}
-      {(struct.kind === 'skill' && !unlocked) || isLockedHabitat ? (
+      {/* Lock icon overlay on locked structures — not on for-later ones */}
+      {((struct.kind === 'skill' && !unlocked) || isLockedHabitat) && !forLater ? (
         <g pointerEvents="none">
           <circle
             cx={struct.x + struct.size * 0.38}
@@ -3272,7 +3308,7 @@ function Structure({
       ) : null}
 
       {/* Completed checkmark */}
-      {completed && (
+      {completed && !forLater && (
         <g pointerEvents="none">
           <circle
             cx={struct.x + struct.size * 0.4}

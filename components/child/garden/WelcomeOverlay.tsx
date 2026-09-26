@@ -3,6 +3,12 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
+import { useNarrator } from '@/lib/audio/useNarrator';
+import ReadToMeButton from '@/components/child/ReadToMeButton';
+import { LEVEL_ZERO_WELCOME } from '@/lib/level0/words';
+import { Ladybug } from '@/components/child/level0/LadybugArt';
+import { BunnyFigure } from '@/app/(child)/town/play-barn/art';
+import { LetterboxGroup } from '@/components/child/garden/LetterboxArt';
 
 /**
  * First-ever-visit welcome overlay for a learner. Shows a soft pastoral
@@ -13,11 +19,16 @@ import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySetting
  * Storage key: `gqs:garden-welcomed:{learnerId}`
  */
 export default function WelcomeOverlay({
-  learnerId, firstName,
-}: { learnerId: string; firstName?: string | null }) {
+  learnerId, firstName, levelZero = false,
+}: { learnerId: string; firstName?: string | null; levelZero?: boolean }) {
   const { settings } = useAccessibilitySettings();
   const reducedMotion = settings.reducedMotion;
   const [visible, setVisible] = useState(false);
+  // A Level-0 child cannot read this card, so it is SAID as soon as it
+  // opens, and its four things are hers: the games, her mail, her art.
+  const spoken = levelZero && visible
+    ? LEVEL_ZERO_WELCOME.spoken.replace('{name}', firstName ?? '') : '';
+  const { replay } = useNarrator(spoken, false, { immediate: true });
 
   useEffect(() => {
     try {
@@ -133,10 +144,28 @@ export default function WelcomeOverlay({
               animate={reducedMotion ? {} : { opacity: 1, y: 0 }}
               transition={{ delay: 0.7, duration: 0.5 }}
             >
-              <Hint emoji="✨" label="glowing spots are open" body="tap one and you'll walk there together" />
-              <Hint emoji="🔒" label="others wait their turn" body="finish a spot to open the next" />
-              <Hint emoji="🧭" label="the compass up top" body="picks a quest for you" />
-              <Hint emoji="📖" label="the field journal" body="remembers what you noticed" />
+              {levelZero ? (
+                <>
+                  <Hint glyph={<svg viewBox="-24 -24 48 48" width={28} height={28}><Ladybug size={40} tilt={-15} /></svg>}
+                        label={LEVEL_ZERO_WELCOME.ladybugs.label} body={LEVEL_ZERO_WELCOME.ladybugs.body} />
+                  <Hint glyph={<svg viewBox="0 0 64 64" width={28} height={28}><BunnyFigure /></svg>}
+                        label={LEVEL_ZERO_WELCOME.bunny.label} body={LEVEL_ZERO_WELCOME.bunny.body} />
+                  <Hint glyph={<svg viewBox="-20 -34 40 60" width={28} height={28}><LetterboxGroup colorCode="green" flagUp={false} /></svg>}
+                        label={LEVEL_ZERO_WELCOME.letterbox.label} body={LEVEL_ZERO_WELCOME.letterbox.body} />
+                  <Hint glyph={<BrushGlyph />}
+                        label={LEVEL_ZERO_WELCOME.paintings.label} body={LEVEL_ZERO_WELCOME.paintings.body} />
+                  <div className="flex justify-center pt-1">
+                    <ReadToMeButton reading={false} onToggle={replay} label="say it again" size={56} />
+                  </div>
+                </>
+              ) : (
+                <>
+                  <Hint emoji="✨" label="glowing spots are open" body="tap one and you'll walk there together" />
+                  <Hint emoji="🔒" label="others wait their turn" body="finish a spot to open the next" />
+                  <Hint emoji="🧭" label="the compass up top" body="picks a quest for you" />
+                  <Hint emoji="📖" label="the field journal" body="remembers what you noticed" />
+                </>
+              )}
             </motion.div>
 
             <motion.button
@@ -157,10 +186,21 @@ export default function WelcomeOverlay({
   );
 }
 
-function Hint({ emoji, label, body }: { emoji: string; label: string; body: string }) {
+/** A paintbrush, small and drawn, for the art store line. */
+function BrushGlyph() {
+  return (
+    <svg viewBox="0 0 32 32" width={28} height={28} aria-hidden>
+      <path d="M 6 26 L 20 8" stroke="#8A6238" strokeWidth={4} strokeLinecap="round" />
+      <path d="M 19 6 L 25 12 L 28 5 Z" fill="#C94C3E" stroke="#2A2420" strokeWidth={1.2} strokeLinejoin="round" />
+      <circle cx={7} cy={25} r={3} fill="#5F7F4A" />
+    </svg>
+  );
+}
+
+function Hint({ emoji, glyph, label, body }: { emoji?: string; glyph?: React.ReactNode; label: string; body: string }) {
   return (
     <div className="flex gap-3 items-start">
-      <div className="text-xl shrink-0 mt-0.5" aria-hidden="true">{emoji}</div>
+      <div className="text-xl shrink-0 mt-0.5" aria-hidden="true">{glyph ?? emoji}</div>
       <div className="flex-1">
         <div className="font-display text-[17px] text-bark" style={{ fontWeight: 600 }}>
           <span className="italic">{label}</span>

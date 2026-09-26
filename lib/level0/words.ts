@@ -13,6 +13,19 @@ const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 export const LEVEL_ZERO_NO_LESSON =
   'This lesson is for later. Your games are on the garden map — look for the ladybugs and the bunny.';
 
+/** She tapped a dimmed lesson stop on the map. Said, not just shown. */
+export const LEVEL_ZERO_FOR_LATER =
+  'This one is for later. The ladybugs and the bunny are yours — they are near your letterbox.';
+
+/** The welcome card, for a child who cannot read it: four things, said. */
+export const LEVEL_ZERO_WELCOME = {
+  ladybugs: { label: 'ladybugs on a leaf', body: 'tap them to count them' },
+  bunny: { label: 'the bunny with baskets', body: 'which one has more carrots?' },
+  letterbox: { label: 'your letterbox', body: 'tap the speaker and it reads to you' },
+  paintings: { label: 'the art store', body: 'paint, and sign your name' },
+  spoken: 'Welcome, {name}. Ladybugs on a leaf — tap them to count them. The bunny with baskets — which one has more carrots? Your letterbox — tap the speaker and it reads to you. The art store — paint, and sign your name.',
+};
+
 /* ── the Ladybug Count ───────────────────────────────────────────── */
 
 export const LADYBUG = {
