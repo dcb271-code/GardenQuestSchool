@@ -11,11 +11,23 @@ import React from 'react';
 export function BunnySprite({ size = 64, blech = false }: {
   size?: number; blech?: boolean;
 }) {
-  // Side view, facing right, mid-crouch: haunch, front paws, one ear
-  // up and one relaxed. Blech mode wrinkles the nose and shuts the
-  // eye — a taste regretted, not a punishment received.
   return (
     <svg width={size} height={size} viewBox="0 0 64 64" aria-hidden>
+      <BunnyFigure blech={blech} />
+    </svg>
+  );
+}
+
+/**
+ * The same bunny as a <g> in its 64-unit box, for scenes that draw
+ * it inside their own SVG (the Level 0 baskets, the garden map).
+ * Side view, facing right, mid-crouch: haunch, front paws, one ear
+ * up and one relaxed. Blech mode wrinkles the nose and shuts the
+ * eye — a taste regretted, not a punishment received.
+ */
+export function BunnyFigure({ blech = false }: { blech?: boolean }) {
+  return (
+    <g aria-hidden>
       <ellipse cx="32" cy="58" rx="20" ry="4" fill="rgba(40,28,16,0.18)" />
       {/* haunch + body */}
       <ellipse cx="26" cy="44" rx="15" ry="13" fill="#E8DCC8" />
@@ -57,7 +69,7 @@ export function BunnySprite({ size = 64, blech = false }: {
       {/* whiskers */}
       <path d="M 56 33.5 l 6 -1.4 M 56 34.6 l 6.4 0.6" stroke="#B8A88E"
             strokeWidth="0.8" strokeLinecap="round" />
-    </svg>
+    </g>
   );
 }
 

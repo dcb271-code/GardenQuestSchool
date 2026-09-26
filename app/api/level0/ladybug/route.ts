@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createServiceClient } from '@/lib/supabase/server';
 import { allStatuses, offerable, type PreSkillAttempt, type PreSkillCode } from '@/lib/level0/curriculum';
+import { level0Attempts, attemptRow } from '@/lib/level0/attempts';
 import { buildLeaf, judgeTaps, isLadybugPreSkill } from '@/lib/level0/ladybug';
 import { LADYBUG } from '@/lib/level0/words';
 
@@ -25,25 +26,6 @@ export const revalidate = 0;
  * the way it grows from anything else.
  */
 
-const SOURCE = 'ladybug';
-
-async function ladybugAttempts(db: ReturnType<typeof createServiceClient>, learnerId: string) {
-  const { data, error } = await db
-    .from('attempt')
-    .select('outcome, response, attempted_at')
-    .eq('learner_id', learnerId)
-    .eq('response->>source', SOURCE)   // the crow's proven filter shape
-    .order('attempted_at', { ascending: true })
-    .limit(2000);
-  if (error) throw new Error(error.message);
-  const rows: PreSkillAttempt[] = (data ?? []).map((r: any) => ({
-    preSkill: String(r.response?.preSkill ?? ''),
-    correct: r.outcome === 'correct',
-    at: String(r.attempted_at),
-  }));
-  return rows;
-}
-
 export async function GET(req: Request) {
   const url = new URL(req.url);
   const learnerId = url.searchParams.get('learner');
@@ -51,14 +33,17 @@ export async function GET(req: Request) {
   const db = createServiceClient();
 
   let attempts: PreSkillAttempt[];
-  try { attempts = await ladybugAttempts(db, learnerId); }
+  try { attempts = await level0Attempts(db, learnerId); }
   catch (e) { return NextResponse.json({ error: (e as Error).message }, { status: 500 }); }
 
   const statuses = allStatuses(attempts);
   const offers = offerable('ladybug', statuses);
-  // Rotate through what is offerable by leaf count, so a sitting
-  // mixes counting with numerals and a glance instead of ten of one.
-  const preSkill = offers[attempts.length % offers.length] as PreSkillCode;
+  // Rotate through what is offerable by leaves FINISHED (every leaf
+  // ends with exactly one correct row), so a sitting mixes counting
+  // with numerals and a glance instead of ten of one — and a wrong
+  // tap does not skip her ahead in the rotation.
+  const finished = attempts.filter(a => isLadybugPreSkill(a.preSkill) && a.correct).length;
+  const preSkill = offers[finished % offers.length] as PreSkillCode;
   const seed = Math.floor(Math.random() * (2 ** 31 - 1));
   const leaf = buildLeaf(seed, preSkill);
   return NextResponse.json({ leaf, statuses });
@@ -84,14 +69,8 @@ export async function POST(req: Request) {
   }
 
   const db = createServiceClient();
-  const rows = judged.map(j => ({
-    learner_id: body.learnerId,
-    session_id: null,
-    item_id: null,
-    outcome: j.correct ? 'correct' : 'incorrect',
-    response: { source: SOURCE, preSkill: leaf.preSkill, mode: leaf.mode, asked: leaf.count, chosen: j.chosen },
-    time_ms: null,
-    retry_count: 0,
+  const rows = judged.map(j => attemptRow(body.learnerId, 'ladybug', j.correct, {
+    preSkill: leaf.preSkill, mode: leaf.mode, asked: leaf.count, chosen: j.chosen,
   }));
   const { error } = await db.from('attempt').insert(rows);
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });

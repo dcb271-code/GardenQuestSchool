@@ -48,6 +48,14 @@ describe('buildLeaf', () => {
     }
   });
 
+  it('every count in the range comes up, even from small seeds', () => {
+    // The first RNG gave near-zero first outputs for small seeds, so
+    // seed 1..400 always grew one ladybug. The seed is mixed now.
+    const seen = new Set<number>();
+    for (let seed = 1; seed < 200; seed++) seen.add(buildLeaf(seed, 'count_to_10').count);
+    for (let n = 4; n <= 10; n++) expect(seen.has(n), `count ${n} never grew`).toBe(true);
+  });
+
   it('the answer has no favorite position', () => {
     const slots = [0, 0, 0];
     for (let seed = 1; seed < 600; seed++) slots[buildLeaf(seed, 'count_to_5').choices.indexOf(buildLeaf(seed, 'count_to_5').count)]++;

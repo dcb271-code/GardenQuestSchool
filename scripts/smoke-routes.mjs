@@ -44,6 +44,7 @@ const ROUTES = [
   '/town/art-store',
   '/town/play-barn',
   '/level0/ladybug',
+  '/level0/basket',
   '/garden/tunnels',
   '/garden/shop',
   '/times-table',

@@ -14,6 +14,7 @@
 // way: she tapped the right number.
 
 import type { PreSkillCode } from './curriculum';
+import { rng, shuffle } from './rng';
 
 export type LeafMode =
   | 'count'      // tap each ladybug, then tap the numeral
@@ -57,27 +58,6 @@ export const COUNT_RANGE: Partial<Record<PreSkillCode, [number, number]>> = {
 
 export function isLadybugPreSkill(code: string): code is PreSkillCode {
   return code in LEAF_MODE_FOR;
-}
-
-/* ── seeded randomness ───────────────────────────────────────────── */
-
-function rng(seed: number): () => number {
-  let s = seed >>> 0 || 1;
-  return () => {
-    s ^= s << 13; s >>>= 0;
-    s ^= s >> 17;
-    s ^= s << 5; s >>>= 0;
-    return s / 0xffffffff;
-  };
-}
-
-function shuffle<T>(arr: T[], rand: () => number): T[] {
-  const a = arr.slice();
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(rand() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
 }
 
 /* ── where ladybugs may sit ──────────────────────────────────────── */

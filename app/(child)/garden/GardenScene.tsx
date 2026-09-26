@@ -13,8 +13,9 @@ import type { SpeciesData } from '@/lib/world/speciesCatalog';
 import ArrivalCard from '@/components/child/garden/ArrivalCard';
 import { LetterboxGroup } from '@/components/child/garden/LetterboxArt';
 import { LadybugLeafInvitation } from '@/components/child/level0/LadybugArt';
+import { BunnyBasketInvitation } from '@/components/child/level0/BasketArt';
 import { isLevelZero } from '@/lib/learner/baseline';
-import { LADYBUG } from '@/lib/level0/words';
+import { LADYBUG, BASKET } from '@/lib/level0/words';
 import LunaWanderer from '@/components/child/garden/LunaWanderer';
 import LunaVisitModal from '@/components/child/garden/LunaVisitModal';
 import {
@@ -2159,6 +2160,29 @@ export default function GardenScene({
                 transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
               >
                 <LadybugLeafInvitation />
+              </motion.g>
+            </g>
+          )}
+
+          {/* ── THE BUNNY'S BASKETS ────────────────────────────
+              Level 0's second invitation, in Bunny Glade beside the
+              burrow. The bunny sits between two baskets, one fuller,
+              and twitches now and then. */}
+          {isLevelZero(learnerLevel) && (
+            <g
+              transform="translate(440, 700)"
+              style={{ cursor: 'pointer', touchAction: 'manipulation' }}
+              onClick={() => router.push(`/level0/basket?learner=${learnerId}`)}
+              role="button"
+              aria-label={BASKET.invitation}
+              tabIndex={0}
+            >
+              <rect x={-60} y={-48} width={120} height={80} fill="transparent" />
+              <motion.g
+                animate={reducedMotion ? undefined : { y: [0, 0, -4, 0, 0] }}
+                transition={{ duration: 3.2, repeat: Infinity, ease: 'easeInOut' }}
+              >
+                <BunnyBasketInvitation />
               </motion.g>
             </g>
           )}
