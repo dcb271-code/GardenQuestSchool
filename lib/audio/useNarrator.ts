@@ -56,12 +56,23 @@ export function prefetchTts(text: string, voice: string, rate: number): void {
  *   - `paused`: when true, suppresses auto-narration AND silences
  *     anything currently speaking. The lesson page lifts this from the
  *     SkillIntroOverlay so the narrator doesn't talk under the card.
+ *   - `immediate`: skips the first-prompt delay. For a child who
+ *     cannot read, the 4.5s "time to read it first" is 4.5s of a
+ *     silent screen — Level 0 scenes pass this.
  */
 
 const FIRST_PROMPT_DELAY_MS = 4500;
 const SUBSEQUENT_PROMPT_DELAY_MS = 80;
 
-export function useNarrator(text: string, paused: boolean = false): { replay: () => void } {
+export interface NarratorOptions {
+  immediate?: boolean;
+}
+
+export function useNarrator(
+  text: string,
+  paused: boolean = false,
+  { immediate = false }: NarratorOptions = {},
+): { replay: () => void } {
   const { settings } = useAccessibilitySettings();
   const lastSpokenRef = useRef<string>('');
   const audioRef = useRef<HTMLAudioElement | null>(null);
@@ -115,7 +126,9 @@ export function useNarrator(text: string, paused: boolean = false): { replay: ()
     if (paused) return;
     if (!text || text === lastSpokenRef.current) return;
     lastSpokenRef.current = text;
-    const delay = isFirstNarrationRef.current ? FIRST_PROMPT_DELAY_MS : SUBSEQUENT_PROMPT_DELAY_MS;
+    const delay = isFirstNarrationRef.current && !immediate
+      ? FIRST_PROMPT_DELAY_MS
+      : SUBSEQUENT_PROMPT_DELAY_MS;
     isFirstNarrationRef.current = false;
     const timer = setTimeout(() => { void playText(text); }, delay);
     return () => {
@@ -123,7 +136,7 @@ export function useNarrator(text: string, paused: boolean = false): { replay: ()
       stopAll();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [text, paused, settings.voiceName, settings.voiceRate]);
+  }, [text, paused, immediate, settings.voiceName, settings.voiceRate]);
 
   const replay = useCallback(() => {
     if (!text) return;

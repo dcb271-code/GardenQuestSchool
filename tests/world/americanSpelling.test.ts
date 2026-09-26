@@ -46,7 +46,7 @@ const UK_TO_US: Record<string, string> = {
  * string that prompted all of this.
  */
 const CONTENT_DIRS = [
-  'lib/world', 'lib/packs', 'lib/birds', 'lib/music',
+  'lib/world', 'lib/packs', 'lib/birds', 'lib/music', 'lib/level0',
   'app', 'components',
 ];
 

@@ -582,15 +582,24 @@ export default function GardenScene({
     hour < 21 ? 'rgba(255, 170, 110, 0.05)' :   // dusk — barely there
                 'rgba(20, 25, 60, 0.18)';       // night
 
+  // A refusal from the server (Level 0 has no lessons) used to become
+  // a push to /lesson/undefined. Now it is words under the button.
+  const [startRefusal, setStartRefusal] = useState<string | null>(null);
   const startSkill = async (skillCode: string) => {
     setStarting(true);
+    setStartRefusal(null);
     const res = await fetch('/api/session/start', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ learnerId, skillCode }),
     });
-    const { sessionId } = await res.json();
-    router.push(`/lesson/${sessionId}`);
+    const body = await res.json().catch(() => ({}));
+    if (!res.ok || !body.sessionId) {
+      setStartRefusal(body.error ?? 'That did not open. Try again in a moment.');
+      setStarting(false);
+      return;
+    }
+    router.push(`/lesson/${body.sessionId}`);
   };
 
   // Offset so sisters stand in front of / just below the structure,
@@ -2452,6 +2461,10 @@ export default function GardenScene({
                   >
                     {starting ? 'starting…' : '🔍 start exploring'}
                   </motion.button>
+                )}
+                {startRefusal && (
+                  <p className="text-sm text-center rounded-xl px-3 py-2"
+                     style={{ background: '#4A2A1A', color: '#F0C4A8' }}>{startRefusal}</p>
                 )}
 
                 {selected.kind === 'habitat' && (() => {

@@ -18,7 +18,7 @@ export const revalidate = 0;
  * the existing /reset endpoint.
  */
 const LevelSchema = z.union([
-  z.literal(1), z.literal(2), z.literal(3), z.literal(4), z.literal(5),
+  z.literal(0), z.literal(1), z.literal(2), z.literal(3), z.literal(4), z.literal(5),
 ]);
 
 const PatchBody = z.object({

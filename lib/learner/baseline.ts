@@ -2,7 +2,7 @@
  * Translates a (level, defaultChallenge) pair into the baseline-mastery
  * rows that should be inserted when a learner is first created.
  *
- * "Level" is Garden Quest's own 1–5 ladder, not a school grade. The
+ * "Level" is Garden Quest's own 0–5 ladder, not a school grade. The
  * content behind each level is anchored to CCSS grades (Level 3 ≈
  * CCSS grade 3, etc.), but we deliberately stopped calling them
  * "grades" in the app — a level describes where the ladder starts,
@@ -23,14 +23,31 @@
  * (L4 items ≈ 1550–1950, L5 ≈ 1800–2200).
  */
 
-export type LearnerLevel = 1 | 2 | 3 | 4 | 5;
+export type LearnerLevel = 0 | 1 | 2 | 3 | 4 | 5;
 export type DefaultChallenge = 'easier' | 'normal' | 'harder';
 
-/** Highest selectable level — keep in sync with the DB constraint
- *  learner_grade_level_chk (1..5) in 014_learner_levels.sql. */
+/** Selectable range — keep in sync with the DB constraint
+ *  learner_grade_level_chk (0..5) in 022_level_zero.sql. */
+export const MIN_LEVEL = 0;
 export const MAX_LEVEL = 5;
 
+/**
+ * Level 0 — letters and numbers, spoken. The band for a child who
+ * cannot read yet. It has no expeditions and no skill rows: its
+ * content is the Level 0 module (lib/level0), which records
+ * null-item attempts the way birds, gems and music do. Graduating
+ * IS the Level-1 baseline, applied by a parent.
+ */
+export const LEVEL_ZERO: LearnerLevel = 0;
+
+export function isLevelZero(level: number | null | undefined): boolean {
+  return level === LEVEL_ZERO;
+}
+
 const BASE_ELO_BY_LEVEL: Record<LearnerLevel, number> = {
+  // No item sits under ~800; the value only matters if a Level-0
+  // learner somehow reaches the item picker, which they should not.
+  0: 800,
   1: 950,
   2: 1050,
   3: 1150,
@@ -177,6 +194,10 @@ const LEVEL_5_BAND = [
  * but can still revisit foundational skills via Leitner review.
  */
 export function masteredSkillsForLevel(level: LearnerLevel): string[] {
+  // Level 0 starts with NOTHING behind it. Marking counting-to-20
+  // mastered for a four-year-old would be the same lie the planner
+  // was already telling about her.
+  if (level === 0) return [];
   if (level <= 1) return KINDERGARTEN;
   if (level === 2) return [...KINDERGARTEN, ...LEVEL_1];
   if (level === 3) return [...KINDERGARTEN, ...LEVEL_1, ...LEVEL_2];
@@ -202,6 +223,8 @@ export function masteredSkillsForLevel(level: LearnerLevel): string[] {
  * Level-4 material, not a warm-up tour of earlier levels.
  */
 export function reviewingSkillsForLevel(level: LearnerLevel): string[] {
+  // Nothing in the catalog is reviewable by a Level-0 learner.
+  if (level === 0) return [];
   if (level <= 1) {
     return [
       'math.add.within_10',

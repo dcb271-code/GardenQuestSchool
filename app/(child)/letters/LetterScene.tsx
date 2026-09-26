@@ -19,6 +19,8 @@ import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useSpeechRecognition } from '@/lib/audio/useSpeechRecognition';
+import { useReadAloud } from '@/lib/audio/useReadAloud';
+import ReadToMeButton from '@/components/child/ReadToMeButton';
 import { useAccessibilitySettings } from '@/lib/settings/useAccessibilitySettings';
 import { playSparkle } from '@/lib/audio/sfx';
 import { MAX_LETTER_LENGTH, type Letter } from '@/lib/world/letters';
@@ -48,6 +50,17 @@ export default function LetterScene({
   const [loaded, setLoaded] = useState(false);
   const speech = useSpeechRecognition();
   const boxRef = useRef<HTMLTextAreaElement>(null);
+  // Read-to-me. The youngest reader of this screen cannot read it;
+  // every letter, every reply and every name gets a speaker. What is
+  // spoken is the letter verbatim, after who it is from.
+  const readAloud = useReadAloud();
+  const speakerFor = (key: string, spoken: string, label?: string) => (
+    <ReadToMeButton
+      reading={readAloud.readingKey === key}
+      onToggle={() => readAloud.toggle(key, spoken)}
+      label={label}
+    />
+  );
 
   // The paint job on HER letterbox. Optimistic — the swatch takes
   // effect on tap, and a failed save says so in words and reverts.
@@ -204,8 +217,14 @@ export default function LetterScene({
         {/* who gets this letter — the builder, or a sibling. Faces
             over words, because the youngest writer cannot read. */}
         {siblings.length > 0 && (
-          <div className="flex gap-2 mb-2 flex-wrap">
-            <button onClick={() => setRecipient('')}
+          <div className="flex gap-2 mb-2 flex-wrap items-center">
+            {/* says who is picked, for a writer who cannot read the chips */}
+            {speakerFor(
+              'recipient',
+              recipientName ? `This letter goes to ${recipientName}.` : 'This letter goes to the garden-builder.',
+              'who gets this letter?',
+            )}
+            <button onClick={() => { setRecipient(''); readAloud.say('recipient', 'This letter goes to the garden-builder.'); }}
                     className="rounded-full px-3 py-1.5 text-xs font-bold"
                     style={{ background: recipient === '' ? '#6b8e5a' : '#fffaf2',
                              color: recipient === '' ? '#fffaf2' : '#3f2614',
@@ -214,7 +233,8 @@ export default function LetterScene({
               🏡 the garden-builder
             </button>
             {siblings.map(sb => (
-              <button key={sb.id} onClick={() => setRecipient(sb.id)}
+              <button key={sb.id}
+                      onClick={() => { setRecipient(sb.id); readAloud.say('recipient', `This letter goes to ${sb.name}.`); }}
                       className="rounded-full pl-1.5 pr-3 py-1 text-xs font-bold flex items-center gap-1"
                       style={{ background: recipient === sb.id ? '#C9A227' : '#fffaf2',
                                color: '#3f2614',
@@ -295,8 +315,11 @@ export default function LetterScene({
                    write straight back */
                 <div key={l.id} className="rounded-2xl p-3"
                      style={{ background: 'rgba(232,180,192,0.18)', border: '2px solid #C97B8A' }}>
-                  <div className="text-xs font-bold mb-1" style={{ color: '#8A4A5A' }}>
-                    💌 a letter from {l.from} · {l.sentAt.slice(0, 10)}
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="text-xs font-bold flex-1" style={{ color: '#8A4A5A' }}>
+                      💌 a letter from {l.from} · {l.sentAt.slice(0, 10)}
+                    </div>
+                    {speakerFor(`letter:${l.id}`, `From ${l.from}: ${l.text}`)}
                   </div>
                   <p className="text-sm whitespace-pre-wrap" style={{ color: '#3f2614' }}>
                     {l.text}
@@ -319,8 +342,11 @@ export default function LetterScene({
                    sealed-looking, so news reads as news */
                 <div key={l.id} className="rounded-2xl p-3"
                      style={{ background: 'rgba(107,142,90,0.13)', border: '2px solid #6b8e5a' }}>
-                  <div className="text-xs font-bold mb-1" style={{ color: '#4a6b3a' }}>
-                    📯 a letter from the garden-builder · {l.sentAt.slice(0, 10)}
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="text-xs font-bold flex-1" style={{ color: '#4a6b3a' }}>
+                      📯 a letter from the garden-builder · {l.sentAt.slice(0, 10)}
+                    </div>
+                    {speakerFor(`letter:${l.id}`, `From the garden-builder: ${l.text}`)}
                   </div>
                   <p className="text-sm whitespace-pre-wrap" style={{ color: '#3f2614' }}>
                     {l.text}
@@ -329,8 +355,11 @@ export default function LetterScene({
               ) : (
                 <div key={l.id} className="rounded-2xl p-3"
                      style={{ background: 'rgba(255,253,245,0.92)', border: '1px solid #d8c9a8' }}>
-                  <div className="text-xs mb-1" style={{ color: '#8a7c62' }}>
-                    {l.sentAt.slice(0, 10)}
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="text-xs flex-1" style={{ color: '#8a7c62' }}>
+                      {l.sentAt.slice(0, 10)}
+                    </div>
+                    {speakerFor(`letter:${l.id}`, `You wrote: ${l.text}`)}
                   </div>
                   <p className="text-sm whitespace-pre-wrap" style={{ color: '#3f2614' }}>
                     {l.text}
@@ -338,8 +367,11 @@ export default function LetterScene({
                   {l.reply && (
                     <div className="mt-3 rounded-xl p-3"
                          style={{ background: 'rgba(107,142,90,0.13)', border: '1px solid #6b8e5a' }}>
-                      <div className="text-xs font-bold mb-1" style={{ color: '#4a6b3a' }}>
-                        ✉️ a reply
+                      <div className="flex items-center gap-2 mb-1">
+                        <div className="text-xs font-bold flex-1" style={{ color: '#4a6b3a' }}>
+                          ✉️ a reply
+                        </div>
+                        {speakerFor(`reply:${l.id}`, `The garden-builder wrote back: ${l.reply}`)}
                       </div>
                       <p className="text-sm whitespace-pre-wrap" style={{ color: '#3f2614' }}>
                         {l.reply}

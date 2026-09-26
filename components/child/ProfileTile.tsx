@@ -94,9 +94,10 @@ export default function ProfileTile({
           (and the child) sees at a glance who's calibrated to what.
           Hidden when both fields are absent so older learners that
           predate the migration don't render an ugly empty pill. */}
-      {(gradeLevel || defaultChallenge) && (
+      {(gradeLevel != null || defaultChallenge) && (
         <div className="mt-1.5 flex items-center gap-1 relative z-10">
-          {gradeLevel && (
+          {/* != null, not truthiness: Level 0 is a real level. */}
+          {gradeLevel != null && (
             <span
               className="font-display italic text-[11px] tracking-[0.1em] uppercase text-bark/70 bg-cream/80 border border-ochre/50 rounded-full px-2 py-0.5"
               style={{ fontWeight: 600 }}

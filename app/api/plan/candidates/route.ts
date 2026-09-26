@@ -3,6 +3,7 @@ import { createServiceClient } from '@/lib/supabase/server';
 import { generateExpeditionCandidates, computeInterestTagDecay } from '@/lib/engine';
 import { GARDEN_STRUCTURES } from '@/lib/world/gardenMap';
 import { ZONE_COMPLETION_TARGET, ZONE_SKILL_ORDER } from '@/lib/world/zoneProgress';
+import { isLevelZero } from '@/lib/learner/baseline';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -22,6 +23,16 @@ export async function GET(req: Request) {
   if (!learnerId) return NextResponse.json({ error: 'learner required' }, { status: 400 });
 
   const db = createServiceClient();
+
+  // Level 0 has no expeditions. Every skill in the catalog has a
+  // prompt to READ; a Level-0 child cannot. Her invitations are the
+  // Level 0 games, which the garden draws on the map itself — the
+  // compass has nothing honest to offer, so it offers nothing.
+  const { data: learner } = await db
+    .from('learner').select('grade_level').eq('id', learnerId).maybeSingle();
+  if (isLevelZero(learner?.grade_level)) {
+    return NextResponse.json({ candidates: [], levelZero: true });
+  }
 
   const { data: skillRows, error: sErr } = await db
     .from('skill')

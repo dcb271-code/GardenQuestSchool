@@ -15,6 +15,7 @@
     "db:seed": "tsx scripts/seed.ts",
     "restore:attempts": "tsx scripts/restore-attempt-history.ts",
     "letters": "tsx scripts/read-letters.ts",
+    "rebaseline-level0": "tsx scripts/rebaseline-level0.ts",
     "birds:harvest": "tsx scripts/seed-bird-photos.ts",
     "birds:sheets": "tsx scripts/bird-contact-sheet.ts",
     "birds:validate": "tsx scripts/upload-bird-photos.ts --validate-only",

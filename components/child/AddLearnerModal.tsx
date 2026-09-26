@@ -12,12 +12,13 @@ const AVATARS: Array<{ key: string; emoji: string; label: string }> = [
   { key: 'bee', emoji: '🐝', label: 'Bee' },
 ];
 
-// Garden Quest's own 1–5 ladder — anchored to CCSS grades under the
+// Garden Quest's own 0–5 ladder — anchored to CCSS grades under the
 // hood, but deliberately NOT called "grades" in the UI: a level says
 // where the ladder starts, not what year of school a child is in.
-type Level = 1 | 2 | 3 | 4 | 5;
+type Level = 0 | 1 | 2 | 3 | 4 | 5;
 
 const LEVELS: Array<{ value: Level; label: string; hint: string }> = [
+  { value: 0, label: 'Level 0', hint: 'letters and numbers, spoken — not reading yet' },
   { value: 1, label: 'Level 1', hint: 'reading short words, adding within 10' },
   { value: 2, label: 'Level 2', hint: 'crossing-ten addition, longer reading' },
   { value: 3, label: 'Level 3', hint: 'multiplication, first fractions, paragraphs' },

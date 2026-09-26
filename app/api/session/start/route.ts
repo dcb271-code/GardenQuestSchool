@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { createServiceClient } from '@/lib/supabase/server';
 import { z } from 'zod';
 import { FOCUS_SKILL_PREFIX, sessionEarnsRewards } from '@/lib/engine';
+import { isLevelZero } from '@/lib/learner/baseline';
+import { LEVEL_ZERO_NO_LESSON } from '@/lib/level0/words';
 
 const Body = z.object({
   learnerId: z.string().min(1),
@@ -16,6 +18,18 @@ const Body = z.object({
 export async function POST(req: Request) {
   const body = Body.parse(await req.json());
   const db = createServiceClient();
+
+  // Level 0 has no lessons — every item in the catalog needs reading.
+  // Refuse in words a child (or the grown-up beside her) can use,
+  // and name where the real Level 0 work is.
+  const { data: learner } = await db
+    .from('learner').select('grade_level').eq('id', body.learnerId).maybeSingle();
+  if (isLevelZero(learner?.grade_level)) {
+    return NextResponse.json(
+      { error: LEVEL_ZERO_NO_LESSON },
+      { status: 403 },
+    );
+  }
 
   if (body.focusSubject) {
     const { data: subject } = await db

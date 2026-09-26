@@ -72,7 +72,7 @@ export default function LearnerCard({
   const lastActive = summary.recentSessions[0]?.startedAt;
 
   const updateLearner = async (
-    patch: { level?: 1 | 2 | 3 | 4 | 5; defaultChallenge?: 'easier' | 'normal' | 'harder' },
+    patch: { level?: 0 | 1 | 2 | 3 | 4 | 5; defaultChallenge?: 'easier' | 'normal' | 'harder' },
     field: 'grade' | 'challenge',
   ) => {
     setSavingField(field);
@@ -126,7 +126,7 @@ export default function LearnerCard({
           <div className="flex items-center gap-2 mt-2 flex-wrap">
             {editingGrade ? (
               <div className="inline-flex items-center gap-1 bg-white border border-blue-300 rounded-lg p-1">
-                {([1, 2, 3, 4, 5] as const).map(g => (
+                {([0, 1, 2, 3, 4, 5] as const).map(g => (
                   <button
                     key={g}
                     type="button"
