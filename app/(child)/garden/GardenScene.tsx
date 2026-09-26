@@ -12,6 +12,9 @@ import { SPECIES_CATALOG } from '@/lib/world/speciesCatalog';
 import type { SpeciesData } from '@/lib/world/speciesCatalog';
 import ArrivalCard from '@/components/child/garden/ArrivalCard';
 import { LetterboxGroup } from '@/components/child/garden/LetterboxArt';
+import { LadybugLeafInvitation } from '@/components/child/level0/LadybugArt';
+import { isLevelZero } from '@/lib/learner/baseline';
+import { LADYBUG } from '@/lib/level0/words';
 import LunaWanderer from '@/components/child/garden/LunaWanderer';
 import LunaVisitModal from '@/components/child/garden/LunaVisitModal';
 import {
@@ -2134,6 +2137,31 @@ export default function GardenScene({
               letterbox
             </text>
           </g>
+
+          {/* ── THE LADYBUG LEAF ───────────────────────────────
+              Level 0's invitation. Children do what the world shows
+              them, not what it permits: a Level-0 child has no
+              expeditions, so her game sits on the map, beside the
+              letterbox, and the ladybugs move. Level 1+ never sees
+              it — their leaf is the compass. */}
+          {isLevelZero(learnerLevel) && (
+            <g
+              transform="translate(560, 540)"
+              style={{ cursor: 'pointer', touchAction: 'manipulation' }}
+              onClick={() => router.push(`/level0/ladybug?learner=${learnerId}`)}
+              role="button"
+              aria-label={LADYBUG.invitation}
+              tabIndex={0}
+            >
+              <rect x={-52} y={-40} width={104} height={80} fill="transparent" />
+              <motion.g
+                animate={reducedMotion ? undefined : { y: [0, -3, 0] }}
+                transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+              >
+                <LadybugLeafInvitation />
+              </motion.g>
+            </g>
+          )}
 
           <SisterWalkers
             target={sistersTarget}
