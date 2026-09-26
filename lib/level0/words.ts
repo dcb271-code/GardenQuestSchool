@@ -72,3 +72,14 @@ export const BASKET = {
   another: 'more carrots',
   back: 'back to the garden',
 };
+
+/* ── Sign Her Name ───────────────────────────────────────────────── */
+
+export const SIGNATURE = {
+  ask: 'Sign it! Trace your name with your finger. Start at the big dot.',
+  /** The whole name, letter by letter, then said. "E, S, M, E — Esme!" */
+  finished: (letters: string[], firstName: string) => `${letters.join(', ')} — ${firstName}!`,
+  skip: 'not now',
+  /** For a grown-up or a screen reader; the child hears `ask`. */
+  overlayLabel: 'sign your name',
+};

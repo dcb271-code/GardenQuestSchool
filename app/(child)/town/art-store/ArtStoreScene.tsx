@@ -213,7 +213,10 @@ export default function ArtStoreScene({
              style={{ background: '#4A2A1A', color: '#F0C4A8' }}>{note}</p>
         )}
 
-        <Easel learnerId={learnerId} onSaved={g => setGallery(g as ArtGallery)} />
+        {/* 'you' is the fallback for a nameless profile, not a name to
+            sign — the easel gets the real name or nothing */}
+        <Easel learnerId={learnerId} firstName={firstName === 'you' ? null : firstName}
+               onSaved={g => setGallery(g as ArtGallery)} />
 
         {/* her wall */}
         {gallery.length > 0 && (

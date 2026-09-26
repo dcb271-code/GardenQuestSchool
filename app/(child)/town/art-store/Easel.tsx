@@ -8,9 +8,24 @@
 // never corrupts. Stamps are emoji drawn as text: the garden's
 // creatures in the palette she already knows, with zero image
 // loading to fail.
+//
+// Sign Her Name (Level 0 spec): "put it on the wall" first lays a
+// dotted name over the corner of the picture. She traces it with a
+// finger — each letter finishes when the dots are passed in order,
+// and says its name — and her own wobbly line is in the PNG that
+// goes on the wall. Skippable with one tap; nothing is ever lost.
+// Every child signs with their own name; a child with no name to
+// draw goes straight to the wall.
 
 import { useEffect, useRef, useState } from 'react';
 import { playSparkle, playHarvest } from '@/lib/audio/sfx';
+import { useNarrator } from '@/lib/audio/useNarrator';
+import { useReadAloud } from '@/lib/audio/useReadAloud';
+import {
+  LETTER_GUIDES, signatureLetters, startTrace, advanceTrace, type TraceProgress, type Point,
+} from '@/lib/level0/signature';
+import { SIGNATURE } from '@/lib/level0/words';
+import SignatureGuide, { SIG_BOX, letterOrigin } from './SignatureGuide';
 
 const COLORS = [
   '#2A2420', '#C94C3E', '#E8913A', '#F5D98F', '#5F7F4A',
@@ -25,11 +40,15 @@ type Stroke =
 
 const CANVAS_W = 640;
 const CANVAS_H = 480;
+const INK = '#2A2420';
+const SIGNATURE_BRUSH = 5;
 
 export default function Easel({
-  learnerId, onSaved,
+  learnerId, firstName, onSaved,
 }: {
   learnerId: string;
+  /** Whose easel — the name she signs. Nothing means no signature step. */
+  firstName?: string | null;
   onSaved: (gallery: unknown[]) => void;
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -42,6 +61,16 @@ export default function Easel({
   const [canUndo, setCanUndo] = useState(false);
   const [saving, setSaving] = useState(false);
   const [note, setNote] = useState<string | null>(null);
+
+  // ── signing ──
+  const sigLetters = signatureLetters(firstName);
+  const [signing, setSigning] = useState(false);
+  const [sigIndex, setSigIndex] = useState(0);
+  const [sigProgress, setSigProgress] = useState<TraceProgress>(startTrace());
+  const sigDone = useRef<string[]>([]);
+  const [sigPrompt, setSigPrompt] = useState('');
+  useNarrator(sigPrompt, !signing, { immediate: true });
+  const speech = useReadAloud();
 
   const redraw = () => {
     const ctx = canvasRef.current?.getContext('2d');
@@ -80,10 +109,39 @@ export default function Easel({
     ];
   };
 
+  // A finger position in canvas units → the current letter's 100-box.
+  const feedSignature = (p: Point) => {
+    if (sigIndex >= sigLetters.length) return;
+    const [ox, oy] = letterOrigin(sigIndex, sigLetters.length, CANVAS_W, CANVAS_H);
+    const local: Point = [((p[0] - ox) / SIG_BOX) * 100, ((p[1] - oy) / SIG_BOX) * 100];
+    const ch = sigLetters[sigIndex];
+    const { progress, strokeFinished } = advanceTrace(LETTER_GUIDES[ch], sigProgress, local);
+    setSigProgress(progress);
+    if (!strokeFinished || !progress.done) return;
+    // a letter finished: say it, and move on
+    sigDone.current = [...sigDone.current, ch];
+    speech.say(`letter:${sigIndex}`, ch);
+    playSparkle();
+    const nextIndex = sigIndex + 1;
+    setSigIndex(nextIndex);
+    setSigProgress(startTrace());
+    if (nextIndex >= sigLetters.length) {
+      setSigPrompt(SIGNATURE.finished(sigLetters, firstName ?? ''));
+      window.setTimeout(() => { void finishSaving(); }, 1800);
+    }
+  };
+
   const down = (e: React.PointerEvent) => {
     e.preventDefault();
     canvasRef.current?.setPointerCapture(e.pointerId);
     const [x, y] = canvasPoint(e);
+    if (signing) {
+      // her signature: ink, thin, and fed to the tracer
+      current.current = { kind: 'path', color: INK, size: SIGNATURE_BRUSH, points: [[x, y]] };
+      feedSignature([x, y]);
+      redraw();
+      return;
+    }
     if (stamp) {
       strokes.current.push({ kind: 'stamp', emoji: stamp, x, y });
       setCanUndo(true);
@@ -100,7 +158,9 @@ export default function Easel({
   };
   const move = (e: React.PointerEvent) => {
     if (!current.current || current.current.kind !== 'path') return;
-    current.current.points.push(canvasPoint(e));
+    const p = canvasPoint(e);
+    current.current.points.push(p);
+    if (signing) feedSignature(p);
     redraw();
   };
   const up = () => {
@@ -124,10 +184,44 @@ export default function Easel({
     redraw();
   };
 
+  // "Put it on the wall": a child with a name signs first; the rest
+  // goes straight to the wall.
   const save = async () => {
     if (saving || strokes.current.length === 0) return;
+    if (sigLetters.length > 0 && !signing) {
+      sigDone.current = [];
+      setSigIndex(0);
+      setSigProgress(startTrace());
+      setSigning(true);
+      setSigPrompt(SIGNATURE.ask);
+      return;
+    }
+    await finishSaving();
+  };
+
+  // Record the letters she finished (never a failure she can see —
+  // the painting is what matters to her), then upload.
+  const recordSignature = async () => {
+    const letters = sigDone.current;
+    if (letters.length === 0) return;
+    try {
+      await fetch('/api/level0/signature', {
+        method: 'POST', headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({ learnerId, letters }),
+      });
+    } catch { /* her signature is on the picture regardless */ }
+  };
+
+  const finishSaving = async () => {
+    if (saving) return;
     setSaving(true);
     setNote(null);
+    const wasSigning = signing;
+    setSigning(false);
+    setSigPrompt('');
+    if (current.current) { strokes.current.push(current.current); current.current = null; }
+    redraw();
+    if (wasSigning) void recordSignature();
     try {
       const dataUrl = canvasRef.current!.toDataURL('image/png');
       const res = await fetch('/api/art', {
@@ -156,8 +250,13 @@ export default function Easel({
 
   return (
     <div className="rounded-2xl p-3" style={{ background: '#8A6238' }}>
-      {/* the canvas, clipped to paper */}
-      <div className="rounded-lg overflow-hidden" style={{ background: '#FFFDF6' }}>
+      {/* the canvas, clipped to paper — and, while signing, the
+          dotted name over its corner */}
+      <div className="rounded-lg overflow-hidden relative" style={{ background: '#FFFDF6' }}>
+        {signing && (
+          <SignatureGuide letters={sigLetters} current={sigIndex} progress={sigProgress}
+                          canvasW={CANVAS_W} canvasH={CANVAS_H} />
+        )}
         <canvas
           ref={canvasRef}
           width={CANVAS_W}
@@ -168,9 +267,23 @@ export default function Easel({
           onPointerMove={move}
           onPointerUp={up}
           onPointerCancel={up}
-          aria-label="Your painting"
+          aria-label={signing ? SIGNATURE.overlayLabel : 'Your painting'}
         />
       </div>
+
+      {signing && (
+        <div className="flex items-center gap-2 mt-3">
+          <p className="text-sm flex-1 rounded-lg p-2" style={{ background: '#FFFDF6', color: '#5A4520' }}>
+            {sigPrompt}
+          </p>
+          <button type="button" onClick={() => void finishSaving()}
+                  className="rounded-xl px-4 font-bold text-sm"
+                  style={{ background: '#FFFDF6', color: '#5A4520', minHeight: 48,
+                           border: '2px solid #C9B88E', touchAction: 'manipulation' }}>
+            {SIGNATURE.skip}
+          </button>
+        </div>
+      )}
 
       {/* colors */}
       <div className="flex gap-1.5 mt-3 flex-wrap justify-center">
@@ -226,7 +339,7 @@ export default function Easel({
            style={{ background: '#FFFDF6', color: '#5A4520' }}>{note}</p>
       )}
 
-      <button onClick={save} disabled={saving || !canUndo}
+      <button onClick={save} disabled={saving || !canUndo || signing}
               className="w-full rounded-xl mt-3 font-bold text-base disabled:opacity-50"
               style={{ background: '#5A8C4A', color: '#FFF', minHeight: 56,
                        touchAction: 'manipulation' }}>
