@@ -114,4 +114,32 @@ describe('migration safety', () => {
     }
     expect(offences, offences.join('\n')).toEqual([]);
   });
+
+  it('only the LAST migration to define a constraint may re-add it unconditionally', () => {
+    // 014 added `check (grade_level between 1 and 5)` on every run.
+    // 022 widened it to 0–5 and Esme was placed at Level 0; the next
+    // full run failed at 014 ("violated by some row") and never
+    // reached 022 or 023. An earlier definition of a constraint that a
+    // later migration redefines must be guarded (a DO block that adds
+    // it only when absent), because on a re-run the later definition
+    // is the one the data obeys.
+    const defs = new Map<string, string[]>();   // constraint name → files that add it
+    for (const { name, body } of sqlFiles()) {
+      for (const m of stripComments(body).matchAll(/add constraint\s+(\w+)/gi)) {
+        const list = defs.get(m[1]) ?? [];
+        list.push(name);
+        defs.set(m[1], list);
+      }
+    }
+    const offences: string[] = [];
+    for (const [constraint, files] of defs) {
+      if (files.length < 2) continue;
+      for (const f of files.slice(0, -1)) {
+        const body = stripComments(sqlFiles().find(x => x.name === f)!.body);
+        const guarded = /pg_constraint[\s\S]*conname\s*=\s*'/.test(body) && new RegExp(`conname\\s*=\\s*'${constraint}'`).test(body);
+        if (!guarded) offences.push(`${f}: re-adds ${constraint} unconditionally, but ${files[files.length - 1]} redefines it`);
+      }
+    }
+    expect(offences, offences.join('\n')).toEqual([]);
+  });
 });
