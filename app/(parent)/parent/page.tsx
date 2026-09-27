@@ -6,6 +6,7 @@ import { HABITAT_CATALOG } from '@/lib/world/habitatCatalog';
 import { MATH_SKILLS } from '@/lib/packs/math/skills';
 import { READING_SKILLS } from '@/lib/packs/reading/skills';
 import LearnerCard, { type LearnerSummary } from './LearnerCard';
+import { isMorningGated, dailyCode, localParts, CODE_FORMULA, CUTOFF_HOUR, GATED_FIRST_NAMES, type MorningState } from '@/lib/gate/morning';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -109,6 +110,11 @@ export default async function ParentDashboardPage() {
       .from('world_state').select('garden').eq('learner_id', l.id).maybeSingle();
     const lettersWritten =
       ((wsRow?.garden as any)?.letters as unknown[] | undefined)?.length ?? 0;
+    // The morning gate's record — what she said about her chores, and
+    // when — for the two children whose mornings are gated.
+    const morning = isMorningGated(l.first_name)
+      ? (((wsRow?.garden as any)?.morning as MorningState | undefined) ?? {})
+      : null;
 
     summaries.push({
       id: l.id,
@@ -128,6 +134,7 @@ export default async function ParentDashboardPage() {
       gemsTotal: (gems ?? []).length,
       lettersWritten: lettersWritten,
       hasPin: Boolean((l as any).pin_hash),
+      morning,
       gemsRecent: (gems ?? []).slice(0, 3).map(g => ({
         virtue: g.virtue,
         narrativeText: (g.evidence as any)?.narrativeText ?? '',
@@ -136,6 +143,8 @@ export default async function ParentDashboardPage() {
       recentSessions: sessionDetails,
     });
   }
+
+  const todayParts = localParts(new Date());
 
   return (
     <AuthGate>
@@ -146,6 +155,14 @@ export default async function ParentDashboardPage() {
               <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
               <p className="text-sm text-gray-600 mt-1">
                 A glance at what each learner has been working on. Tap a card for actions.
+              </p>
+              {/* The morning gate: before 8am Eastern, Esme's and Cecily's
+                  profiles need this code. It is day × month + year, so it
+                  can be done in your head — but here it is. */}
+              <p className="text-sm text-gray-800 mt-3 rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 inline-block">
+                Morning code for {todayParts.month}/{todayParts.day}:{' '}
+                <span className="font-mono font-bold text-lg">{dailyCode(todayParts)}</span>
+                <span className="text-gray-500"> · {CODE_FORMULA} · needed before {CUTOFF_HOUR}am Eastern for {GATED_FIRST_NAMES.join(' and ')}</span>
               </p>
             </div>
             <Link

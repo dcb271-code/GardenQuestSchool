@@ -18,12 +18,27 @@
 import { cookies } from 'next/headers';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import { ACTIVE_LEARNER_COOKIE } from './activeLearnerKey';
+import { redirectToGateIfNeeded } from '@/lib/gate/morningServer';
 
 // Re-export for backwards compatibility with any other server module
 // that was importing the constant from here.
 export { ACTIVE_LEARNER_COOKIE };
 
 export async function resolveLearnerId(
+  db: SupabaseClient,
+  searchParamsLearner: string | undefined,
+): Promise<string | null> {
+  const id = await resolveLearnerIdRaw(db, searchParamsLearner);
+  // The morning gate (lib/gate/morning.ts): a gated child whose
+  // garden is not open yet is sent to /gate from HERE, because every
+  // child page resolves its learner through this function — so a
+  // bookmarked URL and a tap on the picker meet the same door.
+  // `redirect` throws; it must stay outside the try/catch below.
+  if (id) await redirectToGateIfNeeded(db, id);
+  return id;
+}
+
+async function resolveLearnerIdRaw(
   db: SupabaseClient,
   searchParamsLearner: string | undefined,
 ): Promise<string | null> {

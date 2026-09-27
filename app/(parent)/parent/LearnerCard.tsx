@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ResetConfirmModal from './ResetConfirmModal';
 import DeleteProfileModal from './DeleteProfileModal';
+import { CHORES, localParts, type MorningState } from '@/lib/gate/morning';
 
 const AVATAR_EMOJI: Record<string, string> = {
   fox: '🦊', bunny: '🐰', cat: '🐈', butterfly: '🦋', frog: '🐸', bee: '🐝',
@@ -36,6 +37,8 @@ export interface LearnerSummary {
   lettersWritten: number;
   /** Whether a profile PIN is set. Never the hash itself. */
   hasPin: boolean;
+  /** The morning gate's record; null for a child whose mornings are not gated. */
+  morning: MorningState | null;
   gemsRecent: Array<{ virtue: string; narrativeText: string; grantedAt: string | null }>;
   recentSessions: Array<{
     id: string;
@@ -272,6 +275,33 @@ export default function LearnerCard({
               <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-blue-400" /> learning</span>
               <span className="inline-flex items-center gap-1"><span className="w-2 h-2 rounded-sm bg-gray-200" /> not started</span>
             </div>
+          </div>
+        );
+      })()}
+
+      {/* The morning gate's record: what she said about her chores
+          today, and when. Only for the two gated children. */}
+      {summary.morning && (() => {
+        const today = localParts(new Date()).dateKey;
+        const m = summary.morning;
+        const answeredToday = m.choresOn === today && m.chores;
+        const when = m.choresAt ? new Date(m.choresAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : null;
+        return (
+          <div className="px-6 py-3 border-t border-gray-100 text-sm text-gray-700">
+            <span className="font-semibold">This morning:</span>{' '}
+            {!answeredToday ? (
+              <span className="text-gray-500">not in yet today{m.codeOn === today ? ' (code entered)' : ''}</span>
+            ) : (
+              <>
+                {CHORES.map(c => (
+                  <span key={c.code} className="inline-flex items-center gap-1 mr-3">
+                    <span aria-hidden>{m.chores![c.code] ? '✓' : '✗'}</span>
+                    <span className={m.chores![c.code] ? '' : 'text-gray-500'}>{c.label}</span>
+                  </span>
+                ))}
+                {when && <span className="text-gray-500">at {when}</span>}
+              </>
+            )}
           </div>
         );
       })()}

@@ -29,6 +29,7 @@ const BASE = process.env.SMOKE_BASE ?? 'http://localhost:3000';
 
 const ROUTES = [
   '/picker',
+  '/gate',
   '/garden',
   '/garden/grow',
   '/garden/math-mountain',
