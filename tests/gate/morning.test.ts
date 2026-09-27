@@ -2,8 +2,9 @@
 
 import { describe, it, expect } from 'vitest';
 import {
-  localParts, isBeforeCutoff, dailyCode, codeMatches, gateStep, isMorningGated, CHORES,
-  waitRemainingMs, CHORE_WAIT_MS,
+  localParts, isBeforeCutoff, dailyCode, codeMatches, gateStep, isMorningGated,
+  waitRemainingMs, CHORE_WAIT_MS, DEFAULT_MORNING_CONFIG, normalizeMorningConfig, choreQuestion,
+  acceptChecklist, MAX_CHORES,
 } from '@/lib/gate/morning';
 
 /** A UTC instant that is `h:mm` in New York on the given local date (EDT in September = UTC-4). */
@@ -98,9 +99,52 @@ describe('gateStep', () => {
   });
 });
 
-describe('the chores', () => {
-  it('are the three the owner named, each a question', () => {
-    expect(CHORES.map(c => c.code)).toEqual(['dressed', 'dishes', 'toys']);
-    for (const c of CHORES) expect(c.ask.endsWith('?')).toBe(true);
+describe('the parent\'s settings', () => {
+  it('default to eight o\'clock and the three chores the owner named', () => {
+    expect(DEFAULT_MORNING_CONFIG.cutoffHour).toBe(8);
+    expect(DEFAULT_MORNING_CONFIG.chores.map(c => c.text)).toEqual(['get dressed', 'put your dishes away', 'put some toys away']);
+  });
+
+  it('a chore is written as you would say it, and becomes a question', () => {
+    expect(choreQuestion({ text: 'get dressed' })).toBe('Did you get dressed?');
+    expect(choreQuestion({ text: 'brush your teeth.' })).toBe('Did you brush your teeth?');
+  });
+
+  it('normalizes whatever was stored, field by field', () => {
+    expect(normalizeMorningConfig(undefined)).toEqual(DEFAULT_MORNING_CONFIG);
+    expect(normalizeMorningConfig({ cutoffHour: 7 }).cutoffHour).toBe(7);
+    expect(normalizeMorningConfig({ cutoffHour: 7 }).chores).toEqual(DEFAULT_MORNING_CONFIG.chores);
+    expect(normalizeMorningConfig({ cutoffHour: 99 }).cutoffHour).toBe(8);
+    expect(normalizeMorningConfig({ cutoffHour: 'nine' }).cutoffHour).toBe(8);
+    // an explicit empty list means no checklist
+    expect(normalizeMorningConfig({ chores: [] }).chores).toEqual([]);
+    // junk chores drop out; icons fall back; at most MAX_CHORES
+    const many = normalizeMorningConfig({ chores: [
+      { id: 'a', text: 'make your bed', icon: 'bed' }, { id: 'b', text: '   ', icon: 'bed' },
+      { id: 'c', text: 'feed the cat', icon: 'dragon' }, { id: 'd', text: 'four', icon: 'toys' }, { id: 'e', text: 'five', icon: 'toys' },
+    ] });
+    expect(many.chores.map(c => c.id)).toEqual(['a', 'c', 'd']);
+    expect(many.chores[1].icon).toBe('toys');
+    expect(many.chores.length).toBe(MAX_CHORES);
+  });
+
+  it('a different cutoff moves the code window', () => {
+    const seven = normalizeMorningConfig({ cutoffHour: 7 });
+    expect(gateStep('Esme', ny('2026-09-27', 7, 30), null, seven)).toBe('chores');
+    expect(gateStep('Esme', ny('2026-09-27', 6, 30), null, seven)).toBe('code');
+  });
+
+  it('no chores means no checklist and no pause', () => {
+    const none = normalizeMorningConfig({ chores: [] });
+    expect(gateStep('Esme', ny('2026-09-27', 9, 0), null, none)).toBe('open');
+  });
+});
+
+describe('the checklist', () => {
+  it('needs at least one tick, and only real chores count', () => {
+    expect(acceptChecklist(DEFAULT_MORNING_CONFIG, [])).toBeNull();
+    expect(acceptChecklist(DEFAULT_MORNING_CONFIG, ['nonsense'])).toBeNull();
+    expect(acceptChecklist(DEFAULT_MORNING_CONFIG, ['dishes'])).toEqual({ dressed: false, dishes: true, toys: false });
+    expect(acceptChecklist(DEFAULT_MORNING_CONFIG, ['dishes', 'toys', 'nonsense'])).toEqual({ dressed: false, dishes: true, toys: true });
   });
 });

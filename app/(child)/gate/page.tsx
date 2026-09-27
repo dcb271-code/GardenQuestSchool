@@ -23,15 +23,16 @@ export default async function GatePage({
   const learnerId = searchParams.learner;
   if (!learnerId) redirect('/picker');
   const db = createServiceClient();
-  const { firstName, state } = await loadMorning(db, learnerId);
+  const { firstName, state, config } = await loadMorning(db, learnerId);
   if (!firstName) redirect('/picker');
   const now = new Date();
-  const step = gateStep(firstName, now, state);
+  const step = gateStep(firstName, now, state, config);
   if (step === 'open') redirect(`/garden?learner=${learnerId}`);
   return (
     <GateScene
       learnerId={learnerId}
       firstName={firstName}
+      config={config}
       initialStep={step}
       initialWaitMs={step === 'wait' ? waitRemainingMs(now, state) : 0}
       initialChores={state?.chores ?? null}

@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ResetConfirmModal from './ResetConfirmModal';
 import DeleteProfileModal from './DeleteProfileModal';
-import { CHORES, localParts, type MorningState } from '@/lib/gate/morning';
+import { localParts, DEFAULT_MORNING_CONFIG, type MorningConfig, type MorningState } from '@/lib/gate/morning';
 
 const AVATAR_EMOJI: Record<string, string> = {
   fox: '🦊', bunny: '🐰', cat: '🐈', butterfly: '🦋', frog: '🐸', bee: '🐝',
@@ -57,11 +57,13 @@ const CHALLENGE_LABEL: Record<string, { emoji: string; label: string }> = {
 };
 
 export default function LearnerCard({
-  summary, learnerCount = 1,
+  summary, learnerCount = 1, morningConfig = DEFAULT_MORNING_CONFIG,
 }: {
   summary: LearnerSummary;
   /** Total profiles — the last one can't be removed. */
   learnerCount?: number;
+  /** The family's chore list, so the card can name what she ticked. */
+  morningConfig?: MorningConfig;
 }) {
   const router = useRouter();
   const [resetOpen, setResetOpen] = useState(false);
@@ -293,10 +295,10 @@ export default function LearnerCard({
               <span className="text-gray-500">not in yet today{m.codeOn === today ? ' (code entered)' : ''}</span>
             ) : (
               <>
-                {CHORES.map(c => (
-                  <span key={c.code} className="inline-flex items-center gap-1 mr-3">
-                    <span aria-hidden>{m.chores![c.code] ? '✓' : '✗'}</span>
-                    <span className={m.chores![c.code] ? '' : 'text-gray-500'}>{c.label}</span>
+                {morningConfig.chores.map(c => (
+                  <span key={c.id} className="inline-flex items-center gap-1 mr-3">
+                    <span aria-hidden>{m.chores![c.id] ? '✓' : '✗'}</span>
+                    <span className={m.chores![c.id] ? '' : 'text-gray-500'}>{c.text}</span>
                   </span>
                 ))}
                 {when && <span className="text-gray-500">at {when}</span>}

@@ -6,7 +6,9 @@ import { HABITAT_CATALOG } from '@/lib/world/habitatCatalog';
 import { MATH_SKILLS } from '@/lib/packs/math/skills';
 import { READING_SKILLS } from '@/lib/packs/reading/skills';
 import LearnerCard, { type LearnerSummary } from './LearnerCard';
-import { isMorningGated, dailyCode, localParts, CODE_FORMULA, CUTOFF_HOUR, GATED_FIRST_NAMES, type MorningState } from '@/lib/gate/morning';
+import { isMorningGated, dailyCode, localParts, type MorningState } from '@/lib/gate/morning';
+import { loadMorningConfig } from '@/lib/gate/morningServer';
+import MorningSettings from './MorningSettings';
 
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
@@ -145,6 +147,7 @@ export default async function ParentDashboardPage() {
   }
 
   const todayParts = localParts(new Date());
+  const morningConfig = await loadMorningConfig(db);
 
   return (
     <AuthGate>
@@ -155,14 +158,6 @@ export default async function ParentDashboardPage() {
               <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
               <p className="text-sm text-gray-600 mt-1">
                 A glance at what each learner has been working on. Tap a card for actions.
-              </p>
-              {/* The morning gate: before 8am Eastern, Esme's and Cecily's
-                  profiles need this code. It is day × month + year, so it
-                  can be done in your head — but here it is. */}
-              <p className="text-sm text-gray-800 mt-3 rounded-lg bg-amber-50 border border-amber-200 px-3 py-2 inline-block">
-                Morning code for {todayParts.month}/{todayParts.day}:{' '}
-                <span className="font-mono font-bold text-lg">{dailyCode(todayParts)}</span>
-                <span className="text-gray-500"> · {CODE_FORMULA} · needed before {CUTOFF_HOUR}am Eastern for {GATED_FIRST_NAMES.join(' and ')}</span>
               </p>
             </div>
             <Link
@@ -186,8 +181,14 @@ export default async function ParentDashboardPage() {
           </div>
         )}
 
+        <MorningSettings
+          initial={morningConfig}
+          todayCode={dailyCode(todayParts)}
+          todayLabel={`${todayParts.month}/${todayParts.day}`}
+        />
+
         {summaries.map(s => (
-          <LearnerCard key={s.id} summary={s} learnerCount={summaries.length} />
+          <LearnerCard key={s.id} summary={s} learnerCount={summaries.length} morningConfig={morningConfig} />
         ))}
       </div>
     </AuthGate>

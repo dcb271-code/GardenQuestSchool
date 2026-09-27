@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { createServiceClient } from '@/lib/supabase/server';
-import { CHORES, CHORE_WAIT_MS, codeMatches, gateStep, localParts } from '@/lib/gate/morning';
+import { CHORE_WAIT_MS, acceptChecklist, codeMatches, gateStep, localParts } from '@/lib/gate/morning';
 import { loadMorning, saveMorning } from '@/lib/gate/morningServer';
 import { GATE_WORDS } from '@/lib/gate/words';
 
@@ -12,40 +12,39 @@ export const revalidate = 0;
  * The morning gate.
  *   { action: 'code', code }      → checked against today's code (Eastern);
  *                                    a match unlocks the day.
- *   { action: 'chores', chores }  → recorded as she answered, once a day.
- * The server decides the date and the code; the client only ever
- * says what was typed and what was tapped. Responds with the next
- * step so the scene never has to guess.
+ *   { action: 'chores', ticked }  → the checklist: at least one ticked,
+ *                                    only chores that exist. Recorded
+ *                                    once a day; starts the pause.
+ * The server decides the date, the code, what counts, and the end of
+ * the pause; the client only ever says what was typed and tapped.
  */
 
 const Body = z.discriminatedUnion('action', [
   z.object({ action: z.literal('code'), learnerId: z.string().min(1), code: z.string().max(8) }),
-  z.object({
-    action: z.literal('chores'), learnerId: z.string().min(1),
-    chores: z.record(z.string(), z.boolean()),
-  }),
+  z.object({ action: z.literal('chores'), learnerId: z.string().min(1), ticked: z.array(z.string().max(60)).max(10) }),
 ]);
 
 export async function POST(req: Request) {
   const body = Body.parse(await req.json());
   const db = createServiceClient();
   const now = new Date();
-  const { firstName, state } = await loadMorning(db, body.learnerId);
+  const { firstName, state, config } = await loadMorning(db, body.learnerId);
   if (!firstName) return NextResponse.json({ error: 'learner not found' }, { status: 404 });
 
   if (body.action === 'code') {
     if (!codeMatches(body.code, now)) {
       return NextResponse.json({ error: GATE_WORDS.codeWrong, step: 'code' }, { status: 403 });
     }
-    const err = await saveMorning(db, body.learnerId, { codeOn: localParts(now).dateKey });
+    const dateKey = localParts(now).dateKey;
+    const err = await saveMorning(db, body.learnerId, { codeOn: dateKey });
     if (err) return NextResponse.json({ error: err }, { status: 500 });
-    const next = gateStep(firstName, now, { ...state, codeOn: localParts(now).dateKey });
-    return NextResponse.json({ step: next });
+    return NextResponse.json({ step: gateStep(firstName, now, { ...state, codeOn: dateKey }, config) });
   }
 
-  // chores: only the ones we asked, as booleans
-  const chores: Record<string, boolean> = {};
-  for (const c of CHORES) chores[c.code] = body.chores[c.code] === true;
+  const chores = acceptChecklist(config, body.ticked);
+  if (!chores) {
+    return NextResponse.json({ error: GATE_WORDS.tickOne, step: 'chores' }, { status: 400 });
+  }
   const err = await saveMorning(db, body.learnerId, {
     choresOn: localParts(now).dateKey, chores, choresAt: now.toISOString(),
   });
