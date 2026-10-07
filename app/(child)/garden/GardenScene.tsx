@@ -12,6 +12,7 @@ import { SPECIES_CATALOG } from '@/lib/world/speciesCatalog';
 import type { SpeciesData } from '@/lib/world/speciesCatalog';
 import ArrivalCard from '@/components/child/garden/ArrivalCard';
 import { LetterboxGroup } from '@/components/child/garden/LetterboxArt';
+import { SillyStumpGroup } from '@/components/child/garden/SillyStumpArt';
 import { LadybugLeafInvitation } from '@/components/child/level0/LadybugArt';
 import { BunnyBasketInvitation } from '@/components/child/level0/BasketArt';
 import { isLevelZero } from '@/lib/learner/baseline';
@@ -2152,6 +2153,34 @@ export default function GardenScene({
                   fill="rgba(255,250,242,0.94)" stroke="#6b8e5a" strokeWidth={1} />
             <text y={52} textAnchor="middle" fontSize={9} fontWeight={700} fill="#3f2614">
               letterbox
+            </text>
+          </g>
+
+          {/* ── THE SILLY STUMP ────────────────────────────────
+              Cecily's idea, specified in her own letter (2026-10-06):
+              a brown stump with green leaves and a 😜 face, for jokes
+              and math. Free and everyone's — the first thing in the
+              garden a child designed.
+
+              Placed in the open grass between the Owl Box, the Ant
+              Hill and Bee Swarms (~150 units from each), clear of the
+              path, which crosses well below. */}
+          <g
+            transform="translate(630, 372)"
+            style={{ cursor: 'pointer', touchAction: 'manipulation' }}
+            onClick={() => router.push(`/jokes?learner=${learnerId}`)}
+            role="button"
+            aria-label="the Silly Stump — jokes and math riddles"
+            tabIndex={0}
+          >
+            <rect x={-40} y={-80} width={80} height={100} fill="transparent" />
+            <g transform="scale(0.72)">
+              <SillyStumpGroup />
+            </g>
+            <rect x={-36} y={8} width={72} height={17} rx={8}
+                  fill="rgba(255,250,242,0.94)" stroke="#6b8e5a" strokeWidth={1} />
+            <text y={20} textAnchor="middle" fontSize={9} fontWeight={700} fill="#3f2614">
+              silly stump
             </text>
           </g>
 

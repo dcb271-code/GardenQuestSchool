@@ -50,6 +50,7 @@ const ROUTES = [
   '/garden/shop',
   '/times-table',
   '/letters',
+  '/jokes',
   '/journal',
   '/habitats',
   '/birds',
