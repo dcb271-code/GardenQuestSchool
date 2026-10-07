@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { createContext, useContext, useMemo, useState } from 'react';
 import {
   DndContext,
   DragEndEvent,
@@ -15,11 +15,24 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import type { DigraphSortContent, DigraphSortResponse } from '@/lib/packs/reading/types';
+import { isListeningSort, poolOrder } from '@/lib/packs/reading/digraphSort';
+import { useReadAloud } from '@/lib/audio/useReadAloud';
+
+/**
+ * Listening mode (see lib/packs/reading/digraphSort.ts): cards show the
+ * picture only, and a tap says the word. `hear` is null otherwise.
+ */
+const ListenContext = createContext<{ hear: ((word: string) => void) | null; playing: string | null }>(
+  { hear: null, playing: null },
+);
 
 /**
  * Drag-and-drop sorting — words are dragged into bucket columns by
- * digraph. Works identically on touch and mouse. Click/tap on a placed
- * word returns it to the unsorted pool (touch-friendly "undo").
+ * digraph. Works identically on touch and mouse. Drag a placed card
+ * back to the pool to undo.
+ *
+ * For sound-distinct digraphs (ch/sh/th) the word is hidden: she sees
+ * the picture, taps it to hear the word, and sorts by ear.
  */
 export default function DigraphSort({
   content, onSubmit,
@@ -32,6 +45,14 @@ export default function DigraphSort({
     Object.fromEntries(content.words.map(w => [w.word, null]))
   );
   const [activeWord, setActiveWord] = useState<string | null>(null);
+  const listen = isListeningSort(content);
+  // Never in bucket order — that order WAS the answer.
+  const ordered = useMemo(() => poolOrder(content.words, content.digraphs), [content]);
+  const readAloud = useReadAloud();
+  const listenValue = useMemo(() => ({
+    hear: listen ? (word: string) => readAloud.say(`word:${word}`, word) : null,
+    playing: readAloud.readingKey?.startsWith('word:') ? readAloud.readingKey.slice(5) : null,
+  }), [listen, readAloud]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
@@ -39,7 +60,7 @@ export default function DigraphSort({
     useSensor(MouseSensor, { activationConstraint: { distance: 4 } }),
   );
 
-  const unsorted = content.words.filter(w => placements[w.word] === null);
+  const unsorted = ordered.filter(w => placements[w.word] === null);
   const allPlaced = Object.values(placements).every(v => v !== null);
 
   const handleDragStart = (e: DragStartEvent) => {
@@ -69,13 +90,18 @@ export default function DigraphSort({
   const activeWordData = activeWord ? content.words.find(w => w.word === activeWord) : null;
 
   return (
+    <ListenContext.Provider value={listenValue}>
     <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
       <div className="space-y-5 py-2">
         <div className="font-display text-[22px] text-bark text-center" style={{ fontWeight: 600 }}>
-          {content.promptText}
+          {/* The seeded prompts talk about "words"; by ear there are none
+              on screen, so say what to listen for instead. */}
+          {listen
+            ? `Listen! Which sound do you hear: ${content.digraphs.join(', ').replace(/, ([^,]*)$/, ', or $1')}?`
+            : content.promptText}
         </div>
         <div className="font-display italic text-[13px] text-bark/55 text-center tracking-[0.15em] uppercase -mt-3">
-          drag each word into a bucket
+          {listen ? 'tap a picture to hear it, then drag it to its letters' : 'drag each word into a bucket'}
         </div>
 
         {/* Buckets */}
@@ -85,10 +111,7 @@ export default function DigraphSort({
               key={dg}
               id={dg}
               label={dg}
-              words={Object.entries(placements)
-                .filter(([, d]) => d === dg)
-                .map(([word]) => content.words.find(w => w.word === word)!)
-                .filter(Boolean)}
+              words={ordered.filter(w => placements[w.word] === dg)}
               isDragging={!!activeWord}
             />
           ))}
@@ -109,9 +132,10 @@ export default function DigraphSort({
 
       {/* Drag overlay — the floating card that follows the pointer */}
       <DragOverlay dropAnimation={{ duration: 180, easing: 'cubic-bezier(0.22, 0.9, 0.34, 1)' }}>
-        {activeWordData && <DraggingCard word={activeWordData.word} emoji={activeWordData.emoji} />}
+        {activeWordData && <DraggingCard word={activeWordData.word} emoji={activeWordData.emoji} listen={listen} />}
       </DragOverlay>
     </DndContext>
+    </ListenContext.Provider>
   );
 }
 
@@ -196,6 +220,26 @@ function UnsortedPool({
 
 function DraggableWord({ word, emoji }: { word: string; emoji?: string }) {
   const { attributes, listeners, setNodeRef, isDragging } = useDraggable({ id: word });
+  const { hear, playing } = useContext(ListenContext);
+  if (hear) {
+    // Picture only. A tap (no movement) says the word; a drag sorts it.
+    return (
+      <button
+        ref={setNodeRef}
+        {...listeners}
+        {...attributes}
+        onClick={() => hear(word)}
+        className={`bg-white border-2 rounded-xl px-2 py-1 select-none cursor-grab active:cursor-grabbing inline-flex items-center gap-1 ${
+          playing === word ? 'border-forest ring-2 ring-forest/40' : 'border-ochre'
+        } ${isDragging ? 'opacity-30' : ''}`}
+        style={{ touchAction: 'none', minHeight: 64, minWidth: 76 }}
+        aria-label="a picture: tap to hear its word, drag it to sort it"
+      >
+        <span className="text-[36px] leading-none" aria-hidden>{emoji}</span>
+        <SpeakerGlyph />
+      </button>
+    );
+  }
   return (
     <button
       ref={setNodeRef}
@@ -213,8 +257,27 @@ function DraggableWord({ word, emoji }: { word: string; emoji?: string }) {
   );
 }
 
+/** A small drawn speaker — "this one talks". */
+function SpeakerGlyph() {
+  return (
+    <svg viewBox="0 0 20 20" width={16} height={16} aria-hidden>
+      <path d="M 3 7.5 h 3 l 4 -3.5 v 12 l -4 -3.5 h -3 Z" fill="#3f2614" />
+      <path d="M 12.5 7 q 2 3 0 6 M 14.5 5 q 3.6 5 0 10" stroke="#3f2614"
+            strokeWidth="1.5" fill="none" strokeLinecap="round" />
+    </svg>
+  );
+}
+
 // The floating card shown while dragging
-function DraggingCard({ word, emoji }: { word: string; emoji?: string }) {
+function DraggingCard({ word, emoji, listen }: { word: string; emoji?: string; listen: boolean }) {
+  if (listen) {
+    return (
+      <div className="bg-white border-2 border-forest rounded-xl px-2 py-1 shadow-lg inline-flex items-center"
+           style={{ minHeight: 64, minWidth: 76 }}>
+        <span className="text-[36px] leading-none">{emoji}</span>
+      </div>
+    );
+  }
   return (
     <div
       className="bg-white border-2 border-forest rounded-xl px-3 py-1.5 text-sm font-display shadow-lg"
